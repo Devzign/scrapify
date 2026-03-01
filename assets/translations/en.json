@@ -1,0 +1,164 @@
+{
+  "common": {
+    "continue": "Continue",
+    "next": "NEXT",
+    "help": "Help",
+    "needHelp": "Need Help?",
+    "or": "OR",
+    "start": "Start",
+    "skip": "Skip"
+  },
+  "language": {
+    "title": "Choose Language",
+    "subtitle": "Select your preferred language to continue"
+  },
+  "login": {
+    "welcome": "Welcome to",
+    "app_name": "Scrapify",
+    "subtitle": "Enter your number to schedule a\npickup.",
+    "phone_hint": "Mobile Number",
+    "get_otp": "GET OTP",
+    "verify_otp": "Verify OTP",
+    "enter_otp_hint": "Enter 6 digit OTP",
+    "resend_otp": "Resend OTP",
+    "continue_google": "Continue with Google"
+  },
+  "dashboard": {
+    "eco_badge": "Eco-Friendly Service",
+    "book_pickup": "Book a Pickup",
+    "book_pickup_desc": "Schedule a pickup for your\nscrap items today.",
+    "what_to_sell": "What do you want to sell?",
+    "view_all": "View all",
+    "active_request": "Active Request",
+    "assigned": "Assigned",
+    "pickup_scheduled": "Pickup scheduled",
+    "track": "Track",
+    "book_now_fab": "Book Now",
+    "categories": {
+      "metal": "Metal Scrap",
+      "ewaste": "E-Waste",
+      "paper": "Paper & Cardboard",
+      "iron": "Iron / Steel",
+      "plastic": "Plastic",
+      "appliances": "Appliances"
+    },
+    "nav": {
+      "home": "Home",
+      "orders": "Orders",
+      "rates": "Rates",
+      "profile": "Profile"
+    }
+  },
+  "pickup": {
+    "title": "Schedule Pickup",
+    "step_2_of_4": "Step 2 of 4",
+    "50_complete": "50% complete",
+    "how_much_weight": "How much weight?",
+    "small_load": "Small Load",
+    "small_load_desc": "Less than 10kg (e.g. 1-2 bags)",
+    "medium_load": "Medium Load",
+    "medium_load_desc": "10kg - 20kg (e.g. 3-4 bags)",
+    "large_load": "Large Load",
+    "large_load_desc": "20kg+ (Bulk pickup)",
+    "ensure_dry": "Ensure items are dry and separated."
+  },
+  "upload": {
+    "title": "Upload Photos",
+    "heading": "Upload Item Photos",
+    "desc": "Please upload clear photos for better pricing.",
+    "click_photo": "Click Photo",
+    "tap_camera": "Tap here to open camera",
+    "gallery": "Select from Gallery",
+    "tips_title": "Photo Tips",
+    "good_lighting": "Good Lighting",
+    "separate_items": "Separate Items",
+    "no_blur": "No Blur"
+  },
+  "splash": {
+    "subtitle": "Remove scrap, get cash!",
+    "footer": "E-Waste & Scrap Collection"
+  },
+  "role": {
+    "title": "Select Your Role",
+    "subtitle": "Choose how you want to use Scrapify",
+    "customer": {
+      "title": "Customer",
+      "desc": "I want to sell my scrap"
+    },
+    "partner": {
+      "title": "Pickup Partner",
+      "desc": "I want to collect scrap"
+    },
+    "warehouse": {
+      "title": "Warehouse",
+      "desc": "I manage warehouse inventory"
+    },
+    "dealer": {
+      "title": "Scrap Partner",
+      "desc": "I want to buy scrap in bulk"
+    }
+  },
+  "success": {
+    "title": "Pickup Scheduled!",
+    "desc": "Your scrap collection request has been successfully confirmed.",
+    "date": "DATE",
+    "time": "TIME",
+    "ref": "REFERENCE ID",
+    "back_home": "Back to Home"
+  },
+  "tracking": {
+    "title": "Track Pickup",
+    "map_placeholder": "Map View Placeholder",
+    "status_assigned": "Assigned",
+    "collection_progress": "Collection in Progress",
+    "est_arrival": "Estimated arrival: 15-20 mins",
+    "step_1_title": "Request Sent",
+    "step_1_sub": "Today, 10:00 AM",
+    "step_2_title": "Agent Assigned",
+    "step_2_sub": "Ramesh is on the way",
+    "step_3_title": "Pickup in Progress",
+    "step_3_sub": "Pending arrival",
+    "need_help": "Need help with this order?",
+    "call_agent": "CALL AGENT",
+    "agent_details": "Tata Ace • GJ-01-AB-1234"
+  },
+  "pickup_dashboard": {
+    "title": "Pickup Dashboard",
+    "active": "Active",
+    "offline": "Offline",
+    "pending": "Pending",
+    "completed": "Completed",
+    "no_completed": "No completed pickups yet.",
+    "items": "Items:",
+    "est_weight": "Est. Weight:",
+    "reschedule": "Reschedule",
+    "start_pickup": "Start Pickup",
+    "away": "away",
+    "today": "Today,"
+  },
+  "profile": {
+    "title": "Profile",
+    "total_scrap": "Total Scrap Sold",
+    "my_orders": "My Orders",
+    "addresses": "Addresses",
+    "language": "Language",
+    "help_support": "Help & Support",
+    "about_us": "About Us",
+    "logout": "Logout"
+  },
+  "date_time": {
+    "title": "Select Schedule",
+    "select_date": "Select Date",
+    "select_time": "Select Time",
+    "confirm_pickup": "Confirm Pickup"
+  },
+  "onboarding": {
+    "step1_title": "Sell from Home",
+    "step1_desc": "Sell your scrap and e-waste easily without going anywhere. Schedule a pickup in just a few clicks.",
+    "step2_title": "Best Prices",
+    "step2_desc": "Get transparent and fair market prices for your metal and electronic waste.",
+    "step3_title": "Instant Payment",
+    "step3_desc": "Receive money directly in your bank account after the pickup.",
+    "get_started": "Get Started"
+  }
+}
