@@ -1,0 +1,7 @@
+// This file is at ios/ — includes are relative to this location
+#include "Flutter/Debug.xcconfig"
+
+// ── Dev flavor overrides ──────────────────────────────────────────────────────
+FLUTTER_TARGET=lib/main_dev.dart
+APP_DISPLAY_NAME=Scrapify Dev
+PRODUCT_BUNDLE_IDENTIFIER=com.abhyuthanam.scrapify.dev

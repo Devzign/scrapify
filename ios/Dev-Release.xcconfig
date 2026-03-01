@@ -1,0 +1,7 @@
+// Release-Dev: includes both Pods (release-dev) and Flutter Release xcconfigs
+#include "Pods/Target Support Files/Pods-Runner/Pods-Runner.release-dev.xcconfig"
+#include "Flutter/Release.xcconfig"
+
+FLUTTER_TARGET=lib/main_dev.dart
+APP_DISPLAY_NAME=Scrapify Dev
+PRODUCT_BUNDLE_IDENTIFIER=com.abhyuthanam.scrapify.dev

@@ -1,0 +1,9 @@
+// Target-level xcconfig for Dev flavor.
+// The Pods xcconfig (Pods-Runner.debug-dev.xcconfig) must be set at the
+// PROJECT level (blue Runner row → "None" → pick Pods-Runner.debug-dev.xcconfig).
+#include "Debug.xcconfig"
+
+// ── Dev flavor overrides ──────────────────────────────────────────────────────
+FLUTTER_TARGET=lib/main_dev.dart
+APP_DISPLAY_NAME=Scrapify Dev
+PRODUCT_BUNDLE_IDENTIFIER=com.abhyuthanam.scrapify.dev
