@@ -31,7 +31,7 @@ class AppConfig {
         AppFlavor.production => 'Scrapify',
       },
       baseUrl: switch (flavor) {
-        AppFlavor.dev        => 'https://dev-api.scrapify.com',
+        AppFlavor.dev        => 'http://127.0.0.1:8000',
         AppFlavor.staging    => 'https://staging-api.scrapify.com',
         AppFlavor.production => 'https://api.scrapify.com',
       },

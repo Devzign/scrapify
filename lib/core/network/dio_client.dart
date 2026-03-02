@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_config.dart';
 import 'api_exceptions.dart';
 import 'api_response.dart';
 
@@ -8,13 +9,10 @@ import 'api_response.dart';
 class DioClient {
   late final Dio _dio;
 
-  // Ideally, read this from an environment variables configuration (.env)
-  static const String _baseUrl = 'https://floralwhite-spoonbill-935004.hostingersite.com/api';
-
   DioClient() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: _baseUrl,
+        baseUrl: AppConfig.instance.baseUrl,
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
         sendTimeout: const Duration(seconds: 15),

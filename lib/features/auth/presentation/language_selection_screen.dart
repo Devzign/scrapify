@@ -23,23 +23,24 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
       backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 32.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: 20.h),
               // Icon Logo
               Container(
-                height: 80.w,
-                width: 80.w,
+                height: 120.w,
+                width: 120.w,
                 decoration: BoxDecoration(
                   color: AppTheme.primaryLight,
                   shape: BoxShape.circle,
                 ),
-                child: const FaIcon(
+                alignment: Alignment.center,
+                child: FaIcon(
                   FontAwesomeIcons.recycle,
                   color: AppTheme.primaryColor,
-                  size: 40,
+                  size: 48.sp,
                 ),
               ),
               SizedBox(height: 16.h),
@@ -161,10 +162,14 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
           _selectedLanguage = id;
         });
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: isSelected
+              ? AppTheme.primaryColor.withValues(alpha: 0.05)
+              : Colors.white,
           borderRadius: BorderRadius.circular(32),
           border: Border.all(
             color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
@@ -172,7 +177,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -185,30 +190,36 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
               height: 48,
               width: 48,
               decoration: BoxDecoration(
-                color: AppTheme.backgroundLight,
+                color: isSelected
+                    ? AppTheme.primaryColor.withValues(alpha: 0.12)
+                    : AppTheme.backgroundLight,
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
               child: Text(
                 iconLabel,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  color: isSelected
+                      ? AppTheme.primaryColor
+                      : AppTheme.textPrimary,
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : AppTheme.textPrimary,
                     ),
                   ),
                   Text(
@@ -221,22 +232,29 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                 ],
               ),
             ),
-            // Radio/Check
-            Container(
-              height: 24,
-              width: 24,
+            const SizedBox(width: 8),
+            // Radio/Check — fixed size so it never clips
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 26,
+              width: 26,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isSelected
                       ? AppTheme.primaryColor
                       : Colors.grey.shade300,
-                  width: isSelected ? 0 : 2,
+                  width: 2,
                 ),
                 color: isSelected ? AppTheme.primaryColor : Colors.transparent,
               ),
+              alignment: Alignment.center,
               child: isSelected
-                  ? const FaIcon(FontAwesomeIcons.check, color: Colors.white, size: 16)
+                  ? const FaIcon(
+                      FontAwesomeIcons.check,
+                      color: Colors.white,
+                      size: 12,
+                    )
                   : null,
             ),
           ],
