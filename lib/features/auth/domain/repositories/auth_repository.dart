@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/network/api_response.dart';
@@ -8,6 +11,7 @@ class AuthRepository {
   
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
+  static const String _onboardingKey = 'has_seen_onboarding';
 
   AuthRepository(this._apiClient);
 
@@ -44,6 +48,7 @@ class AuthRepository {
       data: {
         'phone': phone,
         'otp': otp,
+        'device_name': kIsWeb ? 'Web' : Platform.operatingSystem,
       },
     );
 
@@ -54,6 +59,10 @@ class AuthRepository {
         final user = User.fromJson(data['user']);
         
         await _saveSession(token, user);
+        
+        // Also set onboarding seen if login successful
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(_onboardingKey, true);
         
         return ApiResponse.success(user);
       } catch (e) {
@@ -70,6 +79,8 @@ class AuthRepository {
     if (response.isSuccess) {
       try {
         final user = User.fromJson(response.data['data']);
+        // Update local user data
+        await _saveUser(user);
         return ApiResponse.success(user);
       } catch (e) {
         return ApiResponse.error('Failed to parse user data');
@@ -90,8 +101,25 @@ class AuthRepository {
   Future<void> _saveSession(String token, User user) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
-    // Ideally save user data too, or just refetch on boot
-    // await prefs.setString(_userKey, jsonEncode(user.toJson()));
+    await prefs.setString(_userKey, jsonEncode(user.toJson()));
+  }
+
+  Future<void> _saveUser(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userKey, jsonEncode(user.toJson()));
+  }
+
+  Future<User?> getUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userStr = prefs.getString(_userKey);
+    if (userStr != null) {
+      try {
+        return User.fromJson(jsonDecode(userStr));
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 
   Future<void> _clearSession() async {

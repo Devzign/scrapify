@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/theme/app_theme.dart';
@@ -38,6 +39,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     },
   ];
 
+  Future<void> _completeOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_seen_onboarding', true);
+    if (mounted) {
+      context.go(AppRoutes.language);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Align(
               alignment: Alignment.topRight,
               child: TextButton(
-                onPressed: () => context.go(AppRoutes.language),
+                onPressed: _completeOnboarding,
                 child: const Text(
                   'Skip',
                   style: TextStyle(
@@ -149,7 +158,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           : 'Next  →',
                       onPressed: () {
                         if (_currentPage == _onboardingData.length - 1) {
-                          context.go(AppRoutes.language);
+                          _completeOnboarding();
                         } else {
                           _pageController.nextPage(
                             duration: const Duration(milliseconds: 300),

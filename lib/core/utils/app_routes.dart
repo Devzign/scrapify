@@ -20,7 +20,11 @@ import '../../features/pickup/presentation/rate_pickup_screen.dart';
 import '../../features/pickup/presentation/pickup_details_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/profile/presentation/user_profile_screen.dart';
-
+import '../../features/profile/presentation/saved_addresses_screen.dart';
+import '../../features/profile/presentation/add_address_screen.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
+import '../../features/profile/presentation/settings_screen.dart';
+import '../../features/profile/presentation/faq_screen.dart';
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
@@ -42,6 +46,11 @@ class AppRoutes {
   static const String materialPriceList = '/pricing/materials';
   static const String notifications = '/notifications';
   static const String profile = '/profile';
+  static const String savedAddresses = '/profile/addresses';
+  static const String addAddress = '/profile/addresses/add';
+  static const String editProfile = '/profile/edit';
+  static const String settings = '/profile/settings';
+  static const String faq = '/profile/faq';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -129,6 +138,26 @@ class AppRoutes {
       GoRoute(
         path: profile,
         builder: (context, state) => const UserProfileScreen(),
+      ),
+      GoRoute(
+        path: savedAddresses,
+        builder: (context, state) => const SavedAddressesScreen(),
+      ),
+      GoRoute(
+        path: addAddress,
+        builder: (context, state) => const AddAddressScreen(),
+      ),
+      GoRoute(
+        path: editProfile,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: settings,
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: faq,
+        builder: (context, state) => const FaqScreen(),
       ),
     ],
   );

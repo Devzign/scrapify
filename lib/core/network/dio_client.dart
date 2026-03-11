@@ -31,31 +31,31 @@ class DioClient {
           String? token = prefs.getString('auth_token');
           
           if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token'; // JWT Format
+            options.headers['Authorization'] = 'Bearer $token';
           }
 
           if (kDebugMode) {
-            print('--> ${options.method.toUpperCase()} ${options.baseUrl}${options.path}');
-            print('Headers: ${options.headers}');
+            debugPrint('--> [REQUEST] ${options.method.toUpperCase()} ${options.baseUrl}${options.path}');
+            debugPrint('Headers: ${options.headers}');
             if (options.data != null) {
-              print('Body: ${options.data}');
+              debugPrint('Request Body: ${options.data}');
             }
           }
           return handler.next(options);
         },
         onResponse: (response, handler) {
           if (kDebugMode) {
-            print('<-- ${response.statusCode} ${response.requestOptions.path}');
-            print('Response: ${response.data}');
+            debugPrint('<-- [RESPONSE] ${response.statusCode} ${response.requestOptions.baseUrl}${response.requestOptions.path}');
+            debugPrint('Response Body: ${response.data}');
           }
           return handler.next(response);
         },
         onError: (DioException e, handler) {
           if (kDebugMode) {
-            print('<-- Error ${e.response?.statusCode} ${e.requestOptions.path}');
-            print('Error Message: ${e.message}');
+            debugPrint('<-- [ERROR] ${e.response?.statusCode} ${e.requestOptions.baseUrl}${e.requestOptions.path}');
+            debugPrint('Error Message: ${e.message}');
             if (e.response?.data != null) {
-              print('Error Data: ${e.response?.data}');
+              debugPrint('Error Data: ${e.response?.data}');
             }
           }
 

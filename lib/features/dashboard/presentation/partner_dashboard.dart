@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/utils/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
 
 class PartnerDashboard extends StatelessWidget {
@@ -25,7 +27,7 @@ class PartnerDashboard extends StatelessWidget {
           Stack(
             alignment: Alignment.center,
             children: [
-              IconButton(icon: const FaIcon(FontAwesomeIcons.bell, color: AppTheme.textPrimary), onPressed: () {}),
+              IconButton(icon: const FaIcon(FontAwesomeIcons.bell, color: AppTheme.textPrimary), onPressed: () => context.push(AppRoutes.notifications)),
               Positioned(top: 12, right: 12, child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle))),
             ],
           ),

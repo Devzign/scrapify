@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -5,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
+
 import '../../../core/utils/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
@@ -20,6 +23,7 @@ class LoginOtpScreen extends ConsumerStatefulWidget {
 
 class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
   final TextEditingController _phoneController = TextEditingController();
+  final FocusNode _phoneFocusNode = FocusNode();
   bool _otpSent = false;
   bool _isLoading = false;
   String? _phoneError;
@@ -29,6 +33,11 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
   final FocusNode _otpFocusNode = FocusNode();
   String _otpValue = '';
   bool _otpError = false; // turns boxes red on failed verification
+
+  // ── Timer State ─────────────────────────────────────────────────────────────
+  Timer? _timer;
+  int _start = 30;
+  bool _canResendOtp = false;
 
   @override
   void initState() {
@@ -40,10 +49,32 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
 
   @override
   void dispose() {
+    _timer?.cancel();
     _phoneController.dispose();
+    _phoneFocusNode.dispose();
     _otpController.dispose();
     _otpFocusNode.dispose();
     super.dispose();
+  }
+
+  // ── Timer Logic ──────────────────────────────────────────────────────────────
+
+  void _startTimer() {
+    _start = 30;
+    _canResendOtp = false;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      if (_start == 0) {
+        setState(() {
+          _canResendOtp = true;
+          timer.cancel();
+        });
+      } else {
+        setState(() {
+          _start--;
+        });
+      }
+    });
   }
 
   // ── Phone validation ─────────────────────────────────────────────────────────
@@ -72,15 +103,17 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
     final authRepo = ref.read(authRepositoryProvider);
     final selectedRole = widget.role ?? 'customer';
     final response = await authRepo.sendOtp(phone: phone, role: selectedRole);
+    if (!mounted) return;
     setState(() => _isLoading = false);
 
     if (response.isSuccess) {
       setState(() => _otpSent = true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('OTP: ${response.data}')),
-      );
+      _startTimer();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('OTP: ${response.data}')));
       Future.delayed(const Duration(milliseconds: 100), () {
-        _otpFocusNode.requestFocus();
+        if (mounted) _otpFocusNode.requestFocus();
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -93,9 +126,9 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
     final phone = _phoneController.text.trim();
     final otp = _otpValue;
 
-    if (otp.length < 4) {
+    if (otp.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the complete 4-digit OTP.')),
+        const SnackBar(content: Text('Please enter the complete 6-digit OTP.')),
       );
       return;
     }
@@ -103,6 +136,7 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
     setState(() => _isLoading = true);
     final authNotifier = ref.read(authProvider.notifier);
     final success = await authNotifier.login(phone, otp);
+    if (!mounted) return;
     setState(() => _isLoading = false);
 
     if (success) {
@@ -123,7 +157,8 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
       setState(() => _otpError = true);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Invalid OTP or login failed. Please try again.')),
+          content: Text('Invalid OTP or login failed. Please try again.'),
+        ),
       );
     }
   }
@@ -141,15 +176,15 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
-                    color: Colors.white, strokeWidth: 2),
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    _otpSent
-                        ? 'login.verify_otp'.tr()
-                        : 'login.get_otp'.tr(),
+                    _otpSent ? 'login.verify_otp'.tr() : 'login.get_otp'.tr(),
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(width: 8),
@@ -160,6 +195,21 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
     );
   }
 
+  KeyboardActionsConfig _buildConfig(BuildContext context) {
+    return KeyboardActionsConfig(
+      keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
+      keyboardBarColor: Colors.grey[200],
+      nextFocus: false,
+      actions: [
+        KeyboardActionsItem(
+          focusNode: _phoneFocusNode,
+          displayArrows: false,
+          displayDoneButton: true,
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,9 +217,11 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
       // ── Button pinned to the bottom ────────────────────────────────────────
       bottomNavigationBar: _buildActionButton(),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding:
-              const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+        child: KeyboardActions(
+          config: _buildConfig(context),
+          disableScroll: true,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -230,7 +282,9 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
                     : 'login.subtitle'.tr(),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                    fontSize: 16, color: AppTheme.textSecondary),
+                  fontSize: 16,
+                  color: AppTheme.textSecondary,
+                ),
               ),
               SizedBox(height: 32.h),
 
@@ -243,13 +297,15 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
                   padding: const EdgeInsets.only(left: 12),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline,
-                          color: Colors.red, size: 14),
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 14,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         _phoneError!,
-                        style:
-                            const TextStyle(color: Colors.red, fontSize: 12),
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
                       ),
                     ],
                   ),
@@ -258,14 +314,16 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
 
               SizedBox(height: 16.h),
 
-              // ── OTP 4-Box Input ──────────────────────────────────────────────
+              // ── OTP 6-Box Input ──────────────────────────────────────────────
               if (_otpSent) ...[
                 _buildOtpSection(),
                 SizedBox(height: 24.h),
+                _buildResendOtpSection(),
+                SizedBox(height: 24.h),
               ],
-
             ],
           ),
+        ),
         ),
       ),
     );
@@ -289,12 +347,16 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
             padding: const EdgeInsets.only(left: 16.0, right: 8.0),
             child: Row(
               children: [
-                FaIcon(FontAwesomeIcons.flag,
-                    color: Colors.green.shade800, size: 20),
+                FaIcon(
+                  FontAwesomeIcons.flag,
+                  color: Colors.green.shade800,
+                  size: 20,
+                ),
                 const SizedBox(width: 8),
-                const Text('+91',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 16)),
+                const Text(
+                  '+91',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ],
             ),
           ),
@@ -302,7 +364,9 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
           Expanded(
             child: TextField(
               controller: _phoneController,
+              focusNode: _phoneFocusNode,
               keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
               enabled: !_otpSent,
               maxLength: 10,
               inputFormatters: [
@@ -324,7 +388,9 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
                 filled: false,
                 counterText: '',
                 contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 16),
+                  horizontal: 16,
+                  vertical: 16,
+                ),
               ),
             ),
           ),
@@ -333,10 +399,10 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
     );
   }
 
-  // ── OTP Section: hidden field + 4 display boxes ──────────────────────────────
+  // ── OTP Section: hidden field + 6 display boxes ──────────────────────────────
   //
   // A zero-size TextField captures all keyboard input.
-  // The 4 Container boxes are pure display widgets — NO TextField inside them,
+  // The 6 Container boxes are pure display widgets — NO TextField inside them,
   // so there is zero possibility of any cursor / selection / circle artifact.
 
   Widget _buildOtpSection() {
@@ -355,12 +421,12 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
                 controller: _otpController,
                 focusNode: _otpFocusNode,
                 keyboardType: TextInputType.number,
-                maxLength: 4,
+                maxLength: 6,
                 showCursor: false,
                 autofocus: false,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(4),
+                  LengthLimitingTextInputFormatter(6),
                 ],
                 decoration: const InputDecoration(
                   border: InputBorder.none,
@@ -371,7 +437,7 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
                     _otpValue = v;
                     _otpError = false; // clear error as user re-types
                   });
-                  if (v.length == 4) {
+                  if (v.length == 6) {
                     _otpFocusNode.unfocus();
                     _verifyOtp();
                   }
@@ -379,19 +445,57 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
               ),
             ),
           ),
-          // ── 4 display boxes ─────────────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(4, (i) => _buildDisplayBox(i)),
+            children: List.generate(6, (i) => Padding(
+              padding: EdgeInsets.symmetric(horizontal: 2.w),
+              child: _buildDisplayBox(i),
+            )),
           ),
         ],
       ),
     );
   }
 
+  // ── Resend OTP Section ───────────────────────────────────────────────────────
+
+  Widget _buildResendOtpSection() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          "Didn't receive the code? ",
+          style: TextStyle(
+            color: AppTheme.textSecondary,
+            fontSize: 14.sp,
+          ),
+        ),
+        _canResendOtp
+            ? GestureDetector(
+                onTap: _sendOtp,
+                child: Text(
+                  "Resend OTP",
+                  style: TextStyle(
+                    color: AppTheme.primaryColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              )
+            : Text(
+                "Resend in $_start s",
+                style: TextStyle(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.5),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
+                ),
+              ),
+      ],
+    );
+  }
+
   Widget _buildDisplayBox(int index) {
-    final digit =
-        index < _otpValue.length ? _otpValue[index] : '';
+    final digit = index < _otpValue.length ? _otpValue[index] : '';
     final isCurrent =
         _otpFocusNode.hasFocus && index == _otpValue.length.clamp(0, 3);
     final isFilled = digit.isNotEmpty;
@@ -400,21 +504,21 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
     final Color borderColor = _otpError
         ? Colors.red
         : isCurrent
-            ? AppTheme.primaryColor
-            : isFilled
-                ? AppTheme.primaryColor.withValues(alpha: 0.5)
-                : Colors.grey.shade300;
+        ? AppTheme.primaryColor
+        : isFilled
+        ? AppTheme.primaryColor.withValues(alpha: 0.5)
+        : Colors.grey.shade300;
 
     final Color bgColor = _otpError
         ? Colors.red.withValues(alpha: 0.05)
         : isCurrent
-            ? AppTheme.primaryColor.withValues(alpha: 0.05)
-            : Colors.white;
+        ? AppTheme.primaryColor.withValues(alpha: 0.05)
+        : Colors.white;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      width: 60.w,
-      height: 60.w,
+      width: 45.w,
+      height: 55.w,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
@@ -431,14 +535,14 @@ class _LoginOtpScreenState extends ConsumerState<LoginOtpScreen> {
                 ),
               ]
             : isCurrent
-                ? [
-                    BoxShadow(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : [],
+            ? [
+                BoxShadow(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.15),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : [],
       ),
       alignment: Alignment.center,
       child: Text(

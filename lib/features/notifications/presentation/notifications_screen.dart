@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:easy_localization/easy_localization.dart';
 import '../../../core/theme/app_theme.dart';
 
 class NotificationsScreen extends StatelessWidget {
@@ -12,9 +13,9 @@ class NotificationsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text('Notifications', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 24)),
-            Text('सूचनाएं', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13, fontWeight: FontWeight.bold)),
+          children: [
+            Text('notifications.title'.tr(), style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 24)),
+            Text('notifications.title_hi'.tr(), style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13, fontWeight: FontWeight.bold)),
           ],
         ),
         actions: [
@@ -25,10 +26,10 @@ class NotificationsScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(16)),
                 child: Row(
-                  children: const [
-                    FaIcon(FontAwesomeIcons.checkDouble, size: 10, color: Colors.green),
-                    SizedBox(width: 6),
-                    Text('Mark all read', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                  children: [
+                    const FaIcon(FontAwesomeIcons.checkDouble, size: 10, color: Colors.green),
+                    const SizedBox(width: 6),
+                    Text('notifications.mark_all_read'.tr(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -44,7 +45,7 @@ class NotificationsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('TODAY / आज', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textSecondary, letterSpacing: 1.1)),
+            Text('${'notifications.today'.tr()} / ${'notifications.today_hi'.tr()}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textSecondary, letterSpacing: 1.1)),
             const SizedBox(height: 16),
             
             _buildNotificationCard(
@@ -53,10 +54,10 @@ class NotificationsScreen extends StatelessWidget {
               iconBg: Colors.green.shade200,
               cardBg: Colors.green.shade50,
               borderColor: Colors.green.shade200,
-              enTitle: 'Agent Arriving',
-              hiTitle: 'एजेंट आ रहा है',
-              desc: 'Your pickup agent is 5 mins away.',
-              time: '10 mins ago',
+              enTitle: 'notifications.agent_arriving'.tr(),
+              hiTitle: 'notifications.agent_arriving_hi'.tr(),
+              desc: 'notifications.agent_arriving_desc'.tr(),
+              time: 'notifications.time_mins_ago'.tr(args: ['10']),
               isUnread: true,
             ),
             const SizedBox(height: 16),
@@ -66,15 +67,15 @@ class NotificationsScreen extends StatelessWidget {
               iconColor: Colors.blue.shade700,
               iconBg: Colors.blue.shade100,
               cardBg: Colors.white,
-              enTitle: 'Booking Confirmed',
-              hiTitle: 'बुकिंग पक्की हो गई',
-              desc: 'Pickup scheduled for tomorrow, 10 AM.',
-              time: '1 hr ago',
+              enTitle: 'notifications.booking_confirmed'.tr(),
+              hiTitle: 'notifications.booking_confirmed_hi'.tr(),
+              desc: 'notifications.booking_confirmed_desc'.tr(),
+              time: 'notifications.time_hr_ago'.tr(args: ['1']),
               isUnread: false,
             ),
             
             const SizedBox(height: 32),
-            const Text('YESTERDAY / कल', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textSecondary, letterSpacing: 1.1)),
+            Text('${'notifications.yesterday'.tr()} / ${'notifications.yesterday_hi'.tr()}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textSecondary, letterSpacing: 1.1)),
             const SizedBox(height: 16),
             
             _buildNotificationCard(
@@ -82,10 +83,10 @@ class NotificationsScreen extends StatelessWidget {
               iconColor: Colors.orange.shade700,
               iconBg: Colors.orange.shade100,
               cardBg: Colors.white,
-              enTitle: 'Payment Received',
-              hiTitle: 'भुगतान प्राप्त हुआ',
-              desc: '₹450 added to your wallet.',
-              time: 'Yesterday',
+              enTitle: 'notifications.payment_received'.tr(),
+              hiTitle: 'notifications.payment_received_hi'.tr(),
+              desc: 'notifications.payment_received_desc'.tr(),
+              time: 'notifications.time_yesterday'.tr(),
               isUnread: false,
             ),
             const SizedBox(height: 16),
@@ -95,10 +96,10 @@ class NotificationsScreen extends StatelessWidget {
               iconColor: Colors.grey.shade700,
               iconBg: Colors.grey.shade200,
               cardBg: Colors.white,
-              enTitle: 'Special Offer',
-              hiTitle: 'विशेष प्रस्ताव',
-              desc: 'Get extra 10% on copper waste this week.',
-              time: '2 days ago',
+              enTitle: 'notifications.special_offer'.tr(),
+              hiTitle: 'notifications.special_offer_hi'.tr(),
+              desc: 'notifications.special_offer_desc'.tr(),
+              time: 'notifications.time_days_ago'.tr(args: ['2']),
               isUnread: false,
             ),
             
@@ -106,7 +107,6 @@ class NotificationsScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _buildMockNavBar(),
     );
   }
 
@@ -168,64 +168,6 @@ class NotificationsScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildMockNavBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -4))],
-      ),
-      child: SafeArea(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _navItem(icon: FontAwesomeIcons.house, label: 'Home', isActive: false),
-            _navItem(icon: FontAwesomeIcons.calendarCheck, label: 'Book', isActive: false),
-            _navItem(icon: FontAwesomeIcons.solidBell, label: 'Alerts', isActive: true, showDot: true),
-            _navItem(icon: FontAwesomeIcons.wallet, label: 'Wallet', isActive: false),
-            _navItem(icon: FontAwesomeIcons.solidUser, label: 'Profile', isActive: false),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _navItem({required IconData icon, required String label, required bool isActive, bool showDot = false}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Container(
-              padding: isActive ? const EdgeInsets.symmetric(horizontal: 16, vertical: 8) : EdgeInsets.zero,
-              decoration: BoxDecoration(
-                color: isActive ? Colors.green.shade50 : Colors.transparent,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: FaIcon(icon, color: isActive ? Colors.green : Colors.grey.shade400, size: 20),
-            ),
-            if (showDot)
-              Positioned(
-                top: 0,
-                right: isActive ? 12 : -2,
-                child: Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle)),
-              ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: isActive ? Colors.green : Colors.grey.shade500,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-            fontSize: 10,
-          ),
-        ),
-      ],
     );
   }
 }

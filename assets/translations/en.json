@@ -34,6 +34,10 @@
     "pickup_scheduled": "Pickup scheduled",
     "track": "Track",
     "book_now_fab": "Book Now",
+    "nav_home": "Home",
+    "nav_menu": "Menu",
+    "nav_order": "Order",
+    "nav_profile": "Profile",
     "categories": {
       "metal": "Metal Scrap",
       "ewaste": "E-Waste",
@@ -138,13 +142,22 @@
   },
   "profile": {
     "title": "Profile",
+    "verified_user": "Verified User",
     "total_scrap": "Total Scrap Sold",
+    "account_settings": "ACCOUNT SETTINGS",
     "my_orders": "My Orders",
-    "addresses": "Addresses",
+    "addresses": "Address Book",
+    "addresses_desc": "Manage pickup locations",
+    "bank_details": "Bank Details",
+    "bank_details_desc": "Manage UPI & Bank Info",
     "language": "Language",
+    "language_desc": "English (Default)",
+    "support_other": "SUPPORT & OTHER",
     "help_support": "Help & Support",
+    "faq_desc": "FAQs & Customer Care",
     "about_us": "About Us",
-    "logout": "Logout"
+    "logout": "Logout",
+    "app_version": "App Version"
   },
   "date_time": {
     "title": "Select Schedule",
@@ -160,5 +173,110 @@
     "step3_title": "Instant Payment",
     "step3_desc": "Receive money directly in your bank account after the pickup.",
     "get_started": "Get Started"
+  },
+  "edit_profile": {
+    "title": "Edit Profile",
+    "change_photo": "Change Photo",
+    "full_name": "Full Name",
+    "name_hint": "Enter your name",
+    "email": "Email",
+    "email_hint": "email@example.com",
+    "phone": "Phone Number",
+    "phone_locked": "Cannot be changed for security",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "other": "Other",
+    "save": "SAVE CHANGES"
+  },
+  "settings": {
+    "title": "Settings",
+    "language_title": "App Language",
+    "preferences": "Preferences",
+    "notifications": "Notifications",
+    "notifications_desc": "Updates on pickup status",
+    "dark_mode": "Dark Mode",
+    "dark_mode_desc": "Easier on the eyes",
+    "save": "Save Changes"
+  },
+  "faq": {
+    "title": "FAQ",
+    "search_hint": "Search help",
+    "categories": {
+      "all": "All",
+      "pickups": "Pickups",
+      "pricing": "Pricing",
+      "payments": "Payments",
+      "account": "Account"
+    },
+    "q1": {
+      "question": "How to book a pickup?",
+      "answer": "Go to the home screen, tap 'Schedule', and select your items from the list. Choose a date and time that works for you."
+    },
+    "q2": {
+      "question": "What are the scrap rates?",
+      "answer": "Rates are updated daily based on market prices. You can check the current rates in the 'Price List' tab at the bottom."
+    },
+    "q3": {
+      "question": "How do I get paid?",
+      "answer": "Payment is made instantly via UPI (GPay, PhonePe, Paytm) or cash at the time of pickup once the items are weighed."
+    },
+    "q4": {
+      "question": "Can I reschedule my pickup?",
+      "answer": "Yes, go to 'My Pickups', select the active booking, and tap 'Reschedule'. You can change the time up to 1 hour before arrival."
+    },
+    "q5": {
+      "question": "What items do you NOT collect?",
+      "answer": "We currently do not accept glass, wood, or hazardous medical waste. Please check the 'Restricted Items' list."
+    },
+    "chat_support": "Still need help? Chat with us"
+  },
+  "address_book": {
+    "title": "My Addresses",
+    "home": "Home",
+    "work": "Work",
+    "warehouse": "Warehouse",
+    "edit": "Edit",
+    "delete": "Delete",
+    "info": "Addresses help our scrap collectors find you quickly. Keep them updated for faster pickups.",
+    "add_new": "Add New Address",
+    "add": {
+      "title": "Add New Address",
+      "map_hint": "Drag map to adjust pin",
+      "house_no": "House/Flat No.",
+      "house_no_hint": "e.g., B-204",
+      "street": "Street/Area",
+      "street_hint": "e.g., MG Road, Indiranagar",
+      "landmark": "Landmark",
+      "landmark_hint": "Near Apollo Pharmacy",
+      "optional": "(Optional)",
+      "save_as": "Save as",
+      "save_btn": "SAVE ADDRESS"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "title_hi": "सूचनाएं",
+    "mark_all_read": "Mark all read",
+    "today": "TODAY",
+    "today_hi": "आज",
+    "yesterday": "YESTERDAY",
+    "yesterday_hi": "कल",
+    "agent_arriving": "Agent Arriving",
+    "agent_arriving_hi": "एजेंट आ रहा है",
+    "agent_arriving_desc": "Your pickup agent is 5 mins away.",
+    "booking_confirmed": "Booking Confirmed",
+    "booking_confirmed_hi": "बुकिंग पक्की हो गई",
+    "booking_confirmed_desc": "Pickup scheduled for tomorrow, 10 AM.",
+    "payment_received": "Payment Received",
+    "payment_received_hi": "भुगतान प्राप्त हुआ",
+    "payment_received_desc": "₹450 added to your wallet.",
+    "special_offer": "Special Offer",
+    "special_offer_hi": "विशेष प्रस्ताव",
+    "special_offer_desc": "Get extra 10% on copper waste this week.",
+    "time_mins_ago": "{} mins ago",
+    "time_hr_ago": "{} hr ago",
+    "time_days_ago": "{} days ago",
+    "time_yesterday": "Yesterday"
   }
 }

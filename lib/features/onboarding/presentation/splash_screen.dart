@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 
@@ -21,8 +24,42 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _navigateToNext() async {
     await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      // In a real app, this would check auth state / first time open.
+    if (!mounted) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('auth_token');
+    final bool hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+
+    if (token != null && token.isNotEmpty) {
+      // Get role from saved user data
+      final userStr = prefs.getString('user_data');
+      String role = 'customer';
+      if (userStr != null) {
+        try {
+          final userData = Map<String, dynamic>.from(
+            (const JsonDecoder().convert(userStr)) as Map,
+          );
+          final roles = userData['roles'] as List?;
+          if (roles != null && roles.isNotEmpty) {
+            role = roles.first.toString();
+          }
+        } catch (e) {
+          debugPrint('Error parsing user data: $e');
+        }
+      }
+
+      if (role == 'pickup_partner' || role == 'pickup_boy') {
+        context.go(AppRoutes.pickupDashboard);
+      } else if (role == 'warehouse') {
+        context.go(AppRoutes.warehouseDashboard);
+      } else if (role == 'dealer') {
+        context.go(AppRoutes.partnerDashboard);
+      } else {
+        context.go(AppRoutes.customerDashboard);
+      }
+    } else if (hasSeenOnboarding) {
+      context.go(AppRoutes.language);
+    } else {
       context.go(AppRoutes.onboarding);
     }
   }
