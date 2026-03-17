@@ -13,7 +13,10 @@ class PickupTrackingScreen extends StatelessWidget {
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -43,9 +46,16 @@ class PickupTrackingScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        FaIcon(FontAwesomeIcons.mapLocationDot, size: 48, color: Colors.grey.shade400),
+                        FaIcon(
+                          FontAwesomeIcons.mapLocationDot,
+                          size: 48,
+                          color: Colors.grey.shade400,
+                        ),
                         const SizedBox(height: 8),
-                        Text('tracking.map_placeholder'.tr(), style: TextStyle(color: Colors.grey.shade500)),
+                        Text(
+                          'tracking.map_placeholder'.tr(),
+                          style: TextStyle(color: Colors.grey.shade500),
+                        ),
                       ],
                     ),
                   ),
@@ -53,7 +63,10 @@ class PickupTrackingScreen extends StatelessWidget {
                 Positioned(
                   bottom: -20,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: AppTheme.primaryColor,
                       borderRadius: BorderRadius.circular(20),
@@ -68,7 +81,11 @@ class PickupTrackingScreen extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const FaIcon(FontAwesomeIcons.truck, color: Colors.white, size: 14),
+                        const FaIcon(
+                          FontAwesomeIcons.truck,
+                          color: Colors.white,
+                          size: 14,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'tracking.status_assigned'.tr(),
@@ -84,7 +101,7 @@ class PickupTrackingScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 48),
 
             // Status Headers
@@ -144,29 +161,43 @@ class PickupTrackingScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // Bottom Action Section
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        const FaIcon(FontAwesomeIcons.solidCircleQuestion, color: Colors.grey, size: 18),
+                        const FaIcon(
+                          FontAwesomeIcons.solidCircleQuestion,
+                          color: Colors.grey,
+                          size: 18,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             'tracking.need_help'.tr(),
-                            style: const TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500),
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
-                        const FaIcon(FontAwesomeIcons.chevronRight, color: Colors.grey, size: 14),
+                        const FaIcon(
+                          FontAwesomeIcons.chevronRight,
+                          color: Colors.grey,
+                          size: 14,
+                        ),
                       ],
                     ),
                   ),
@@ -218,23 +249,14 @@ class PickupTrackingScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: iconBgColor,
                   shape: BoxShape.circle,
-                  border: isLast ? Border.all(color: Colors.grey.shade300, width: 2) : null,
+                  border: isLast
+                      ? Border.all(color: Colors.grey.shade300, width: 2)
+                      : null,
                 ),
-                child: Center(
-                  child: FaIcon(
-                    icon,
-                    color: iconColor,
-                    size: 14,
-                  ),
-                ),
+                child: Center(child: FaIcon(icon, color: iconColor, size: 14)),
               ),
               if (!isLast)
-                Expanded(
-                  child: Container(
-                    width: 2,
-                    color: lineColor,
-                  ),
-                ),
+                Expanded(child: Container(width: 2, color: lineColor)),
             ],
           ),
           const SizedBox(width: 16),
@@ -256,15 +278,9 @@ class PickupTrackingScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppTheme.textSecondary,
-                  ),
+                  style: TextStyle(fontSize: 14, color: AppTheme.textSecondary),
                 ),
-                if (child != null) ...[
-                  const SizedBox(height: 12),
-                  child,
-                ],
+                if (child != null) ...[const SizedBox(height: 12), child],
                 const SizedBox(height: 24), // Spacing for next step
               ],
             ),
@@ -295,7 +311,9 @@ class PickupTrackingScreen extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Colors.grey.shade300,
                   image: const DecorationImage(
-                    image: NetworkImage('https://i.pravatar.cc/100?img=11'), // Mock avatar
+                    image: NetworkImage(
+                      'https://i.pravatar.cc/100?img=11',
+                    ), // Mock avatar
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -305,7 +323,10 @@ class PickupTrackingScreen extends StatelessWidget {
                 left: 0,
                 right: 0,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.amber,
                     borderRadius: BorderRadius.circular(8),
@@ -317,7 +338,10 @@ class PickupTrackingScreen extends StatelessWidget {
                     children: const [
                       Text(
                         '4.8',
-                        style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       SizedBox(width: 2),
                       Icon(Icons.star, size: 8),

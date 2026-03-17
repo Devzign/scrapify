@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
+import '../utils/app_logger.dart';
 import 'api_exceptions.dart';
 import 'api_response.dart';
 
@@ -29,39 +30,45 @@ class DioClient {
           // Fetch token from local storage and append it
           final prefs = await SharedPreferences.getInstance();
           String? token = prefs.getString('auth_token');
-          
+
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
 
           if (kDebugMode) {
-            debugPrint('--> [REQUEST] ${options.method.toUpperCase()} ${options.baseUrl}${options.path}');
-            debugPrint('Headers: ${options.headers}');
+            AppLogger.info(
+              '--> [REQUEST] ${options.method.toUpperCase()} ${options.baseUrl}${options.path}',
+            );
+            AppLogger.info('Headers: ${options.headers}');
             if (options.data != null) {
-              debugPrint('Request Body: ${options.data}');
+              AppLogger.info('Request Body: ${options.data}');
             }
           }
           return handler.next(options);
         },
         onResponse: (response, handler) {
           if (kDebugMode) {
-            debugPrint('<-- [RESPONSE] ${response.statusCode} ${response.requestOptions.baseUrl}${response.requestOptions.path}');
-            debugPrint('Response Body: ${response.data}');
+            AppLogger.info(
+              '<-- [RESPONSE] ${response.statusCode} ${response.requestOptions.baseUrl}${response.requestOptions.path}',
+            );
+            AppLogger.info('Response Body: ${response.data}');
           }
           return handler.next(response);
         },
         onError: (DioException e, handler) {
           if (kDebugMode) {
-            debugPrint('<-- [ERROR] ${e.response?.statusCode} ${e.requestOptions.baseUrl}${e.requestOptions.path}');
-            debugPrint('Error Message: ${e.message}');
+            AppLogger.error(
+              '<-- [ERROR] ${e.response?.statusCode} ${e.requestOptions.baseUrl}${e.requestOptions.path}',
+            );
+            AppLogger.error('Error Message: ${e.message}');
             if (e.response?.data != null) {
-              debugPrint('Error Data: ${e.response?.data}');
+              AppLogger.error('Error Data: ${e.response?.data}');
             }
           }
 
           // Format error using custom handler before passing up stream
           final customException = ApiErrorHandler.handle(e);
-          
+
           return handler.next(
             DioException(
               requestOptions: e.requestOptions,

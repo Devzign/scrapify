@@ -34,7 +34,10 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -72,11 +75,14 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                           scrollDirection: Axis.horizontal,
                           itemCount: 7, // Show 7 upcoming days
                           itemBuilder: (context, index) {
-                            final date = DateTime.now().add(Duration(days: index));
-                            final isSelected = _selectedDate?.year == date.year &&
+                            final date = DateTime.now().add(
+                              Duration(days: index),
+                            );
+                            final isSelected =
+                                _selectedDate?.year == date.year &&
                                 _selectedDate?.month == date.month &&
                                 _selectedDate?.day == date.day;
-                            
+
                             return GestureDetector(
                               onTap: () {
                                 setState(() {
@@ -87,16 +93,21 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                                 width: 70,
                                 margin: const EdgeInsets.only(right: 12),
                                 decoration: BoxDecoration(
-                                  color: isSelected ? AppTheme.primaryColor : Colors.white,
+                                  color: isSelected
+                                      ? AppTheme.primaryColor
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: isSelected ? AppTheme.primaryColor : Colors.grey.shade300,
+                                    color: isSelected
+                                        ? AppTheme.primaryColor
+                                        : Colors.grey.shade300,
                                     width: 1.5,
                                   ),
                                   boxShadow: isSelected
                                       ? [
                                           BoxShadow(
-                                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                                            color: AppTheme.primaryColor
+                                                .withValues(alpha: 0.3),
                                             blurRadius: 8,
                                             offset: const Offset(0, 4),
                                           ),
@@ -107,11 +118,15 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      DateFormat('MMM').format(date).toUpperCase(),
+                                      DateFormat(
+                                        'MMM',
+                                      ).format(date).toUpperCase(),
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
-                                        color: isSelected ? Colors.white : AppTheme.textSecondary,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : AppTheme.textSecondary,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
@@ -120,7 +135,9 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                                       style: TextStyle(
                                         fontSize: 22,
                                         fontWeight: FontWeight.w900,
-                                        color: isSelected ? Colors.white : AppTheme.textPrimary,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : AppTheme.textPrimary,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -129,7 +146,11 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
-                                        color: isSelected ? Colors.white.withValues(alpha: 0.8) : AppTheme.textSecondary,
+                                        color: isSelected
+                                            ? Colors.white.withValues(
+                                                alpha: 0.8,
+                                              )
+                                            : AppTheme.textSecondary,
                                       ),
                                     ),
                                   ],
@@ -139,7 +160,7 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                           },
                         ),
                       ),
-                      
+
                       const SizedBox(height: 40),
 
                       // --- Time Selection ---
@@ -163,12 +184,19 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                             },
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
                               decoration: BoxDecoration(
-                                color: isSelected ? AppTheme.primaryLight : Colors.white,
+                                color: isSelected
+                                    ? AppTheme.primaryLight
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: isSelected ? AppTheme.primaryColor : Colors.grey.shade300,
+                                  color: isSelected
+                                      ? AppTheme.primaryColor
+                                      : Colors.grey.shade300,
                                   width: 1.5,
                                 ),
                               ),
@@ -176,7 +204,9 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                                 children: [
                                   FaIcon(
                                     FontAwesomeIcons.clock,
-                                    color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondary,
+                                    color: isSelected
+                                        ? AppTheme.primaryColor
+                                        : AppTheme.textSecondary,
                                     size: 20,
                                   ),
                                   const SizedBox(width: 16),
@@ -185,8 +215,12 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                                       time,
                                       style: TextStyle(
                                         fontSize: 16,
-                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                        color: isSelected ? AppTheme.primaryColor : AppTheme.textPrimary,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.w500,
+                                        color: isSelected
+                                            ? AppTheme.primaryColor
+                                            : AppTheme.textPrimary,
                                       ),
                                     ),
                                   ),
@@ -214,7 +248,7 @@ class _SelectDateTimeScreenState extends State<SelectDateTimeScreen> {
                 ),
               ),
             ),
-            
+
             // --- Bottom Button ---
             Container(
               padding: const EdgeInsets.all(24.0),

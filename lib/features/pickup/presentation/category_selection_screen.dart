@@ -14,7 +14,10 @@ class CategorySelectionScreen extends StatelessWidget {
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -30,7 +33,10 @@ class CategorySelectionScreen extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const FaIcon(FontAwesomeIcons.bell, color: AppTheme.textPrimary),
+                icon: const FaIcon(
+                  FontAwesomeIcons.bell,
+                  color: AppTheme.textPrimary,
+                ),
                 onPressed: () {},
               ),
               Positioned(
@@ -73,7 +79,7 @@ class CategorySelectionScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // Grid of categories
             GridView.count(
               crossAxisCount: 2,
@@ -109,9 +115,9 @@ class CategorySelectionScreen extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // View All Categories
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -128,7 +134,10 @@ class CategorySelectionScreen extends StatelessWidget {
                       color: AppTheme.backgroundLight,
                       shape: BoxShape.circle,
                     ),
-                    child: const FaIcon(FontAwesomeIcons.ellipsis, color: AppTheme.textSecondary),
+                    child: const FaIcon(
+                      FontAwesomeIcons.ellipsis,
+                      color: AppTheme.textSecondary,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -153,11 +162,15 @@ class CategorySelectionScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const FaIcon(FontAwesomeIcons.chevronRight, color: Colors.grey, size: 16),
+                  const FaIcon(
+                    FontAwesomeIcons.chevronRight,
+                    color: Colors.grey,
+                    size: 16,
+                  ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 100), // Padding for Bottom Nav
           ],
         ),
@@ -169,10 +182,22 @@ class CategorySelectionScreen extends StatelessWidget {
         unselectedItemColor: Colors.grey.shade400,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.listCheck), label: 'Orders'),
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.indianRupeeSign), label: 'Rates'),
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.user), label: 'Profile'),
+          BottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.house),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.listCheck),
+            label: 'Orders',
+          ),
+          BottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.indianRupeeSign),
+            label: 'Rates',
+          ),
+          BottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.user),
+            label: 'Profile',
+          ),
         ],
       ),
     );

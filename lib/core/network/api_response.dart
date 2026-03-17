@@ -4,11 +4,7 @@ class ApiResponse<T> {
   final String? errorMessage;
   final int? statusCode;
 
-  ApiResponse({
-    this.data,
-    this.errorMessage,
-    this.statusCode,
-  });
+  ApiResponse({this.data, this.errorMessage, this.statusCode});
 
   /// Check if the API call was successful
   bool get isSuccess => errorMessage == null && data != null;
@@ -18,17 +14,11 @@ class ApiResponse<T> {
 
   /// Factory method for successful responses
   factory ApiResponse.success(T data, {int? statusCode}) {
-    return ApiResponse(
-      data: data,
-      statusCode: statusCode,
-    );
+    return ApiResponse(data: data, statusCode: statusCode);
   }
 
   /// Factory method for failed responses
   factory ApiResponse.error(String message, {int? statusCode}) {
-    return ApiResponse(
-      errorMessage: message,
-      statusCode: statusCode,
-    );
+    return ApiResponse(errorMessage: message, statusCode: statusCode);
   }
 }

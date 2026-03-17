@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/onboarding/presentation/splash_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
@@ -25,6 +24,7 @@ import '../../features/profile/presentation/add_address_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/faq_screen.dart';
+
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
@@ -55,10 +55,7 @@ class AppRoutes {
   static final router = GoRouter(
     initialLocation: splash,
     routes: [
-      GoRoute(
-        path: splash,
-        builder: (context, state) => const SplashScreen(),
-      ),
+      GoRoute(path: splash, builder: (context, state) => const SplashScreen()),
       GoRoute(
         path: onboarding,
         builder: (context, state) => const OnboardingScreen(),
@@ -155,24 +152,7 @@ class AppRoutes {
         path: settings,
         builder: (context, state) => const SettingsScreen(),
       ),
-      GoRoute(
-        path: faq,
-        builder: (context, state) => const FaqScreen(),
-      ),
+      GoRoute(path: faq, builder: (context, state) => const FaqScreen()),
     ],
   );
-}
-
-// Temporary Placeholder to avoid errors before screens are built
-class PlaceholderScreen extends StatelessWidget {
-  final String title;
-  const PlaceholderScreen({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('Screen: $title')),
-    );
-  }
 }

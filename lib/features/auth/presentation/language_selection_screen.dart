@@ -1,38 +1,36 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:easy_localization/easy_localization.dart';
-import '../../../core/utils/app_routes.dart';
-import '../../../core/theme/app_theme.dart';
 
-class LanguageSelectionScreen extends StatefulWidget {
+import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_routes.dart';
+import 'view_models/language_selection_view_model.dart';
+import 'widgets/language_option_card.dart';
+
+class LanguageSelectionScreen extends ConsumerWidget {
   const LanguageSelectionScreen({super.key});
 
   @override
-  State<LanguageSelectionScreen> createState() =>
-      _LanguageSelectionScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(languageSelectionViewModelProvider);
+    final viewModel = ref.read(languageSelectionViewModelProvider.notifier);
 
-class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
-  String _selectedLanguage = 'en';
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 32.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(height: 20.h),
-              // Icon Logo
               Container(
                 height: 120.w,
                 width: 120.w,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppTheme.primaryLight,
                   shape: BoxShape.circle,
                 ),
@@ -75,34 +73,25 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 32.h),
-
-              // English Card
-              _buildLanguageCard(
-                context,
-                id: 'en',
+              LanguageOptionCard(
                 iconLabel: 'A',
                 title: 'English',
                 subtitle: 'English',
-                isSelected: _selectedLanguage == 'en',
+                isSelected: state.selectedLanguage == 'en',
+                onTap: () => viewModel.selectLanguage('en'),
               ),
               SizedBox(height: 16.h),
-
-              // Hindi Card
-              _buildLanguageCard(
-                context,
-                id: 'hi',
+              LanguageOptionCard(
                 iconLabel: 'अ',
                 title: 'हिंदी',
                 subtitle: 'Hindi',
-                isSelected: _selectedLanguage == 'hi',
+                isSelected: state.selectedLanguage == 'hi',
+                onTap: () => viewModel.selectLanguage('hi'),
               ),
-
               const Spacer(),
-
-              // Continue Button
               ElevatedButton(
                 onPressed: () async {
-                  await context.setLocale(Locale(_selectedLanguage));
+                  await context.setLocale(Locale(state.selectedLanguage));
                   if (context.mounted) {
                     context.push(AppRoutes.role);
                   }
@@ -111,8 +100,8 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '${'common.continue'.tr(gender: 'en')}  /  आगे बढ़ें',
-                      style: TextStyle(fontSize: 16),
+                      "${'common.continue'.tr(gender: 'en')}  /  आगे बढ़ें",
+                      style: const TextStyle(fontSize: 16),
                     ),
                     const SizedBox(width: 8),
                     const FaIcon(FontAwesomeIcons.arrowRight, size: 20),
@@ -120,8 +109,6 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
                 ),
               ),
               SizedBox(height: 24.h),
-
-              // Need Help
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -143,121 +130,6 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLanguageCard(
-    BuildContext context, {
-    required String id,
-    required String iconLabel,
-    required String title,
-    required String subtitle,
-    required bool isSelected,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedLanguage = id;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryColor.withValues(alpha: 0.05)
-              : Colors.white,
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(
-            color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
-            width: isSelected ? 2 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            // Letter Icon
-            Container(
-              height: 48,
-              width: 48,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppTheme.primaryColor.withValues(alpha: 0.12)
-                    : AppTheme.backgroundLight,
-                shape: BoxShape.circle,
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                iconLabel,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? AppTheme.primaryColor
-                      : AppTheme.textPrimary,
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: isSelected
-                          ? AppTheme.primaryColor
-                          : AppTheme.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppTheme.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8),
-            // Radio/Check — fixed size so it never clips
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              height: 26,
-              width: 26,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected
-                      ? AppTheme.primaryColor
-                      : Colors.grey.shade300,
-                  width: 2,
-                ),
-                color: isSelected ? AppTheme.primaryColor : Colors.transparent,
-              ),
-              alignment: Alignment.center,
-              child: isSelected
-                  ? const FaIcon(
-                      FontAwesomeIcons.check,
-                      color: Colors.white,
-                      size: 12,
-                    )
-                  : null,
-            ),
-          ],
         ),
       ),
     );

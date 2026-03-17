@@ -19,7 +19,11 @@ class User {
       name: json['name'] ?? '',
       phone: json['phone'] ?? '',
       email: json['email'],
-      roles: (json['roles'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      roles:
+          (json['roles'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
     );
   }
 

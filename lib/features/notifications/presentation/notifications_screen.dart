@@ -14,8 +14,22 @@ class NotificationsScreen extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('notifications.title'.tr(), style: const TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 24)),
-            Text('notifications.title_hi'.tr(), style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13, fontWeight: FontWeight.bold)),
+            Text(
+              'notifications.title'.tr(),
+              style: const TextStyle(
+                color: AppTheme.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 24,
+              ),
+            ),
+            Text(
+              'notifications.title_hi'.tr(),
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         actions: [
@@ -23,13 +37,29 @@ class NotificationsScreen extends StatelessWidget {
             padding: const EdgeInsets.only(right: 20),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(16)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Row(
                   children: [
-                    const FaIcon(FontAwesomeIcons.checkDouble, size: 10, color: Colors.green),
+                    const FaIcon(
+                      FontAwesomeIcons.checkDouble,
+                      size: 10,
+                      color: Colors.green,
+                    ),
                     const SizedBox(width: 6),
-                    Text('notifications.mark_all_read'.tr(), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text(
+                      'notifications.mark_all_read'.tr(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -45,9 +75,17 @@ class NotificationsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${'notifications.today'.tr()} / ${'notifications.today_hi'.tr()}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textSecondary, letterSpacing: 1.1)),
+            Text(
+              '${'notifications.today'.tr()} / ${'notifications.today_hi'.tr()}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textSecondary,
+                letterSpacing: 1.1,
+              ),
+            ),
             const SizedBox(height: 16),
-            
+
             _buildNotificationCard(
               icon: FontAwesomeIcons.truckFast,
               iconColor: Colors.green.shade700,
@@ -61,7 +99,7 @@ class NotificationsScreen extends StatelessWidget {
               isUnread: true,
             ),
             const SizedBox(height: 16),
-            
+
             _buildNotificationCard(
               icon: FontAwesomeIcons.squareCheck,
               iconColor: Colors.blue.shade700,
@@ -73,11 +111,19 @@ class NotificationsScreen extends StatelessWidget {
               time: 'notifications.time_hr_ago'.tr(args: ['1']),
               isUnread: false,
             ),
-            
+
             const SizedBox(height: 32),
-            Text('${'notifications.yesterday'.tr()} / ${'notifications.yesterday_hi'.tr()}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textSecondary, letterSpacing: 1.1)),
+            Text(
+              '${'notifications.yesterday'.tr()} / ${'notifications.yesterday_hi'.tr()}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textSecondary,
+                letterSpacing: 1.1,
+              ),
+            ),
             const SizedBox(height: 16),
-            
+
             _buildNotificationCard(
               icon: FontAwesomeIcons.wallet,
               iconColor: Colors.orange.shade700,
@@ -90,7 +136,7 @@ class NotificationsScreen extends StatelessWidget {
               isUnread: false,
             ),
             const SizedBox(height: 16),
-            
+
             _buildNotificationCard(
               icon: FontAwesomeIcons.bullhorn,
               iconColor: Colors.grey.shade700,
@@ -102,7 +148,7 @@ class NotificationsScreen extends StatelessWidget {
               time: 'notifications.time_days_ago'.tr(args: ['2']),
               isUnread: false,
             ),
-            
+
             const SizedBox(height: 100), // padding for navbar
           ],
         ),
@@ -129,7 +175,12 @@ class NotificationsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         border: borderColor != null ? Border.all(color: borderColor) : null,
         boxShadow: [
-          if (borderColor == null) BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 4))
+          if (borderColor == null)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
         ],
       ),
       child: Row(
@@ -148,19 +199,58 @@ class NotificationsScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(enTitle, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    if (isUnread) Container(width: 8, height: 8, decoration: BoxDecoration(color: Colors.green.shade400, shape: BoxShape.circle)),
+                    Text(
+                      enTitle,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    if (isUnread)
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade400,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                   ],
                 ),
-                Text(hiTitle, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textSecondary, fontSize: 13)),
+                Text(
+                  hiTitle,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                Text(desc, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13, height: 1.4)),
+                Text(
+                  desc,
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    const FaIcon(FontAwesomeIcons.clock, size: 10, color: Colors.grey),
+                    const FaIcon(
+                      FontAwesomeIcons.clock,
+                      size: 10,
+                      color: Colors.grey,
+                    ),
                     const SizedBox(width: 4),
-                    Text(time, style: const TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold)),
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ],

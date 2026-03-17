@@ -19,7 +19,7 @@ class SuccessConfirmationScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(),
-              
+
               // Success Icon with decorative elements
               Stack(
                 alignment: Alignment.center,
@@ -97,7 +97,10 @@ class SuccessConfirmationScreen extends StatelessWidget {
 
               // Info Card
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -171,11 +174,7 @@ class SuccessConfirmationScreen extends StatelessWidget {
             color: AppTheme.primaryLight.withValues(alpha: 0.5),
             shape: BoxShape.circle,
           ),
-          child: FaIcon(
-            icon,
-            color: AppTheme.primaryColor,
-            size: 16,
-          ),
+          child: FaIcon(icon, color: AppTheme.primaryColor, size: 16),
         ),
         const SizedBox(width: 16),
         Expanded(

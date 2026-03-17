@@ -1,54 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/utils/app_routes.dart';
-import '../../../core/widgets/custom_button.dart';
-import '../../../core/theme/app_theme.dart';
 
-class OnboardingScreen extends StatefulWidget {
+import '../../../core/widgets/custom_button.dart';
+import 'view_models/onboarding_view_model.dart';
+import 'view_models/onboarding_view_state.dart';
+import 'widgets/onboarding_page_card.dart';
+import 'widgets/onboarding_page_indicator.dart';
+
+class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<OnboardingViewState>(onboardingViewModelProvider, (_, next) {
+      final nextRoute = next.nextRoute;
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+      if (nextRoute == null) {
+        return;
+      }
 
-  final List<Map<String, String>> _onboardingData = [
-    {
-      "title_en": "Sell from Home",
-      "title_hi": "घर बैठे सामान बेचें",
-      "desc": "Sell your scrap and e-waste easily without going anywhere. Schedule a pickup in just a few clicks.",
-      "image": "assets/images/onboarding_1.png", // Replace with real asset later
-    },
-    {
-      "title_en": "Best Prices",
-      "title_hi": "सही दाम पाएँ",
-      "desc": "Get transparent and fair market prices for your metal and electronic waste.",
-      "image": "assets/images/onboarding_2.png",
-    },
-    {
-      "title_en": "Instant Payment",
-      "title_hi": "तुरंत पैसे पाएँ",
-      "desc": "Receive money directly in your bank account after the pickup.",
-      "image": "assets/images/onboarding_3.png",
-    },
-  ];
+      ref.read(onboardingViewModelProvider.notifier).clearNavigation();
+      context.go(nextRoute);
+    });
 
-  Future<void> _completeOnboarding() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('has_seen_onboarding', true);
-    if (mounted) {
-      context.go(AppRoutes.language);
-    }
-  }
+    final state = ref.watch(onboardingViewModelProvider);
+    final viewModel = ref.read(onboardingViewModelProvider.notifier);
+    final isLastPage = state.currentPage == viewModel.pages.length - 1;
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -57,11 +37,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Align(
               alignment: Alignment.topRight,
               child: TextButton(
-                onPressed: _completeOnboarding,
+                onPressed: viewModel.skip,
                 child: const Text(
                   'Skip',
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: Color(0xFF7A7A7A),
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -69,103 +49,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             Expanded(
               child: PageView.builder(
-                controller: _pageController,
-                itemCount: _onboardingData.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
+                controller: viewModel.pageController,
+                itemCount: viewModel.pages.length,
+                onPageChanged: viewModel.onPageChanged,
                 itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Image Placeholder matching new designs
-                        Container(
-                          height: 280.h,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Center(
-                            child: FaIcon(
-                              index == 0
-                                  ? FontAwesomeIcons.boxOpen
-                                  : index == 1
-                                      ? FontAwesomeIcons.moneyBillTrendUp
-                                      : FontAwesomeIcons.buildingColumns,
-                              size: 80,
-                              color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 48.h),
-                        Text(
-                          _onboardingData[index]["title_en"]!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          _onboardingData[index]["title_hi"]!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        SizedBox(height: 16.h),
-                        Text(
-                          _onboardingData[index]["desc"]!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: AppTheme.textSecondary,
-                            height: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+                  return OnboardingPageCard(page: viewModel.pages[index]);
                 },
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
-                      _onboardingData.length,
-                      (index) => _buildDot(index),
+                      viewModel.pages.length,
+                      (index) => OnboardingPageIndicator(
+                        isSelected: state.currentPage == index,
+                      ),
                     ),
                   ),
                   SizedBox(height: 24.h),
                   SizedBox(
                     width: double.infinity,
                     child: CustomButton(
-                      text: _currentPage == _onboardingData.length - 1
+                      text: isLastPage
                           ? 'Get Started  |  शुरू करें  →'
                           : 'Next  →',
-                      onPressed: () {
-                        if (_currentPage == _onboardingData.length - 1) {
-                          _completeOnboarding();
-                        } else {
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
-                      },
+                      onPressed: viewModel.handlePrimaryAction,
                     ),
                   ),
                 ],
@@ -176,20 +88,4 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
   }
-
-  Widget _buildDot(int index) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      height: 8,
-      width: _currentPage == index ? 24 : 8,
-      decoration: BoxDecoration(
-        color: _currentPage == index
-            ? AppTheme.primaryColor
-            : Colors.grey.shade300,
-        borderRadius: BorderRadius.circular(4),
-      ),
-    );
-  }
 }
-

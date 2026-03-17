@@ -32,7 +32,9 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
             Row(
               children: [
                 Text(
-                  _isActive ? 'pickup_dashboard.active'.tr() : 'pickup_dashboard.offline'.tr(),
+                  _isActive
+                      ? 'pickup_dashboard.active'.tr()
+                      : 'pickup_dashboard.offline'.tr(),
                   style: TextStyle(
                     color: _isActive ? AppTheme.primaryColor : Colors.grey,
                     fontWeight: FontWeight.bold,
@@ -43,7 +45,9 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
                   onChanged: (val) {
                     setState(() => _isActive = val);
                   },
-                  activeTrackColor: AppTheme.primaryColor.withValues(alpha: 0.5),
+                  activeTrackColor: AppTheme.primaryColor.withValues(
+                    alpha: 0.5,
+                  ),
                   activeThumbColor: AppTheme.primaryColor,
                 ),
               ],
@@ -56,10 +60,16 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
             indicatorWeight: 3,
             tabs: [
               Tab(
-                child: Text('pickup_dashboard.pending'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(
+                  'pickup_dashboard.pending'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
               Tab(
-                child: Text('pickup_dashboard.completed'.tr(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(
+                  'pickup_dashboard.completed'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
@@ -135,7 +145,7 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Body: Customer Info
           Row(
             children: [
@@ -146,7 +156,9 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
                   color: Colors.grey.shade200,
                   shape: BoxShape.circle,
                   image: DecorationImage(
-                    image: NetworkImage('https://i.pravatar.cc/100?img=${10 + index}'),
+                    image: NetworkImage(
+                      'https://i.pravatar.cc/100?img=${10 + index}',
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -167,11 +179,18 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const FaIcon(FontAwesomeIcons.locationDot, size: 12, color: Colors.grey),
+                        const FaIcon(
+                          FontAwesomeIcons.locationDot,
+                          size: 12,
+                          color: Colors.grey,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '2.5 km ${'pickup_dashboard.away'.tr()}',
-                          style: const TextStyle(color: Colors.grey, fontSize: 13),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -197,7 +216,7 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Details
           Container(
             padding: const EdgeInsets.all(12),
@@ -212,22 +231,40 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('pickup_dashboard.items'.tr(), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                    const Text('Newspaper, E-Waste', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                    Text(
+                      'pickup_dashboard.items'.tr(),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const Text(
+                      'Newspaper, E-Waste',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('pickup_dashboard.est_weight'.tr(), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                    const Text('~ 15 kg', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                    Text(
+                      'pickup_dashboard.est_weight'.tr(),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    const Text(
+                      '~ 15 kg',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Actions
           Row(
             children: [
@@ -253,7 +290,11 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const FaIcon(FontAwesomeIcons.play, size: 14, color: Colors.white),
+                      const FaIcon(
+                        FontAwesomeIcons.play,
+                        size: 14,
+                        color: Colors.white,
+                      ),
                       const SizedBox(width: 8),
                       Text('pickup_dashboard.start_pickup'.tr()),
                     ],
@@ -281,11 +322,7 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: FaIcon(
-          icon,
-          size: 16,
-          color: color,
-        ),
+        child: FaIcon(icon, size: 16, color: color),
       ),
     );
   }

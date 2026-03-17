@@ -19,7 +19,10 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -113,10 +116,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                     const SizedBox(height: 12),
                     Text(
                       'upload.tap_camera'.tr(),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                 ),
@@ -133,14 +133,21 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                 side: BorderSide(color: Colors.grey.shade300),
                 backgroundColor: Colors.white,
               ),
-               child: Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   const FaIcon(FontAwesomeIcons.image, size: 18, color: AppTheme.primaryColor),
-                   const SizedBox(width: 8),
-                   Text(
+                  const FaIcon(
+                    FontAwesomeIcons.image,
+                    size: 18,
+                    color: AppTheme.primaryColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
                     'upload.gallery'.tr(),
-                    style: const TextStyle(fontSize: 14, color: AppTheme.textPrimary),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.textPrimary,
+                    ),
                   ),
                 ],
               ),
@@ -160,7 +167,11 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                 children: [
                   Row(
                     children: [
-                      const FaIcon(FontAwesomeIcons.lightbulb, size: 16, color: AppTheme.primaryColor),
+                      const FaIcon(
+                        FontAwesomeIcons.lightbulb,
+                        size: 16,
+                        color: AppTheme.primaryColor,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         'upload.tips_title'.tr(),
@@ -177,15 +188,24 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _buildTipChip(FontAwesomeIcons.sun, 'upload.good_lighting'.tr()),
-                      _buildTipChip(FontAwesomeIcons.layerGroup, 'upload.separate_items'.tr()),
-                      _buildTipChip(FontAwesomeIcons.eyeSlash, 'upload.no_blur'.tr()),
+                      _buildTipChip(
+                        FontAwesomeIcons.sun,
+                        'upload.good_lighting'.tr(),
+                      ),
+                      _buildTipChip(
+                        FontAwesomeIcons.layerGroup,
+                        'upload.separate_items'.tr(),
+                      ),
+                      _buildTipChip(
+                        FontAwesomeIcons.eyeSlash,
+                        'upload.no_blur'.tr(),
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 48),
           ],
         ),
@@ -229,10 +249,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
           const SizedBox(width: 6),
           Text(
             text,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade700,
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
           ),
         ],
       ),

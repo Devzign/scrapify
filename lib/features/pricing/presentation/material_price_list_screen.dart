@@ -7,13 +7,18 @@ class MaterialPriceListScreen extends StatefulWidget {
   const MaterialPriceListScreen({super.key});
 
   @override
-  State<MaterialPriceListScreen> createState() => _MaterialPriceListScreenState();
+  State<MaterialPriceListScreen> createState() =>
+      _MaterialPriceListScreenState();
 }
 
 class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
   String _selectedCategory = 'All';
-  
-  final List<String> _categories = ['All', 'Metals / धातु', 'Electronics / इलेक्ट्रॉनिक'];
+
+  final List<String> _categories = [
+    'All',
+    'Metals / धातु',
+    'Electronics / इलेक्ट्रॉनिक',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +26,21 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: AppTheme.textPrimary, size: 20),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Material Price List', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 18)),
+        title: const Text(
+          'Material Price List',
+          style: TextStyle(
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Colors.white,
@@ -42,15 +58,22 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
               ),
               child: const TextField(
                 decoration: InputDecoration(
-                  icon: FaIcon(FontAwesomeIcons.magnifyingGlass, size: 16, color: AppTheme.textSecondary),
+                  icon: FaIcon(
+                    FontAwesomeIcons.magnifyingGlass,
+                    size: 16,
+                    color: AppTheme.textSecondary,
+                  ),
                   hintText: 'Search items / सामान खोजें',
-                  hintStyle: TextStyle(color: AppTheme.textSecondary, fontSize: 14),
+                  hintStyle: TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 14,
+                  ),
                   border: InputBorder.none,
                 ),
               ),
             ),
           ),
-          
+
           // Category Filters
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -64,16 +87,25 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
                     onTap: () => setState(() => _selectedCategory = category),
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppTheme.primaryColor : Colors.grey.shade100,
+                        color: isSelected
+                            ? AppTheme.primaryColor
+                            : Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         category,
                         style: TextStyle(
-                          color: isSelected ? Colors.white : AppTheme.textSecondary,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected
+                              ? Colors.white
+                              : AppTheme.textSecondary,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                           fontSize: 13,
                         ),
                       ),
@@ -83,25 +115,43 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
               }).toList(),
             ),
           ),
-          
+
           // Live Rates Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('TODAY\'S RATES / आज के भाव', style: TextStyle(color: AppTheme.textSecondary, fontSize: 11, fontWeight: FontWeight.bold)),
+                const Text(
+                  'TODAY\'S RATES / आज के भाव',
+                  style: TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 Row(
                   children: const [
-                    FaIcon(FontAwesomeIcons.arrowsRotate, size: 10, color: AppTheme.primaryColor),
+                    FaIcon(
+                      FontAwesomeIcons.arrowsRotate,
+                      size: 10,
+                      color: AppTheme.primaryColor,
+                    ),
                     SizedBox(width: 4),
-                    Text('Live', style: TextStyle(color: AppTheme.primaryColor, fontSize: 12, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Live',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
-          
+
           // List of Materials
           Expanded(
             child: ListView(
@@ -193,8 +243,15 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {},
         backgroundColor: AppTheme.primaryColor,
-        icon: const FaIcon(FontAwesomeIcons.truckFast, size: 16, color: Colors.white),
-        label: const Text('Sell Now', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+        icon: const FaIcon(
+          FontAwesomeIcons.truckFast,
+          size: 16,
+          color: Colors.white,
+        ),
+        label: const Text(
+          'Sell Now',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
@@ -224,7 +281,10 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
           Container(
             width: 50,
             height: 50,
-            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Center(child: FaIcon(icon, color: iconColor, size: 24)),
           ),
           const SizedBox(width: 16),
@@ -232,10 +292,26 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(titleEn, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AppTheme.textPrimary)),
-                Text(titleHi, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                Text(
+                  titleEn,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                Text(
+                  titleHi,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(updated, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                Text(
+                  updated,
+                  style: const TextStyle(fontSize: 10, color: Colors.grey),
+                ),
               ],
             ),
           ),
@@ -246,8 +322,21 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppTheme.primaryColor)),
-                  Text(unit, style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary)),
+                  Text(
+                    price,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: AppTheme.primaryColor,
+                    ),
+                  ),
+                  Text(
+                    unit,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),
@@ -255,7 +344,9 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
                 children: [
                   if (isUp != null)
                     FaIcon(
-                      isUp ? FontAwesomeIcons.arrowTrendUp : FontAwesomeIcons.arrowTrendDown,
+                      isUp
+                          ? FontAwesomeIcons.arrowTrendUp
+                          : FontAwesomeIcons.arrowTrendDown,
                       size: 10,
                       color: isUp ? Colors.green : Colors.red,
                     ),
@@ -265,7 +356,11 @@ class _MaterialPriceListScreenState extends State<MaterialPriceListScreen> {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: isUp == true ? Colors.green : (isUp == false ? Colors.red : AppTheme.textSecondary),
+                      color: isUp == true
+                          ? Colors.green
+                          : (isUp == false
+                                ? Colors.red
+                                : AppTheme.textSecondary),
                     ),
                   ),
                 ],

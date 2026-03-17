@@ -32,7 +32,8 @@ class AppConfig {
       },
       baseUrl: switch (flavor) {
         AppFlavor.dev => 'http://127.0.0.1:8000',
-        AppFlavor.staging => 'https://floralwhite-spoonbill-935004.hostingersite.com/api',
+        AppFlavor.staging =>
+          'https://floralwhite-spoonbill-935004.hostingersite.com/api',
         AppFlavor.production => 'https://api.scrapify.com',
       },
     );

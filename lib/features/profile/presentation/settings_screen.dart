@@ -118,7 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              
+
               _buildPreferenceTile(
                 context,
                 title: 'settings.notifications'.tr(),
@@ -160,7 +160,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   colors: [
                     isDark ? const Color(0xFF102213) : const Color(0xFFF6F8F6),
                     isDark ? const Color(0xFF102213) : const Color(0xFFF6F8F6),
-                    (isDark ? const Color(0xFF102213) : const Color(0xFFF6F8F6)).withValues(alpha: 0.0),
+                    (isDark ? const Color(0xFF102213) : const Color(0xFFF6F8F6))
+                        .withValues(alpha: 0.0),
                   ],
                 ),
               ),
@@ -221,11 +222,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
           border: Border.all(
             color: isSelected
                 ? const Color(0xFF13EC30) // primary
-                : (isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFE5E7EB)), // border
+                : (isDark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : const Color(0xFFE5E7EB)), // border
             width: 2,
           ),
           boxShadow: isSelected
-              ? [BoxShadow(color: const Color(0xFF13EC30).withValues(alpha: 0.1), blurRadius: 4)]
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF13EC30).withValues(alpha: 0.1),
+                    blurRadius: 4,
+                  ),
+                ]
               : [],
         ),
         child: Stack(
@@ -240,7 +248,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF13EC30) : (isDark ? Colors.white.withValues(alpha: 0.05) : const Color(0xFFF3F4F6)),
+                    color: isSelected
+                        ? const Color(0xFF13EC30)
+                        : (isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : const Color(0xFFF3F4F6)),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -248,14 +260,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ? Icon(
                             iconData,
                             size: 28,
-                            color: isSelected ? Colors.black : const Color(0xFF9CA3AF),
+                            color: isSelected
+                                ? Colors.black
+                                : const Color(0xFF9CA3AF),
                           )
                         : Text(
                             hindiChar!,
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.black : const Color(0xFF9CA3AF),
+                              color: isSelected
+                                  ? Colors.black
+                                  : const Color(0xFF9CA3AF),
                             ),
                           ),
                   ),
@@ -264,7 +280,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   label,
                   style: TextStyle(
-                    color: isSelected ? (isDark ? const Color(0xFF13EC30) : Colors.black) : (isDark ? Colors.white : const Color(0xFF111812)),
+                    color: isSelected
+                        ? (isDark ? const Color(0xFF13EC30) : Colors.black)
+                        : (isDark ? Colors.white : const Color(0xFF111812)),
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -302,7 +320,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         color: isDark ? const Color(0xFF1A2C1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.1) : const Color(0xFFF3F4F6),
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.1)
+              : const Color(0xFFF3F4F6),
         ),
         boxShadow: [
           BoxShadow(
@@ -318,10 +338,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF13EC30).withValues(alpha: 0.1) : const Color(0xFFF3F4F6),
+              color: isDark
+                  ? const Color(0xFF13EC30).withValues(alpha: 0.1)
+                  : const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(icon, color: isDark ? const Color(0xFF13EC30) : const Color(0xFF4B5563)),
+            child: Icon(
+              icon,
+              color: isDark ? const Color(0xFF13EC30) : const Color(0xFF4B5563),
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -340,7 +365,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+                    color: isDark
+                        ? const Color(0xFF9CA3AF)
+                        : const Color(0xFF6B7280),
                     fontSize: 14,
                   ),
                 ),
@@ -351,20 +378,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: Colors.white,
+            activeThumbColor: Colors.white,
             activeTrackColor: const Color(0xFF13EC30),
             inactiveThumbColor: Colors.white,
-            inactiveTrackColor: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+            inactiveTrackColor: isDark
+                ? const Color(0xFF374151)
+                : const Color(0xFFE5E7EB),
             trackOutlineColor: WidgetStateProperty.resolveWith<Color>((states) {
-               if(states.contains(WidgetState.selected)) {
-                  return Colors.transparent;
-               }
-               return isDark ? const Color(0xFF4B5563) : const Color(0xFFD1D5DB);
+              if (states.contains(WidgetState.selected)) {
+                return Colors.transparent;
+              }
+              return isDark ? const Color(0xFF4B5563) : const Color(0xFFD1D5DB);
             }),
           ),
         ],
       ),
     );
   }
-
 }

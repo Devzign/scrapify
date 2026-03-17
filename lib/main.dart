@@ -65,9 +65,7 @@ class ScrapifyApp extends StatelessWidget {
                 color: Colors.grey.shade100,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding),
-                  child: ClipRect(
-                    child: child ?? const SizedBox.shrink(),
-                  ),
+                  child: ClipRect(child: child ?? const SizedBox.shrink()),
                 ),
               );
             }

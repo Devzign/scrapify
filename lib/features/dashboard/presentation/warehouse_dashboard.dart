@@ -20,7 +20,11 @@ class WarehouseDashboard extends StatelessWidget {
                 color: AppTheme.primaryLight,
                 shape: BoxShape.circle,
               ),
-              child: const FaIcon(FontAwesomeIcons.store, color: AppTheme.primaryColor, size: 16),
+              child: const FaIcon(
+                FontAwesomeIcons.store,
+                color: AppTheme.primaryColor,
+                size: 16,
+              ),
             ),
             const SizedBox(width: 12),
             Column(
@@ -32,7 +36,11 @@ class WarehouseDashboard extends StatelessWidget {
                 ),
                 const Text(
                   'Warehouse Dashboard',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
                 ),
               ],
             ),
@@ -42,11 +50,24 @@ class WarehouseDashboard extends StatelessWidget {
           Stack(
             alignment: Alignment.center,
             children: [
-              IconButton(icon: const FaIcon(FontAwesomeIcons.bell, color: AppTheme.textPrimary), onPressed: () => context.push(AppRoutes.notifications)),
+              IconButton(
+                icon: const FaIcon(
+                  FontAwesomeIcons.bell,
+                  color: AppTheme.textPrimary,
+                ),
+                onPressed: () => context.push(AppRoutes.notifications),
+              ),
               Positioned(
                 top: 12,
                 right: 12,
-                child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle)),
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                ),
               ),
             ],
           ),
@@ -74,11 +95,28 @@ class WarehouseDashboard extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const FaIcon(FontAwesomeIcons.truckFast, color: Colors.white, size: 20),
+                            const FaIcon(
+                              FontAwesomeIcons.truckFast,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                              child: const Text('TODAY', style: TextStyle(color: AppTheme.primaryColor, fontSize: 10, fontWeight: FontWeight.bold)),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Text(
+                                'TODAY',
+                                style: TextStyle(
+                                  color: AppTheme.primaryColor,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -87,13 +125,29 @@ class WarehouseDashboard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
-                            Text('2,400', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+                            Text(
+                              '2,400',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             SizedBox(width: 4),
-                            Text('kg', style: TextStyle(color: Colors.white, fontSize: 16)),
+                            Text(
+                              'kg',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 4),
-                        const Text('Inbound Today', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        const Text(
+                          'Inbound Today',
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
                       ],
                     ),
                   ),
@@ -109,19 +163,39 @@ class WarehouseDashboard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const FaIcon(FontAwesomeIcons.recycle, color: Colors.white, size: 20),
+                        const FaIcon(
+                          FontAwesomeIcons.recycle,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         const SizedBox(height: 24),
                         const Row(
                           crossAxisAlignment: CrossAxisAlignment.baseline,
                           textBaseline: TextBaseline.alphabetic,
                           children: [
-                            Text('150', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+                            Text(
+                              '150',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             SizedBox(width: 4),
-                            Text('Units', style: TextStyle(color: Colors.white, fontSize: 16)),
+                            Text(
+                              'Units',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 4),
-                        const Text('Ready for Processing', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        const Text(
+                          'Ready for Processing',
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
                       ],
                     ),
                   ),
@@ -129,23 +203,40 @@ class WarehouseDashboard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 32),
-            
+
             // Recent Shipments
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Recent Shipments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+                const Text(
+                  'Recent Shipments',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
                 Row(
                   children: const [
-                    Text('Filter', style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
+                    Text(
+                      'Filter',
+                      style: TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
                     SizedBox(width: 4),
-                    FaIcon(FontAwesomeIcons.filter, size: 12, color: AppTheme.textSecondary),
+                    FaIcon(
+                      FontAwesomeIcons.filter,
+                      size: 12,
+                      color: AppTheme.textSecondary,
+                    ),
                   ],
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             _buildShipmentCard(
               title: 'E-Waste Mix',
               id: '#SCR-2049',
@@ -172,7 +263,7 @@ class WarehouseDashboard extends StatelessWidget {
               weight: '800 kg',
               status: 'received',
             ),
-            
+
             const SizedBox(height: 100), // Bottom padding for navbar
           ],
         ),
@@ -196,7 +287,11 @@ class WarehouseDashboard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -206,9 +301,18 @@ class WarehouseDashboard extends StatelessWidget {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: isReceived ? Colors.blue.shade50 : AppTheme.primaryLight, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: isReceived
+                      ? Colors.blue.shade50
+                      : AppTheme.primaryLight,
+                  shape: BoxShape.circle,
+                ),
                 child: FaIcon(
-                  isReceived ? FontAwesomeIcons.batteryFull : (title.contains('Mix') ? FontAwesomeIcons.microchip : FontAwesomeIcons.screwdriverWrench),
+                  isReceived
+                      ? FontAwesomeIcons.batteryFull
+                      : (title.contains('Mix')
+                            ? FontAwesomeIcons.microchip
+                            : FontAwesomeIcons.screwdriverWrench),
                   color: isReceived ? Colors.blue : AppTheme.primaryColor,
                   size: 20,
                 ),
@@ -218,22 +322,41 @@ class WarehouseDashboard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text(id, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                    Text(
+                      id,
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 13,
+                      ),
+                    ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: isReceived ? Colors.green.shade50 : Colors.grey.shade100,
+                  color: isReceived
+                      ? Colors.green.shade50
+                      : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   isReceived ? 'RECEIVED' : weight,
                   style: TextStyle(
-                    color: isReceived ? Colors.green.shade700 : AppTheme.textPrimary,
+                    color: isReceived
+                        ? Colors.green.shade700
+                        : AppTheme.textPrimary,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -246,16 +369,35 @@ class WarehouseDashboard extends StatelessWidget {
           const SizedBox(height: 16),
           Row(
             children: [
-              const FaIcon(FontAwesomeIcons.building, size: 14, color: AppTheme.textSecondary),
+              const FaIcon(
+                FontAwesomeIcons.building,
+                size: 14,
+                color: AppTheme.textSecondary,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Row(
                   children: [
-                    Text(supplier, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                    Text(
+                      supplier,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    const Text('•', style: TextStyle(color: AppTheme.textSecondary)),
+                    const Text(
+                      '•',
+                      style: TextStyle(color: AppTheme.textSecondary),
+                    ),
                     const SizedBox(width: 8),
-                    Text(time, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -270,15 +412,27 @@ class WarehouseDashboard extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryColor,
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    FaIcon(FontAwesomeIcons.circleCheck, color: Colors.white, size: 16),
+                    FaIcon(
+                      FontAwesomeIcons.circleCheck,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                     SizedBox(width: 8),
-                    Text('Confirm Receipt', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text(
+                      'Confirm Receipt',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -294,33 +448,70 @@ class WarehouseDashboard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -4),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _navItem(icon: FontAwesomeIcons.house, label: 'Home', isActive: true),
-            _navItem(icon: FontAwesomeIcons.barcode, label: 'Scan', isActive: false),
+            _navItem(
+              icon: FontAwesomeIcons.house,
+              label: 'Home',
+              isActive: true,
+            ),
+            _navItem(
+              icon: FontAwesomeIcons.barcode,
+              label: 'Scan',
+              isActive: false,
+            ),
             // Floating Action Button Mock inside navbar
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(color: Color(0xFF1E2A5E), shape: BoxShape.circle),
-              child: const FaIcon(FontAwesomeIcons.plus, color: Colors.white, size: 20),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1E2A5E),
+                shape: BoxShape.circle,
+              ),
+              child: const FaIcon(
+                FontAwesomeIcons.plus,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
-            _navItem(icon: FontAwesomeIcons.boxesStacked, label: 'Stock', isActive: false),
-            _navItem(icon: FontAwesomeIcons.solidUser, label: 'Profile', isActive: false),
+            _navItem(
+              icon: FontAwesomeIcons.boxesStacked,
+              label: 'Stock',
+              isActive: false,
+            ),
+            _navItem(
+              icon: FontAwesomeIcons.solidUser,
+              label: 'Profile',
+              isActive: false,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _navItem({required IconData icon, required String label, required bool isActive}) {
+  Widget _navItem({
+    required IconData icon,
+    required String label,
+    required bool isActive,
+  }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        FaIcon(icon, color: isActive ? AppTheme.primaryColor : Colors.grey.shade400, size: 20),
+        FaIcon(
+          icon,
+          color: isActive ? AppTheme.primaryColor : Colors.grey.shade400,
+          size: 20,
+        ),
         const SizedBox(height: 4),
         Text(
           label,

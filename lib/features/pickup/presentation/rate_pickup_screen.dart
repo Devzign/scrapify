@@ -21,10 +21,21 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: AppTheme.textPrimary, size: 20),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Rate Pickup / पिकअप रेट करें', style: TextStyle(color: AppTheme.textPrimary, fontWeight: FontWeight.bold, fontSize: 16)),
+        title: const Text(
+          'Rate Pickup / पिकअप रेट करें',
+          style: TextStyle(
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
@@ -43,25 +54,54 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  FaIcon(FontAwesomeIcons.circleUser, size: 120, color: Colors.green.shade100),
+                  FaIcon(
+                    FontAwesomeIcons.circleUser,
+                    size: 120,
+                    color: Colors.green.shade100,
+                  ),
                   Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.8), shape: BoxShape.circle),
-                    child: const FaIcon(FontAwesomeIcons.recycle, color: AppTheme.primaryColor, size: 40),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const FaIcon(
+                      FontAwesomeIcons.recycle,
+                      color: AppTheme.primaryColor,
+                      size: 40,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 32),
-            
-            const Text('How was your pickup?', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+
+            const Text(
+              'How was your pickup?',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
+            ),
             const SizedBox(height: 8),
-            const Text('पिकअप कैसा रहा?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textSecondary)),
+            const Text(
+              'पिकअप कैसा रहा?',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textSecondary,
+              ),
+            ),
             const SizedBox(height: 16),
             const Text(
               'Rate your experience with Agent Rajesh\nKumar',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: AppTheme.textSecondary, height: 1.5),
+              style: TextStyle(
+                fontSize: 14,
+                color: AppTheme.textSecondary,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 32),
 
@@ -73,7 +113,9 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
                   icon: FaIcon(
                     FontAwesomeIcons.solidStar,
                     size: 40,
-                    color: index < _rating ? AppTheme.primaryColor : Colors.grey.shade300,
+                    color: index < _rating
+                        ? AppTheme.primaryColor
+                        : Colors.grey.shade300,
                   ),
                   onPressed: () => setState(() => _rating = index + 1),
                 );
@@ -81,7 +123,15 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
             ),
             const SizedBox(height: 48),
 
-            const Text('QUICK FEEDBACK / त्वरित प्रतिक्रिया', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppTheme.textSecondary, letterSpacing: 1.1)),
+            const Text(
+              'QUICK FEEDBACK / त्वरित प्रतिक्रिया',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textSecondary,
+                letterSpacing: 1.1,
+              ),
+            ),
             const SizedBox(height: 16),
 
             // Grid of Feedback Chips
@@ -93,10 +143,30 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
               crossAxisSpacing: 16,
               childAspectRatio: 2.2,
               children: [
-                _buildFeedbackChip('On Time', 'समय पर', FontAwesomeIcons.solidClock, isSelected: _selectedFeedback.contains('On Time')),
-                _buildFeedbackChip('Fair Price', 'सही दाम', FontAwesomeIcons.dollarSign, isSelected: _selectedFeedback.contains('Fair Price')),
-                _buildFeedbackChip('Polite', 'अच्छा व्यवहार', FontAwesomeIcons.solidFaceSmile, isSelected: _selectedFeedback.contains('Polite')),
-                _buildFeedbackChip('Clean', 'सफाई', FontAwesomeIcons.broom, isSelected: _selectedFeedback.contains('Clean')),
+                _buildFeedbackChip(
+                  'On Time',
+                  'समय पर',
+                  FontAwesomeIcons.solidClock,
+                  isSelected: _selectedFeedback.contains('On Time'),
+                ),
+                _buildFeedbackChip(
+                  'Fair Price',
+                  'सही दाम',
+                  FontAwesomeIcons.dollarSign,
+                  isSelected: _selectedFeedback.contains('Fair Price'),
+                ),
+                _buildFeedbackChip(
+                  'Polite',
+                  'अच्छा व्यवहार',
+                  FontAwesomeIcons.solidFaceSmile,
+                  isSelected: _selectedFeedback.contains('Polite'),
+                ),
+                _buildFeedbackChip(
+                  'Clean',
+                  'सफाई',
+                  FontAwesomeIcons.broom,
+                  isSelected: _selectedFeedback.contains('Clean'),
+                ),
               ],
             ),
             const SizedBox(height: 24),
@@ -111,7 +181,10 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
                 maxLines: 4,
                 decoration: InputDecoration(
                   hintText: 'Write a comment... / अपनी बात लिखें...',
-                  hintStyle: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                  hintStyle: TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 13,
+                  ),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(16),
                 ),
@@ -121,7 +194,10 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
               alignment: Alignment.centerRight,
               child: Padding(
                 padding: EdgeInsets.only(top: 8),
-                child: Text('0/200', style: TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+                child: Text(
+                  '0/200',
+                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+                ),
               ),
             ),
             const SizedBox(height: 40),
@@ -142,7 +218,12 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
     );
   }
 
-  Widget _buildFeedbackChip(String en, String hi, IconData icon, {required bool isSelected}) {
+  Widget _buildFeedbackChip(
+    String en,
+    String hi,
+    IconData icon, {
+    required bool isSelected,
+  }) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -157,16 +238,40 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
       child: Container(
         decoration: BoxDecoration(
           color: isSelected ? AppTheme.primaryLight : Colors.white,
-          border: Border.all(color: isSelected ? AppTheme.primaryColor : Colors.grey.shade300, width: isSelected ? 2 : 1),
+          border: Border.all(
+            color: isSelected ? AppTheme.primaryColor : Colors.grey.shade300,
+            width: isSelected ? 2 : 1,
+          ),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FaIcon(icon, size: 20, color: isSelected ? AppTheme.primaryColor : Colors.grey.shade400),
+            FaIcon(
+              icon,
+              size: 20,
+              color: isSelected ? AppTheme.primaryColor : Colors.grey.shade400,
+            ),
             const SizedBox(height: 8),
-            Text(en, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? AppTheme.primaryColor : AppTheme.textPrimary)),
-            Text(hi, style: TextStyle(fontSize: 10, color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondary)),
+            Text(
+              en,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: isSelected
+                    ? AppTheme.primaryColor
+                    : AppTheme.textPrimary,
+              ),
+            ),
+            Text(
+              hi,
+              style: TextStyle(
+                fontSize: 10,
+                color: isSelected
+                    ? AppTheme.primaryColor
+                    : AppTheme.textSecondary,
+              ),
+            ),
           ],
         ),
       ),

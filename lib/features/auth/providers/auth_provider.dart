@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import '../../../core/storage/app_preferences.dart';
 import '../../../../core/network/dio_client.dart';
 import '../domain/models/user.dart';
 import '../domain/repositories/auth_repository.dart';
@@ -12,7 +13,8 @@ final dioClientProvider = Provider<DioClient>((ref) {
 /// 2. Provide the Authentication Repository
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   final dioClient = ref.watch(dioClientProvider);
-  return AuthRepository(dioClient);
+  final preferences = ref.watch(appPreferencesProvider);
+  return AuthRepository(dioClient, preferences);
 });
 
 /// 3. Provide the global AuthState (User Session)

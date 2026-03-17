@@ -199,18 +199,18 @@ class UserProfileScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 4, bottom: 8),
-                      child: Text(
-                        'profile.account_settings'.tr(),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          color: AppTheme.textSecondary,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 8),
+                    child: Text(
+                      'profile.account_settings'.tr(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
+                  ),
                   _buildListTile(
                     icon: FontAwesomeIcons.locationDot,
                     title: 'profile.addresses'.tr(),
@@ -237,18 +237,18 @@ class UserProfileScreen extends ConsumerWidget {
                   ),
 
                   const SizedBox(height: 24),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 4, bottom: 8),
-                      child: Text(
-                        'profile.support_other'.tr(),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                          color: AppTheme.textSecondary,
-                        ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 8),
+                    child: Text(
+                      'profile.support_other'.tr(),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: AppTheme.textSecondary,
                       ),
                     ),
+                  ),
                   _buildListTile(
                     icon: FontAwesomeIcons.headset,
                     title: 'profile.help_support'.tr(),

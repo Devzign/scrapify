@@ -11,8 +11,12 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   String _selectedGender = 'male';
-  final TextEditingController _nameController = TextEditingController(text: 'Rahul Kumar');
-  final TextEditingController _emailController = TextEditingController(text: 'rahul.kumar@gmail.com');
+  final TextEditingController _nameController = TextEditingController(
+    text: 'Rahul Kumar',
+  );
+  final TextEditingController _emailController = TextEditingController(
+    text: 'rahul.kumar@gmail.com',
+  );
 
   @override
   void dispose() {
@@ -76,8 +80,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             shape: BoxShape.circle,
                             color: Colors.grey.shade200,
                             border: Border.all(
-                              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9), 
-                              width: 4
+                              color: isDark
+                                  ? const Color(0xFF1E293B)
+                                  : const Color(0xFFF1F5F9),
+                              width: 4,
                             ),
                             image: const DecorationImage(
                               image: NetworkImage(
@@ -94,8 +100,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             color: const Color(0xFF13EC30),
                             shape: BoxShape.circle,
                             border: Border.all(
-                              color: isDark ? const Color(0xFF1A331D) : Colors.white, 
-                              width: 2
+                              color: isDark
+                                  ? const Color(0xFF1A331D)
+                                  : Colors.white,
+                              width: 2,
                             ),
                             boxShadow: const [
                               BoxShadow(
@@ -126,7 +134,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -161,7 +172,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 24),
                     _buildLockedPhoneField(isDark: isDark),
                     const SizedBox(height: 24),
-                    
+
                     // Gender Selection
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -170,7 +181,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         Text(
                           'edit_profile.gender'.tr(),
                           style: TextStyle(
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            color: isDark
+                                ? Colors.white
+                                : const Color(0xFF0F172A),
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                           ),
@@ -180,11 +193,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Expanded(child: _buildGenderOption('male', 'edit_profile.male'.tr(), Icons.man, isDark)),
+                        Expanded(
+                          child: _buildGenderOption(
+                            'male',
+                            'edit_profile.male'.tr(),
+                            Icons.man,
+                            isDark,
+                          ),
+                        ),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildGenderOption('female', 'edit_profile.female'.tr(), Icons.woman, isDark)),
+                        Expanded(
+                          child: _buildGenderOption(
+                            'female',
+                            'edit_profile.female'.tr(),
+                            Icons.woman,
+                            isDark,
+                          ),
+                        ),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildGenderOption('other', 'edit_profile.other'.tr(), Icons.wc, isDark)),
+                        Expanded(
+                          child: _buildGenderOption(
+                            'other',
+                            'edit_profile.other'.tr(),
+                            Icons.wc,
+                            isDark,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -206,10 +240,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 MediaQuery.of(context).padding.bottom + 16,
               ),
               decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF1A331D).withValues(alpha: 0.95) : Colors.white.withValues(alpha: 0.95),
+                color: isDark
+                    ? const Color(0xFF1A331D).withValues(alpha: 0.95)
+                    : Colors.white.withValues(alpha: 0.95),
                 border: Border(
                   top: BorderSide(
-                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                    color: isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFF1F5F9),
                   ),
                 ),
               ),
@@ -280,12 +318,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: TextStyle(
-              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF94A3B8), // slate-400
+              color: isDark
+                  ? const Color(0xFF94A3B8)
+                  : const Color(0xFF94A3B8), // slate-400
             ),
             filled: true,
-            fillColor: isDark
-                ? const Color(0xFF1E293B)
-                : Colors.white,
+            fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 20,
@@ -293,13 +331,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1),
+                color: isDark
+                    ? const Color(0xFF475569)
+                    : const Color(0xFFCBD5E1),
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: isDark ? const Color(0xFF475569) : const Color(0xFFCBD5E1),
+                color: isDark
+                    ? const Color(0xFF475569)
+                    : const Color(0xFFCBD5E1),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -337,7 +379,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.5) : const Color(0xFFF1F5F9),
+            color: isDark
+                ? const Color(0xFF1E293B).withValues(alpha: 0.5)
+                : const Color(0xFFF1F5F9),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -346,14 +390,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: Text(
                   '+91 98765 43210',
                   style: TextStyle(
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: isDark
+                        ? const Color(0xFF94A3B8)
+                        : const Color(0xFF64748B),
                     fontSize: 18,
                   ),
                 ),
               ),
               Icon(
                 Icons.lock,
-                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF94A3B8),
+                color: isDark
+                    ? const Color(0xFF94A3B8)
+                    : const Color(0xFF94A3B8),
                 size: 20,
               ),
             ],
@@ -374,7 +422,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildGenderOption(String value, String label, IconData icon, bool isDark) {
+  Widget _buildGenderOption(
+    String value,
+    String label,
+    IconData icon,
+    bool isDark,
+  ) {
     final isSelected = _selectedGender == value;
 
     return GestureDetector(
@@ -406,7 +459,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               size: 32,
               color: isSelected
                   ? const Color(0xFF13EC30)
-                  : (isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8)),
+                  : (isDark
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF94A3B8)),
             ),
             const SizedBox(height: 4),
             Text(
@@ -414,7 +469,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               style: TextStyle(
                 color: isSelected
                     ? (isDark ? Colors.white : const Color(0xFF0F172A))
-                    : (isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155)),
+                    : (isDark
+                          ? const Color(0xFFCBD5E1)
+                          : const Color(0xFF334155)),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),

@@ -391,7 +391,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                 ),
                 child: Text(
                   'address_book.add.save_btn'.tr(),
-                   style: const TextStyle(
+                  style: const TextStyle(
                     color: Colors.black,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

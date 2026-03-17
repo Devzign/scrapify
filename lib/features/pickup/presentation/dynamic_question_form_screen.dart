@@ -22,7 +22,10 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -77,7 +80,9 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
               child: LinearProgressIndicator(
                 value: 0.5,
                 backgroundColor: AppTheme.primaryLight,
-                valueColor: AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppTheme.primaryColor,
+                ),
                 minHeight: 8,
               ),
             ),
@@ -172,10 +177,7 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'common.next'.tr(),
-                  style: const TextStyle(fontSize: 16),
-                ),
+                Text('common.next'.tr(), style: const TextStyle(fontSize: 16)),
                 const SizedBox(width: 8),
                 const FaIcon(FontAwesomeIcons.arrowRight, size: 20),
               ],
@@ -202,7 +204,9 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryLight.withValues(alpha: 0.5) : Colors.white,
+          color: isSelected
+              ? AppTheme.primaryLight.withValues(alpha: 0.5)
+              : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
@@ -223,7 +227,9 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
               height: 48,
               width: 48,
               decoration: BoxDecoration(
-                color: isSelected ? AppTheme.primaryColor : Colors.grey.shade100,
+                color: isSelected
+                    ? AppTheme.primaryColor
+                    : Colors.grey.shade100,
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -244,7 +250,9 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: isSelected ? AppTheme.textPrimary : AppTheme.textPrimary,
+                      color: isSelected
+                          ? AppTheme.textPrimary
+                          : AppTheme.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),

@@ -30,10 +30,12 @@ class ApiErrorHandler {
           return ApiException('Request to the server was cancelled.');
         case DioExceptionType.connectionError:
           return ApiException(
-              'No internet connection. Please check your network.');
+            'No internet connection. Please check your network.',
+          );
         case DioExceptionType.unknown:
           return ApiException(
-              'Unexpected error occurred. Please try again later.');
+            'Unexpected error occurred. Please try again later.',
+          );
       }
     }
     return ApiException('An unexpected error occurred: ${error.toString()}');
@@ -52,29 +54,45 @@ class ApiErrorHandler {
 
     switch (statusCode) {
       case 400:
-        return ApiException('Bad Request: $defaultMessage',
-            statusCode: statusCode);
+        return ApiException(
+          'Bad Request: $defaultMessage',
+          statusCode: statusCode,
+        );
       case 401:
-        return ApiException('Unauthorized: $defaultMessage',
-            statusCode: statusCode);
+        return ApiException(
+          'Unauthorized: $defaultMessage',
+          statusCode: statusCode,
+        );
       case 403:
-        return ApiException('Forbidden: $defaultMessage',
-            statusCode: statusCode);
+        return ApiException(
+          'Forbidden: $defaultMessage',
+          statusCode: statusCode,
+        );
       case 404:
-        return ApiException('Not Found: $defaultMessage',
-            statusCode: statusCode);
+        return ApiException(
+          'Not Found: $defaultMessage',
+          statusCode: statusCode,
+        );
       case 500:
-        return ApiException('Internal Server Error: $defaultMessage',
-            statusCode: statusCode);
+        return ApiException(
+          'Internal Server Error: $defaultMessage',
+          statusCode: statusCode,
+        );
       case 502:
-        return ApiException('Bad Gateway: $defaultMessage',
-            statusCode: statusCode);
+        return ApiException(
+          'Bad Gateway: $defaultMessage',
+          statusCode: statusCode,
+        );
       case 503:
-        return ApiException('Service Unavailable: $defaultMessage',
-            statusCode: statusCode);
+        return ApiException(
+          'Service Unavailable: $defaultMessage',
+          statusCode: statusCode,
+        );
       default:
-        return ApiException('Server Error ($statusCode): $defaultMessage',
-            statusCode: statusCode);
+        return ApiException(
+          'Server Error ($statusCode): $defaultMessage',
+          statusCode: statusCode,
+        );
     }
   }
 }
