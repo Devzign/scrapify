@@ -278,5 +278,31 @@
     "time_hr_ago": "{} hr ago",
     "time_days_ago": "{} days ago",
     "time_yesterday": "Yesterday"
+  },
+  "payment": {
+    "title": "Payment Methods",
+    "bank": "Bank Account",
+    "upi": "UPI ID",
+    "default": "DEFAULT",
+    "add_new": "Add New Payment",
+    "edit": "Edit",
+    "delete": "Delete",
+    "info": "Add your bank or UPI details to receive instant payments after scrap pickups.",
+    "add": {
+      "title": "Add Payment Method",
+      "edit_title": "Edit Payment Method",
+      "type": "Payment Type",
+      "bank_name": "Bank Name",
+      "bank_name_hint": "e.g., HDFC Bank",
+      "acc_no": "Account Number",
+      "acc_no_hint": "Enter account number",
+      "ifsc": "IFSC Code",
+      "ifsc_hint": "Enter IFSC code",
+      "holder_name": "Account Holder Name",
+      "holder_name_hint": "As per bank records",
+      "upi_id": "UPI ID",
+      "upi_id_hint": "e.g., name@upi",
+      "save": "SAVE DETAILS"
+    }
   }
 }

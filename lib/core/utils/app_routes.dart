@@ -9,6 +9,12 @@ import '../../features/pickup/presentation/category_selection_screen.dart';
 import '../../features/pickup/presentation/dynamic_question_form_screen.dart';
 import '../../features/pickup/presentation/upload_photo_screen.dart';
 import '../../features/pickup/presentation/select_date_time_screen.dart';
+import '../../features/pickup/presentation/subcategory_selection_screen.dart';
+import '../../features/pickup/presentation/item_selection_screen.dart';
+import '../../features/pickup/presentation/household_item_details_screen.dart';
+import '../../features/pickup/presentation/basket_screen.dart';
+import '../../features/pickup/presentation/review_booking_screen.dart';
+import '../../features/pickup/presentation/payout_method_screen.dart';
 import '../../features/pickup/presentation/success_confirmation_screen.dart';
 import '../../features/pickup/presentation/pickup_tracking_screen.dart';
 import '../../features/dashboard/presentation/pickup_boy_dashboard.dart';
@@ -24,6 +30,10 @@ import '../../features/profile/presentation/add_address_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/profile/presentation/faq_screen.dart';
+import '../../features/profile/presentation/payment_methods_screen.dart';
+import '../../features/profile/presentation/add_edit_payment_screen.dart';
+import '../../features/profile/domain/models/payment_method_model.dart';
+import '../../features/pickup/domain/models/pickup_catalog_item.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -39,6 +49,12 @@ class AppRoutes {
   static const String successConfirmation = '/pickup/success';
   static const String pickupTracking = '/pickup/tracking';
   static const String pickupDetails = '/pickup/details';
+  static const String basket = '/pickup/basket';
+  static const String subCategorySelection = '/pickup/subcategory';
+  static const String itemSelection = '/pickup/items';
+  static const String householdItemDetails = '/pickup/item-details';
+  static const String reviewBooking = '/pickup/review';
+  static const String payoutMethod = '/pickup/payout';
   static const String ratePickup = '/pickup/rate';
   static const String pickupDashboard = '/dashboard/pickup';
   static const String warehouseDashboard = '/dashboard/warehouse';
@@ -51,6 +67,8 @@ class AppRoutes {
   static const String editProfile = '/profile/edit';
   static const String settings = '/profile/settings';
   static const String faq = '/profile/faq';
+  static const String paymentMethods = '/profile/payment-methods';
+  static const String addEditPayment = '/profile/payment-methods/add-edit';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -106,7 +124,7 @@ class AppRoutes {
       ),
       GoRoute(
         path: selectDateTime,
-        builder: (context, state) => const SelectDateTimeScreen(),
+        builder: (context, state) => const SelectAddressTimeScreen(),
       ),
       GoRoute(
         path: successConfirmation,
@@ -119,6 +137,39 @@ class AppRoutes {
       GoRoute(
         path: pickupDetails,
         builder: (context, state) => const PickupDetailsScreen(),
+      ),
+      GoRoute(path: basket, builder: (context, state) => const BasketScreen()),
+      GoRoute(
+        path: '$subCategorySelection/:parentId',
+        builder: (context, state) {
+          final parentId = state.pathParameters['parentId']!;
+          return SubCategorySelectionScreen(parentId: int.parse(parentId));
+        },
+      ),
+      GoRoute(
+        path: '$itemSelection/:categoryId',
+        builder: (context, state) {
+          final categoryId = state.pathParameters['categoryId']!;
+          return ItemSelectionScreen(categoryId: int.parse(categoryId));
+        },
+      ),
+      GoRoute(
+        path: householdItemDetails,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return HouseholdItemDetailsScreen(
+            item: extra['item'] as PickupCatalogItem,
+            parentCategoryName: extra['parentCategoryName'] as String,
+          );
+        },
+      ),
+      GoRoute(
+        path: reviewBooking,
+        builder: (context, state) => const ReviewBookingScreen(),
+      ),
+      GoRoute(
+        path: payoutMethod,
+        builder: (context, state) => const PayoutMethodScreen(),
       ),
       GoRoute(
         path: ratePickup,
@@ -153,6 +204,17 @@ class AppRoutes {
         builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(path: faq, builder: (context, state) => const FaqScreen()),
+      GoRoute(
+        path: paymentMethods,
+        builder: (context, state) => const PaymentMethodsScreen(),
+      ),
+      GoRoute(
+        path: addEditPayment,
+        builder: (context, state) {
+          final paymentMethod = state.extra as PaymentMethodModel?;
+          return AddEditPaymentScreen(paymentMethod: paymentMethod);
+        },
+      ),
     ],
   );
 }

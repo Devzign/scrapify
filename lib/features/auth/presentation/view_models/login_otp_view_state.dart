@@ -8,6 +8,7 @@ class LoginOtpViewState {
   final String otpValue;
   final String? phoneError;
   final String? snackBarMessage;
+  final bool isSuccessMessage;
   final String? nextRoute;
   final int secondsRemaining;
 
@@ -21,6 +22,7 @@ class LoginOtpViewState {
     this.otpValue = '',
     this.phoneError,
     this.snackBarMessage,
+    this.isSuccessMessage = false,
     this.nextRoute,
     this.secondsRemaining = 30,
   });
@@ -35,6 +37,7 @@ class LoginOtpViewState {
     String? otpValue,
     String? phoneError,
     String? snackBarMessage,
+    bool? isSuccessMessage,
     String? nextRoute,
     int? secondsRemaining,
     bool clearPhoneError = false,
@@ -53,6 +56,7 @@ class LoginOtpViewState {
       snackBarMessage: clearSnackBarMessage
           ? null
           : snackBarMessage ?? this.snackBarMessage,
+      isSuccessMessage: isSuccessMessage ?? this.isSuccessMessage,
       nextRoute: clearNextRoute ? null : nextRoute ?? this.nextRoute,
       secondsRemaining: secondsRemaining ?? this.secondsRemaining,
     );

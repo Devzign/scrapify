@@ -1,0 +1,201 @@
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/booking_provider.dart';
+import '../providers/basket_provider.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_routes.dart';
+
+class PayoutMethodScreen extends ConsumerWidget {
+  const PayoutMethodScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final booking = ref.watch(bookingProvider);
+
+    final payoutMethods = [
+      {'id': 'cash', 'title': 'Cash on Pickup', 'icon': FontAwesomeIcons.moneyBillWave},
+      {'id': 'upi', 'title': 'UPI Transfer', 'icon': FontAwesomeIcons.mobileScreenButton},
+      {'id': 'bank', 'title': 'Bank Transfer', 'icon': FontAwesomeIcons.buildingColumns},
+    ];
+
+    return Scaffold(
+      backgroundColor: AppTheme.backgroundLight,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text(
+          'Payout Method',
+          style: TextStyle(
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'PAYMENT PREFERENCE',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.primaryColor,
+                letterSpacing: 1.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Choose how you\'d like to get paid',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: AppTheme.textPrimary,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Trust Banner
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF0FDF4),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFDCFCE7)),
+              ),
+              child: const Row(
+                children: [
+                  FaIcon(FontAwesomeIcons.shieldHalved, color: Color(0xFF16A34A), size: 18),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Safe & Secure Payments guaranteed by Scrapify.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF16A34A),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            ...payoutMethods.map((method) {
+              final isSelected = booking.payoutMethod == method['id'];
+              return GestureDetector(
+                onTap: () => ref.read(bookingProvider.notifier).setPayoutMethod(method['id'] as String),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: AppTheme.softShadow,
+                    border: Border.all(
+                      color: isSelected ? AppTheme.primaryColor : Colors.transparent,
+                      width: 2,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected ? AppTheme.primaryColor : const Color(0xFFE2E8F0),
+                            width: isSelected ? 7 : 2,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: FaIcon(
+                            method['icon'] as IconData,
+                            color: isSelected ? AppTheme.primaryColor : const Color(0xFF94A3B8),
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              method['title'] as String,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                            Text(
+                              method['id'] == 'cash' 
+                                  ? 'Instant payment after pickup'
+                                  : 'Within 2-4 hours of pickup',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: booking.payoutMethod != null
+                  ? () {
+                      ref.read(basketProvider.notifier).clearBasket();
+                      ref.read(bookingProvider.notifier).reset();
+                      context.go(AppRoutes.successConfirmation);
+                    }
+                  : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.primaryColor,
+                minimumSize: const Size(double.infinity, 60),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                disabledBackgroundColor: const Color(0xFFF1F5F9),
+              ),
+              child: const Text(
+                'CONFIRM BOOKING',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

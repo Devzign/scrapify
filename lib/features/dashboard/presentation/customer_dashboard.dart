@@ -2,36 +2,55 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../pickup/providers/category_provider.dart';
+import '../../pickup/providers/basket_provider.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../profile/presentation/user_profile_screen.dart';
+import '../../../core/widgets/loading_skeletons.dart';
 
-class CustomerDashboard extends StatefulWidget {
+class CustomerDashboard extends ConsumerStatefulWidget {
   const CustomerDashboard({super.key});
 
   @override
-  State<CustomerDashboard> createState() => _CustomerDashboardState();
+  ConsumerState<CustomerDashboard> createState() => _CustomerDashboardState();
 }
 
-class _CustomerDashboardState extends State<CustomerDashboard> {
+class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
   int _currentIndex = 0;
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
+    final basketItems = ref.watch(basketProvider);
+
     return Scaffold(
-      key: _scaffoldKey,
       backgroundColor: AppTheme.backgroundLight,
-      drawer: _buildDrawer(),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.bars,
-            color: AppTheme.textPrimary,
+        automaticallyImplyLeading: false,
+        leadingWidth: 72,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: InkWell(
+              onTap: () => context.push(AppRoutes.profile),
+              borderRadius: BorderRadius.circular(24),
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: AppTheme.softShadow,
+                ),
+                child: const Icon(
+                  Icons.person_outline_rounded,
+                  color: AppTheme.textPrimary,
+                  size: 22,
+                ),
+              ),
+            ),
           ),
-          onPressed: () {
-            _scaffoldKey.currentState?.openDrawer();
-          },
         ),
         title: Text(
           _getAppBarTitle(),
@@ -46,11 +65,12 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const FaIcon(
-                  FontAwesomeIcons.bell,
+                icon: const Icon(
+                  Icons.notifications_none_rounded,
                   color: AppTheme.textPrimary,
+                  size: 26,
                 ),
-                onPressed: () => context.push(AppRoutes.notifications),
+                onPressed: () => context.push('/notifications'),
               ),
               Positioned(
                 top: 12,
@@ -70,57 +90,10 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
         ],
       ),
       body: _buildBody(),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          if (index == 1) {
-            // If "Menu" is tapped, open the drawer
-            _scaffoldKey.currentState?.openDrawer();
-          } else {
-            setState(() => _currentIndex = index);
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppTheme.primaryColor,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: [
-          BottomNavigationBarItem(
-            icon: const FaIcon(FontAwesomeIcons.house, size: 20),
-            label: 'dashboard.nav_home'.tr(),
-          ),
-          BottomNavigationBarItem(
-            icon: const FaIcon(FontAwesomeIcons.bars, size: 20),
-            label: 'dashboard.nav_menu'.tr(),
-          ),
-          BottomNavigationBarItem(
-            icon: const FaIcon(FontAwesomeIcons.clipboardList, size: 20),
-            label: 'dashboard.nav_order'.tr(),
-          ),
-          BottomNavigationBarItem(
-            icon: const FaIcon(FontAwesomeIcons.user, size: 20),
-            label: 'dashboard.nav_profile'.tr(),
-          ),
-        ],
+      bottomNavigationBar: _buildBottomNavigationShell(
+        context,
+        basketItemCount: basketItems.length,
       ),
-      floatingActionButton: _currentIndex == 0
-          ? FloatingActionButton.extended(
-              onPressed: () => context.push(AppRoutes.categorySelection),
-              backgroundColor: AppTheme.primaryColor,
-              elevation: 4,
-              icon: const FaIcon(FontAwesomeIcons.plus, color: Colors.white),
-              label: Text(
-                'dashboard.book_now_fab'.tr(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-              ),
-            )
-          : null,
     );
   }
 
@@ -128,10 +101,8 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
     switch (_currentIndex) {
       case 0:
         return 'login.app_name'.tr();
-      case 2:
-        return 'dashboard.nav_order'.tr();
-      case 3:
-        return 'profile.title'.tr();
+      case 1:
+        return context.locale.languageCode == 'hi' ? 'ऑर्डर्स' : 'Orders';
       default:
         return 'login.app_name'.tr();
     }
@@ -141,115 +112,252 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
     switch (_currentIndex) {
       case 0:
         return _buildHomeTab();
-      case 2:
-        return const Center(child: Text('Orders Tab Placeholder'));
-      case 3:
-        return const UserProfileScreen(showAppBar: false);
+      case 1:
+        return Center(
+          child: Text(
+            context.locale.languageCode == 'hi'
+                ? 'ऑर्डर्स जल्द उपलब्ध होंगे'
+                : 'Orders will appear here',
+            style: const TextStyle(
+              color: AppTheme.textSecondary,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        );
       default:
         return _buildHomeTab();
     }
   }
 
-  Widget _buildDrawer() {
-    return Drawer(
-      child: Column(
+  Widget _buildBottomNavigationShell(
+    BuildContext context, {
+    required int basketItemCount,
+  }) {
+    final showBasketButton = _currentIndex == 0 && basketItemCount > 0;
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (showBasketButton) ...[
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _buildBasketFloatingButton(
+                  context,
+                  itemCount: basketItemCount,
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            _buildBottomNavigationBar(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(BuildContext context) {
+    final isHindi = context.locale.languageCode == 'hi';
+
+    return SizedBox(
+      height: 108,
+      child: Stack(
+        alignment: Alignment.topCenter,
+        clipBehavior: Clip.none,
         children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(color: AppTheme.primaryColor),
-            child: SizedBox(
-              width: double.infinity,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
+          Positioned.fill(
+            top: 18,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 18,
+                    offset: const Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: Row(
                 children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                      image: const DecorationImage(
-                        image: NetworkImage('https://i.pravatar.cc/150?img=12'),
-                        fit: BoxFit.cover,
-                      ),
+                  Expanded(
+                    child: _buildNavItem(
+                      icon: FontAwesomeIcons.house,
+                      label: isHindi ? 'डैशबोर्ड' : 'Dashboard',
+                      isSelected: _currentIndex == 0,
+                      onTap: () => setState(() => _currentIndex = 0),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Amit Sharma',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(width: 92),
+                  Expanded(
+                    child: _buildNavItem(
+                      icon: FontAwesomeIcons.clipboardList,
+                      label: isHindi ? 'ऑर्डर्स' : 'Orders',
+                      isSelected: _currentIndex == 1,
+                      onTap: () => setState(() => _currentIndex = 1),
                     ),
-                  ),
-                  const Text(
-                    '+91 98765 43210',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
             ),
           ),
-          ListTile(
-            leading: const FaIcon(
-              FontAwesomeIcons.house,
-              color: AppTheme.textPrimary,
-              size: 20,
-            ),
-            title: Text('dashboard.nav_home'.tr()),
-            onTap: () {
-              Navigator.pop(context); // Close drawer
-              setState(() => _currentIndex = 0);
-            },
+          _buildMoneyFloatingButton(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FaIcon(
+            icon,
+            size: 18,
+            color: isSelected ? AppTheme.primaryColor : AppTheme.textSecondary,
           ),
-          ListTile(
-            leading: const FaIcon(
-              FontAwesomeIcons.clipboardList,
-              color: AppTheme.textPrimary,
-              size: 20,
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+              color: isSelected
+                  ? AppTheme.primaryColor
+                  : AppTheme.textSecondary,
             ),
-            title: Text('dashboard.nav_order'.tr()),
-            onTap: () {
-              Navigator.pop(context);
-              setState(() => _currentIndex = 2);
-            },
-          ),
-          ListTile(
-            leading: const FaIcon(
-              FontAwesomeIcons.user,
-              color: AppTheme.textPrimary,
-              size: 20,
-            ),
-            title: Text('dashboard.nav_profile'.tr()),
-            onTap: () {
-              Navigator.pop(context);
-              setState(() => _currentIndex = 3);
-            },
-          ),
-          const Divider(),
-          ListTile(
-            leading: const FaIcon(
-              FontAwesomeIcons.circleInfo,
-              color: AppTheme.textPrimary,
-              size: 20,
-            ),
-            title: Text('profile.about_us'.tr()),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: const FaIcon(
-              FontAwesomeIcons.arrowRightFromBracket,
-              color: Colors.red,
-              size: 20,
-            ),
-            title: Text(
-              'profile.logout'.tr(),
-              style: const TextStyle(color: Colors.red),
-            ),
-            onTap: () {},
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMoneyFloatingButton(BuildContext context) {
+    return Container(
+      width: 84,
+      height: 84,
+      decoration: BoxDecoration(
+        color: AppTheme.primaryColor,
+        borderRadius: BorderRadius.circular(42),
+        border: Border.all(color: Colors.white, width: 8),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryColor.withValues(alpha: 0.28),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: FloatingActionButton(
+        heroTag: 'dashboard_money_fab',
+        onPressed: () => context.push(AppRoutes.categorySelection),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.currency_rupee_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  context.locale.languageCode == 'hi' ? 'मनी' : 'Money',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBasketFloatingButton(
+    BuildContext context, {
+    required int itemCount,
+  }) {
+    return Container(
+      height: 58,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: FloatingActionButton.extended(
+        heroTag: 'dashboard_basket_fab',
+        onPressed: () => context.push(AppRoutes.basket),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        icon: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const FaIcon(
+              FontAwesomeIcons.basketShopping,
+              color: AppTheme.primaryColor,
+              size: 18,
+            ),
+            Positioned(
+              right: -10,
+              top: -8,
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  '$itemCount',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+        label: Text(
+          context.locale.languageCode == 'hi' ? 'बास्केट' : 'Basket',
+          style: const TextStyle(
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.w800,
+            fontSize: 14,
+          ),
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
     );
   }
@@ -264,14 +372,11 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
             // Top Banner
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF6F9A7A), Color(0xFF8BB594)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                gradient: AppTheme.primaryGradient,
                 borderRadius: BorderRadius.circular(24),
+                boxShadow: AppTheme.softShadow,
               ),
               child: Row(
                 children: [
@@ -282,12 +387,12 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                         // Eco-friendly badge
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
+                            horizontal: 12,
+                            vertical: 6,
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(30),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -295,26 +400,36 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                               const FaIcon(
                                 FontAwesomeIcons.leaf,
                                 color: Colors.white,
-                                size: 14,
+                                size: 12,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 6),
                               Text(
                                 'dashboard.eco_badge'.tr(),
                                 style: const TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         Text(
                           'dashboard.book_pickup'.tr(),
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        Text(
+                          context.locale.languageCode == 'hi'
+                              ? 'पिकअप बुक करें'
+                              : 'Schedule your pickup',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -322,42 +437,32 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                           'dashboard.book_pickup_desc'.tr(),
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.9),
-                            fontSize: 13,
+                            fontSize: 14,
+                            height: 1.4,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Stack(
-                    alignment: Alignment.bottomRight,
+                  const SizedBox(width: 8),
+                  Column(
                     children: [
-                      // Placeholder for Truck Graphic
+                      const FaIcon(
+                        FontAwesomeIcons.truckFast,
+                        size: 64,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 16),
                       Container(
-                        width: 100,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
                         ),
                         child: const FaIcon(
-                          FontAwesomeIcons.truckFast,
-                          size: 60,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Transform.translate(
-                        offset: const Offset(10, 10),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.arrowRight,
-                            color: AppTheme.primaryColor,
-                            size: 20,
-                          ),
+                          FontAwesomeIcons.arrowRight,
+                          color: AppTheme.primaryColor,
+                          size: 18,
                         ),
                       ),
                     ],
@@ -379,12 +484,15 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                     color: AppTheme.textPrimary,
                   ),
                 ),
-                Text(
-                  'dashboard.view_all'.tr(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppTheme.primaryColor,
+                InkWell(
+                  onTap: () => context.push('/pickup/category'),
+                  child: Text(
+                    'dashboard.view_all'.tr(),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: AppTheme.primaryColor,
+                    ),
                   ),
                 ),
               ],
@@ -392,82 +500,55 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
             const SizedBox(height: 16),
 
             // Horizontal scroll categories
-            SizedBox(
-              height: 160,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildMaterialCard(
-                    title: 'dashboard.categories.metal'.tr(),
-                    subtitle: '',
-                    iconData: FontAwesomeIcons.screwdriverWrench,
-                    isDark: true,
-                  ),
-                  const SizedBox(width: 16),
-                  _buildMaterialCard(
-                    title: 'dashboard.categories.ewaste'.tr(),
-                    subtitle: '',
-                    iconData: FontAwesomeIcons.microchip,
-                    isDark: true,
-                  ),
-                ],
-              ),
+            Consumer(
+              builder: (context, ref, child) {
+                return ref
+                    .watch(categoriesProvider)
+                    .when(
+                      data: (categories) {
+                        if (categories.isEmpty) {
+                          return const Center(
+                            child: Text('No categories available'),
+                          );
+                        }
+                        final limitedCategories = categories.take(3).toList();
+                        return SizedBox(
+                          height: 160,
+                          child: ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: limitedCategories.length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(width: 16),
+                            itemBuilder: (context, index) {
+                              final category = limitedCategories[index];
+                              return _buildMaterialCard(
+                                title: category.getName(context),
+                                subtitle: category.pricingType ?? '',
+                                imageUrl: category.imageUrl,
+                                iconData: _getIconForCategory(category.slug),
+                                isDark: true,
+                                onTap: () => context.push(
+                                  '${AppRoutes.subCategorySelection}/${category.id}',
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      loading: () =>
+                          const Center(child: DashboardLoadingSkeleton()),
+                      error: (error, stack) => Center(
+                        child: Text(
+                          'Error loading categories',
+                          style: TextStyle(color: Colors.red.shade700),
+                        ),
+                      ),
+                    );
+              },
             ),
             const SizedBox(height: 16),
 
-            // Paper & Cardboard list item
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const FaIcon(
-                      FontAwesomeIcons.boxArchive,
-                      color: AppTheme.primaryColor,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'dashboard.categories.paper'.tr(),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const FaIcon(
-                    FontAwesomeIcons.chevronRight,
-                    color: Colors.grey,
-                    size: 16,
-                  ),
-                ],
-              ),
-            ),
-
+            // We can add more dynamic content here if needed
             const SizedBox(height: 32),
 
             // Active Request
@@ -486,13 +567,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                boxShadow: AppTheme.softShadow,
               ),
               child: Column(
                 children: [
@@ -579,7 +654,7 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
                       ),
                       InkWell(
                         onTap: () {
-                          context.push(AppRoutes.pickupTracking);
+                          context.push('/pickup/tracking');
                         },
                         child: Text(
                           'dashboard.track'.tr(),
@@ -602,56 +677,90 @@ class _CustomerDashboardState extends State<CustomerDashboard> {
     );
   }
 
+  IconData _getIconForCategory(String slug) {
+    switch (slug.toLowerCase()) {
+      case 'metal':
+      case 'iron-steel':
+        return FontAwesomeIcons.screwdriverWrench;
+      case 'plastic':
+        return FontAwesomeIcons.recycle;
+      case 'e-waste':
+        return FontAwesomeIcons.microchip;
+      case 'appliances':
+        return FontAwesomeIcons.kitchenSet;
+      case 'paper':
+        return FontAwesomeIcons.boxArchive;
+      default:
+        return FontAwesomeIcons.box;
+    }
+  }
+
   Widget _buildMaterialCard({
     required String title,
     required String subtitle,
     required IconData iconData,
     required bool isDark,
+    required VoidCallback onTap,
+    String? imageUrl,
   }) {
-    return Container(
-      width: 140,
-      decoration: BoxDecoration(
-        color: Colors.black87, // Mocking dark image bg
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: 140,
+        decoration: BoxDecoration(
+          color: Colors.black87,
+          image: imageUrl != null
+              ? DecorationImage(
+                  image: NetworkImage(imageUrl),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withValues(alpha: 0.4),
+                    BlendMode.darken,
+                  ),
+                )
+              : null,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-            child: FaIcon(iconData, color: Colors.white, size: 20),
-          ),
-          const Spacer(),
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+              ),
+              child: FaIcon(iconData, color: Colors.white, size: 20),
             ),
-          ),
-          if (subtitle.isNotEmpty)
+            const Spacer(),
             Text(
-              subtitle,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.8),
-                fontSize: 12,
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
             ),
-        ],
+            if (subtitle.isNotEmpty)
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  fontSize: 12,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

@@ -2,21 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-class EditProfileScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../providers/profile_provider.dart';
+
+class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String _selectedGender = 'male';
-  final TextEditingController _nameController = TextEditingController(
-    text: 'Rahul Kumar',
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: 'rahul.kumar@gmail.com',
-  );
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = ref.read(authProvider);
+    _nameController = TextEditingController(text: user?.name ?? '');
+    _emailController = TextEditingController(text: user?.email ?? '');
+  }
 
   @override
   void dispose() {
@@ -29,6 +37,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final profileState = ref.watch(profileProvider);
+    final isLoading = profileState is AsyncLoading;
 
     return Scaffold(
       backgroundColor: isDark
@@ -252,9 +262,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ),
               child: ElevatedButton(
-                onPressed: () {
-                  context.pop();
-                },
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        final navigator = GoRouter.of(context);
+                        await ref
+                            .read(profileProvider.notifier)
+                            .updateProfile(
+                              name: _nameController.text,
+                              email: _emailController.text,
+                            );
+                        if (!mounted) {
+                          return;
+                        }
+                        final profileState = ref.read(profileProvider);
+                        if (profileState.hasValue) {
+                          messenger.showSnackBar(
+                            SnackBar(content: Text('Profile updated'.tr())),
+                          );
+                          navigator.pop();
+                          return;
+                        }
+                        if (profileState.hasError) {
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(profileState.error.toString()),
+                            ),
+                          );
+                        }
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF13EC30), // primary
                   foregroundColor: Colors.black, // Active tap color effect base
@@ -265,15 +302,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   minimumSize: const Size(double.infinity, 56),
                 ),
-                child: Text(
-                  'edit_profile.save'.tr(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
-                  ),
-                ),
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.black)
+                    : Text(
+                        'edit_profile.save'.tr(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
               ),
             ),
           ),

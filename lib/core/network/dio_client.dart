@@ -1,13 +1,20 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../config/app_config.dart';
+import '../session/session_controller.dart';
+import '../storage/app_preferences.dart';
 import '../utils/app_logger.dart';
+import '../utils/app_routes.dart';
 import 'api_exceptions.dart';
 import 'api_response.dart';
 
 /// Core Networking Class handling all HTTP requests for the application.
 class DioClient {
+  static bool _isHandlingUnauthorized = false;
   late final Dio _dio;
 
   DioClient() {
@@ -41,7 +48,14 @@ class DioClient {
             );
             AppLogger.info('Headers: ${options.headers}');
             if (options.data != null) {
-              AppLogger.info('Request Body: ${options.data}');
+              try {
+                final prettyJson = const JsonEncoder.withIndent(
+                  '  ',
+                ).convert(options.data);
+                AppLogger.info('Request Body:\n$prettyJson');
+              } catch (_) {
+                AppLogger.info('Request Body: ${options.data}');
+              }
             }
           }
           return handler.next(options);
@@ -51,18 +65,36 @@ class DioClient {
             AppLogger.info(
               '<-- [RESPONSE] ${response.statusCode} ${response.requestOptions.baseUrl}${response.requestOptions.path}',
             );
-            AppLogger.info('Response Body: ${response.data}');
+            try {
+              final prettyJson = const JsonEncoder.withIndent(
+                '  ',
+              ).convert(response.data);
+              AppLogger.info('Response Body:\n$prettyJson');
+            } catch (_) {
+              AppLogger.info('Response Body: ${response.data}');
+            }
           }
           return handler.next(response);
         },
-        onError: (DioException e, handler) {
+        onError: (DioException e, handler) async {
+          if (e.response?.statusCode == 401) {
+            await _handleUnauthorized();
+          }
+
           if (kDebugMode) {
             AppLogger.error(
               '<-- [ERROR] ${e.response?.statusCode} ${e.requestOptions.baseUrl}${e.requestOptions.path}',
             );
             AppLogger.error('Error Message: ${e.message}');
             if (e.response?.data != null) {
-              AppLogger.error('Error Data: ${e.response?.data}');
+              try {
+                final prettyJson = const JsonEncoder.withIndent(
+                  '  ',
+                ).convert(e.response?.data);
+                AppLogger.error('Error Data:\n$prettyJson');
+              } catch (_) {
+                AppLogger.error('Error Data: ${e.response?.data}');
+              }
             }
           }
 
@@ -225,5 +257,32 @@ class DioClient {
       fallbackException.message,
       statusCode: fallbackException.statusCode,
     );
+  }
+
+  Future<void> _handleUnauthorized() async {
+    if (_isHandlingUnauthorized) {
+      return;
+    }
+
+    _isHandlingUnauthorized = true;
+
+    try {
+      await AppPreferences().clearSession();
+      SessionController.instance.notifyForcedLogout();
+
+      final currentPath =
+          AppRoutes.router.routeInformationProvider.value.uri.path;
+      final shouldRedirect =
+          currentPath != AppRoutes.login &&
+          currentPath != AppRoutes.splash &&
+          currentPath != AppRoutes.onboarding &&
+          currentPath != AppRoutes.language;
+
+      if (shouldRedirect) {
+        AppRoutes.router.go(AppRoutes.login);
+      }
+    } finally {
+      _isHandlingUnauthorized = false;
+    }
   }
 }

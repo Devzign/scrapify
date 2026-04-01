@@ -1,7 +1,11 @@
 import 'dart:io' show Platform;
+
 import 'package:flutter/foundation.dart' show kIsWeb;
-import '../../../../core/network/dio_client.dart';
+
+import '../../../../core/network/api_endpoints.dart';
+import '../../../../core/network/api_role_mapper.dart';
 import '../../../../core/network/api_response.dart';
+import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/app_preferences.dart';
 import '../models/user.dart';
 
@@ -17,8 +21,8 @@ class AuthRepository {
     required String role,
   }) async {
     final response = await _apiClient.post(
-      '/auth/send-otp',
-      data: {'phone': phone, 'role': role},
+      ApiEndpoints.authSendOtp,
+      data: {'phone': phone, 'role': ApiRoleMapper.toApiRole(role)},
     );
 
     if (response.isSuccess) {
@@ -37,7 +41,7 @@ class AuthRepository {
     required String otp,
   }) async {
     final response = await _apiClient.post(
-      '/auth/verify-otp',
+      ApiEndpoints.authVerifyOtp,
       data: {
         'phone': phone,
         'otp': otp,
@@ -65,7 +69,7 @@ class AuthRepository {
 
   /// Fetch user profile
   Future<ApiResponse<User>> fetchProfile() async {
-    final response = await _apiClient.get('/auth/profile');
+    final response = await _apiClient.get(ApiEndpoints.authProfile);
     if (response.isSuccess) {
       try {
         final user = User.fromJson(response.data['data']);
@@ -84,7 +88,7 @@ class AuthRepository {
   /// Logs the user out locally and remotely
   Future<void> logout() async {
     // Attempt remote logout, ignore errors if token already expired
-    await _apiClient.post('/auth/logout');
+    await _apiClient.post(ApiEndpoints.authLogout);
     await _clearSession();
   }
 

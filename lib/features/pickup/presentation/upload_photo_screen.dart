@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 
@@ -13,6 +15,24 @@ class UploadPhotoScreen extends StatefulWidget {
 }
 
 class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
+  final List<XFile> _images = [];
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource source) async {
+    final XFile? image = await _picker.pickImage(source: source);
+    if (image != null) {
+      setState(() {
+        _images.add(image);
+      });
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _images.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,49 +74,74 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
           children: [
             // Header
             Text(
-              'upload.heading'.tr(),
+              'upload.heading'.tr().toUpperCase(),
               style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.primaryColor,
+                letterSpacing: 1.5,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
               'upload.desc'.tr(),
               style: const TextStyle(
-                fontSize: 14,
-                color: AppTheme.textSecondary,
-                height: 1.4,
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: AppTheme.textPrimary,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Peach Hint Banner
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.hintPeach,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  const FaIcon(FontAwesomeIcons.circleExclamation, color: Color(0xFFC2410C), size: 18),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Clear photos of items ensure faster verification and accurate pricing.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: const Color(0xFFC2410C).withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 32),
 
-            // Dashed Camera Upload Area
+            // Camera Upload Area
             GestureDetector(
-              onTap: () {
-                // Open Camera logic
-              },
+              onTap: () => _pickImage(ImageSource.camera),
               child: Container(
                 width: double.infinity,
-                // We'll use a custom painter or just a container with Border if dotted_border isn't available, but we'll add the package.
-                // For now, let's use a BoxDecoration with a solid border if dotted_border fails, but we'll add it in pubspec.
                 decoration: BoxDecoration(
-                  color: AppTheme.primaryLight.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(16),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(24),
                   border: Border.all(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                    width: 1.5,
+                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                    width: 2,
                   ),
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 48),
                 child: Column(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
+                        boxShadow: AppTheme.softShadow,
                       ),
                       child: const FaIcon(
                         FontAwesomeIcons.camera,
@@ -104,31 +149,81 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                         size: 32,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     Text(
                       'upload.click_photo'.tr(),
                       style: const TextStyle(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.primaryDark,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     Text(
                       'upload.tap_camera'.tr(),
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 32),
+
+            if (_images.isNotEmpty) ...[
+              const Text(
+                'Selected Photos',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 100,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _images.length,
+                  separatorBuilder: (context, index) => const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    return Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(_images[index].path),
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Positioned(
+                          right: -4,
+                          top: -4,
+                          child: IconButton(
+                            icon: const FaIcon(
+                              FontAwesomeIcons.circleXmark,
+                              color: Colors.red,
+                              size: 20,
+                            ),
+                            onPressed: () => _removeImage(index),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
             // Gallery Button
             OutlinedButton(
-              onPressed: () {
-                // Open Gallery logic
-              },
+              onPressed: () => _pickImage(ImageSource.gallery),
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.grey.shade300),
                 backgroundColor: Colors.white,
@@ -156,11 +251,11 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
 
             // Photo Tips Card
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade200),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: AppTheme.softShadow,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,17 +263,18 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                   Row(
                     children: [
                       const FaIcon(
-                        FontAwesomeIcons.lightbulb,
+                        FontAwesomeIcons.circleInfo,
                         size: 16,
                         color: AppTheme.primaryColor,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Text(
-                        'upload.tips_title'.tr(),
+                        'upload.tips_title'.tr().toUpperCase(),
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
                           color: AppTheme.textPrimary,
+                          letterSpacing: 1.1,
                         ),
                       ),
                     ],
@@ -186,7 +282,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                   const SizedBox(height: 16),
                   Wrap(
                     spacing: 8,
-                    runSpacing: 8,
+                    runSpacing: 10,
                     children: [
                       _buildTipChip(
                         FontAwesomeIcons.sun,
@@ -217,15 +313,26 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
             onPressed: () {
               context.push(AppRoutes.selectDateTime);
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.primaryColor,
+              minimumSize: const Size(double.infinity, 60),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'common.continue'.tr(),
-                  style: const TextStyle(fontSize: 16),
+                  'common.continue'.tr().toUpperCase(),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.1,
+                  ),
                 ),
-                const SizedBox(width: 8),
-                const FaIcon(FontAwesomeIcons.arrowRight, size: 20),
+                const SizedBox(width: 12),
+                const FaIcon(FontAwesomeIcons.chevronRight, size: 14),
               ],
             ),
           ),

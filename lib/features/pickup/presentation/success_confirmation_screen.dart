@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:easy_localization/easy_localization.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 
@@ -11,146 +10,165 @@ class SuccessConfirmationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Spacer(),
-
-              // Success Icon with decorative elements
-              Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    height: 100,
-                    width: 100,
-                    decoration: const BoxDecoration(
-                      color: AppTheme.primaryColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: FaIcon(
-                        FontAwesomeIcons.check,
-                        color: Colors.white,
-                        size: 48,
+              // Success Icon with Glow
+              Center(
+                child: Container(
+                  width: 140,
+                  height: 140,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF22C55E).withValues(alpha: 0.2),
+                        blurRadius: 40,
+                        spreadRadius: 10,
                       ),
-                    ),
+                    ],
                   ),
-                  Positioned(
-                    top: -10,
-                    right: -10,
-                    child: FaIcon(
-                      FontAwesomeIcons.leaf,
-                      color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                      size: 20,
-                    ),
-                  ),
-                  Positioned(
-                    bottom: -5,
-                    left: -20,
-                    child: FaIcon(
-                      FontAwesomeIcons.recycle,
-                      color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                      size: 16,
-                    ),
-                  ),
-                  Positioned(
-                    top: 20,
-                    right: -30,
+                  child: Center(
                     child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                      width: 100,
+                      height: 100,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF22C55E),
                         shape: BoxShape.circle,
                       ),
+                      child: const Center(
+                        child: FaIcon(
+                          FontAwesomeIcons.check,
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
                     ),
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 32),
-
-              // Headers
-              Text(
-                'success.title'.tr(),
-                style: const TextStyle(
-                  fontSize: 24,
+              const SizedBox(height: 48),
+              const Text(
+                'BOOKING CONFIRMED!',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.primaryColor,
+                  letterSpacing: 2.0,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Pickup Scheduled',
+                style: TextStyle(
+                  fontSize: 32,
                   fontWeight: FontWeight.w900,
                   color: AppTheme.textPrimary,
+                  height: 1.1,
                 ),
               ),
               const SizedBox(height: 16),
-              Text(
-                'success.desc'.tr(),
+              const Text(
+                'Your eco-friendly contribution starts here!\nA pickup boy will arrive at your address soon.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
+                style: TextStyle(
+                  fontSize: 15,
                   color: AppTheme.textSecondary,
-                  height: 1.4,
+                  height: 1.5,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 32),
-
-              // Info Card
+              const SizedBox(height: 48),
+              
+              // Booking ID Card
+              // Booking ID Card
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 24,
-                ),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: AppTheme.softShadow,
                 ),
                 child: Column(
                   children: [
-                    _buildInfoRow(
-                      icon: FontAwesomeIcons.calendarDay,
-                      label: 'success.date'.tr(),
-                      value: 'Mon, 14th Aug',
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'BOOKING ID',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF94A3B8),
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                        Text(
+                          '#${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ],
                     ),
-                    const Divider(height: 32, thickness: 1),
-                    _buildInfoRow(
-                      icon: FontAwesomeIcons.clock,
-                      label: 'success.time'.tr(),
-                      value: '02:00 PM - 04:00 PM',
-                    ),
-                    const Divider(height: 32, thickness: 1),
-                    _buildInfoRow(
-                      icon: FontAwesomeIcons.fileInvoice,
-                      label: 'success.ref'.tr(),
-                      value: '#SCRP-8821',
+                    const Divider(height: 32, color: Color(0xFFF1F5F9)),
+                    Row(
+                      children: [
+                        const Icon(Icons.circle, color: AppTheme.primaryColor, size: 8),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Confirmation SMS sent to your mobile',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
+              
               const Spacer(),
-
-              // Bottom Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    context.go(AppRoutes.customerDashboard);
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'success.back_home'.tr(),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
+              
+              // Actions
+              ElevatedButton(
+                onPressed: () => context.go(AppRoutes.customerDashboard), // Temporary home redirect
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  minimumSize: const Size(double.infinity, 60),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text(
+                  'TRACK PICKUP',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => context.go(AppRoutes.customerDashboard),
+                child: const Text(
+                  'BACK TO DASHBOARD',
+                  style: TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -158,51 +176,6 @@ class SuccessConfirmationScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppTheme.primaryLight.withValues(alpha: 0.5),
-            shape: BoxShape.circle,
-          ),
-          child: FaIcon(icon, color: AppTheme.primaryColor, size: 16),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

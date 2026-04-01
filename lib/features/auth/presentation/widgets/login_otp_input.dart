@@ -25,31 +25,41 @@ class LoginOtpInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: focusNode.requestFocus,
+      onTap: () {
+        FocusScope.of(context).requestFocus(focusNode);
+        SystemChannels.textInput.invokeMethod<void>('TextInput.show');
+      },
       child: Stack(
         alignment: Alignment.center,
         children: [
           Positioned(
-            left: -300,
+            left: 0,
+            right: 0,
             child: SizedBox(
-              width: 1,
-              height: 1,
-              child: TextField(
-                controller: controller,
-                focusNode: focusNode,
-                keyboardType: TextInputType.number,
-                maxLength: 6,
-                showCursor: false,
-                autofocus: false,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(6),
-                ],
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  counterText: '',
+              height: 0,
+              child: Opacity(
+                opacity: 0,
+                child: TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.done,
+                  maxLength: 6,
+                  showCursor: false,
+                  autofocus: false,
+                  enableInteractiveSelection: false,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(6),
+                  ],
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    counterText: '',
+                    contentPadding: EdgeInsets.zero,
+                    isCollapsed: true,
+                  ),
+                  onChanged: onChanged,
                 ),
-                onChanged: onChanged,
               ),
             ),
           ),

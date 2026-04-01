@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
@@ -13,6 +14,7 @@ import 'widgets/login_otp_action_button.dart';
 import 'widgets/login_otp_input.dart';
 import 'widgets/login_phone_field.dart';
 import 'widgets/login_resend_otp.dart';
+import 'widgets/login_status_banner.dart';
 
 class LoginOtpScreen extends ConsumerWidget {
   final String? role;
@@ -26,7 +28,13 @@ class LoginOtpScreen extends ConsumerWidget {
     ref.listen<LoginOtpViewState>(provider, (previous, next) {
       if (next.shouldFocusOtp && previous?.shouldFocusOtp != true) {
         Future<void>.delayed(const Duration(milliseconds: 100), () {
-          ref.read(provider.notifier).otpFocusNode.requestFocus();
+          if (!context.mounted) {
+            return;
+          }
+          FocusScope.of(
+            context,
+          ).requestFocus(ref.read(provider.notifier).otpFocusNode);
+          SystemChannels.textInput.invokeMethod<void>('TextInput.show');
           ref.read(provider.notifier).clearFocusRequest();
         });
       }
@@ -34,9 +42,13 @@ class LoginOtpScreen extends ConsumerWidget {
       final snackBarMessage = next.snackBarMessage;
       if (snackBarMessage != null &&
           snackBarMessage != previous?.snackBarMessage) {
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(snackBarMessage)));
+        showLoginStatusBanner(
+          context,
+          message: snackBarMessage,
+          type: next.isSuccessMessage
+              ? LoginStatusBannerType.success
+              : LoginStatusBannerType.error,
+        );
         ref.read(provider.notifier).clearSnackBar();
       }
 
@@ -52,6 +64,27 @@ class LoginOtpScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+          statusBarColor: Colors.white,
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          onPressed: () {
+            if (state.otpSent) {
+              viewModel.editPhone();
+            } else {
+              context.pop();
+            }
+          },
+        ),
+      ),
       bottomNavigationBar: LoginOtpActionButton(
         isLoading: state.isLoading,
         otpSent: state.otpSent,

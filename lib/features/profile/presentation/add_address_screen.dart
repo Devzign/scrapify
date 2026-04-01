@@ -6,14 +6,18 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
-class AddAddressScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/address_provider.dart';
+import '../domain/models/address_model.dart';
+
+class AddAddressScreen extends ConsumerStatefulWidget {
   const AddAddressScreen({super.key});
 
   @override
-  State<AddAddressScreen> createState() => _AddAddressScreenState();
+  ConsumerState<AddAddressScreen> createState() => _AddAddressScreenState();
 }
 
-class _AddAddressScreenState extends State<AddAddressScreen> {
+class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
   String _selectedAddressType = 'home';
   final Completer<GoogleMapController> _controller = Completer();
 
@@ -23,13 +27,17 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   );
 
   bool _isLoadingLocation = false;
-  LatLng? _currentCenter;
+  LatLng? _currentCenter = const LatLng(28.6139, 77.2090);
 
   final TextEditingController _streetController = TextEditingController();
+  final TextEditingController _houseController = TextEditingController();
+  final TextEditingController _landmarkController = TextEditingController();
 
   @override
   void dispose() {
     _streetController.dispose();
+    _houseController.dispose();
+    _landmarkController.dispose();
     super.dispose();
   }
 
@@ -120,6 +128,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final addressState = ref.watch(addressProvider);
+    final isSaving = addressState is AsyncLoading;
 
     return Scaffold(
       backgroundColor: isDark
@@ -285,6 +295,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                       context,
                       label: 'address_book.add.house_no'.tr(),
                       hintText: 'address_book.add.house_no_hint'.tr(),
+                      controller: _houseController,
                       isDark: isDark,
                     ),
                     const SizedBox(height: 20),
@@ -300,6 +311,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                       context,
                       label: 'address_book.add.landmark'.tr(),
                       hintText: 'address_book.add.landmark_hint'.tr(),
+                      controller: _landmarkController,
                       isOptional: true,
                       isDark: isDark,
                     ),
@@ -376,9 +388,40 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                 ),
               ),
               child: ElevatedButton(
-                onPressed: () {
-                  context.pop();
-                },
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        final navigator = GoRouter.of(context);
+                        final newAddress = AddressModel(
+                          id: 0,
+                          title: _selectedAddressType,
+                          addressLine1:
+                              '${_houseController.text}, ${_streetController.text}',
+                          addressLine2: _landmarkController.text,
+                          pincode:
+                              '000000', // Mock pincode, wait for complete form or extract from reverse geocoding
+                          cityId: 1, // Mock city_id
+                          isDefault: false,
+                          latitude: _currentCenter?.latitude,
+                          longitude: _currentCenter?.longitude,
+                        );
+                        final success = await ref
+                            .read(addressProvider.notifier)
+                            .addAddress(newAddress);
+                        if (!mounted) {
+                          return;
+                        }
+                        if (success) {
+                          navigator.pop();
+                          return;
+                        }
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to save address'.tr()),
+                          ),
+                        );
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF13EC30), // primary
                   foregroundColor: Colors.black, // Active tap color effect base
@@ -389,15 +432,17 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                   ),
                   minimumSize: const Size(double.infinity, 56),
                 ),
-                child: Text(
-                  'address_book.add.save_btn'.tr(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    height: 1.0,
-                  ),
-                ),
+                child: isSaving
+                    ? const CircularProgressIndicator(color: Colors.black)
+                    : Text(
+                        'address_book.add.save_btn'.tr(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          height: 1.0,
+                        ),
+                      ),
               ),
             ),
           ),

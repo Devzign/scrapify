@@ -17,34 +17,58 @@ class LoginResendOtp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "Didn't receive the code? ",
-          style: TextStyle(color: AppTheme.textSecondary, fontSize: 14.sp),
-        ),
-        canResendOtp
-            ? GestureDetector(
-                onTap: onResend,
-                child: Text(
-                  'Resend OTP',
-                  style: TextStyle(
-                    color: AppTheme.primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14.sp,
-                  ),
-                ),
-              )
-            : Text(
-                'Resend in $secondsRemaining s',
-                style: TextStyle(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14.sp,
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: canResendOtp
+          ? GestureDetector(
+              onTap: onResend,
+              child: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'OTP sent   ',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'Resend OTP',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-      ],
+            )
+          : RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'OTP sent   ',
+                    style: TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  TextSpan(
+                    text: 'Resend OTP in $secondsRemaining s',
+                    style: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

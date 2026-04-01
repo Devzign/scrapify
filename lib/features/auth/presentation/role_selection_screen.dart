@@ -20,6 +20,25 @@ class RoleSelectionScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: ElevatedButton(
+          onPressed: () {
+            context.push(AppRoutes.login, extra: {'role': state.selectedRole});
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'common.continue'.tr(),
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(width: 8),
+              const FaIcon(FontAwesomeIcons.arrowRight, size: 20),
+            ],
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -63,64 +82,43 @@ class RoleSelectionScreen extends ConsumerWidget {
               ),
               SizedBox(height: 32.h),
               Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      RoleOptionCard(
-                        icon: FontAwesomeIcons.houseUser,
-                        title: 'role.customer.title'.tr(),
-                        description: 'role.customer.desc'.tr(),
-                        isSelected: state.selectedRole == 'customer',
-                        onTap: () => viewModel.selectRole('customer'),
-                      ),
-                      SizedBox(height: 16.h),
-                      RoleOptionCard(
-                        icon: FontAwesomeIcons.truckFast,
-                        title: 'role.partner.title'.tr(),
-                        description: 'role.partner.desc'.tr(),
-                        isSelected: state.selectedRole == 'pickup_partner',
-                        onTap: () => viewModel.selectRole('pickup_partner'),
-                      ),
-                      SizedBox(height: 16.h),
-                      RoleOptionCard(
-                        icon: FontAwesomeIcons.warehouse,
-                        title: 'role.warehouse.title'.tr(),
-                        description: 'role.warehouse.desc'.tr(),
-                        isSelected: state.selectedRole == 'warehouse',
-                        onTap: () => viewModel.selectRole('warehouse'),
-                      ),
-                      SizedBox(height: 16.h),
-                      RoleOptionCard(
-                        icon: FontAwesomeIcons.handshake,
-                        title: 'role.dealer.title'.tr(),
-                        description: 'role.dealer.desc'.tr(),
-                        isSelected: state.selectedRole == 'dealer',
-                        onTap: () => viewModel.selectRole('dealer'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  context.push(
-                    AppRoutes.login,
-                    extra: {'role': state.selectedRole},
-                  );
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: ListView(
+                  padding: EdgeInsets.only(bottom: 16.h),
                   children: [
-                    Text(
-                      'common.continue'.tr(),
-                      style: const TextStyle(fontSize: 16),
+                    RoleOptionCard(
+                      icon: FontAwesomeIcons.houseUser,
+                      title: 'role.customer.title'.tr(),
+                      description: 'role.customer.desc'.tr(),
+                      isSelected: state.selectedRole == 'customer',
+                      onTap: () => viewModel.selectRole('customer'),
                     ),
-                    const SizedBox(width: 8),
-                    const FaIcon(FontAwesomeIcons.arrowRight, size: 20),
+                    SizedBox(height: 16.h),
+                    RoleOptionCard(
+                      icon: FontAwesomeIcons.truckFast,
+                      title: 'role.partner.title'.tr(),
+                      description: 'role.partner.desc'.tr(),
+                      isSelected: state.selectedRole == 'pickup_partner',
+                      onTap: () => viewModel.selectRole('pickup_partner'),
+                    ),
+                    SizedBox(height: 16.h),
+                    RoleOptionCard(
+                      icon: FontAwesomeIcons.warehouse,
+                      title: 'role.warehouse.title'.tr(),
+                      description: 'role.warehouse.desc'.tr(),
+                      isSelected: state.selectedRole == 'warehouse',
+                      onTap: () => viewModel.selectRole('warehouse'),
+                    ),
+                    SizedBox(height: 16.h),
+                    RoleOptionCard(
+                      icon: FontAwesomeIcons.handshake,
+                      title: 'role.dealer.title'.tr(),
+                      description: 'role.dealer.desc'.tr(),
+                      isSelected: state.selectedRole == 'dealer',
+                      onTap: () => viewModel.selectRole('dealer'),
+                    ),
                   ],
                 ),
               ),
-              SizedBox(height: 24.h),
             ],
           ),
         ),

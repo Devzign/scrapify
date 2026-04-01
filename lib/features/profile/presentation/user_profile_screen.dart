@@ -224,7 +224,9 @@ class UserProfileScreen extends ConsumerWidget {
                     icon: FontAwesomeIcons.buildingColumns,
                     title: 'profile.bank_details'.tr(),
                     subtitle: 'profile.bank_details_desc'.tr(),
-                    onTap: () {},
+                    onTap: () {
+                      context.push(AppRoutes.paymentMethods);
+                    },
                   ),
                   const SizedBox(height: 16),
                   _buildListTile(

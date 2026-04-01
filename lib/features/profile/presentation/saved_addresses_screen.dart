@@ -2,14 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/widgets/loading_skeletons.dart';
 
-class SavedAddressesScreen extends StatelessWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/address_provider.dart';
+
+class SavedAddressesScreen extends ConsumerWidget {
   const SavedAddressesScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final addressState = ref.watch(addressProvider);
 
     return Scaffold(
       backgroundColor: isDark
@@ -49,34 +54,50 @@ class SavedAddressesScreen extends StatelessWidget {
               bottom: 100,
             ),
             children: [
-              _buildAddressCard(
-                context,
-                title: 'address_book.home'.tr(),
-                address:
-                    'Flat 402, Krishna Heights, MG Road, near City Center Mall\nPune, Maharashtra - 411001',
-                icon: Icons.home,
-                isPrimary: true,
-                isDark: isDark,
-              ),
-              const SizedBox(height: 16),
-              _buildAddressCard(
-                context,
-                title: 'address_book.work'.tr(),
-                address:
-                    'Shop No. 12, Main Market, Sector 18, Opposite Metro Station\nNoida, Uttar Pradesh - 201301',
-                icon: Icons.work,
-                isPrimary: false,
-                isDark: isDark,
-              ),
-              const SizedBox(height: 16),
-              _buildAddressCard(
-                context,
-                title: 'address_book.warehouse'.tr(),
-                address:
-                    'Plot 55, Industrial Area Phase 2, near Old Highway\nChandigarh - 160002',
-                icon: Icons.storefront,
-                isPrimary: false,
-                isDark: isDark,
+              addressState.when(
+                data: (addresses) {
+                  if (addresses.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
+                        child: Text(
+                          'No saved addresses found.',
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: addresses.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      final addr = addresses[index];
+                      return _buildAddressCard(
+                        context,
+                        title: addr.title,
+                        address:
+                            '${addr.addressLine1}${addr.addressLine2 != null ? ', ${addr.addressLine2}' : ''}\nPincode: ${addr.pincode}',
+                        icon: addr.title.toLowerCase() == 'home'
+                            ? Icons.home
+                            : (addr.title.toLowerCase() == 'work'
+                                  ? Icons.work
+                                  : Icons.location_on),
+                        isPrimary: addr.isDefault,
+                        isDark: isDark,
+                        onDelete: () => ref
+                            .read(addressProvider.notifier)
+                            .deleteAddress(addr.id),
+                      );
+                    },
+                  );
+                },
+                loading: () => const AddressListLoadingSkeleton(),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
               const SizedBox(height: 16),
               // Info hint
@@ -196,6 +217,7 @@ class SavedAddressesScreen extends StatelessWidget {
     required IconData icon,
     required bool isPrimary,
     required bool isDark,
+    required VoidCallback onDelete,
   }) {
     return Container(
       clipBehavior: Clip.antiAlias,
@@ -378,7 +400,7 @@ class SavedAddressesScreen extends StatelessWidget {
                               textColor: isDark
                                   ? const Color(0xFFF87171)
                                   : const Color(0xFFDC2626),
-                              onTap: () {},
+                              onTap: onDelete,
                             ),
                           ),
                         ],

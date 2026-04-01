@@ -106,6 +106,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     if (!response.isSuccess) {
       state = state.copyWith(
         snackBarMessage: response.errorMessage ?? 'Failed to send OTP',
+        isSuccessMessage: false,
       );
       return;
     }
@@ -114,6 +115,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     state = state.copyWith(
       otpSent: true,
       snackBarMessage: 'OTP: ${response.data}',
+      isSuccessMessage: true,
       shouldFocusOtp: true,
     );
   }
@@ -126,6 +128,19 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     await sendOtp();
   }
 
+  void editPhone() {
+    _timer?.cancel();
+    otpController.clear();
+    state = state.copyWith(
+      otpSent: false,
+      otpValue: '',
+      otpError: false,
+      canResendOtp: false,
+      secondsRemaining: 30,
+    );
+    phoneFocusNode.requestFocus();
+  }
+
   Future<void> verifyOtp() async {
     final phone = phoneController.text.trim();
     final otp = state.otpValue;
@@ -133,6 +148,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     if (otp.length < 6) {
       state = state.copyWith(
         snackBarMessage: 'Please enter the complete 6-digit OTP.',
+        isSuccessMessage: false,
       );
       return;
     }
@@ -153,6 +169,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     state = state.copyWith(
       otpError: true,
       snackBarMessage: 'Invalid OTP or login failed. Please try again.',
+      isSuccessMessage: false,
     );
   }
 
