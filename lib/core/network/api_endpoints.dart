@@ -1,6 +1,9 @@
 class ApiEndpoints {
   const ApiEndpoints._();
 
+  static const String googleMapsApiKey =
+      'AIzaSyBxn1MmF7oFUFI4fgTYxhm1M9GB4YPQZwY';
+
   static const String authSendOtp = '/auth/send-otp';
   static const String authVerifyOtp = '/auth/verify-otp';
   static const String authProfile = '/auth/profile';
@@ -17,12 +20,24 @@ class ApiEndpoints {
   static const String categories = '/categories';
   static const String subcategories = '/subcategories';
   static const String items = '/items';
+  static const String homeApplianceDetails = '/home-appliances/details';
   static const String categoryTypes = '/category-types';
 
   static const String pickupRequest = '/pickup-request';
   static const String pickupRequests = '/pickup-requests';
+  static const String donationRequest = '/donation-request';
+  static const String donationRequests = '/donation-requests';
   static const String pickupRequestStats = '/pickup-requests/stats';
   static const String pickupImagesUpload = '/pickup-images/upload';
+
+  static const String pickupBoyAssignments = '/pickup-boy/assignments';
+  static const String pickupBoyStatus = '/pickup-boy/status';
+
+  static const String adminPickups = '/admin/pickups';
+  static const String adminPickupBoys = '/admin/pickup-boys';
+
+  static const String appSettings = '/app-settings';
+  static const String appSettingsLanguage = '/app-settings/language';
 
   static const String notifications = '/notifications';
   static const String notificationsReadAll = '/notifications/read-all';
@@ -58,8 +73,52 @@ class ApiEndpoints {
     return '${pickupRequestById(id)}/images';
   }
 
+  static String pickupRequestTracking(int id) {
+    return '${pickupRequestById(id)}/tracking';
+  }
+
+  static String pickupRequestCancel(int id) {
+    return '${pickupRequestById(id)}/cancel';
+  }
+
+  static String pickupRequestReview(int id) {
+    return '${pickupRequestById(id)}/review';
+  }
+
+  static String donationRequestById(int id) {
+    return '$donationRequests/$id';
+  }
+
+  static String pickupRequestCloneAsDonation(int id) {
+    return '${pickupRequestById(id)}/clone-as-donation';
+  }
+
   static String pickupImageById(int id) {
     return '/pickup-images/$id';
+  }
+
+  static String pickupBoyPickupById(int id) {
+    return '/pickup-boy/pickups/$id';
+  }
+
+  static String pickupBoyAccept(int id) {
+    return '${pickupBoyPickupById(id)}/accept';
+  }
+
+  static String pickupBoyReject(int id) {
+    return '${pickupBoyPickupById(id)}/reject';
+  }
+
+  static String pickupBoyUpdateStatus(int id) {
+    return '${pickupBoyPickupById(id)}/status';
+  }
+
+  static String pickupBoyVerify(int id) {
+    return '${pickupBoyPickupById(id)}/verify';
+  }
+
+  static String adminAssignPickup(int id) {
+    return '$adminPickups/$id/assign';
   }
 
   static String notificationRead(String id) {

@@ -13,6 +13,9 @@ class AppPreferences {
   static const String authTokenKey = 'auth_token';
   static const String userDataKey = 'user_data';
   static const String hasSeenOnboardingKey = 'has_seen_onboarding';
+  static const String selectedLanguageKey = 'selected_language';
+  static const String notificationsEnabledKey = 'notifications_enabled';
+  static const String basketItemsKey = 'basket_items';
 
   Future<SharedPreferences> get _prefs async {
     return SharedPreferences.getInstance();
@@ -83,5 +86,59 @@ class AppPreferences {
   Future<void> setHasSeenOnboarding(bool value) async {
     final prefs = await _prefs;
     await prefs.setBool(hasSeenOnboardingKey, value);
+  }
+
+  Future<void> setSelectedLanguage(String languageCode) async {
+    final prefs = await _prefs;
+    await prefs.setString(selectedLanguageKey, languageCode);
+  }
+
+  Future<String?> getSelectedLanguage() async {
+    final prefs = await _prefs;
+    return prefs.getString(selectedLanguageKey);
+  }
+
+  Future<void> setNotificationsEnabled(bool value) async {
+    final prefs = await _prefs;
+    await prefs.setBool(notificationsEnabledKey, value);
+  }
+
+  Future<bool> getNotificationsEnabled() async {
+    final prefs = await _prefs;
+    return prefs.getBool(notificationsEnabledKey) ?? true;
+  }
+
+  Future<void> saveBasketItems(List<Map<String, dynamic>> items) async {
+    final prefs = await _prefs;
+    await prefs.setString(basketItemsKey, jsonEncode(items));
+  }
+
+  Future<List<Map<String, dynamic>>> getBasketItems() async {
+    final prefs = await _prefs;
+    final rawData = prefs.getString(basketItemsKey);
+
+    if (rawData == null || rawData.isEmpty) {
+      return [];
+    }
+
+    try {
+      final decoded = jsonDecode(rawData) as List<dynamic>;
+      return decoded
+          .map((item) => Map<String, dynamic>.from(item as Map))
+          .toList();
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Failed to parse saved basket data.',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      await prefs.remove(basketItemsKey);
+      return [];
+    }
+  }
+
+  Future<void> clearBasketItems() async {
+    final prefs = await _prefs;
+    await prefs.remove(basketItemsKey);
   }
 }

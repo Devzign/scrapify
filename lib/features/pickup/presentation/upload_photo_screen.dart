@@ -4,37 +4,37 @@ import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/booking_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/widgets/custom_button.dart';
 
-class UploadPhotoScreen extends StatefulWidget {
+class UploadPhotoScreen extends ConsumerStatefulWidget {
   const UploadPhotoScreen({super.key});
 
   @override
-  State<UploadPhotoScreen> createState() => _UploadPhotoScreenState();
+  ConsumerState<UploadPhotoScreen> createState() => _UploadPhotoScreenState();
 }
 
-class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
-  final List<XFile> _images = [];
+class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
     final XFile? image = await _picker.pickImage(source: source);
     if (image != null) {
-      setState(() {
-        _images.add(image);
-      });
+      ref.read(bookingProvider.notifier).addImages([image]);
     }
   }
 
   void _removeImage(int index) {
-    setState(() {
-      _images.removeAt(index);
-    });
+    ref.read(bookingProvider.notifier).removeImage(index);
   }
 
   @override
   Widget build(BuildContext context) {
+    final bookingState = ref.watch(bookingProvider);
+    final images = bookingState.images;
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
@@ -103,7 +103,11 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
               ),
               child: Row(
                 children: [
-                  const FaIcon(FontAwesomeIcons.circleExclamation, color: Color(0xFFC2410C), size: 18),
+                  const FaIcon(
+                    FontAwesomeIcons.circleExclamation,
+                    color: Color(0xFFC2410C),
+                    size: 18,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -173,7 +177,7 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
             ),
             const SizedBox(height: 32),
 
-            if (_images.isNotEmpty) ...[
+            if (images.isNotEmpty) ...[
               const Text(
                 'Selected Photos',
                 style: TextStyle(
@@ -187,15 +191,16 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                 height: 100,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: _images.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 12),
+                  itemCount: images.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     return Stack(
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: Image.file(
-                            File(_images[index].path),
+                            File(images[index].path),
                             width: 100,
                             height: 100,
                             fit: BoxFit.cover,
@@ -309,32 +314,16 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: ElevatedButton(
-            onPressed: () {
-              context.push(AppRoutes.selectDateTime);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              minimumSize: const Size(double.infinity, 60),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'common.continue'.tr().toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.1,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                const FaIcon(FontAwesomeIcons.chevronRight, size: 14),
-              ],
-            ),
+          child: CustomButton(
+            onPressed: images.isEmpty
+                ? null
+                : () {
+                    context.push(AppRoutes.selectDateTime);
+                  },
+            text: 'common.continue'.tr().toUpperCase(),
+            trailing: const FaIcon(FontAwesomeIcons.chevronRight, size: 14),
+            minHeight: 60,
+            borderRadius: 20,
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/models/category.dart';
+import '../domain/models/home_appliance_details.dart';
 import '../domain/models/pickup_catalog_item.dart';
 import '../domain/repositories/category_repository.dart';
 
@@ -65,6 +66,20 @@ final itemsProvider = FutureProvider.family<List<PickupCatalogItem>, int>((
     throw Exception(response.errorMessage ?? 'Failed to fetch items');
   }
 });
+
+final homeApplianceDetailsProvider =
+    FutureProvider.family<HomeApplianceDetails, int>((ref, categoryId) async {
+      final repository = ref.watch(categoryRepositoryProvider);
+      final response = await repository.fetchHomeApplianceDetails(categoryId);
+
+      if (response.isSuccess && response.data != null) {
+        return response.data!;
+      } else {
+        throw Exception(
+          response.errorMessage ?? 'Failed to fetch home appliance details',
+        );
+      }
+    });
 
 Category? _findCategoryRecursive(List<Category> categories, int id) {
   for (var cat in categories) {

@@ -1,32 +1,65 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../profile/domain/models/address_model.dart';
+import '../../profile/domain/models/payment_method_model.dart';
+import '../domain/models/pickup_request_model.dart';
+import '../domain/repositories/pickup_repository.dart';
+import '../../../core/utils/app_logger.dart';
+import 'donation_provider.dart';
 
 class BookingState {
+  final String requestType;
+  final String? donationCategory;
   final AddressModel? selectedAddress;
   final DateTime? selectedDate;
   final String? selectedTimeSlot;
   final String? payoutMethod;
+  final PaymentMethodModel? selectedPaymentDetail;
+  final List<XFile> images;
+  final bool isSubmitting;
+  final String? error;
 
   BookingState({
+    this.requestType = 'scrap',
+    this.donationCategory,
     this.selectedAddress,
     this.selectedDate,
     this.selectedTimeSlot,
     this.payoutMethod,
+    this.selectedPaymentDetail,
+    this.images = const [],
+    this.isSubmitting = false,
+    this.error,
   });
 
   BookingState copyWith({
+    String? requestType,
+    String? donationCategory,
     AddressModel? selectedAddress,
     DateTime? selectedDate,
     String? selectedTimeSlot,
     String? payoutMethod,
+    PaymentMethodModel? selectedPaymentDetail,
+    List<XFile>? images,
+    bool? isSubmitting,
+    String? error,
   }) {
     return BookingState(
+      requestType: requestType ?? this.requestType,
+      donationCategory: donationCategory ?? this.donationCategory,
       selectedAddress: selectedAddress ?? this.selectedAddress,
       selectedDate: selectedDate ?? this.selectedDate,
       selectedTimeSlot: selectedTimeSlot ?? this.selectedTimeSlot,
       payoutMethod: payoutMethod ?? this.payoutMethod,
+      selectedPaymentDetail:
+          selectedPaymentDetail ?? this.selectedPaymentDetail,
+      images: images ?? this.images,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      error: error,
     );
   }
+
+  bool get isDonationFlow => requestType == 'donation';
 }
 
 class BookingNotifier extends Notifier<BookingState> {
@@ -39,6 +72,21 @@ class BookingNotifier extends Notifier<BookingState> {
     state = state.copyWith(selectedAddress: address);
   }
 
+  void startScrapFlow() {
+    state = BookingState(
+      requestType: 'scrap',
+      selectedAddress: state.selectedAddress,
+    );
+  }
+
+  void startDonationFlow({required String donationCategory}) {
+    state = BookingState(
+      requestType: 'donation',
+      donationCategory: donationCategory,
+      selectedAddress: state.selectedAddress,
+    );
+  }
+
   void setSelectedDate(DateTime date) {
     state = state.copyWith(selectedDate: date);
   }
@@ -47,8 +95,191 @@ class BookingNotifier extends Notifier<BookingState> {
     state = state.copyWith(selectedTimeSlot: timeSlot);
   }
 
+  void clearSelectedTimeSlot() {
+    state = BookingState(
+      requestType: state.requestType,
+      donationCategory: state.donationCategory,
+      selectedAddress: state.selectedAddress,
+      selectedDate: state.selectedDate,
+      payoutMethod: state.payoutMethod,
+      selectedPaymentDetail: state.selectedPaymentDetail,
+      isSubmitting: state.isSubmitting,
+      error: state.error,
+    );
+  }
+
   void setPayoutMethod(String method) {
-    state = state.copyWith(payoutMethod: method);
+    state = state.copyWith(payoutMethod: method, selectedPaymentDetail: null);
+  }
+
+  void setSelectedPaymentDetail(PaymentMethodModel? payment) {
+    state = state.copyWith(selectedPaymentDetail: payment);
+  }
+
+  void addImages(List<XFile> newImages) {
+    state = state.copyWith(images: [...state.images, ...newImages]);
+  }
+
+  void setImages(List<XFile> images) {
+    state = state.copyWith(images: images);
+  }
+
+  void removeImage(int index) {
+    final newImages = List<XFile>.from(state.images);
+    newImages.removeAt(index);
+    state = state.copyWith(images: newImages);
+  }
+
+  Future<PickupRequestModel?> submitBooking(List<dynamic> basketItems) async {
+    if (state.selectedAddress == null) {
+      state = state.copyWith(error: 'Please select an address');
+      return null;
+    }
+    if (state.selectedDate == null || state.selectedTimeSlot == null) {
+      state = state.copyWith(error: 'Please select pickup date and time');
+      return null;
+    }
+    if (state.payoutMethod == null || state.payoutMethod!.trim().isEmpty) {
+      state = state.copyWith(error: 'Please select a payout method');
+      return null;
+    }
+
+    state = state.copyWith(isSubmitting: true, error: null);
+
+    try {
+      final repository = ref.read(pickupRepositoryProvider);
+      final selectedDate = state.selectedDate!;
+      final scheduledAt = _buildScheduledAt(
+        selectedDate,
+        state.selectedTimeSlot!,
+      );
+
+      final itemsList = basketItems
+          .map(
+            (item) => {
+              'category_id': item.category.id,
+              'weight': item.quantity,
+              'quantity': 1,
+              'attributes': item.selectedAttributes
+                  .map((attr) => {'attribute_id': attr.id, 'value': attr.value})
+                  .toList(),
+            },
+          )
+          .toList();
+
+      final data = {
+        'address':
+            '${state.selectedAddress!.addressLine1}, ${state.selectedAddress!.pincode}',
+        'address_id': state.selectedAddress!.id,
+        'city_id': state.selectedAddress!.cityId,
+        'pincode': state.selectedAddress!.pincode,
+        'latitude': state.selectedAddress!.latitude ?? 28.6139,
+        'longitude': state.selectedAddress!.longitude ?? 77.2090,
+        'scheduled_at': scheduledAt,
+        'payout_method': state.payoutMethod,
+        'payment_detail_id': state.selectedPaymentDetail?.id,
+        'items': itemsList,
+        'images': state.images,
+      };
+
+      AppLogger.info('Booking Submission Data: $data');
+
+      final response = await repository.createPickup(data);
+
+      if (response.isSuccess) {
+        state = state.copyWith(isSubmitting: false, error: null);
+        return response.data;
+      }
+
+      final errorMessage =
+          response.errorMessage ?? 'Failed to create pickup request';
+      AppLogger.error('Pickup request failed: $errorMessage');
+      state = state.copyWith(isSubmitting: false, error: errorMessage);
+      return null;
+    } catch (e) {
+      AppLogger.error('Pickup request crashed before completion', error: e);
+      state = state.copyWith(isSubmitting: false, error: e.toString());
+      return null;
+    }
+  }
+
+  Future<PickupRequestModel?> submitDonation(
+    List<dynamic> donationItems,
+  ) async {
+    if (state.selectedAddress == null) {
+      state = state.copyWith(error: 'Please select an address');
+      return null;
+    }
+    if (state.selectedDate == null || state.selectedTimeSlot == null) {
+      state = state.copyWith(error: 'Please select pickup date and time');
+      return null;
+    }
+
+    state = state.copyWith(isSubmitting: true, error: null);
+
+    try {
+      final repository = ref.read(pickupRepositoryProvider);
+      final selectedDate = state.selectedDate!;
+      final scheduledAt = _buildScheduledAt(
+        selectedDate,
+        state.selectedTimeSlot!,
+      );
+
+      final itemsList = donationItems
+          .map(
+            (item) => {
+              'category_id': item.category.id,
+              'weight': item.quantity,
+              'quantity': item.quantity.round(),
+              'attributes': item.selectedAttributes
+                  .map((attr) => {'attribute_id': attr.id, 'value': attr.value})
+                  .toList(),
+            },
+          )
+          .toList();
+
+      final donationData = ref.read(donationProvider);
+      final itemImages = donationData.items
+          .where((item) => item.image != null)
+          .map((item) => item.image!)
+          .toList();
+
+      final data = {
+        'address':
+            '${state.selectedAddress!.addressLine1}, ${state.selectedAddress!.pincode}',
+        'address_id': state.selectedAddress!.id,
+        'city_id': state.selectedAddress!.cityId,
+        'pincode': state.selectedAddress!.pincode,
+        'latitude': state.selectedAddress!.latitude ?? 28.6139,
+        'longitude': state.selectedAddress!.longitude ?? 77.2090,
+        'scheduled_at': scheduledAt,
+        'donation_category': state.donationCategory ?? 'mixed',
+        'notes': donationData.notes.isNotEmpty 
+            ? donationData.notes 
+            : 'Donation pickup request from mobile app',
+        'items': itemsList,
+        'images': [...state.images, ...itemImages],
+      };
+
+      AppLogger.info('Donation Submission Data: $data');
+
+      final response = await repository.createDonationPickup(data);
+
+      if (response.isSuccess) {
+        state = state.copyWith(isSubmitting: false, error: null);
+        return response.data;
+      }
+
+      final errorMessage =
+          response.errorMessage ?? 'Failed to create donation request';
+      AppLogger.error('Donation request failed: $errorMessage');
+      state = state.copyWith(isSubmitting: false, error: errorMessage);
+      return null;
+    } catch (e) {
+      AppLogger.error('Donation request crashed before completion', error: e);
+      state = state.copyWith(isSubmitting: false, error: e.toString());
+      return null;
+    }
   }
 
   void reset() {
@@ -59,3 +290,28 @@ class BookingNotifier extends Notifier<BookingState> {
 final bookingProvider = NotifierProvider<BookingNotifier, BookingState>(() {
   return BookingNotifier();
 });
+
+String _formatDate(DateTime date) {
+  final month = date.month.toString().padLeft(2, '0');
+  final day = date.day.toString().padLeft(2, '0');
+  return '${date.year}-$month-$day';
+}
+
+String _buildScheduledAt(DateTime date, String timeSlot) {
+  final startTime = timeSlot.split(' - ').first.trim();
+  final timeParts = startTime.split(' ');
+  final hourMinute = timeParts.first.split(':');
+  var hour = int.parse(hourMinute.first);
+  final minute = int.parse(hourMinute.last);
+  final meridian = timeParts.length > 1 ? timeParts.last.toUpperCase() : 'AM';
+
+  if (meridian == 'PM' && hour != 12) {
+    hour += 12;
+  } else if (meridian == 'AM' && hour == 12) {
+    hour = 0;
+  }
+
+  final hourText = hour.toString().padLeft(2, '0');
+  final minuteText = minute.toString().padLeft(2, '0');
+  return '${_formatDate(date)} $hourText:$minuteText:00';
+}

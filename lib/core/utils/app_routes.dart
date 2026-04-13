@@ -5,6 +5,7 @@ import '../../features/auth/presentation/language_selection_screen.dart';
 import '../../features/auth/presentation/role_selection_screen.dart';
 import '../../features/auth/presentation/login_otp_screen.dart';
 import '../../features/dashboard/presentation/customer_dashboard.dart';
+import '../../features/pickup/domain/models/pickup_catalog_item.dart';
 import '../../features/pickup/presentation/category_selection_screen.dart';
 import '../../features/pickup/presentation/dynamic_question_form_screen.dart';
 import '../../features/pickup/presentation/upload_photo_screen.dart';
@@ -17,6 +18,9 @@ import '../../features/pickup/presentation/review_booking_screen.dart';
 import '../../features/pickup/presentation/payout_method_screen.dart';
 import '../../features/pickup/presentation/success_confirmation_screen.dart';
 import '../../features/pickup/presentation/pickup_tracking_screen.dart';
+import '../../features/pickup/presentation/weight_entry_screen.dart';
+import '../../features/pickup/presentation/donation_category_selection_screen.dart';
+import '../../features/pickup/presentation/donation_items_screen.dart';
 import '../../features/dashboard/presentation/pickup_boy_dashboard.dart';
 import '../../features/dashboard/presentation/warehouse_dashboard.dart';
 import '../../features/dashboard/presentation/partner_dashboard.dart';
@@ -33,7 +37,10 @@ import '../../features/profile/presentation/faq_screen.dart';
 import '../../features/profile/presentation/payment_methods_screen.dart';
 import '../../features/profile/presentation/add_edit_payment_screen.dart';
 import '../../features/profile/domain/models/payment_method_model.dart';
-import '../../features/pickup/domain/models/pickup_catalog_item.dart';
+import '../../features/pickup/domain/models/pickup_request_model.dart';
+import '../../features/pickup/presentation/pickup_order_verification_screen.dart';
+import '../../features/pickup/presentation/agent_reschedule_request_screen.dart';
+import '../../features/pickup/presentation/user_reschedule_pickup_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -50,6 +57,8 @@ class AppRoutes {
   static const String pickupTracking = '/pickup/tracking';
   static const String pickupDetails = '/pickup/details';
   static const String basket = '/pickup/basket';
+  static const String donationCategorySelection = '/donation/categories';
+  static const String donationItems = '/donation/items';
   static const String subCategorySelection = '/pickup/subcategory';
   static const String itemSelection = '/pickup/items';
   static const String householdItemDetails = '/pickup/item-details';
@@ -69,6 +78,9 @@ class AppRoutes {
   static const String faq = '/profile/faq';
   static const String paymentMethods = '/profile/payment-methods';
   static const String addEditPayment = '/profile/payment-methods/add-edit';
+  static const String orderVerification = '/pickup/verification';
+  static const String agentReschedule = '/pickup/agent-reschedule';
+  static const String userReschedule = '/pickup/user-reschedule';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -115,6 +127,14 @@ class AppRoutes {
         builder: (context, state) => const CategorySelectionScreen(),
       ),
       GoRoute(
+        path: donationCategorySelection,
+        builder: (context, state) => const DonationCategorySelectionScreen(),
+      ),
+      GoRoute(
+        path: donationItems,
+        builder: (context, state) => const DonationItemsScreen(),
+      ),
+      GoRoute(
         path: questionForm,
         builder: (context, state) => const DynamicQuestionFormScreen(),
       ),
@@ -128,11 +148,20 @@ class AppRoutes {
       ),
       GoRoute(
         path: successConfirmation,
-        builder: (context, state) => const SuccessConfirmationScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return SuccessConfirmationScreen(
+            pickup: extra?['pickup'] as PickupRequestModel?,
+            isDonation: extra?['isDonation'] as bool? ?? false,
+          );
+        },
       ),
       GoRoute(
-        path: pickupTracking,
-        builder: (context, state) => const PickupTrackingScreen(),
+        path: '$pickupTracking/:pickupId',
+        builder: (context, state) {
+          final pickupId = int.parse(state.pathParameters['pickupId']!);
+          return PickupTrackingScreen(pickupId: pickupId);
+        },
       ),
       GoRoute(
         path: pickupDetails,
@@ -160,6 +189,7 @@ class AppRoutes {
           return HouseholdItemDetailsScreen(
             item: extra['item'] as PickupCatalogItem,
             parentCategoryName: extra['parentCategoryName'] as String,
+            applianceCategoryId: extra['applianceCategoryId'] as int,
           );
         },
       ),
@@ -170,6 +200,17 @@ class AppRoutes {
       GoRoute(
         path: payoutMethod,
         builder: (context, state) => const PayoutMethodScreen(),
+      ),
+      GoRoute(
+        path: '/pickup/weight-entry',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return WeightEntryScreen(
+            itemName: extra['itemName'] as String,
+            basePrice: extra['basePrice'] as double,
+            unit: extra['unit'] as String,
+          );
+        },
       ),
       GoRoute(
         path: ratePickup,
@@ -214,6 +255,18 @@ class AppRoutes {
           final paymentMethod = state.extra as PaymentMethodModel?;
           return AddEditPaymentScreen(paymentMethod: paymentMethod);
         },
+      ),
+      GoRoute(
+        path: orderVerification,
+        builder: (context, state) => const PickupOrderVerificationScreen(),
+      ),
+      GoRoute(
+        path: agentReschedule,
+        builder: (context, state) => const AgentRescheduleRequestScreen(),
+      ),
+      GoRoute(
+        path: userReschedule,
+        builder: (context, state) => const UserReschedulePickupScreen(),
       ),
     ],
   );

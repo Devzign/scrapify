@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#689c71", // Emerald Moss
+                    "deep-navy": "#0D2B52",
+                    "primary-fixed-dim": "#bbf7d0",
+                    "secondary-container": "#f1f5f9",
+                    "on-background": "#0D2B52",
+                    "tertiary-fixed-dim": "#ffb1c1",
+                    "on-surface": "#0D2B52",
+                    "error-container": "#fee2e2",
+                    "error": "#ef4444",
+                    "on-secondary-container": "#1e293b",
+                    "surface-dim": "#f3f4ee",
+                    "secondary-fixed-dim": "#e2e8f0",
+                    "outline": "#689c71",
+                    "on-tertiary-fixed": "#390918",
+                    "tertiary-fixed": "#ffd9df",
+                    "on-surface-variant": "#475569",
+                    "on-secondary-fixed-variant": "#334155",
+                    "background": "#F8FAFB",
+                    "on-primary-container": "#14532d",
+                    "on-error-container": "#991b1b",
+                    "on-tertiary-container": "#390918",
+                    "surface-bright": "#ffffff",
+                    "primary-fixed": "#dcfce7",
+                    "inverse-surface": "#1e293b",
+                    "on-error": "#ffffff",
+                    "tertiary": "#884958",
+                    "tertiary-container": "#ffd9df",
+                    "surface-variant": "#f1f5f9",
+                    "surface-tint": "#689c71",
+                    "primary-container": "#dcfce7",
+                    "secondary-fixed": "#f1f5f9",
+                    "inverse-primary": "#9dd3a4",
+                    "on-secondary-fixed": "#0D2B52",
+                    "on-primary": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#e2e8f0",
+                    "inverse-on-surface": "#f8fafc",
+                    "secondary": "#475569",
+                    "on-primary-fixed": "#064e3b",
+                    "surface-container-low": "#f7f7f7",
+                    "surface-container": "#f1f5f9",
+                    "outline-variant": "#e2e8f0",
+                    "on-tertiary-fixed-variant": "#6f3443",
+                    "on-primary-fixed-variant": "#14532d",
+                    "surface-container-highest": "#cbd5e1",
+                    "surface": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.5rem",
+                    "lg": "0.75rem",
+                    "xl": "1rem",
+                    "2xl": "1.25rem",
+                    "3xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .reason-card.selected {
+            border-color: #689c71;
+            background-color: #f0fdf4;
+        }
+        .reason-card.selected .icon-box {
+            background-color: #689c71;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-[#F8FAFB] text-deep-navy min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-white w-full sticky top-0 border-b border-slate-100 shadow-sm flex justify-between items-center px-6 py-4 z-50">
+<div class="flex items-center gap-4">
+<button class="transition-all duration-200 active:scale-95 text-primary">
+<span class="material-symbols-outlined font-bold" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h1 class="font-bold text-xl tracking-tight text-deep-navy">Reschedule Pickup</h1>
+<span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">पुनर्निर्धारण का अनुरोध</span>
+</div>
+</div>
+<button class="relative transition-all duration-200 active:scale-95 text-slate-400">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+</button>
+</header>
+<main class="flex-grow container mx-auto px-6 py-8 pb-32 max-w-2xl space-y-10">
+<!-- Active Pickup Status Card -->
+<section>
+<div class="bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-5">
+<div class="h-14 w-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl" data-icon="location_on">location_on</span>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="px-2 py-0.5 bg-slate-100 text-[10px] font-bold text-slate-500 rounded-md tracking-wider">#SC9022</span>
+<span class="text-[10px] font-medium text-slate-400">ACTIVE PICKUP</span>
+</div>
+<p class="text-lg font-extrabold text-deep-navy leading-tight">Sector 45, Green Park</p>
+<p class="text-xs text-slate-500 mt-0.5">Gurugram, Haryana</p>
+</div>
+</div>
+</section>
+<!-- Reason Selection Section -->
+<section class="space-y-6">
+<div class="flex flex-col gap-1 px-1">
+<h2 class="text-xl font-extrabold text-deep-navy">Select a Reason</h2>
+<div class="flex justify-between items-center">
+<p class="text-sm text-slate-500">Why can't you make it?</p>
+<span class="text-[10px] font-bold text-primary uppercase tracking-widest">कारण चुनें</span>
+</div>
+</div>
+<!-- Bento Grid Reason Selection -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Vehicle Breakdown -->
+<button class="reason-card bg-white p-6 rounded-3xl shadow-sm border-2 border-transparent hover:border-primary/30 transition-all flex flex-col items-center text-center gap-4 group active:scale-95">
+<div class="icon-box w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="car_repair">car_repair</span>
+</div>
+<div>
+<p class="font-bold text-sm text-deep-navy">Vehicle Breakdown</p>
+<p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">वाहन खराब</p>
+</div>
+</button>
+<!-- Heavy Traffic -->
+<button class="reason-card selected bg-white p-6 rounded-3xl shadow-sm border-2 transition-all flex flex-col items-center text-center gap-4 group active:scale-95">
+<div class="icon-box w-14 h-14 rounded-2xl flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="traffic">traffic</span>
+</div>
+<div>
+<p class="font-bold text-sm text-deep-navy">Heavy Traffic</p>
+<p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">भारी जाम</p>
+</div>
+</button>
+<!-- Personal Emergency -->
+<button class="reason-card bg-white p-6 rounded-3xl shadow-sm border-2 border-transparent hover:border-primary/30 transition-all flex flex-col items-center text-center gap-4 group active:scale-95">
+<div class="icon-box w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="emergency_home">emergency_home</span>
+</div>
+<div>
+<p class="font-bold text-sm text-deep-navy">Personal Issue</p>
+<p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">व्यक्तिगत आपात</p>
+</div>
+</button>
+<!-- Other -->
+<button class="reason-card bg-white p-6 rounded-3xl shadow-sm border-2 border-transparent hover:border-primary/30 transition-all flex flex-col items-center text-center gap-4 group active:scale-95">
+<div class="icon-box w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-3xl" data-icon="more_horiz">more_horiz</span>
+</div>
+<div>
+<p class="font-bold text-sm text-deep-navy">Other Reason</p>
+<p class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-1">अन्य कारण</p>
+</div>
+</button>
+</div>
+</section>
+<!-- Additional Context / Note -->
+<section class="space-y-4">
+<div class="flex justify-between items-center px-1">
+<label class="text-sm font-bold text-deep-navy">Additional Details (Optional)</label>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">अतिरिक्त विवरण</span>
+</div>
+<textarea class="w-full bg-white border border-slate-200 rounded-2xl p-5 shadow-sm focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none placeholder:text-slate-300 text-sm transition-all" placeholder="Briefly explain the situation for the customer..." rows="4"></textarea>
+</section>
+<!-- Action Area -->
+<div class="pt-6 space-y-4">
+<button class="w-full bg-primary text-white py-5 rounded-2xl font-bold text-lg shadow-[0_10px_25px_rgba(104,156,113,0.3)] hover:brightness-105 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+<span>Send Request to Customer</span>
+<span class="material-symbols-outlined" data-icon="send">send</span>
+</button>
+<button class="w-full bg-white text-deep-navy py-5 rounded-2xl font-bold text-lg border-2 border-slate-100 hover:bg-slate-50 transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="support_agent">support_agent</span>
+<span>Call Support</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-8 bg-white shadow-[0_-10px_30px_rgba(0,0,0,0.03)] z-50 rounded-t-[2.5rem] border-t border-slate-50">
+<a class="flex flex-col items-center justify-center text-slate-300 transition-all" href="#">
+<span class="material-symbols-outlined text-[26px]" data-icon="home">home</span>
+<span class="font-bold text-[10px] uppercase tracking-tighter mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold transition-all" href="#">
+<span class="material-symbols-outlined text-[26px]" data-icon="calendar_today" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-bold text-[10px] uppercase tracking-tighter mt-1">Pickups</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-300 transition-all" href="#">
+<span class="material-symbols-outlined text-[26px]" data-icon="eco">eco</span>
+<span class="font-bold text-[10px] uppercase tracking-tighter mt-1">Eco-Stats</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-300 transition-all" href="#">
+<span class="material-symbols-outlined text-[26px]" data-icon="person">person</span>
+<span class="font-bold text-[10px] uppercase tracking-tighter mt-1">Profile</span>
+</a>
+</nav>
+<!-- Decorative Background Elements -->
+<div class="fixed -top-24 -left-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="fixed top-1/2 -right-32 w-80 h-80 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+</body></html>

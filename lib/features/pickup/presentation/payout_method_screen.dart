@@ -6,6 +6,7 @@ import '../providers/booking_provider.dart';
 import '../providers/basket_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/widgets/custom_button.dart';
 
 class PayoutMethodScreen extends ConsumerWidget {
   const PayoutMethodScreen({super.key});
@@ -13,11 +14,19 @@ class PayoutMethodScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final booking = ref.watch(bookingProvider);
+    final basketItems = ref.watch(basketProvider);
 
     final payoutMethods = [
-      {'id': 'cash', 'title': 'Cash on Pickup', 'icon': FontAwesomeIcons.moneyBillWave},
-      {'id': 'upi', 'title': 'UPI Transfer', 'icon': FontAwesomeIcons.mobileScreenButton},
-      {'id': 'bank', 'title': 'Bank Transfer', 'icon': FontAwesomeIcons.buildingColumns},
+      {
+        'id': 'upi',
+        'title': 'UPI Transfer',
+        'icon': FontAwesomeIcons.mobileScreenButton,
+      },
+      {
+        'id': 'bank',
+        'title': 'Bank Transfer',
+        'icon': FontAwesomeIcons.buildingColumns,
+      },
     ];
 
     return Scaffold(
@@ -76,7 +85,11 @@ class PayoutMethodScreen extends ConsumerWidget {
               ),
               child: const Row(
                 children: [
-                  FaIcon(FontAwesomeIcons.shieldHalved, color: Color(0xFF16A34A), size: 18),
+                  FaIcon(
+                    FontAwesomeIcons.shieldHalved,
+                    color: Color(0xFF16A34A),
+                    size: 18,
+                  ),
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -95,7 +108,9 @@ class PayoutMethodScreen extends ConsumerWidget {
             ...payoutMethods.map((method) {
               final isSelected = booking.payoutMethod == method['id'];
               return GestureDetector(
-                onTap: () => ref.read(bookingProvider.notifier).setPayoutMethod(method['id'] as String),
+                onTap: () => ref
+                    .read(bookingProvider.notifier)
+                    .setPayoutMethod(method['id'] as String),
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   padding: const EdgeInsets.all(20),
@@ -104,7 +119,9 @@ class PayoutMethodScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: AppTheme.softShadow,
                     border: Border.all(
-                      color: isSelected ? AppTheme.primaryColor : Colors.transparent,
+                      color: isSelected
+                          ? AppTheme.primaryColor
+                          : Colors.transparent,
                       width: 2,
                     ),
                   ),
@@ -116,7 +133,9 @@ class PayoutMethodScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isSelected ? AppTheme.primaryColor : const Color(0xFFE2E8F0),
+                            color: isSelected
+                                ? AppTheme.primaryColor
+                                : const Color(0xFFE2E8F0),
                             width: isSelected ? 7 : 2,
                           ),
                         ),
@@ -132,7 +151,9 @@ class PayoutMethodScreen extends ConsumerWidget {
                         child: Center(
                           child: FaIcon(
                             method['icon'] as IconData,
-                            color: isSelected ? AppTheme.primaryColor : const Color(0xFF94A3B8),
+                            color: isSelected
+                                ? AppTheme.primaryColor
+                                : const Color(0xFF94A3B8),
                             size: 20,
                           ),
                         ),
@@ -151,9 +172,7 @@ class PayoutMethodScreen extends ConsumerWidget {
                               ),
                             ),
                             Text(
-                              method['id'] == 'cash' 
-                                  ? 'Instant payment after pickup'
-                                  : 'Within 2-4 hours of pickup',
+                              'Within 2-4 hours of pickup',
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: AppTheme.textSecondary,
@@ -168,30 +187,39 @@ class PayoutMethodScreen extends ConsumerWidget {
               );
             }),
             const Spacer(),
-            ElevatedButton(
+            CustomButton(
               onPressed: booking.payoutMethod != null
-                  ? () {
-                      ref.read(basketProvider.notifier).clearBasket();
-                      ref.read(bookingProvider.notifier).reset();
-                      context.go(AppRoutes.successConfirmation);
+                  ? () async {
+                      final createdPickup = await ref
+                          .read(bookingProvider.notifier)
+                          .submitBooking(basketItems);
+                      if (!context.mounted) {
+                        return;
+                      }
+                      if (createdPickup != null) {
+                        ref.read(basketProvider.notifier).clearBasket();
+                        ref.read(bookingProvider.notifier).reset();
+                        context.go(
+                          AppRoutes.successConfirmation,
+                          extra: createdPickup,
+                        );
+                        return;
+                      }
+                      final updatedBooking = ref.read(bookingProvider);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            updatedBooking.error ?? 'Booking failed',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
                     }
                   : null,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.primaryColor,
-                minimumSize: const Size(double.infinity, 60),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                disabledBackgroundColor: const Color(0xFFF1F5F9),
-              ),
-              child: const Text(
-                'CONFIRM BOOKING',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.1,
-                ),
-              ),
+              isLoading: booking.isSubmitting,
+              text: 'CONFIRM BOOKING',
+              minHeight: 60,
+              borderRadius: 20,
             ),
           ],
         ),

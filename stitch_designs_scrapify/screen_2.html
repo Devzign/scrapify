@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffd9df",
+                    "tertiary-container": "#ffd9df",
+                    "secondary": "#475569",
+                    "on-secondary-fixed-variant": "#334155",
+                    "on-secondary-fixed": "#0f172a",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#f1f5f9",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f7f7f7",
+                    "surface-dim": "#f3f4ee",
+                    "primary-container": "#dcfce7",
+                    "on-tertiary-fixed-variant": "#6f3443",
+                    "surface-variant": "#f1f5f9",
+                    "inverse-on-surface": "#f8fafc",
+                    "on-error-container": "#991b1b",
+                    "on-tertiary-fixed": "#390918",
+                    "on-surface-variant": "#475569",
+                    "error": "#ef4444",
+                    "primary-fixed": "#dcfce7",
+                    "on-secondary-container": "#1e293b",
+                    "on-primary-fixed": "#064e3b",
+                    "primary": "#689c71",
+                    "surface-container-highest": "#cbd5e1",
+                    "surface": "#ffffff",
+                    "on-tertiary-container": "#390918",
+                    "inverse-primary": "#9dd3a4",
+                    "outline": "#689c71",
+                    "on-error": "#ffffff",
+                    "background": "#f7f7f7",
+                    "secondary-fixed": "#f1f5f9",
+                    "error-container": "#fee2e2",
+                    "surface-bright": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb1c1",
+                    "surface-tint": "#689c71",
+                    "on-surface": "#0f172a",
+                    "outline-variant": "#e2e8f0",
+                    "tertiary": "#884958",
+                    "primary-fixed-dim": "#bbf7d0",
+                    "on-primary": "#ffffff",
+                    "surface-container-high": "#e2e8f0",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#14532d",
+                    "on-background": "#0f172a",
+                    "on-primary-fixed-variant": "#14532d",
+                    "surface-container": "#f1f5f9",
+                    "secondary-fixed-dim": "#e2e8f0",
+                    "inverse-surface": "#1e293b"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-40">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 shadow-sm flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="active:scale-95 transition-transform text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-full">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-['Inter'] font-extrabold text-2xl text-slate-900 dark:text-white">Order Verification</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="active:scale-95 transition-transform text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-20 px-6 max-w-4xl mx-auto space-y-6">
+<!-- Order Info Card: Bento Style -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="md:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border-2 border-transparent">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-[12px] font-medium text-primary uppercase tracking-wider">Active Pickup Order</p>
+<h2 class="text-2xl font-extrabold text-on-surface">#SC9022</h2>
+</div>
+<span class="bg-primary-container text-on-primary-container px-3 py-1 rounded-full text-xs font-bold uppercase">In-Progress</span>
+</div>
+<div class="space-y-3 flex flex-col h-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-600">person</span>
+</div>
+<div>
+<p class="text-xs text-slate-500">Customer / ग्राहक</p>
+<p class="font-bold text-on-surface">Amit Kumar</p>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-600">location_on</span>
+</div>
+<div>
+<p class="text-xs text-slate-500">Address / पता</p>
+<p class="text-sm font-medium text-slate-700">B-42, 3rd Floor, Green Park Extension, New Delhi - 110016</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-3 pt-4 border-t border-slate-100">
+<button class="flex-1 flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 px-4 rounded-lg shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">call</span>
+<div class="text-left">
+<p class="text-xs leading-none">Call Customer</p>
+<p class="text-[10px] opacity-90 font-normal">ग्राहक को कॉल करें</p>
+</div>
+</button>
+<button class="flex-1 flex items-center justify-center gap-2 bg-white border-2 border-primary text-primary font-bold py-3 px-4 rounded-lg shadow-sm active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">directions</span>
+<div class="text-left">
+<p class="text-xs leading-none">Navigate</p>
+<p class="text-[10px] opacity-90 font-normal">मैप देखें</p>
+</div>
+</button>
+</div></div>
+</div>
+<div class="bg-primary text-white p-6 rounded-xl shadow-sm flex flex-col justify-between">
+<span class="material-symbols-outlined text-4xl opacity-50" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<div>
+<p class="text-xs opacity-80">Quick Action / त्वरित कार्रवाई</p>
+<p class="font-bold text-lg leading-tight">Verify via QR Scan</p>
+</div>
+</div>
+</section>
+<!-- Item Verification List -->
+<section class="space-y-4">
+<h3 class="text-xl font-bold text-on-surface px-1">Items to Verify / वस्तुओं का सत्यापन</h3>
+<!-- Item 1: Iron Scrap -->
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden border-2 border-transparent hover:border-primary/20 transition-all">
+<div class="p-6">
+<div class="flex flex-col md:flex-row gap-6">
+<!-- Left: Media/Weight -->
+<div class="w-full md:w-48 space-y-3">
+<div class="aspect-square rounded-lg bg-slate-100 border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 group cursor-pointer hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-3xl mb-1">add_a_photo</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Upload Photo</span>
+<span class="text-[10px] text-slate-400">फोटो अपलोड करें</span>
+</div>
+<div class="bg-slate-50 p-3 rounded-lg text-center">
+<p class="text-[10px] text-slate-500 uppercase font-bold">Estimated Weight</p>
+<p class="text-lg font-extrabold text-on-surface">42.50 kg</p>
+</div>
+</div>
+<!-- Right: Details & Controls -->
+<div class="flex-1 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="text-lg font-extrabold text-on-surface leading-tight">Iron Scrap</h4>
+<p class="text-xs text-primary font-bold">लोहे का कबाड़</p>
+</div>
+<label class="flex items-center gap-2 cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
+<span class="text-[10px] font-bold text-slate-600">VERIFIED</span>
+<input class="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+</label>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Adjust Rate (per kg)</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+<input class="w-full pl-7 pr-3 py-2 rounded-lg border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary font-bold text-on-surface bg-slate-50" type="number" value="28.00"/>
+</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Material Condition</label>
+<select class="w-full px-3 py-2 rounded-lg border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary font-bold text-on-surface bg-slate-50">
+<option>Good / अच्छी</option>
+<option selected="">Mixed / मिश्रित</option>
+<option>Poor / खराब</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 2: Desktop Computer -->
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden border-2 border-transparent hover:border-primary/20 transition-all">
+<div class="p-6">
+<div class="flex flex-col md:flex-row gap-6">
+<div class="w-full md:w-48 space-y-3">
+<div class="aspect-square rounded-lg bg-slate-50 relative overflow-hidden group">
+<img class="w-full h-full object-cover opacity-80" data-alt="close-up of a stack of old dusty desktop computers and computer components in a warehouse" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmdceMfWMF1MtV7ibVeu8t2LKFAdbtpgXXnYGxVcKSFhBY1GgH5rHHJUGucb7NWylMicPY9e3x8P_-TWkEG2itdFMuSkPaJZnee07cX9kq6MPX6lmmlPfrVS6GBI4C8MBMo8NKCG5etDTtol8JFSQeS2PCIYUEsbRDFxL5qRrBeY6YPScVX949oBchHTygqKZkb-GLPipspSXtuCz644A23F2uuqbviwGToXOjWDzDmCQrkl6Dxaz_9rv8DRx6HtervRfdzIoqmIA"/>
+<div class="absolute inset-0 flex items-center justify-center bg-black/20">
+<span class="material-symbols-outlined text-white text-3xl">check_circle</span>
+</div>
+</div>
+<div class="bg-slate-50 p-3 rounded-lg text-center">
+<p class="text-[10px] text-slate-500 uppercase font-bold">Quantity</p>
+<p class="text-lg font-extrabold text-on-surface">2 Units</p>
+</div>
+</div>
+<div class="flex-1 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="text-lg font-extrabold text-on-surface leading-tight">Desktop Computer</h4>
+<p class="text-xs text-primary font-bold">डेस्कटॉप कंप्यूटर</p>
+</div>
+<label class="flex items-center gap-2 cursor-pointer bg-primary/10 px-3 py-2 rounded-lg border border-primary/20">
+<span class="text-[10px] font-bold text-primary">VERIFIED</span>
+<input checked="" class="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary" type="checkbox"/>
+</label>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Adjust Rate (per Unit)</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
+<input class="w-full pl-7 pr-3 py-2 rounded-lg border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary font-bold text-on-surface bg-slate-50" type="number" value="450.00"/>
+</div>
+</div>
+<div class="space-y-1">
+<label class="text-[10px] font-bold text-slate-500 uppercase">Condition</label>
+<select class="w-full px-3 py-2 rounded-lg border-slate-200 focus:border-primary focus:ring-1 focus:ring-primary font-bold text-on-surface bg-slate-50">
+<option selected="">Good (Working) / अच्छी</option>
+<option>Non-Working / काम नहीं कर रहा</option>
+<option>Damaged / क्षतिग्रस्त</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Summary Card -->
+<section class="bg-slate-900 text-white p-8 rounded-2xl shadow-xl space-y-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/20 blur-3xl rounded-full -mr-16 -mt-16"></div>
+<div class="relative z-10">
+<h3 class="text-lg font-bold mb-4 opacity-70 uppercase tracking-widest text-[12px]">Verification Summary / सारांश</h3>
+<div class="flex flex-col md:flex-row justify-between gap-6">
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-extrabold">02</span>
+<div class="text-xs uppercase font-bold opacity-60 leading-tight">Items<br/>Verified</div>
+</div>
+<div class="h-10 w-px bg-slate-700 hidden md:block"></div>
+<div class="flex-1 md:text-right">
+<p class="text-xs font-bold opacity-60 uppercase mb-1">New Estimated Payout / नया अनुमानित भुगतान</p>
+<p class="text-5xl font-black text-primary">₹2,090.00</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Sticky Bottom Actions -->
+<div class="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-md border-t border-slate-100 p-6 z-40">
+<div class="max-w-4xl mx-auto flex flex-col md:flex-row gap-4">
+<button class="flex-1 flex items-center justify-center gap-3 bg-primary text-white font-extrabold text-lg py-4 px-8 rounded-xl shadow-lg active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">receipt_long</span>
+                Complete &amp; Generate Bill
+            </button>
+<button class="md:w-max flex items-center justify-center gap-2 bg-slate-100 text-slate-700 font-bold py-4 px-8 rounded-xl hover:bg-slate-200 transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+                Add Item
+            </button>
+</div>
+</div>
+<!-- Bottom Navigation Bar (Contextual) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 pb-safe bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shadow-lg z-50 md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 font-['Inter'] text-[12px] font-medium active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+<span>Pickups</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 font-['Inter'] text-[12px] font-medium active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span>Earnings</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 font-['Inter'] text-[12px] font-medium active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span>History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 font-['Inter'] text-[12px] font-medium active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span>Profile</span>
+</a>
+</nav>
+</body></html>

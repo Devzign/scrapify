@@ -34,13 +34,12 @@ class PaymentMethodModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
       'type': type,
-      if (bankName != null) 'bank_name': bankName,
-      if (accountNumber != null) 'account_number': accountNumber,
-      if (ifscCode != null) 'ifsc_code': ifscCode,
-      if (accountHolderName != null) 'account_holder_name': accountHolderName,
-      if (upiId != null) 'upi_id': upiId,
+      'account_number': accountNumber ?? '',
+      'ifsc_code': ifscCode ?? '',
+      'bank_name': bankName ?? '',
+      'account_holder_name': accountHolderName ?? '',
+      'upi_id': upiId ?? '',
       'is_default': isDefault,
     };
   }
@@ -69,4 +68,16 @@ class PaymentMethodModel {
 
   bool get isBank => type == 'bank';
   bool get isUpi => type == 'upi';
+
+  String get maskedAccountNumber {
+    final value = accountNumber?.trim() ?? '';
+    if (value.isEmpty) {
+      return '';
+    }
+
+    final visibleDigits = value.length <= 4
+        ? value
+        : value.substring(value.length - 4);
+    return '****$visibleDigits';
+  }
 }

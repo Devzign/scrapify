@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scrapify - User Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#689c71",
+                        "background-light": "#f7f7f7",
+                        "background-dark": "#171b18",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col antialiased selection:bg-primary selection:text-white">
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col w-full max-w-md mx-auto bg-background-light dark:bg-background-dark overflow-x-hidden pb-24">
+<!-- Header Section -->
+<header class="pt-12 pb-8 px-6 flex flex-col items-center bg-white dark:bg-[#222823] rounded-b-[2.5rem] shadow-sm mb-6 relative overflow-hidden">
+<!-- Decorative background element -->
+<div class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary/10 to-transparent"></div>
+<div class="relative z-10 flex flex-col items-center gap-4">
+<div class="relative">
+<div class="w-32 h-32 rounded-full border-4 border-white dark:border-[#222823] shadow-lg overflow-hidden bg-slate-200 dark:bg-slate-700">
+<img alt="Portrait of a smiling young man" class="w-full h-full object-cover" data-alt="Portrait of a smiling young Indian man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqqeVv7F7ayqVm1u3SmA1xzJc8HtnhEF5229TuVmKz7GLrce8bm6cZrLDY0G1a1gJsNILs-ndpaN4mWtM2wfWLBNg3IyDA8Oq2AuEox0gAau7A1Tuao7BO4l-C2qFO0PGhUp3fubhiyralWmo1Sm-C5SJtvPlX8oSFU4jaymlEj8sho6CX-51KqNehHaSC2sQcfeXJVyTllfRoS6Mj7pzQ7a1JuKYlnmUVxMiBNc86KU05UpRLuHRo4iN3h17bOg8OPvN0ObJibUU"/>
+</div>
+<button class="absolute bottom-1 right-1 bg-primary text-white p-2 rounded-full shadow-md hover:bg-primary/90 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+<div class="text-center">
+<h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">Rohan Sharma</h1>
+<p class="text-slate-500 dark:text-slate-400 font-medium">+91 98765 43210</p>
+<div class="mt-3 inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<span class="text-xs font-semibold text-primary">Verified User</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Menu Grid -->
+<div class="px-5 flex flex-col gap-4">
+<p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1 mb-1">Account Settings</p>
+<!-- Address Book -->
+<a class="group flex items-center p-4 bg-white dark:bg-[#222823] rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-transform" href="#">
+<div class="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg mr-4 text-primary">
+<span class="material-symbols-outlined text-[28px]">location_on</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-primary transition-colors">Address Book</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Manage pickup locations</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
+</a>
+<!-- Bank Details -->
+<a class="group flex items-center p-4 bg-white dark:bg-[#222823] rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-transform" href="#">
+<div class="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg mr-4 text-primary">
+<span class="material-symbols-outlined text-[28px]">account_balance</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-primary transition-colors">Bank Details</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Manage UPI &amp; Bank Info</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
+</a>
+<!-- Language Settings -->
+<a class="group flex items-center p-4 bg-white dark:bg-[#222823] rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-transform" href="#">
+<div class="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg mr-4 text-primary">
+<span class="material-symbols-outlined text-[28px]">translate</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-primary transition-colors">Language / भाषा</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">English (Default)</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
+</a>
+<p class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1 mt-4 mb-1">Support &amp; Other</p>
+<!-- Help & Support -->
+<a class="group flex items-center p-4 bg-white dark:bg-[#222823] rounded-xl shadow-sm border border-slate-100 dark:border-slate-800 active:scale-[0.98] transition-transform" href="#">
+<div class="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg mr-4 text-primary">
+<span class="material-symbols-outlined text-[28px]">support_agent</span>
+</div>
+<div class="flex-1">
+<h3 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-primary transition-colors">Help &amp; Support</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">FAQs &amp; Customer Care</p>
+</div>
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-600">chevron_right</span>
+</a>
+<!-- Logout -->
+<button class="w-full group flex items-center p-4 mt-2 bg-red-50 dark:bg-red-900/10 rounded-xl shadow-sm border border-red-100 dark:border-red-900/30 active:scale-[0.98] transition-transform">
+<div class="bg-red-100 dark:bg-red-900/30 p-3 rounded-lg mr-4 text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined text-[28px]">logout</span>
+</div>
+<div class="flex-1 text-left">
+<h3 class="font-bold text-lg text-red-600 dark:text-red-400">Logout</h3>
+</div>
+</button>
+<div class="text-center mt-6 mb-8">
+<p class="text-xs text-slate-400 dark:text-slate-600">App Version 1.0.2</p>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full bg-white dark:bg-[#222823] border-t border-slate-100 dark:border-slate-800 pb-safe pt-2 px-6 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
+<div class="flex items-center justify-between max-w-md mx-auto h-16 pb-2">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center w-16 gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 group-hover:text-primary transition-colors text-[28px]">home</span>
+<span class="text-[10px] font-medium text-slate-400 dark:text-slate-500 group-hover:text-primary">Home</span>
+</a>
+<!-- Schedule -->
+<a class="flex flex-col items-center justify-center w-16 gap-1 group" href="#">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500 group-hover:text-primary transition-colors text-[28px]">local_shipping</span>
+<span class="text-[10px] font-medium text-slate-400 dark:text-slate-500 group-hover:text-primary">Schedule</span>
+</a>
+<!-- My Bids (Floating Action Button Style) -->
+<div class="relative -top-6">
+<a class="flex items-center justify-center w-14 h-14 rounded-full bg-primary text-white shadow-lg shadow-primary/40 hover:scale-105 transition-transform" href="#">
+<span class="material-symbols-outlined text-[28px]">currency_rupee</span>
+</a>
+</div>
+<!-- Profile (Active) -->
+<a class="flex flex-col items-center justify-center w-16 gap-1 group" href="#">
+<span class="material-symbols-outlined text-primary fill-current text-[28px]">account_circle</span>
+<span class="text-[10px] font-medium text-primary">Profile</span>
+</a>
+</div>
+</nav>
+<!-- End Bottom Navigation Bar -->
+</body></html>

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/loading_skeletons.dart';
 import '../domain/models/basket_item.dart';
 import '../domain/models/category.dart';
@@ -47,6 +48,7 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
         elevation: 0,
         leading: IconButton(
           icon: const FaIcon(
@@ -175,6 +177,7 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                                   imageUrl: child.imageUrl,
                                 ),
                                 'parentCategoryName': category.getName(context),
+                                'applianceCategoryId': child.id,
                               },
                             );
                             return;
@@ -241,16 +244,16 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                                 quantity: _quantities[item.id] ?? 0,
                                 onIncrement: () => _changeQuantity(item.id, 1),
                                 onDecrement: () => _changeQuantity(item.id, -1),
-                                showQuantityControls: !_requiresItemDetails(
-                                  item,
-                                ),
-                                onTap: _requiresItemDetails(item)
+                                showQuantityControls: !_requiresHouseholdCategoryDetails(category),
+                                onTap: _requiresHouseholdCategoryDetails(category)
                                     ? () => context.push(
                                         AppRoutes.householdItemDetails,
                                         extra: {
                                           'item': item,
                                           'parentCategoryName': category
                                               .getName(context),
+                                          'applianceCategoryId':
+                                              widget.categoryId,
                                         },
                                       )
                                     : null,
@@ -433,21 +436,12 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: CustomButton(
                 onPressed: () =>
                     _addSelectedItemsToBasket(items, parentCategory),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size.fromHeight(54),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  'Add to Basket',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                ),
+                text: 'Add to Basket',
+                minHeight: 54,
+                borderRadius: 16,
               ),
             ),
           ],
@@ -590,21 +584,16 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
     };
   }
 
-  bool _requiresItemDetails(PickupCatalogItem item) {
-    final name = item.name.toLowerCase();
-    return name.contains('air conditioner') ||
-        name == 'ac' ||
-        name.contains('refrigerator') ||
-        name.contains('washing machine');
-  }
-
   bool _requiresHouseholdCategoryDetails(Category category) {
+    if (category.hasAttributes) return true;
     final name = category.name.en.toLowerCase();
     return name.contains('air conditioner') ||
         name.contains('refrigerator') ||
         name.contains('washing machine') ||
         name.contains('television') ||
-        name.contains('microwave');
+        name.contains('microwave') ||
+        category.id == 3 ||
+        category.id == 4;
   }
 
   IconData _childIcon(String name) {

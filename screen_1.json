@@ -1,0 +1,28 @@
+{
+  "id": 2,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"name\":\"projects/5625103553911243484/screens/d867b6dab507415e800a068352fa14c0\",\"title\":\"Pickup Boy Dashboard\",\"screenshot\":{\"name\":\"projects/5625103553911243484/files/16693106972b413094b2397924c6549a\",\"downloadUrl\":\"https://lh3.googleusercontent.com/aida/ADBb0ugAAvsg5XelYC0KNbsOa_xdUFoAF8AqA4rtjH4CFQ88p-YYsQgo0Ju7y0Yx8_INErP9_kCZZQuvYpfR8FxcNPoiyGUjXVjwnhC0q1fSyAwwP_WKdA4CbwVVFwHOuMNdv7du4KLycD0GYNYJOPbZNk9FFAL3fCKRSDBogxSplLIy8a9vW5bkPltuE5HhWJDucePqP_jbKd8LivKJ9l6vQuJEdQS0NHQdMVLLSTTpoAfVFNYRNGvVoTlyMQ\"},\"htmlCode\":{\"name\":\"projects/5625103553911243484/files/536bde030a16493ea214404d5dbc0956\",\"downloadUrl\":\"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2IwNmY5NTk4ZDc2ODQwM2NhYmFjZGI2NWEwYzY0M2IyEgsSBxCD0PftlRQYAZIBIwoKcHJvamVjdF9pZBIVQhM1NjI1MTAzNTUzOTExMjQzNDg0&filename=&opi=89354086\",\"mimeType\":\"text/html\"},\"width\":\"780\",\"height\":\"2452\",\"deviceType\":\"MOBILE\"}",
+        "type": "text"
+      }
+    ],
+    "structuredContent": {
+      "deviceType": "MOBILE",
+      "height": "2452",
+      "htmlCode": {
+        "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sX2IwNmY5NTk4ZDc2ODQwM2NhYmFjZGI2NWEwYzY0M2IyEgsSBxCD0PftlRQYAZIBIwoKcHJvamVjdF9pZBIVQhM1NjI1MTAzNTUzOTExMjQzNDg0&filename=&opi=89354086",
+        "mimeType": "text/html",
+        "name": "projects/5625103553911243484/files/536bde030a16493ea214404d5dbc0956"
+      },
+      "name": "projects/5625103553911243484/screens/d867b6dab507415e800a068352fa14c0",
+      "screenshot": {
+        "downloadUrl": "https://lh3.googleusercontent.com/aida/ADBb0ugAAvsg5XelYC0KNbsOa_xdUFoAF8AqA4rtjH4CFQ88p-YYsQgo0Ju7y0Yx8_INErP9_kCZZQuvYpfR8FxcNPoiyGUjXVjwnhC0q1fSyAwwP_WKdA4CbwVVFwHOuMNdv7du4KLycD0GYNYJOPbZNk9FFAL3fCKRSDBogxSplLIy8a9vW5bkPltuE5HhWJDucePqP_jbKd8LivKJ9l6vQuJEdQS0NHQdMVLLSTTpoAfVFNYRNGvVoTlyMQ",
+        "name": "projects/5625103553911243484/files/16693106972b413094b2397924c6549a"
+      },
+      "title": "Pickup Boy Dashboard",
+      "width": "780"
+    }
+  }
+}

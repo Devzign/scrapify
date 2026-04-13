@@ -5,18 +5,22 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/custom_button.dart';
 import '../../profile/providers/address_provider.dart';
 import '../providers/booking_provider.dart';
 import '../providers/basket_provider.dart';
+import '../providers/donation_provider.dart';
 
 class SelectAddressTimeScreen extends ConsumerStatefulWidget {
   const SelectAddressTimeScreen({super.key});
 
   @override
-  ConsumerState<SelectAddressTimeScreen> createState() => _SelectAddressTimeScreenState();
+  ConsumerState<SelectAddressTimeScreen> createState() =>
+      _SelectAddressTimeScreenState();
 }
 
-class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScreen> {
+class _SelectAddressTimeScreenState
+    extends ConsumerState<SelectAddressTimeScreen> {
   final List<String> _timeSlots = [
     '10:00 AM - 01:00 PM',
     '02:00 PM - 05:00 PM',
@@ -29,7 +33,9 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final booking = ref.read(bookingProvider);
       if (booking.selectedDate == null) {
-        ref.read(bookingProvider.notifier).setSelectedDate(DateTime.now().add(const Duration(days: 1)));
+        ref
+            .read(bookingProvider.notifier)
+            .setSelectedDate(DateTime.now().add(const Duration(days: 1)));
       }
     });
   }
@@ -37,9 +43,24 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
   @override
   Widget build(BuildContext context) {
     final basketItems = ref.watch(basketProvider);
-    final totalEstimate = basketItems.fold<double>(0, (sum, item) => sum + item.totalEstimate);
+    final donationItems = ref.watch(donationProvider);
+    final totalEstimate = basketItems.fold<double>(
+      0,
+      (sum, item) => sum + item.totalEstimate,
+    );
     final booking = ref.watch(bookingProvider);
+    final isDonationFlow = booking.isDonationFlow;
     final addressesAsync = ref.watch(addressProvider);
+    final availableTimeSlots = _getAvailableTimeSlots(booking.selectedDate);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final selectedTimeSlot = booking.selectedTimeSlot;
+      if (selectedTimeSlot != null &&
+          !availableTimeSlots.contains(selectedTimeSlot) &&
+          mounted) {
+        ref.read(bookingProvider.notifier).clearSelectedTimeSlot();
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -92,13 +113,18 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                     addressesAsync.when(
                       data: (addresses) {
                         if (addresses.isEmpty) {
-                          return const Text('No addresses found. Please add one.');
+                          return const Text(
+                            'No addresses found. Please add one.',
+                          );
                         }
                         return Column(
                           children: addresses.map((addr) {
-                            final isSelected = booking.selectedAddress?.id == addr.id;
+                            final isSelected =
+                                booking.selectedAddress?.id == addr.id;
                             return GestureDetector(
-                              onTap: () => ref.read(bookingProvider.notifier).setSelectedAddress(addr),
+                              onTap: () => ref
+                                  .read(bookingProvider.notifier)
+                                  .setSelectedAddress(addr),
                               child: Container(
                                 margin: const EdgeInsets.only(bottom: 12),
                                 padding: const EdgeInsets.all(20),
@@ -107,7 +133,9 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                                   borderRadius: BorderRadius.circular(24),
                                   boxShadow: AppTheme.softShadow,
                                   border: Border.all(
-                                    color: isSelected ? AppTheme.primaryColor : Colors.transparent,
+                                    color: isSelected
+                                        ? AppTheme.primaryColor
+                                        : Colors.transparent,
                                     width: 2,
                                   ),
                                 ),
@@ -119,7 +147,9 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                          color: isSelected ? AppTheme.primaryColor : const Color(0xFFE2E8F0),
+                                          color: isSelected
+                                              ? AppTheme.primaryColor
+                                              : const Color(0xFFE2E8F0),
                                           width: isSelected ? 7 : 2,
                                         ),
                                       ),
@@ -127,7 +157,8 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                                     const SizedBox(width: 20),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             addr.title.toUpperCase(),
@@ -157,9 +188,17 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                                         ],
                                       ),
                                     ),
-                                    const FaIcon(FontAwesomeIcons.pen, color: Color(0xFF94A3B8), size: 14),
+                                    const FaIcon(
+                                      FontAwesomeIcons.pen,
+                                      color: Color(0xFF94A3B8),
+                                      size: 14,
+                                    ),
                                     const SizedBox(width: 16),
-                                    const FaIcon(FontAwesomeIcons.trashCan, color: Color(0xFFFCA5A5), size: 14),
+                                    const FaIcon(
+                                      FontAwesomeIcons.trashCan,
+                                      color: Color(0xFFFCA5A5),
+                                      size: 14,
+                                    ),
                                   ],
                                 ),
                               ),
@@ -167,8 +206,10 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                           }).toList(),
                         );
                       },
-                      loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (err, stack) => Text('Error loading addresses: $err'),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (err, stack) =>
+                          Text('Error loading addresses: $err'),
                     ),
 
                     const SizedBox(height: 40),
@@ -189,23 +230,34 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                         scrollDirection: Axis.horizontal,
                         itemCount: 7,
                         itemBuilder: (context, index) {
-                          final date = DateTime.now().add(Duration(days: index));
-                          final isSelected = booking.selectedDate?.year == date.year &&
+                          final date = DateTime.now().add(
+                            Duration(days: index),
+                          );
+                          final isSelected =
+                              booking.selectedDate?.year == date.year &&
                               booking.selectedDate?.month == date.month &&
                               booking.selectedDate?.day == date.day;
 
                           return GestureDetector(
-                            onTap: () => ref.read(bookingProvider.notifier).setSelectedDate(date),
+                            onTap: () => ref
+                                .read(bookingProvider.notifier)
+                                .setSelectedDate(date),
                             child: Container(
                               width: 75,
                               margin: const EdgeInsets.only(right: 12),
                               decoration: BoxDecoration(
-                                gradient: isSelected ? AppTheme.primaryGradient : null,
+                                gradient: isSelected
+                                    ? AppTheme.primaryGradient
+                                    : null,
                                 color: isSelected ? null : Colors.white,
                                 borderRadius: BorderRadius.circular(20),
-                                boxShadow: isSelected ? AppTheme.softShadow : null,
+                                boxShadow: isSelected
+                                    ? AppTheme.softShadow
+                                    : null,
                                 border: Border.all(
-                                  color: isSelected ? Colors.transparent : const Color(0xFFF1F5F9),
+                                  color: isSelected
+                                      ? Colors.transparent
+                                      : const Color(0xFFF1F5F9),
                                   width: 1.5,
                                 ),
                               ),
@@ -213,11 +265,15 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    DateFormat('MMM').format(date).toUpperCase(),
+                                    DateFormat(
+                                      'MMM',
+                                    ).format(date).toUpperCase(),
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w800,
-                                      color: isSelected ? Colors.white.withValues(alpha: 0.9) : AppTheme.textSecondary,
+                                      color: isSelected
+                                          ? Colors.white.withValues(alpha: 0.9)
+                                          : AppTheme.textSecondary,
                                       letterSpacing: 1.1,
                                     ),
                                   ),
@@ -227,16 +283,22 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                                     style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.w900,
-                                      color: isSelected ? Colors.white : AppTheme.textPrimary,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppTheme.textPrimary,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    DateFormat('EEE').format(date).toUpperCase(),
+                                    DateFormat(
+                                      'EEE',
+                                    ).format(date).toUpperCase(),
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w800,
-                                      color: isSelected ? Colors.white.withValues(alpha: 0.7) : AppTheme.textSecondary,
+                                      color: isSelected
+                                          ? Colors.white.withValues(alpha: 0.7)
+                                          : AppTheme.textSecondary,
                                       letterSpacing: 1.1,
                                     ),
                                   ),
@@ -260,63 +322,96 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Column(
-                      children: _timeSlots.map((time) {
-                        final isSelected = booking.selectedTimeSlot == time;
-                        return GestureDetector(
-                          onTap: () => ref.read(bookingProvider.notifier).setSelectedTimeSlot(time),
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: AppTheme.softShadow,
-                              border: Border.all(
-                                color: isSelected ? AppTheme.primaryColor : Colors.transparent,
-                                width: 2,
+                    if (availableTimeSlots.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: AppTheme.softShadow,
+                        ),
+                        child: const Text(
+                          'No pickup slots are available for the selected date.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      )
+                    else
+                      Column(
+                        children: availableTimeSlots.map((time) {
+                          final isSelected = booking.selectedTimeSlot == time;
+                          return GestureDetector(
+                            onTap: () => ref
+                                .read(bookingProvider.notifier)
+                                .setSelectedTimeSlot(time),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 20,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: AppTheme.softShadow,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppTheme.primaryColor
+                                      : Colors.transparent,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppTheme.primaryColor
+                                          : const Color(0xFFF8FAFC),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.clock,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : const Color(0xFF94A3B8),
+                                        size: 18,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Text(
+                                      time,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        color: isSelected
+                                            ? AppTheme.primaryColor
+                                            : AppTheme.textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    const FaIcon(
+                                      FontAwesomeIcons.solidCircleCheck,
+                                      color: AppTheme.primaryColor,
+                                      size: 22,
+                                    ),
+                                ],
                               ),
                             ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    color: isSelected ? AppTheme.primaryColor : const Color(0xFFF8FAFC),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: FaIcon(
-                                      FontAwesomeIcons.clock,
-                                      color: isSelected ? Colors.white : const Color(0xFF94A3B8),
-                                      size: 18,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Expanded(
-                                  child: Text(
-                                    time,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w800,
-                                      color: isSelected ? AppTheme.primaryColor : AppTheme.textPrimary,
-                                    ),
-                                  ),
-                                ),
-                                if (isSelected)
-                                  const FaIcon(
-                                    FontAwesomeIcons.solidCircleCheck,
-                                    color: AppTheme.primaryColor,
-                                    size: 22,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                          );
+                        }).toList(),
+                      ),
                   ],
                 ),
               ),
@@ -342,11 +437,13 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'PAYOUT ESTIMATE',
+                              isDonationFlow
+                                  ? 'DONATION PICKUP'
+                                  : 'PAYOUT ESTIMATE',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
@@ -356,7 +453,9 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                             ),
                             SizedBox(height: 4),
                             Text(
-                              'Calculated at Pickup',
+                              isDonationFlow
+                                  ? 'Schedule donation collection'
+                                  : 'Calculated at Pickup',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -368,8 +467,8 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Text(
-                              'NET PAYOUT',
+                            Text(
+                              isDonationFlow ? 'ITEMS' : 'NET PAYOUT',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
@@ -379,7 +478,9 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '₹${totalEstimate.toStringAsFixed(0)}',
+                              isDonationFlow
+                                  ? '${donationItems.items.fold<int>(0, (sum, item) => sum + item.quantity.round())} item(s)'
+                                  : '₹${totalEstimate.toStringAsFixed(0)}',
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w900,
@@ -391,26 +492,21 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
                       ],
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: booking.selectedAddress != null && booking.selectedDate != null && booking.selectedTimeSlot != null
+                    CustomButton(
+                      onPressed:
+                          booking.selectedAddress != null &&
+                              booking.selectedDate != null &&
+                              booking.selectedTimeSlot != null &&
+                              availableTimeSlots.contains(
+                                booking.selectedTimeSlot,
+                              )
                           ? () => context.push(AppRoutes.reviewBooking)
                           : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.primaryColor,
-                        minimumSize: const Size(double.infinity, 60),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        disabledBackgroundColor: const Color(0xFFF1F5F9),
-                      ),
-                      child: const Text(
-                        'REVIEW BOOKING',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.1,
-                        ),
-                      ),
+                      text: isDonationFlow
+                          ? 'REVIEW DONATION'
+                          : 'REVIEW BOOKING',
+                      minHeight: 60,
+                      borderRadius: 20,
                     ),
                   ],
                 ),
@@ -420,5 +516,43 @@ class _SelectAddressTimeScreenState extends ConsumerState<SelectAddressTimeScree
         ),
       ),
     );
+  }
+
+  List<String> _getAvailableTimeSlots(DateTime? selectedDate) {
+    if (selectedDate == null) {
+      return _timeSlots;
+    }
+
+    final now = DateTime.now();
+    final isToday =
+        selectedDate.year == now.year &&
+        selectedDate.month == now.month &&
+        selectedDate.day == now.day;
+
+    if (!isToday) {
+      return _timeSlots;
+    }
+
+    return _timeSlots.where((slot) {
+      final endTimeText = slot.split(' - ').last.trim();
+      final slotEnd = _parseSlotTime(selectedDate, endTimeText);
+      return slotEnd.isAfter(now);
+    }).toList();
+  }
+
+  DateTime _parseSlotTime(DateTime date, String timeText) {
+    final parts = timeText.split(' ');
+    final hourMinute = parts.first.split(':');
+    var hour = int.parse(hourMinute.first);
+    final minute = int.parse(hourMinute.last);
+    final meridian = parts.last.toUpperCase();
+
+    if (meridian == 'PM' && hour != 12) {
+      hour += 12;
+    } else if (meridian == 'AM' && hour == 12) {
+      hour = 0;
+    }
+
+    return DateTime(date.year, date.month, date.day, hour, minute);
   }
 }

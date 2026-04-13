@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,8 +12,14 @@ class SplashScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<SplashViewState>(splashViewModelProvider, (_, next) {
+    ref.listen<SplashViewState>(splashViewModelProvider, (previous, next) {
       final nextRoute = next.nextRoute;
+      final targetLanguage = next.targetLanguage;
+
+      if (targetLanguage != null &&
+          targetLanguage != context.locale.languageCode) {
+        context.setLocale(Locale(targetLanguage));
+      }
 
       if (nextRoute == null) {
         return;

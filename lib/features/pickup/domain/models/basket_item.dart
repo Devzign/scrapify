@@ -1,3 +1,4 @@
+import 'package:image_picker/image_picker.dart';
 import 'category.dart';
 
 class BasketItem {
@@ -7,6 +8,7 @@ class BasketItem {
   final String unit; // 'kg', 'pcs', etc.
   final double pricePerUnit;
   final List<SelectedAttribute> selectedAttributes;
+  final XFile? image;
 
   BasketItem({
     required this.category,
@@ -15,6 +17,7 @@ class BasketItem {
     required this.unit,
     required this.pricePerUnit,
     this.selectedAttributes = const [],
+    this.image,
   });
 
   double get totalEstimate => quantity * pricePerUnit;
@@ -26,6 +29,7 @@ class BasketItem {
     String? unit,
     double? pricePerUnit,
     List<SelectedAttribute>? selectedAttributes,
+    XFile? image,
   }) {
     return BasketItem(
       category: category ?? this.category,
@@ -34,13 +38,19 @@ class BasketItem {
       unit: unit ?? this.unit,
       pricePerUnit: pricePerUnit ?? this.pricePerUnit,
       selectedAttributes: selectedAttributes ?? this.selectedAttributes,
+      image: image ?? this.image,
     );
   }
 }
 
 class SelectedAttribute {
+  final int id;
   final String name;
   final String value;
 
-  SelectedAttribute({required this.name, required this.value});
+  SelectedAttribute({
+    required this.id,
+    required this.name,
+    required this.value,
+  });
 }

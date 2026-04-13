@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/loading_skeletons.dart';
+import '../../settings/providers/settings_provider.dart';
 import '../domain/models/category.dart';
 import '../providers/category_provider.dart';
 import 'widgets/category_list_tile.dart';
@@ -33,6 +34,8 @@ class _CategorySelectionScreenState
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = ref.watch(settingsProvider);
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
@@ -60,6 +63,9 @@ class _CategorySelectionScreenState
           .when(
             data: (categories) {
               final filtered = _filterCategories(categories, _searchQuery);
+              final showDonationTile =
+                  appSettings.features.donationEnabled &&
+                  _matchesDonationQuery(_searchQuery);
               return ListView(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
                 children: [
@@ -86,8 +92,22 @@ class _CategorySelectionScreenState
                   _buildSearchField(),
                   const SizedBox(height: 24),
                   if (filtered.isEmpty)
-                    _buildEmptyState()
-                  else
+                    if (!showDonationTile) _buildEmptyState(),
+                  if (showDonationTile) ...[
+                    CategoryListTile(
+                      title: context.locale.languageCode == 'hi'
+                          ? 'दान आइटम्स'
+                          : 'Donate Items',
+                      subtitle: context.locale.languageCode == 'hi'
+                          ? 'कपड़े, फर्नीचर और उपयोगी वस्तुएं दान करें'
+                          : 'Donate clothes, furniture, and reusable goods',
+                      iconData: FontAwesomeIcons.heartCirclePlus,
+                      onTap: () =>
+                          context.push(AppRoutes.donationCategorySelection),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+                  if (filtered.isNotEmpty)
                     ...filtered.map(
                       (category) => Padding(
                         padding: const EdgeInsets.only(bottom: 14),
@@ -184,6 +204,21 @@ class _CategorySelectionScreenState
           category.name.hi.toLowerCase().contains(normalized) ||
           category.slug.toLowerCase().contains(normalized);
     }).toList();
+  }
+
+  bool _matchesDonationQuery(String query) {
+    if (query.isEmpty) {
+      return true;
+    }
+    final normalized = query.toLowerCase();
+    return normalized.contains('donat') ||
+        normalized.contains('charity') ||
+        normalized.contains('cloth') ||
+        normalized.contains('furniture') ||
+        normalized.contains('reuse') ||
+        normalized.contains('दान') ||
+        normalized.contains('कप') ||
+        normalized.contains('फर्नी');
   }
 
   String _categorySubtitle(Category category) {

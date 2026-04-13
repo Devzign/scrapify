@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/storage/app_preferences.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/custom_button.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -12,7 +15,69 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   String _selectedLanguage = 'en';
   bool _notificationsEnabled = true;
-  bool _darkModeEnabled = false;
+  bool _isSaving = false;
+  final AppPreferences _preferences = AppPreferences();
+  bool _didLoadSettings = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_didLoadSettings) {
+      return;
+    }
+    _didLoadSettings = true;
+    _selectedLanguage = context.locale.languageCode;
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final currentLanguageCode = context.locale.languageCode;
+    final savedLanguage = await _preferences.getSelectedLanguage();
+    final notificationsEnabled = await _preferences.getNotificationsEnabled();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _selectedLanguage = savedLanguage ?? currentLanguageCode;
+      _notificationsEnabled = notificationsEnabled;
+    });
+  }
+
+  Future<void> _saveSettings() async {
+    final localization = EasyLocalization.of(context);
+    final previousLanguageCode =
+        localization?.currentLocale?.languageCode ??
+        context.locale.languageCode;
+    setState(() => _isSaving = true);
+    await _preferences.setSelectedLanguage(_selectedLanguage);
+    await _preferences.setNotificationsEnabled(_notificationsEnabled);
+
+    if (!context.mounted) {
+      return;
+    }
+
+    final nextLocale = Locale(_selectedLanguage);
+    if (previousLanguageCode != _selectedLanguage) {
+      await localization?.setLocale(nextLocale);
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() => _isSaving = false);
+    if (!context.mounted) {
+      return;
+    }
+    context.pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,16 +193,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 isDark: isDark,
                 onChanged: (val) => setState(() => _notificationsEnabled = val),
               ),
-              const SizedBox(height: 16),
-              _buildPreferenceTile(
-                context,
-                title: 'settings.dark_mode'.tr(),
-                subtitle: 'settings.dark_mode_desc'.tr(),
-                icon: Icons.dark_mode_outlined,
-                value: _darkModeEnabled,
-                isDark: isDark,
-                onChanged: (val) => setState(() => _darkModeEnabled = val),
-              ),
             ],
           ),
 
@@ -165,29 +220,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-              child: ElevatedButton(
-                onPressed: () {
-                  context.pop();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF13EC30), // primary
-                  foregroundColor: Colors.black,
-                  elevation: 8,
-                  shadowColor: const Color(0xFF13EC30).withValues(alpha: 0.3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  minimumSize: const Size(double.infinity, 56),
-                ),
-                child: Text(
-                  'settings.save'.tr(),
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
-                  ),
-                ),
+              child: CustomButton(
+                onPressed: _isSaving ? null : _saveSettings,
+                isLoading: _isSaving,
+                text: 'settings.save'.tr(),
+                borderRadius: 12,
               ),
             ),
           ),
@@ -216,12 +253,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF13EC30).withValues(alpha: 0.05) // primary/5
+              ? AppTheme.primaryColor.withValues(alpha: 0.05) // primary/5
               : (isDark ? const Color(0xFF1A2C1E) : Colors.white), // surface
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF13EC30) // primary
+                ? AppTheme
+                      .primaryColor // primary
                 : (isDark
                       ? Colors.white.withValues(alpha: 0.1)
                       : const Color(0xFFE5E7EB)), // border
@@ -230,7 +268,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF13EC30).withValues(alpha: 0.1),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
                     blurRadius: 4,
                   ),
                 ]
@@ -249,7 +287,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   height: 48,
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? const Color(0xFF13EC30)
+                        ? AppTheme.primaryColor
                         : (isDark
                               ? Colors.white.withValues(alpha: 0.05)
                               : const Color(0xFFF3F4F6)),
@@ -281,7 +319,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   label,
                   style: TextStyle(
                     color: isSelected
-                        ? (isDark ? const Color(0xFF13EC30) : Colors.black)
+                        ? (isDark ? AppTheme.primaryColor : Colors.black)
                         : (isDark ? Colors.white : const Color(0xFF111812)),
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -295,7 +333,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 right: -12,
                 child: Icon(
                   Icons.check_circle,
-                  color: Color(0xFF13EC30),
+                  color: AppTheme.primaryColor,
                   size: 24,
                 ),
               ),
@@ -339,13 +377,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             height: 48,
             decoration: BoxDecoration(
               color: isDark
-                  ? const Color(0xFF13EC30).withValues(alpha: 0.1)
+                  ? AppTheme.primaryColor.withValues(alpha: 0.1)
                   : const Color(0xFFF3F4F6),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
-              color: isDark ? const Color(0xFF13EC30) : const Color(0xFF4B5563),
+              color: isDark ? AppTheme.primaryColor : const Color(0xFF4B5563),
             ),
           ),
           const SizedBox(width: 16),
@@ -379,7 +417,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             value: value,
             onChanged: onChanged,
             activeThumbColor: Colors.white,
-            activeTrackColor: const Color(0xFF13EC30),
+            activeTrackColor: AppTheme.primaryColor,
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: isDark
                 ? const Color(0xFF374151)

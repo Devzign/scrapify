@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/widgets/custom_button.dart';
 import '../providers/payment_provider.dart';
 import '../domain/models/payment_method_model.dart';
 
@@ -46,7 +48,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
       body: Stack(
         children: [
           RefreshIndicator(
-            onRefresh: () => ref.read(paymentProvider.notifier).getPaymentDetails(),
+            onRefresh: () =>
+                ref.read(paymentProvider.notifier).getPaymentDetails(),
             child: ListView(
               padding: const EdgeInsets.only(
                 left: 16,
@@ -58,21 +61,65 @@ class PaymentMethodsScreen extends ConsumerWidget {
                 paymentState.when(
                   data: (methods) {
                     if (methods.isEmpty) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 40),
-                          child: Column(
-                            children: [
-                              Icon(Icons.payment, size: 64, color: Colors.grey.withValues(alpha: 0.5)),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No payment methods found.',
-                                style: TextStyle(
-                                  color: isDark ? Colors.white70 : Colors.black54,
-                                ),
-                              ),
-                            ],
+                      return Container(
+                        margin: const EdgeInsets.only(top: 8, bottom: 24),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 36,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF16311B)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.08)
+                                : const Color(0xFFE5E7EB),
                           ),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 88,
+                              height: 88,
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.white.withValues(alpha: 0.05)
+                                    : const Color(0xFFF8FAFC),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.account_balance_wallet_outlined,
+                                size: 42,
+                                color: isDark
+                                    ? const Color(0xFFCBD5E1)
+                                    : const Color(0xFF94A3B8),
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            Text(
+                              'No payment methods found.',
+                              style: TextStyle(
+                                color: isDark
+                                    ? Colors.white
+                                    : const Color(0xFF0F172A),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Add your bank or UPI details to receive instant payments after scrap pickups.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: isDark
+                                    ? const Color(0xFF94A3B8)
+                                    : const Color(0xFF64748B),
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }
@@ -80,7 +127,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: methods.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: 16),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
                       itemBuilder: (context, index) {
                         final method = methods[index];
                         return _buildPaymentCard(
@@ -92,7 +140,15 @@ class PaymentMethodsScreen extends ConsumerWidget {
                       },
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () => Container(
+                    margin: const EdgeInsets.only(top: 8, bottom: 24),
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF16311B) : Colors.white,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
                   error: (err, stack) => Center(child: Text('Error: $err')),
                 ),
                 const SizedBox(height: 16),
@@ -100,9 +156,9 @@ class PaymentMethodsScreen extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF13EC30).withValues(alpha: 0.1),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.1),
                     border: Border.all(
-                      color: const Color(0xFF13EC30).withValues(alpha: 0.2),
+                      color: AppTheme.primaryColor.withValues(alpha: 0.2),
                     ),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -111,7 +167,9 @@ class PaymentMethodsScreen extends ConsumerWidget {
                     children: [
                       Icon(
                         Icons.info_outline,
-                        color: isDark ? const Color(0xFF13EC30) : const Color(0xFF0FB825),
+                        color: isDark
+                            ? AppTheme.primaryColor
+                            : const Color(0xFF0FB825),
                         size: 20,
                       ),
                       const SizedBox(width: 12),
@@ -119,7 +177,9 @@ class PaymentMethodsScreen extends ConsumerWidget {
                         child: Text(
                           'payment.info'.tr(),
                           style: TextStyle(
-                            color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                            color: isDark
+                                ? const Color(0xFFCBD5E1)
+                                : const Color(0xFF334155),
                             fontSize: 14,
                           ),
                         ),
@@ -144,32 +204,21 @@ class PaymentMethodsScreen extends ConsumerWidget {
                   end: Alignment.topCenter,
                   colors: [
                     isDark ? const Color(0xFF102213) : Colors.white,
-                    isDark ? const Color(0xFF102213).withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.8),
-                    isDark ? const Color(0xFF102213).withValues(alpha: 0.0) : Colors.white.withValues(alpha: 0.0),
+                    isDark
+                        ? const Color(0xFF102213).withValues(alpha: 0.8)
+                        : Colors.white.withValues(alpha: 0.8),
+                    isDark
+                        ? const Color(0xFF102213).withValues(alpha: 0.0)
+                        : Colors.white.withValues(alpha: 0.0),
                   ],
                 ),
               ),
               child: SafeArea(
-                child: ElevatedButton(
+                child: CustomButton(
                   onPressed: () => context.push(AppRoutes.addEditPayment),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF13EC30),
-                    foregroundColor: const Color(0xFF0F172A),
-                    minimumSize: const Size(double.infinity, 56),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add),
-                      const SizedBox(width: 12),
-                      Text(
-                        'payment.add_new'.tr(),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
+                  text: 'payment.add_new'.tr(),
+                  leading: const Icon(Icons.add),
+                  borderRadius: 12,
                 ),
               ),
             ),
@@ -186,10 +235,12 @@ class PaymentMethodsScreen extends ConsumerWidget {
     required bool isDark,
   }) {
     final title = method.isBank ? method.bankName ?? 'Bank Account' : 'UPI ID';
-    final subtitle = method.isBank 
-      ? '**** ${method.accountNumber?.substring(method.accountNumber!.length - 4)}' 
-      : method.upiId ?? '';
-    final icon = method.isBank ? Icons.account_balance : Icons.vibration; // UPI icon? Maybe Icons.qr_code
+    final subtitle = method.isBank
+        ? method.maskedAccountNumber
+        : method.upiId ?? '';
+    final icon = method.isBank
+        ? Icons.account_balance
+        : Icons.vibration; // UPI icon? Maybe Icons.qr_code
 
     return Container(
       decoration: BoxDecoration(
@@ -210,15 +261,21 @@ class PaymentMethodsScreen extends ConsumerWidget {
                   height: 48,
                   decoration: BoxDecoration(
                     color: method.isDefault
-                        ? const Color(0xFF13EC30).withValues(alpha: 0.1)
-                        : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                        ? AppTheme.primaryColor.withValues(alpha: 0.1)
+                        : (isDark
+                              ? const Color(0xFF1E293B)
+                              : const Color(0xFFF1F5F9)),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     icon,
                     color: method.isDefault
-                        ? (isDark ? const Color(0xFF13EC30) : const Color(0xFF0FB825))
-                        : (isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569)),
+                        ? (isDark
+                              ? AppTheme.primaryColor
+                              : const Color(0xFF0FB825))
+                        : (isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569)),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -231,7 +288,9 @@ class PaymentMethodsScreen extends ConsumerWidget {
                           Text(
                             title,
                             style: TextStyle(
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              color: isDark
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -239,9 +298,14 @@ class PaymentMethodsScreen extends ConsumerWidget {
                           if (method.isDefault) ...[
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF13EC30).withValues(alpha: 0.2),
+                                color: AppTheme.primaryColor.withValues(
+                                  alpha: 0.2,
+                                ),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: const Text(
@@ -260,7 +324,9 @@ class PaymentMethodsScreen extends ConsumerWidget {
                       Text(
                         subtitle,
                         style: TextStyle(
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                          color: isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF475569),
                           fontSize: 14,
                         ),
                       ),
@@ -275,7 +341,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: TextButton.icon(
-                  onPressed: () => context.push(AppRoutes.addEditPayment, extra: method),
+                  onPressed: () =>
+                      context.push(AppRoutes.addEditPayment, extra: method),
                   icon: const Icon(Icons.edit_outlined, size: 18),
                   label: Text('payment.edit'.tr()),
                   style: TextButton.styleFrom(
@@ -283,15 +350,18 @@ class PaymentMethodsScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              Container(width: 1, height: 24, color: Colors.grey.withValues(alpha: 0.3)),
+              Container(
+                width: 1,
+                height: 24,
+                color: Colors.grey.withValues(alpha: 0.3),
+              ),
               Expanded(
                 child: TextButton.icon(
-                  onPressed: () => _showDeleteConfirmation(context, ref, method),
+                  onPressed: () =>
+                      _showDeleteConfirmation(context, ref, method),
                   icon: const Icon(Icons.delete_outline, size: 18),
                   label: Text('payment.delete'.tr()),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.red,
-                  ),
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
                 ),
               ),
             ],
@@ -301,12 +371,18 @@ class PaymentMethodsScreen extends ConsumerWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, WidgetRef ref, PaymentMethodModel method) {
+  void _showDeleteConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    PaymentMethodModel method,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Payment Method'),
-        content: const Text('Are you sure you want to delete this payment method?'),
+        content: const Text(
+          'Are you sure you want to delete this payment method?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -315,10 +391,14 @@ class PaymentMethodsScreen extends ConsumerWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final success = await ref.read(paymentProvider.notifier).deletePaymentDetail(method.id);
+              final success = await ref
+                  .read(paymentProvider.notifier)
+                  .deletePaymentDetail(method.id);
               if (context.mounted && !success) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Failed to delete payment method')),
+                  const SnackBar(
+                    content: Text('Failed to delete payment method'),
+                  ),
                 );
               }
             },

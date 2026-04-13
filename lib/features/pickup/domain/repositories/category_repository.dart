@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/category.dart';
+import '../models/home_appliance_details.dart';
 import '../models/pickup_catalog_item.dart';
 
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
@@ -43,7 +43,10 @@ class CategoryRepository {
         if (payload is List<dynamic>) {
           list = payload;
         } else if (payload is Map<String, dynamic>) {
-          list = payload['data'] as List<dynamic>? ?? const <dynamic>[];
+          list =
+              payload['data'] as List<dynamic>? ??
+              payload['items'] as List<dynamic>? ??
+              const <dynamic>[];
         } else {
           list = const <dynamic>[];
         }
@@ -66,7 +69,10 @@ class CategoryRepository {
         if (payload is List<dynamic>) {
           list = payload;
         } else if (payload is Map<String, dynamic>) {
-          list = payload['data'] as List<dynamic>? ?? const <dynamic>[];
+          list =
+              payload['data'] as List<dynamic>? ??
+              payload['items'] as List<dynamic>? ??
+              const <dynamic>[];
         } else {
           list = const <dynamic>[];
         }
@@ -77,6 +83,17 @@ class CategoryRepository {
             )
             .toList();
       },
+    );
+  }
+
+  Future<ApiResponse<HomeApplianceDetails>> fetchHomeApplianceDetails(
+    int categoryId,
+  ) async {
+    return _dioClient.get<HomeApplianceDetails>(
+      ApiEndpoints.homeApplianceDetails,
+      queryParameters: {'category_id': categoryId},
+      parser: (data) =>
+          HomeApplianceDetails.fromJson(data['data'] as Map<String, dynamic>),
     );
   }
 }

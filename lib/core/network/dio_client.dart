@@ -12,7 +12,6 @@ import '../utils/app_routes.dart';
 import 'api_exceptions.dart';
 import 'api_response.dart';
 
-/// Core Networking Class handling all HTTP requests for the application.
 class DioClient {
   static bool _isHandlingUnauthorized = false;
   late final Dio _dio;
@@ -153,11 +152,20 @@ class DioClient {
     T Function(dynamic data)? parser,
   }) async {
     try {
+      final requestOptions = options?.copyWith() ?? Options();
+      if (data is FormData) {
+        requestOptions.contentType = Headers.multipartFormDataContentType;
+        requestOptions.headers = {
+          ...?requestOptions.headers,
+          'Accept': 'application/json',
+        }..remove('Content-Type');
+      }
+
       final response = await _dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: options,
+        options: requestOptions,
         cancelToken: cancelToken,
       );
       return _processResponse(response, parser);

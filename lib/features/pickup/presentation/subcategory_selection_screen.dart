@@ -129,7 +129,7 @@ class _SubCategorySelectionScreenState
                                   'item': PickupCatalogItem(
                                     id: sub.id,
                                     name: sub.name.en,
-                                    price: 65,
+                                    price: sub.basePrice ?? 65,
                                     unit: 'per_piece',
                                     materialType: 'E-Waste',
                                     pickupSize: 'Medium',
@@ -140,6 +140,7 @@ class _SubCategorySelectionScreenState
                                   'parentCategoryName': parentCategory.getName(
                                     context,
                                   ),
+                                  'applianceCategoryId': sub.id,
                                 },
                               );
                               return;
@@ -259,10 +260,15 @@ class _SubCategorySelectionScreenState
   }
 
   bool _requiresHouseholdDetails(Category category) {
+    if (category.hasAttributes) return true;
     final name = category.name.en.toLowerCase();
     return name.contains('air conditioner') ||
         name.contains('refrigerator') ||
-        name.contains('washing machine');
+        name.contains('washing machine') ||
+        name.contains('television') ||
+        name.contains('microwave') ||
+        category.id == 3 ||
+        category.id == 4;
   }
 
   IconData _getIconForCategory(String slug, String title) {

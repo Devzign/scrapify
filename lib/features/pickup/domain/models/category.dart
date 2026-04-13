@@ -59,6 +59,8 @@ class Category {
   String getName(BuildContext context) {
     return context.locale.languageCode == 'hi' ? name.hi : name.en;
   }
+
+  bool get hasAttributes => attributes.isNotEmpty;
 }
 
 class LocalizedName {

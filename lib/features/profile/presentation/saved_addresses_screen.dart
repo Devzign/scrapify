@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/loading_skeletons.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,9 +106,9 @@ class SavedAddressesScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF13EC30).withValues(alpha: 0.1),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
                   border: Border.all(
-                    color: const Color(0xFF13EC30).withValues(alpha: 0.2),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.2),
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -116,7 +118,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                     Icon(
                       Icons.info_outline,
                       color: isDark
-                          ? const Color(0xFF13EC30)
+                          ? AppTheme.primaryColor
                           : const Color(0xFF0FB825),
                       size: 20,
                     ),
@@ -166,41 +168,11 @@ class SavedAddressesScreen extends ConsumerWidget {
                 ),
               ),
               child: SafeArea(
-                child: InkWell(
-                  onTap: () {
-                    context.push(AppRoutes.addAddress);
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF13EC30), // primary
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF22C55E).withValues(alpha: 0.2),
-                          blurRadius: 15,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.add, color: Color(0xFF0F172A)),
-                        SizedBox(width: 12),
-                        Text(
-                          'address_book.add_new'.tr(),
-                          style: const TextStyle(
-                            color: Color(0xFF0F172A),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                child: CustomButton(
+                  onPressed: () => context.push(AppRoutes.addAddress),
+                  text: 'address_book.add_new'.tr(),
+                  leading: const Icon(Icons.add),
+                  borderRadius: 12,
                 ),
               ),
             ),
@@ -247,7 +219,7 @@ class SavedAddressesScreen extends ConsumerWidget {
             if (isPrimary)
               Container(
                 width: 6,
-                color: const Color(0xFF13EC30), // primary
+                color: AppTheme.primaryColor, // primary
               ),
             Expanded(
               child: Padding(
@@ -265,12 +237,12 @@ class SavedAddressesScreen extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: isPrimary
                                 ? (isDark
-                                      ? const Color(
-                                          0xFF13EC30,
-                                        ).withValues(alpha: 0.1)
-                                      : const Color(
-                                          0xFF13EC30,
-                                        ).withValues(alpha: 0.2))
+                                      ? AppTheme.primaryColor.withValues(
+                                          alpha: 0.1,
+                                        )
+                                      : AppTheme.primaryColor.withValues(
+                                          alpha: 0.2,
+                                        ))
                                 : (isDark
                                       ? const Color(0xFF1E293B)
                                       : const Color(0xFFF1F5F9)),
@@ -280,7 +252,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                             icon,
                             color: isPrimary
                                 ? (isDark
-                                      ? const Color(0xFF13EC30)
+                                      ? AppTheme.primaryColor
                                       : const Color(0xFF0FB825))
                                 : (isDark
                                       ? const Color(0xFF94A3B8)
@@ -317,9 +289,9 @@ class SavedAddressesScreen extends ConsumerWidget {
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: const Color(
-                                          0xFF13EC30,
-                                        ).withValues(alpha: 0.2),
+                                        color: AppTheme.primaryColor.withValues(
+                                          alpha: 0.2,
+                                        ),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: const Text(

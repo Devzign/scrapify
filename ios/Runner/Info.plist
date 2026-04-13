@@ -49,5 +49,9 @@
 	<string>This app needs access to Location to fetch your address for scrap pickups.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This app needs access to Location to track your live scrap pickups.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+	</array>
 </dict>
 </plist>
