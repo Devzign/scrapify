@@ -14,7 +14,7 @@ import '../../../core/widgets/loading_skeletons.dart';
 import '../../settings/domain/models/app_settings_model.dart';
 import '../../settings/providers/settings_provider.dart';
 import 'widgets/customer_dashboard_bottom_bar.dart';
-import '../../../../core/services/location_service.dart';
+import '../../../core/services/location_service.dart';
 
 class CustomerDashboard extends ConsumerStatefulWidget {
   const CustomerDashboard({super.key});

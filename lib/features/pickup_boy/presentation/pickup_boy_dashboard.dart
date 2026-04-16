@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../core/services/location_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 
@@ -14,6 +15,9 @@ class PickupBoyDashboard extends StatefulWidget {
 
 class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
   bool _isActive = true;
+  static const String _currentCustomerPhone = '+919876543210';
+  static const double _currentCustomerLatitude = 12.9716;
+  static const double _currentCustomerLongitude = 77.5946;
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +63,10 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
             children: [
               Row(
                 children: [
-                  FaIcon(
-                    FontAwesomeIcons.recycle,
-                    color: AppTheme.primaryColor,
-                    size: 28,
+                  Image.asset(
+                    'assets/images/Scrapify-app-icon.png',
+                    height: 32,
+                    width: 32,
                   ),
                   const SizedBox(width: 8),
                   const Text(
@@ -502,6 +506,7 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
                             label: 'pickup_dashboard.call'.tr(),
                             color: Colors.green.shade50,
                             iconColor: Colors.green.shade700,
+                            onPressed: () => _openDialer(_currentCustomerPhone),
                           ),
                           const SizedBox(width: 12),
                           _buildBoxAction(
@@ -509,18 +514,9 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
                             label: 'pickup_dashboard.map'.tr(),
                             color: Colors.blue.shade50,
                             iconColor: Colors.blue.shade700,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            flex: 2,
-                            child: _buildBoxAction(
-                              icon: Icons.qr_code_scanner,
-                              label: 'pickup_dashboard.scan_qr'.tr(),
-                              color: AppTheme.backgroundLight,
-                              iconColor: AppTheme.textPrimary,
-                              isWide: true,
-                              onPressed: () =>
-                                  context.push(AppRoutes.orderVerification),
+                            onPressed: () => _openDirections(
+                              destinationLatitude: _currentCustomerLatitude,
+                              destinationLongitude: _currentCustomerLongitude,
                             ),
                           ),
                         ],
@@ -777,5 +773,48 @@ class _PickupBoyDashboardState extends State<PickupBoyDashboard> {
         ),
       ],
     );
+  }
+
+  Future<void> _openDialer(String phoneNumber) async {
+    final uri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+      return;
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Unable to open dialer')));
+  }
+
+  Future<void> _openDirections({
+    required double destinationLatitude,
+    required double destinationLongitude,
+  }) async {
+    final position = await LocationService().getCurrentPosition();
+    if (position == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Current location unavailable')),
+      );
+      return;
+    }
+
+    final googleMapsUri = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1'
+      '&origin=${position.latitude},${position.longitude}'
+      '&destination=$destinationLatitude,$destinationLongitude'
+      '&travelmode=driving',
+    );
+
+    if (await canLaunchUrl(googleMapsUri)) {
+      await launchUrl(googleMapsUri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Unable to open maps')));
   }
 }

@@ -65,10 +65,10 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
                       color: Colors.white.withValues(alpha: 0.8),
                       shape: BoxShape.circle,
                     ),
-                    child: const FaIcon(
-                      FontAwesomeIcons.recycle,
-                      color: AppTheme.primaryColor,
-                      size: 40,
+                    child: Image.asset(
+                      'assets/images/Scrapify-app-icon.png',
+                      height: 40,
+                      width: 40,
                     ),
                   ),
                 ],

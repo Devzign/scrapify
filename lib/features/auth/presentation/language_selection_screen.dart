@@ -31,27 +31,10 @@ class LanguageSelectionScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height: 20.h),
-                Container(
-                  height: 120.w,
-                  width: 120.w,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.primaryLight,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: FaIcon(
-                    FontAwesomeIcons.recycle,
-                    color: AppTheme.primaryColor,
-                    size: 48.sp,
-                  ),
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  'Scrapify',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                  ),
+                Image.asset(
+                  'assets/images/Scrapify-logo-main.jpg',
+                  width: 260.w,
+                  fit: BoxFit.contain,
                 ),
                 SizedBox(height: 32.h),
                 Text(

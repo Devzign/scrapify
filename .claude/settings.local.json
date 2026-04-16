@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -n '60:80p' /Users/amitsinha/Devzign/flutter/scrapify/lib/features/pickup/presentation/rate_pickup_screen.dart)",
+      "Bash(sed -n '500:520p' /Users/amitsinha/Devzign/flutter/scrapify/lib/features/customer/presentation/customer_dashboard.dart)",
+      "Bash(sed -n '1240:1255p' /Users/amitsinha/Devzign/flutter/scrapify/lib/features/customer/presentation/customer_dashboard.dart)",
+      "Bash(flutter pub *)",
+      "Bash(dart run *)"
+    ]
+  }
+}
