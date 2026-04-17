@@ -1,16 +1,37 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import '../../auth/providers/auth_provider.dart';
 import '../domain/models/pickup_request.dart';
+import '../domain/models/pickup_request_model.dart';
+import '../domain/models/tracking_timeline_model.dart';
 import '../domain/repositories/pickup_repository.dart';
 
-// Repository provider
-final pickupRepositoryProvider = Provider<PickupRepository>((ref) {
-  final dioClient = ref.watch(dioClientProvider);
-  return PickupRepository(dioClient);
+// ── Legacy FutureProviders (used by tracking / detail screens) ──────────────
+
+final pickupsProvider = FutureProvider<List<PickupRequestModel>>((ref) async {
+  final repository = ref.watch(pickupRepositoryProvider);
+  final response = await repository.fetchPickups();
+  if (response.isSuccess) return response.data!;
+  throw Exception(response.errorMessage ?? 'Failed to fetch pickups');
 });
 
-// State
+final pickupDetailProvider =
+    FutureProvider.family<PickupRequestModel, int>((ref, id) async {
+  final repository = ref.watch(pickupRepositoryProvider);
+  final response = await repository.fetchPickupById(id);
+  if (response.isSuccess) return response.data!;
+  throw Exception(response.errorMessage ?? 'Failed to fetch pickup details');
+});
+
+final trackingProvider =
+    FutureProvider.family<TrackingTimelineModel, int>((ref, id) async {
+  final repository = ref.watch(pickupRepositoryProvider);
+  final response = await repository.fetchTracking(id);
+  if (response.isSuccess) return response.data!;
+  throw Exception(response.errorMessage ?? 'Failed to fetch tracking details');
+});
+
+// ── StateNotifier-based provider (used by dashboard / booking flow) ─────────
+
 class PickupState {
   final List<PickupRequest> requests;
   final PickupStats? stats;
@@ -48,7 +69,6 @@ class PickupState {
   }
 }
 
-// Notifier
 class PickupNotifier extends StateNotifier<PickupState> {
   final PickupRepository _repository;
 
@@ -66,8 +86,10 @@ class PickupNotifier extends StateNotifier<PickupState> {
 
   Future<void> loadStats() async {
     final result = await _repository.getStats();
-    if (result.isSuccess) {
-      state = state.copyWith(stats: result.data);
+    if (result.isSuccess && result.data != null) {
+      state = state.copyWith(
+        stats: PickupStats.fromJson(result.data!),
+      );
     }
   }
 
@@ -95,7 +117,7 @@ class PickupNotifier extends StateNotifier<PickupState> {
 
   Future<bool> submitReview(int id, int rating, {String? review}) async {
     state = state.copyWith(isActionLoading: true, clearError: true);
-    final result = await _repository.submitReview(id, rating, review: review);
+    final result = await _repository.submitReview(id, rating, review);
     state = state.copyWith(isActionLoading: false);
     if (!result.isSuccess) {
       state = state.copyWith(error: result.errorMessage);
@@ -106,7 +128,6 @@ class PickupNotifier extends StateNotifier<PickupState> {
   void clearError() => state = state.copyWith(clearError: true);
 }
 
-// Provider
 final pickupProvider =
     StateNotifierProvider<PickupNotifier, PickupState>((ref) {
   final repo = ref.watch(pickupRepositoryProvider);

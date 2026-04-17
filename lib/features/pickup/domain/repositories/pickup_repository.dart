@@ -7,6 +7,7 @@ import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../models/pickup_request.dart';
 import '../models/pickup_request_model.dart';
 import '../models/tracking_timeline_model.dart';
 
@@ -176,6 +177,53 @@ class PickupRepository {
     return _dioClient.post<void>(
       ApiEndpoints.pickupRequestReview(id),
       data: {'rating': rating, 'review': review},
+    );
+  }
+
+  Future<ApiResponse<List<PickupRequest>>> getPickups({String? status}) async {
+    final query = status != null ? '?status=$status' : '';
+    return _dioClient.get<List<PickupRequest>>(
+      '${ApiEndpoints.pickupRequests}$query',
+      parser: (json) {
+        final data = json['data'];
+        final List<dynamic> list;
+        if (data is List<dynamic>) {
+          list = data;
+        } else if (data is Map<String, dynamic>) {
+          list = data['items'] as List<dynamic>? ?? const [];
+        } else {
+          list = const [];
+        }
+        return list
+            .map((e) => PickupRequest.fromJson(e as Map<String, dynamic>))
+            .toList();
+      },
+    );
+  }
+
+  Future<ApiResponse<Map<String, dynamic>>> getStats() async {
+    return _dioClient.get<Map<String, dynamic>>(
+      ApiEndpoints.pickupRequestStats,
+      parser: (json) => (json['data'] as Map<String, dynamic>?) ?? {},
+    );
+  }
+
+  Future<ApiResponse<List<dynamic>>> getCategories() async {
+    return _dioClient.get<List<dynamic>>(
+      ApiEndpoints.categories,
+      parser: (json) {
+        final data = json['data'];
+        if (data is List) return data;
+        if (data is Map) return (data['items'] as List<dynamic>?) ?? [];
+        return [];
+      },
+    );
+  }
+
+  Future<ApiResponse<void>> cancelPickup(int id, String reason) async {
+    return _dioClient.post<void>(
+      ApiEndpoints.pickupRequestCancel(id),
+      data: {'reason': reason},
     );
   }
 }
