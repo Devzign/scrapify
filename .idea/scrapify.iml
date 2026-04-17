@@ -132,6 +132,9 @@
       <excludeFolder url="file://$MODULE_DIR$/windows/flutter/ephemeral/.plugin_symlinks/url_launcher_windows/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/windows/flutter/ephemeral/.plugin_symlinks/url_launcher_windows/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/windows/flutter/ephemeral/.plugin_symlinks/url_launcher_windows/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/.claude/worktrees/beautiful-pike/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/.claude/worktrees/beautiful-pike/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/.claude/worktrees/beautiful-pike/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

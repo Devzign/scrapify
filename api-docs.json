@@ -519,6 +519,296 @@
                 ]
             }
         },
+        "/api/admin/partner-approvals": {
+            "get": {
+                "tags": [
+                    "Admin Partner Approvals"
+                ],
+                "summary": "List all partner approval requests",
+                "operationId": "listApprovalRequests",
+                "responses": {
+                    "200": {
+                        "description": "Requests fetched"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/channel-partner/profile": {
+            "get": {
+                "tags": [
+                    "Channel Partner"
+                ],
+                "summary": "Get partner profile",
+                "operationId": "getPartnerProfile",
+                "responses": {
+                    "200": {
+                        "description": "Profile fetched"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/channel-partner/status-request": {
+            "post": {
+                "tags": [
+                    "Channel Partner"
+                ],
+                "summary": "Submit a status change request for warehouse/pickup boy",
+                "operationId": "submitPartnerStatusRequest",
+                "responses": {
+                    "200": {
+                        "description": "Request submitted"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/waitlist": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all waitlist entries with filters",
+                "operationId": "adminListWaitlist",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/waitlist/{id}/status": {
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update waitlist entry status",
+                "operationId": "adminUpdateWaitlistStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "new",
+                                            "contacted",
+                                            "planned",
+                                            "launched",
+                                            "closed"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status updated"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/waitlist/export": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Export waitlist entries as CSV",
+                "operationId": "adminExportWaitlist",
+                "responses": {
+                    "200": {
+                        "description": "CSV file"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/warehouses": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "List all warehouses with filters",
+                "operationId": "adminListWarehouses",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Create a new warehouse",
+                "operationId": "adminStoreWarehouse",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "address",
+                                    "city_id"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "address": {
+                                        "type": "string"
+                                    },
+                                    "latitude": {
+                                        "type": "number"
+                                    },
+                                    "longitude": {
+                                        "type": "number"
+                                    },
+                                    "service_radius_km": {
+                                        "type": "number"
+                                    },
+                                    "city_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Warehouse created"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/admin/warehouses/{id}": {
+            "get": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Get warehouse details",
+                "operationId": "adminShowWarehouse",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update warehouse details",
+                "operationId": "adminUpdateWarehouse",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Warehouse updated"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Delete warehouse",
+                "operationId": "adminDeleteWarehouse",
+                "responses": {
+                    "200": {
+                        "description": "Warehouse deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/app-settings": {
             "post": {
                 "tags": [
@@ -1010,6 +1300,25 @@
                     },
                     "404": {
                         "description": "Not Found"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/channel-partner/dashboard": {
+            "get": {
+                "tags": [
+                    "Channel Partner"
+                ],
+                "summary": "Get channel partner dashboard metrics",
+                "operationId": "getChannelPartnerDashboard",
+                "responses": {
+                    "200": {
+                        "description": "Dashboard data fetched"
                     }
                 },
                 "security": [
@@ -1846,6 +2155,47 @@
                 ]
             }
         },
+        "/api/pickup-boy/dashboard": {
+            "get": {
+                "tags": [
+                    "Pickup Boy"
+                ],
+                "summary": "Get dashboard counts and upcoming routes",
+                "operationId": "getPickupBoyDashboard",
+                "responses": {
+                    "200": {
+                        "description": "Dashboard fetched"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pickup-boy/pickups/{id}/reschedule-request": {
+            "post": {
+                "tags": [
+                    "Pickup Boy"
+                ],
+                "summary": "Request a reschedule with reason",
+                "operationId": "requestReschedule",
+                "responses": {
+                    "200": {
+                        "description": "Reschedule request submitted"
+                    },
+                    "404": {
+                        "description": "Assignment not found"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/pickup-requests": {
             "get": {
                 "tags": [
@@ -2412,6 +2762,90 @@
                     }
                 ]
             }
+        },
+        "/api/v1/service-coverage": {
+            "get": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "List cities and areas covered by active warehouses",
+                "operationId": "getServiceCoverage",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/v1/waitlist": {
+            "post": {
+                "tags": [
+                    "Waitlist"
+                ],
+                "summary": "Join waitlist for unsupported locations",
+                "operationId": "submitWaitlist",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "phone",
+                                    "city"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Amit Sinha"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "9876543210"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "amit@example.com"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "Gurugram"
+                                    },
+                                    "state": {
+                                        "type": "string",
+                                        "example": "Haryana"
+                                    },
+                                    "location_name": {
+                                        "type": "string",
+                                        "example": "Gurugram, Haryana"
+                                    },
+                                    "latitude": {
+                                        "type": "number",
+                                        "example": 28.4958
+                                    },
+                                    "longitude": {
+                                        "type": "number",
+                                        "example": 77.0069
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Please launch service here."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Waitlist request submitted successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -2434,6 +2868,14 @@
         {
             "name": "Admin",
             "description": "Admin"
+        },
+        {
+            "name": "Admin Partner Approvals",
+            "description": "Admin Partner Approvals"
+        },
+        {
+            "name": "Channel Partner",
+            "description": "Channel Partner"
         },
         {
             "name": "Settings",
@@ -2474,6 +2916,10 @@
         {
             "name": "Profile",
             "description": "Profile"
+        },
+        {
+            "name": "Waitlist",
+            "description": "Waitlist"
         }
     ]
 }
