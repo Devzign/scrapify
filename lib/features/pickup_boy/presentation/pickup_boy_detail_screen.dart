@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/pickup_boy_provider.dart';
 
@@ -147,8 +148,12 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        // TODO: launch_url tel:${_detail?['customer_phone']}
+                      onPressed: () async {
+                        final phone = _detail?['customer_phone']?.toString();
+                        if (phone != null && phone.isNotEmpty) {
+                          final uri = Uri.parse('tel:$phone');
+                          if (await canLaunchUrl(uri)) launchUrl(uri);
+                        }
                       },
                       icon: const FaIcon(FontAwesomeIcons.phone, size: 14),
                       label: const Text('Call Customer'),
@@ -157,8 +162,23 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () {
-                        // TODO: launch maps with lat/lng
+                      onPressed: () async {
+                        final lat = _detail?['latitude']?.toString();
+                        final lng = _detail?['longitude']?.toString();
+                        final addr = _detail?['address']?.toString() ?? '';
+                        Uri uri;
+                        if (lat != null && lng != null) {
+                          uri = Uri.parse(
+                              'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng');
+                        } else if (addr.isNotEmpty) {
+                          uri = Uri.parse(
+                              'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(addr)}');
+                        } else {
+                          return;
+                        }
+                        if (await canLaunchUrl(uri)) {
+                          launchUrl(uri, mode: LaunchMode.externalApplication);
+                        }
                       },
                       icon: const FaIcon(FontAwesomeIcons.mapLocationDot,
                           size: 14),

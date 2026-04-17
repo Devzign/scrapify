@@ -1,25 +1,48 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../providers/pickup_draft_provider.dart';
 
-class UploadPhotoScreen extends StatefulWidget {
+class UploadPhotoScreen extends ConsumerStatefulWidget {
   const UploadPhotoScreen({super.key});
 
   @override
-  State<UploadPhotoScreen> createState() => _UploadPhotoScreenState();
+  ConsumerState<UploadPhotoScreen> createState() => _UploadPhotoScreenState();
 }
 
-class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
+class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
+  final _picker = ImagePicker();
+  final List<File> _images = [];
+
+  Future<void> _pickFromCamera() async {
+    final xFile =
+        await _picker.pickImage(source: ImageSource.camera, imageQuality: 80);
+    if (xFile != null) {
+      setState(() => _images.add(File(xFile.path)));
+    }
+  }
+
+  Future<void> _pickFromGallery() async {
+    final xFiles = await _picker.pickMultiImage(imageQuality: 80);
+    if (xFiles.isNotEmpty) {
+      setState(() => _images.addAll(xFiles.map((x) => File(x.path))));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: AppTheme.textPrimary),
+          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
+              color: AppTheme.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -49,7 +72,6 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Text(
               'upload.heading'.tr(),
               style: const TextStyle(
@@ -69,15 +91,11 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Dashed Camera Upload Area
+            // Camera Upload Area
             GestureDetector(
-              onTap: () {
-                // Open Camera logic
-              },
+              onTap: _pickFromCamera,
               child: Container(
                 width: double.infinity,
-                // We'll use a custom painter or just a container with Border if dotted_border isn't available, but we'll add the package.
-                // For now, let's use a BoxDecoration with a solid border if dotted_border fails, but we'll add it in pubspec.
                 decoration: BoxDecoration(
                   color: AppTheme.primaryLight.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(16),
@@ -126,28 +144,80 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
 
             // Gallery Button
             OutlinedButton(
-              onPressed: () {
-                // Open Gallery logic
-              },
+              onPressed: _pickFromGallery,
               style: OutlinedButton.styleFrom(
                 side: BorderSide(color: Colors.grey.shade300),
                 backgroundColor: Colors.white,
               ),
-               child: Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   const FaIcon(FontAwesomeIcons.image, size: 18, color: AppTheme.primaryColor),
-                   const SizedBox(width: 8),
-                   Text(
+                  const FaIcon(FontAwesomeIcons.image,
+                      size: 18, color: AppTheme.primaryColor),
+                  const SizedBox(width: 8),
+                  Text(
                     'upload.gallery'.tr(),
-                    style: const TextStyle(fontSize: 14, color: AppTheme.textPrimary),
+                    style: const TextStyle(
+                        fontSize: 14, color: AppTheme.textPrimary),
                   ),
                 ],
               ),
             ),
+
+            // Preview selected images
+            if (_images.isNotEmpty) ...[
+              const SizedBox(height: 24),
+              Text(
+                'Selected Photos (${_images.length})',
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 90,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _images.length,
+                  itemBuilder: (context, i) => Stack(
+                    children: [
+                      Container(
+                        width: 90,
+                        height: 90,
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: DecorationImage(
+                            image: FileImage(_images[i]),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 12,
+                        child: GestureDetector(
+                          onTap: () =>
+                              setState(() => _images.removeAt(i)),
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.close,
+                                color: Colors.white, size: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+
             const SizedBox(height: 32),
 
-            // Photo Tips Card
+            // Photo Tips
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -160,7 +230,8 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                 children: [
                   Row(
                     children: [
-                      const FaIcon(FontAwesomeIcons.lightbulb, size: 16, color: AppTheme.primaryColor),
+                      const FaIcon(FontAwesomeIcons.lightbulb,
+                          size: 16, color: AppTheme.primaryColor),
                       const SizedBox(width: 8),
                       Text(
                         'upload.tips_title'.tr(),
@@ -177,15 +248,18 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _buildTipChip(FontAwesomeIcons.sun, 'upload.good_lighting'.tr()),
-                      _buildTipChip(FontAwesomeIcons.layerGroup, 'upload.separate_items'.tr()),
-                      _buildTipChip(FontAwesomeIcons.eyeSlash, 'upload.no_blur'.tr()),
+                      _buildTipChip(FontAwesomeIcons.sun,
+                          'upload.good_lighting'.tr()),
+                      _buildTipChip(FontAwesomeIcons.layerGroup,
+                          'upload.separate_items'.tr()),
+                      _buildTipChip(
+                          FontAwesomeIcons.eyeSlash, 'upload.no_blur'.tr()),
                     ],
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 48),
           ],
         ),
@@ -195,6 +269,8 @@ class _UploadPhotoScreenState extends State<UploadPhotoScreen> {
           padding: const EdgeInsets.all(24.0),
           child: ElevatedButton(
             onPressed: () {
+              // Store images in draft (even if empty — photos optional)
+              ref.read(pickupDraftProvider.notifier).setImages(_images);
               context.push(AppRoutes.selectDateTime);
             },
             child: Row(

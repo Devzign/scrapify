@@ -1,20 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../providers/pickup_provider.dart';
+import '../providers/pickup_draft_provider.dart';
 
-class CategorySelectionScreen extends StatelessWidget {
+class CategorySelectionScreen extends ConsumerStatefulWidget {
   const CategorySelectionScreen({super.key});
 
   @override
+  ConsumerState<CategorySelectionScreen> createState() =>
+      _CategorySelectionScreenState();
+}
+
+class _CategorySelectionScreenState
+    extends ConsumerState<CategorySelectionScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+        () => ref.read(pickupProvider.notifier).loadCategories());
+  }
+
+  static final _fallbackCategories = [
+    {
+      'id': null,
+      'name': 'Iron / Steel',
+      'name_hi': 'लोहा / स्टील',
+      'icon': FontAwesomeIcons.screwdriverWrench,
+    },
+    {
+      'id': null,
+      'name': 'Plastic',
+      'name_hi': 'प्लास्टिक',
+      'icon': FontAwesomeIcons.recycle,
+    },
+    {
+      'id': null,
+      'name': 'E-Waste',
+      'name_hi': 'ई-कचरा',
+      'icon': FontAwesomeIcons.computer,
+    },
+    {
+      'id': null,
+      'name': 'Appliances',
+      'name_hi': 'बड़े उपकरण',
+      'icon': FontAwesomeIcons.kitchenSet,
+    },
+  ];
+
+  IconData _iconForCategory(String name) {
+    final lower = name.toLowerCase();
+    if (lower.contains('iron') || lower.contains('steel') || lower.contains('metal'))
+      return FontAwesomeIcons.screwdriverWrench;
+    if (lower.contains('plastic')) return FontAwesomeIcons.recycle;
+    if (lower.contains('e-waste') || lower.contains('electronic'))
+      return FontAwesomeIcons.computer;
+    if (lower.contains('paper') || lower.contains('newspaper'))
+      return FontAwesomeIcons.newspaper;
+    if (lower.contains('appliance') || lower.contains('ac') || lower.contains('fridge'))
+      return FontAwesomeIcons.kitchenSet;
+    if (lower.contains('glass')) return FontAwesomeIcons.wineGlass;
+    if (lower.contains('copper')) return FontAwesomeIcons.boltLightning;
+    return FontAwesomeIcons.boxesStacked;
+  }
+
+  void _onCategoryTap(int? id, String name) {
+    ref.read(pickupDraftProvider.notifier).setCategory(id ?? 0, name);
+    context.push(AppRoutes.questionForm);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = ref.watch(pickupProvider);
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: AppTheme.textPrimary),
+          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
+              color: AppTheme.textPrimary),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -30,7 +98,8 @@ class CategorySelectionScreen extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               IconButton(
-                icon: const FaIcon(FontAwesomeIcons.bell, color: AppTheme.textPrimary),
+                icon: const FaIcon(FontAwesomeIcons.bell,
+                    color: AppTheme.textPrimary),
                 onPressed: () {},
               ),
               Positioned(
@@ -51,70 +120,82 @@ class CategorySelectionScreen extends StatelessWidget {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Select Items / सामान चुनें', // Replace with i18n later
-              style: const TextStyle(
+            const Text(
+              'Select Items / सामान चुनें',
+              style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
                 color: AppTheme.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'What do you want to sell today?\nआज आप क्या बेचना चाहते हैं?', // Replace with i18n
-              style: const TextStyle(
+            const Text(
+              'What do you want to sell today?\nआज आप क्या बेचना चाहते हैं?',
+              style: TextStyle(
                 fontSize: 14,
                 color: AppTheme.primaryColor,
                 height: 1.5,
               ),
             ),
             const SizedBox(height: 32),
-            
-            // Grid of categories
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 0.9,
-              children: [
-                _buildCategoryCard(
-                  title: 'Iron / Steel',
-                  subtitle: 'लोहा / स्टील',
-                  icon: FontAwesomeIcons.screwdriverWrench,
-                  onTap: () => context.push(AppRoutes.questionForm),
-                ),
-                _buildCategoryCard(
-                  title: 'Plastic',
-                  subtitle: 'प्लास्टिक',
-                  icon: FontAwesomeIcons.recycle,
-                  onTap: () => context.push(AppRoutes.questionForm),
-                ),
-                _buildCategoryCard(
-                  title: 'E-Waste',
-                  subtitle: 'ई-कचरा',
-                  icon: FontAwesomeIcons.computer,
-                  onTap: () => context.push(AppRoutes.questionForm),
-                ),
-                _buildCategoryCard(
-                  title: 'Appliances',
-                  subtitle: 'बड़े उपकरण',
-                  icon: FontAwesomeIcons.kitchenSet,
-                  onTap: () => context.push(AppRoutes.questionForm),
-                ),
-              ],
-            ),
-            
+
+            if (state.isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (state.categories.isNotEmpty)
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.9,
+                children: state.categories
+                    .whereType<Map<String, dynamic>>()
+                    .take(8)
+                    .map((cat) {
+                  final id = cat['id'] as int?;
+                  final name = cat['name']?.toString() ?? 'Category';
+                  final nameHi = cat['name_hi']?.toString() ??
+                      cat['hindi_name']?.toString() ?? '';
+                  return _buildCategoryCard(
+                    title: name,
+                    subtitle: nameHi,
+                    icon: _iconForCategory(name),
+                    onTap: () => _onCategoryTap(id, name),
+                  );
+                }).toList(),
+              )
+            else
+              // Fallback to hardcoded
+              GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.9,
+                children: _fallbackCategories.map((cat) {
+                  return _buildCategoryCard(
+                    title: cat['name'] as String,
+                    subtitle: cat['name_hi'] as String,
+                    icon: cat['icon'] as IconData,
+                    onTap: () => _onCategoryTap(
+                        cat['id'] as int?, cat['name'] as String),
+                  );
+                }).toList(),
+              ),
+
             const SizedBox(height: 24),
-            
+
             // View All Categories
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -128,13 +209,14 @@ class CategorySelectionScreen extends StatelessWidget {
                       color: AppTheme.backgroundLight,
                       shape: BoxShape.circle,
                     ),
-                    child: const FaIcon(FontAwesomeIcons.ellipsis, color: AppTheme.textSecondary),
+                    child: const FaIcon(FontAwesomeIcons.ellipsis,
+                        color: AppTheme.textSecondary),
                   ),
                   const SizedBox(width: 16),
-                  Expanded(
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
+                      children: [
                         Text(
                           'View All Categories',
                           style: TextStyle(
@@ -153,12 +235,13 @@ class CategorySelectionScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const FaIcon(FontAwesomeIcons.chevronRight, color: Colors.grey, size: 16),
+                  const FaIcon(FontAwesomeIcons.chevronRight,
+                      color: Colors.grey, size: 16),
                 ],
               ),
             ),
-            
-            const SizedBox(height: 100), // Padding for Bottom Nav
+
+            const SizedBox(height: 100),
           ],
         ),
       ),
@@ -169,10 +252,14 @@ class CategorySelectionScreen extends StatelessWidget {
         unselectedItemColor: Colors.grey.shade400,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.listCheck), label: 'Orders'),
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.indianRupeeSign), label: 'Rates'),
-          BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.user), label: 'Profile'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.listCheck), label: 'Orders'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.indianRupeeSign), label: 'Rates'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.user), label: 'Profile'),
         ],
       ),
     );
@@ -203,7 +290,7 @@ class CategorySelectionScreen extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppTheme.primaryLight,
                 shape: BoxShape.circle,
               ),
@@ -212,20 +299,23 @@ class CategorySelectionScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               title,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 14,
                 color: AppTheme.textPrimary,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppTheme.textSecondary,
+            if (subtitle.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),

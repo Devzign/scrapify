@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter analyze:*)",
+      "Bash(flutter pub:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create --title 'feat: 100% API integration — Pickup Boy, Warehouse, Channel Partner, Customer' --body ':*)",
+      "Bash(brew list:*)",
+      "Read(//Users/amitsinha/.config/gh/**)",
+      "Read(//Users/amitsinha/**)",
+      "Bash(security find-internet-password:*)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('html_url', d.get\\('message','error'\\)\\)\\)\")"
+    ]
+  }
+}

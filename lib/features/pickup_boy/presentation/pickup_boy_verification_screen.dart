@@ -20,8 +20,7 @@ class PickupBoyVerificationScreen extends ConsumerStatefulWidget {
 class _PickupBoyVerificationScreenState
     extends ConsumerState<PickupBoyVerificationScreen> {
   List<PickupItem> _items = [];
-  List<File> _images = [];
-  Map<String, dynamic>? _detail;
+  final List<File> _images = [];
   bool _loading = true;
 
   @override
@@ -42,7 +41,6 @@ class _PickupBoyVerificationScreenState
             .whereType<Map<String, dynamic>>()
             .map((j) => PickupItem.fromJson({...j, 'action': 'updated'}))
             .toList();
-        _detail = data;
       });
     } else if (mounted) {
       setState(() => _loading = false);
