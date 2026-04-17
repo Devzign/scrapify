@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 
 class PickupDetailsScreen extends StatelessWidget {
-  const PickupDetailsScreen({super.key});
+  final int? pickupId;
+  const PickupDetailsScreen({super.key, this.pickupId});
 
   @override
   Widget build(BuildContext context) {

@@ -1,12 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../warehouse/providers/warehouse_provider.dart';
 
-class WarehouseDashboard extends StatelessWidget {
+class WarehouseDashboard extends ConsumerStatefulWidget {
   const WarehouseDashboard({super.key});
 
   @override
+  ConsumerState<WarehouseDashboard> createState() => _WarehouseDashboardState();
+}
+
+class _WarehouseDashboardState extends ConsumerState<WarehouseDashboard> {
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(warehouseProvider.notifier).loadDashboard();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = ref.watch(warehouseProvider);
+    final dashboard = state.dashboard;
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
@@ -18,317 +39,309 @@ class WarehouseDashboard extends StatelessWidget {
                 color: AppTheme.primaryLight,
                 shape: BoxShape.circle,
               ),
-              child: const FaIcon(FontAwesomeIcons.store, color: AppTheme.primaryColor, size: 16),
+              child: const FaIcon(FontAwesomeIcons.store,
+                  color: AppTheme.primaryColor, size: 16),
             ),
             const SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Namaste, Team A',
-                  style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                Text(
+                  dashboard?.warehouse?.name ?? 'Warehouse',
+                  style: const TextStyle(
+                      fontSize: 12, color: AppTheme.textSecondary),
                 ),
                 const Text(
                   'Warehouse Dashboard',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary),
                 ),
               ],
             ),
           ],
         ),
         actions: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(icon: const FaIcon(FontAwesomeIcons.bell, color: AppTheme.textPrimary), onPressed: () {}),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle)),
-              ),
-            ],
+          IconButton(
+            icon: const FaIcon(FontAwesomeIcons.bell,
+                color: AppTheme.textPrimary),
+            onPressed: () => context.push('/notifications'),
           ),
-          const SizedBox(width: 8),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Stats Row
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor,
-                      borderRadius: BorderRadius.circular(24),
+      body: state.isLoading && dashboard == null
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (state.error != null)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(state.error!,
+                                style: const TextStyle(color: Colors.red)),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.red),
+                            onPressed: () =>
+                                ref.read(warehouseProvider.notifier).clearError(),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const FaIcon(FontAwesomeIcons.truckFast, color: Colors.white, size: 20),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                              child: const Text('TODAY', style: TextStyle(color: AppTheme.primaryColor, fontSize: 10, fontWeight: FontWeight.bold)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 24),
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text('2,400', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-                            SizedBox(width: 4),
-                            Text('kg', style: TextStyle(color: Colors.white, fontSize: 16)),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        const Text('Inbound Today', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                      ],
+
+                  // Metrics Grid
+                  _SectionHeader(title: 'Requests Overview'),
+                  const SizedBox(height: 12),
+                  _MetricsGrid(items: [
+                    _MetricItem(
+                      label: 'Total',
+                      value: '${dashboard?.totalRequests ?? 0}',
+                      icon: FontAwesomeIcons.clipboardList,
+                      color: Colors.blue,
                     ),
+                    _MetricItem(
+                      label: 'Unassigned',
+                      value: '${dashboard?.unassignedRequests ?? 0}',
+                      icon: FontAwesomeIcons.circleExclamation,
+                      color: Colors.orange,
+                    ),
+                    _MetricItem(
+                      label: 'Active',
+                      value: '${dashboard?.activePickups ?? 0}',
+                      icon: FontAwesomeIcons.truck,
+                      color: Colors.purple,
+                    ),
+                    _MetricItem(
+                      label: 'Completed',
+                      value: '${dashboard?.completedPickups ?? 0}',
+                      icon: FontAwesomeIcons.circleCheck,
+                      color: Colors.green,
+                    ),
+                  ]),
+
+                  const SizedBox(height: 24),
+                  _SectionHeader(title: 'Pickup Boys'),
+                  const SizedBox(height: 12),
+                  _MetricsGrid(items: [
+                    _MetricItem(
+                      label: 'Total',
+                      value: '${dashboard?.totalPickupBoys ?? 0}',
+                      icon: FontAwesomeIcons.userGroup,
+                      color: Colors.teal,
+                    ),
+                    _MetricItem(
+                      label: 'Available',
+                      value: '${dashboard?.availablePickupBoys ?? 0}',
+                      icon: FontAwesomeIcons.userCheck,
+                      color: Colors.green,
+                    ),
+                  ]),
+
+                  const SizedBox(height: 24),
+                  // Quick Actions
+                  _SectionHeader(title: 'Quick Actions'),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _QuickActionCard(
+                          icon: FontAwesomeIcons.clipboardList,
+                          label: 'View Requests',
+                          color: AppTheme.primaryColor,
+                          onTap: () => context.push('/warehouse/requests'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _QuickActionCard(
+                          icon: FontAwesomeIcons.userGroup,
+                          label: 'Pickup Boys',
+                          color: Colors.teal,
+                          onTap: () => context.push('/warehouse/pickup-boys'),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E2A5E), // Dark Navy
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const FaIcon(FontAwesomeIcons.recycle, color: Colors.white, size: 20),
-                        const SizedBox(height: 24),
-                        const Row(
-                          crossAxisAlignment: CrossAxisAlignment.baseline,
-                          textBaseline: TextBaseline.alphabetic,
-                          children: [
-                            Text('150', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-                            SizedBox(width: 4),
-                            Text('Units', style: TextStyle(color: Colors.white, fontSize: 16)),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        const Text('Ready for Processing', style: TextStyle(color: Colors.white70, fontSize: 13)),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 32),
-            
-            // Recent Shipments
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Recent Shipments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
-                Row(
-                  children: const [
-                    Text('Filter', style: TextStyle(color: AppTheme.textSecondary, fontSize: 14)),
-                    SizedBox(width: 4),
-                    FaIcon(FontAwesomeIcons.filter, size: 12, color: AppTheme.textSecondary),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            
-            _buildShipmentCard(
-              title: 'E-Waste Mix',
-              id: '#SCR-2049',
-              supplier: 'Ravi Scrap Dealers',
-              time: '12 mins ago',
-              weight: '450 kg',
-              status: 'pending',
-            ),
-            const SizedBox(height: 16),
-            _buildShipmentCard(
-              title: 'Mixed Metals',
-              id: '#SCR-2048',
-              supplier: 'Individual: Amit Kumar',
-              time: '45 mins ago',
-              weight: '120 kg',
-              status: 'pending',
-            ),
-            const SizedBox(height: 16),
-            _buildShipmentCard(
-              title: 'Batteries',
-              id: '#SCR-2045',
-              supplier: 'Green City Recyclers',
-              time: '2h ago',
-              weight: '800 kg',
-              status: 'received',
-            ),
-            
-            const SizedBox(height: 100), // Bottom padding for navbar
-          ],
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() => _selectedIndex = index);
+          switch (index) {
+            case 1:
+              context.push('/warehouse/requests');
+              break;
+            case 2:
+              context.push('/warehouse/pickup-boys');
+              break;
+            case 3:
+              context.push('/profile');
+              break;
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppTheme.primaryColor,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.clipboardList), label: 'Requests'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.userGroup), label: 'Team'),
+          BottomNavigationBarItem(
+              icon: FaIcon(FontAwesomeIcons.user), label: 'Profile'),
+        ],
       ),
-      bottomNavigationBar: _buildMockNavBar(),
     );
   }
+}
 
-  Widget _buildShipmentCard({
-    required String title,
-    required String id,
-    required String supplier,
-    required String time,
-    required String weight,
-    required String status,
-  }) {
-    final isReceived = status == 'received';
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
-        ],
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.bold,
+        color: AppTheme.textPrimary,
       ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
+    );
+  }
+}
+
+class _MetricItem {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+  const _MetricItem(
+      {required this.label,
+      required this.value,
+      required this.icon,
+      required this.color});
+}
+
+class _MetricsGrid extends StatelessWidget {
+  final List<_MetricItem> items;
+  const _MetricsGrid({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 2.0,
+      children: items
+          .map((item) => Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: isReceived ? Colors.blue.shade50 : AppTheme.primaryLight, shape: BoxShape.circle),
-                child: FaIcon(
-                  isReceived ? FontAwesomeIcons.batteryFull : (title.contains('Mix') ? FontAwesomeIcons.microchip : FontAwesomeIcons.screwdriverWrench),
-                  color: isReceived ? Colors.blue : AppTheme.primaryColor,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 4),
-                    Text(id, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isReceived ? Colors.green.shade50 : Colors.grey.shade100,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  isReceived ? 'RECEIVED' : weight,
-                  style: TextStyle(
-                    color: isReceived ? Colors.green.shade700 : AppTheme.textPrimary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Divider(color: Colors.grey.shade200),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const FaIcon(FontAwesomeIcons.building, size: 14, color: AppTheme.textSecondary),
-              const SizedBox(width: 8),
-              Expanded(
                 child: Row(
                   children: [
-                    Text(supplier, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
-                    const SizedBox(width: 8),
-                    const Text('•', style: TextStyle(color: AppTheme.textSecondary)),
-                    const SizedBox(width: 8),
-                    Text(time, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: item.color.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: FaIcon(item.icon, color: item.color, size: 16),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          item.value,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: item.color,
+                          ),
+                        ),
+                        Text(
+                          item.label,
+                          style: const TextStyle(
+                              fontSize: 11, color: Colors.grey),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          if (!isReceived) ...[
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    FaIcon(FontAwesomeIcons.circleCheck, color: Colors.white, size: 16),
-                    SizedBox(width: 8),
-                    Text('Confirm Receipt', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
+              ))
+          .toList(),
     );
   }
+}
 
-  Widget _buildMockNavBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -4))],
-      ),
-      child: SafeArea(
+class _QuickActionCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _navItem(icon: FontAwesomeIcons.house, label: 'Home', isActive: true),
-            _navItem(icon: FontAwesomeIcons.barcode, label: 'Scan', isActive: false),
-            // Floating Action Button Mock inside navbar
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: const BoxDecoration(color: Color(0xFF1E2A5E), shape: BoxShape.circle),
-              child: const FaIcon(FontAwesomeIcons.plus, color: Colors.white, size: 20),
-            ),
-            _navItem(icon: FontAwesomeIcons.boxesStacked, label: 'Stock', isActive: false),
-            _navItem(icon: FontAwesomeIcons.solidUser, label: 'Profile', isActive: false),
+            FaIcon(icon, color: color, size: 16),
+            const SizedBox(width: 8),
+            Text(label,
+                style: TextStyle(
+                    color: color, fontWeight: FontWeight.bold, fontSize: 13)),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _navItem({required IconData icon, required String label, required bool isActive}) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        FaIcon(icon, color: isActive ? AppTheme.primaryColor : Colors.grey.shade400, size: 20),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            color: isActive ? AppTheme.primaryColor : Colors.grey.shade500,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-            fontSize: 10,
-          ),
-        ),
-      ],
     );
   }
 }

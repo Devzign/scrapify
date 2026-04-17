@@ -5,7 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import '../../../core/theme/app_theme.dart';
 
 class PickupTrackingScreen extends StatelessWidget {
-  const PickupTrackingScreen({super.key});
+  final int? pickupId;
+  const PickupTrackingScreen({super.key, this.pickupId});
 
   @override
   Widget build(BuildContext context) {

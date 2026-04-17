@@ -44,6 +44,7 @@ class AuthRepository {
       data: {
         'phone': phone,
         'otp': otp,
+        'device_name': 'Scrapify Mobile',
       },
     );
 

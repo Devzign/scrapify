@@ -6,7 +6,8 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 
 class SuccessConfirmationScreen extends StatelessWidget {
-  const SuccessConfirmationScreen({super.key});
+  final int? pickupId;
+  const SuccessConfirmationScreen({super.key, this.pickupId});
 
   @override
   Widget build(BuildContext context) {

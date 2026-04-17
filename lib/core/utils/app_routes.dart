@@ -20,6 +20,13 @@ import '../../features/pickup/presentation/rate_pickup_screen.dart';
 import '../../features/pickup/presentation/pickup_details_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/profile/presentation/user_profile_screen.dart';
+// New screens
+import '../../features/pickup_boy/presentation/pickup_boy_detail_screen.dart';
+import '../../features/pickup_boy/presentation/pickup_boy_verification_screen.dart';
+import '../../features/warehouse/presentation/warehouse_requests_screen.dart';
+import '../../features/warehouse/presentation/warehouse_request_detail_screen.dart';
+import '../../features/warehouse/presentation/warehouse_pickup_boys_screen.dart';
+import '../../features/channel_partner/presentation/partner_orders_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -42,6 +49,15 @@ class AppRoutes {
   static const String materialPriceList = '/pricing/materials';
   static const String notifications = '/notifications';
   static const String profile = '/profile';
+  // Pickup Boy
+  static const String pickupBoyDetail = '/pickup-boy/pickups/:id';
+  static const String pickupBoyVerify = '/pickup-boy/pickups/:id/verify';
+  // Warehouse
+  static const String warehouseRequests = '/warehouse/requests';
+  static const String warehouseRequestDetail = '/warehouse/requests/:id';
+  static const String warehousePickupBoys = '/warehouse/pickup-boys';
+  // Channel Partner
+  static const String partnerOrders = '/partner/orders';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -104,19 +120,31 @@ class AppRoutes {
       ),
       GoRoute(
         path: successConfirmation,
-        builder: (context, state) => const SuccessConfirmationScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return SuccessConfirmationScreen(pickupId: extra?['pickup_id'] as int?);
+        },
       ),
       GoRoute(
         path: pickupTracking,
-        builder: (context, state) => const PickupTrackingScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return PickupTrackingScreen(pickupId: extra?['pickup_id'] as int?);
+        },
       ),
       GoRoute(
         path: pickupDetails,
-        builder: (context, state) => const PickupDetailsScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return PickupDetailsScreen(pickupId: extra?['pickup_id'] as int?);
+        },
       ),
       GoRoute(
         path: ratePickup,
-        builder: (context, state) => const RatePickupScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return RatePickupScreen(pickupId: extra?['pickup_id'] as int?);
+        },
       ),
       GoRoute(
         path: materialPriceList,
@@ -130,11 +158,49 @@ class AppRoutes {
         path: profile,
         builder: (context, state) => const UserProfileScreen(),
       ),
+
+      // --- Pickup Boy Routes ---
+      GoRoute(
+        path: '/pickup-boy/pickups/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return PickupBoyDetailScreen(pickupId: id);
+        },
+      ),
+      GoRoute(
+        path: '/pickup-boy/pickups/:id/verify',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return PickupBoyVerificationScreen(pickupId: id);
+        },
+      ),
+
+      // --- Warehouse Routes ---
+      GoRoute(
+        path: warehouseRequests,
+        builder: (context, state) => const WarehouseRequestsScreen(),
+      ),
+      GoRoute(
+        path: '/warehouse/requests/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return WarehouseRequestDetailScreen(requestId: id);
+        },
+      ),
+      GoRoute(
+        path: warehousePickupBoys,
+        builder: (context, state) => const WarehousePickupBoysScreen(),
+      ),
+
+      // --- Channel Partner Routes ---
+      GoRoute(
+        path: partnerOrders,
+        builder: (context, state) => const PartnerOrdersScreen(),
+      ),
     ],
   );
 }
 
-// Temporary Placeholder to avoid errors before screens are built
 class PlaceholderScreen extends StatelessWidget {
   final String title;
   const PlaceholderScreen({super.key, required this.title});

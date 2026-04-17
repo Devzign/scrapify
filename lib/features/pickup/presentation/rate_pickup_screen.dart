@@ -1,19 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../providers/pickup_provider.dart';
 
-class RatePickupScreen extends StatefulWidget {
-  const RatePickupScreen({super.key});
+class RatePickupScreen extends ConsumerStatefulWidget {
+  final int? pickupId;
+  const RatePickupScreen({super.key, this.pickupId});
 
   @override
-  State<RatePickupScreen> createState() => _RatePickupScreenState();
+  ConsumerState<RatePickupScreen> createState() => _RatePickupScreenState();
 }
 
-class _RatePickupScreenState extends State<RatePickupScreen> {
+class _RatePickupScreenState extends ConsumerState<RatePickupScreen> {
   int _rating = 4;
   final Set<String> _selectedFeedback = {'On Time'};
+  final _commentCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _commentCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,21 +117,17 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const TextField(
+              child: TextField(
+                controller: _commentCtrl,
                 maxLines: 4,
-                decoration: InputDecoration(
+                maxLength: 200,
+                decoration: const InputDecoration(
                   hintText: 'Write a comment... / अपनी बात लिखें...',
                   hintStyle: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(16),
+                  counterText: '',
                 ),
-              ),
-            ),
-            const Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text('0/200', style: TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
               ),
             ),
             const SizedBox(height: 40),
@@ -130,8 +136,19 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
               width: double.infinity,
               child: CustomButton(
                 text: 'SUBMIT  /  सबमिट करें',
-                onPressed: () {
-                  // Submit Rating
+                onPressed: () async {
+                  if (widget.pickupId != null) {
+                    final ok = await ref.read(pickupProvider.notifier).submitReview(
+                      widget.pickupId!,
+                      _rating,
+                      review: _commentCtrl.text.trim().isEmpty ? null : _commentCtrl.text.trim(),
+                    );
+                    if (ok && context.mounted) {
+                      context.pop();
+                    }
+                  } else {
+                    context.pop();
+                  }
                 },
               ),
             ),
