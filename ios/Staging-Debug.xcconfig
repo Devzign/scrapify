@@ -1,0 +1,7 @@
+// Debug-Staging: includes both Pods (debug-staging) and Flutter Debug xcconfigs
+#include "Pods/Target Support Files/Pods-Runner/Pods-Runner.debug-staging.xcconfig"
+#include "Flutter/Debug.xcconfig"
+
+FLUTTER_TARGET=lib/main_staging.dart
+APP_DISPLAY_NAME=Scrapify Stag
+PRODUCT_BUNDLE_IDENTIFIER=com.abhyuthanam.scrapify.stag

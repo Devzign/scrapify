@@ -1,0 +1,28 @@
+{
+  "id": 3,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"name\":\"projects/5625103553911243484/screens/b71975013b8f4e99804781b7d933310b\",\"title\":\"Request Reschedule (Agent)\",\"screenshot\":{\"name\":\"projects/5625103553911243484/files/c9b3f1d267d14eceae9ccb63071e3869\",\"downloadUrl\":\"https://lh3.googleusercontent.com/aida/ADBb0ujqqkuZ0RLN6BZhJ7bn3BqHVTo7DjxVupz_Zl3pcvX_zhkxKCICMWKrmCKPJs7eENXrjGOSKyT2gIwxl3FIXpPyREltUDmz-drXismUrXyicVfhd44nWrRCXXtCbmw6goqTrJsjByec3J_lL9_hTx_7zQCODPi8n-kC737VXzZMMfB-R8E9mtlVFNxkBZRF-6oRIlwrJLNM3VV16SHVJ1gKWlmZ_7F1lKEQYrYHomGQKsQQUVCxTpLMaic\"},\"htmlCode\":{\"name\":\"projects/5625103553911243484/files/2b5e9c490c6149c4b958926b2384affb\",\"downloadUrl\":\"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzUxMDAwYjIxMTY4MDRmYzc5YjM1Mjk4NmQ5YTRjMzZjEgsSBxCD0PftlRQYAZIBIwoKcHJvamVjdF9pZBIVQhM1NjI1MTAzNTUzOTExMjQzNDg0&filename=&opi=89354086\",\"mimeType\":\"text/html\"},\"width\":\"908\",\"height\":\"2422\",\"deviceType\":\"MOBILE\"}",
+        "type": "text"
+      }
+    ],
+    "structuredContent": {
+      "deviceType": "MOBILE",
+      "height": "2422",
+      "htmlCode": {
+        "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzUxMDAwYjIxMTY4MDRmYzc5YjM1Mjk4NmQ5YTRjMzZjEgsSBxCD0PftlRQYAZIBIwoKcHJvamVjdF9pZBIVQhM1NjI1MTAzNTUzOTExMjQzNDg0&filename=&opi=89354086",
+        "mimeType": "text/html",
+        "name": "projects/5625103553911243484/files/2b5e9c490c6149c4b958926b2384affb"
+      },
+      "name": "projects/5625103553911243484/screens/b71975013b8f4e99804781b7d933310b",
+      "screenshot": {
+        "downloadUrl": "https://lh3.googleusercontent.com/aida/ADBb0ujqqkuZ0RLN6BZhJ7bn3BqHVTo7DjxVupz_Zl3pcvX_zhkxKCICMWKrmCKPJs7eENXrjGOSKyT2gIwxl3FIXpPyREltUDmz-drXismUrXyicVfhd44nWrRCXXtCbmw6goqTrJsjByec3J_lL9_hTx_7zQCODPi8n-kC737VXzZMMfB-R8E9mtlVFNxkBZRF-6oRIlwrJLNM3VV16SHVJ1gKWlmZ_7F1lKEQYrYHomGQKsQQUVCxTpLMaic",
+        "name": "projects/5625103553911243484/files/c9b3f1d267d14eceae9ccb63071e3869"
+      },
+      "title": "Request Reschedule (Agent)",
+      "width": "908"
+    }
+  }
+}

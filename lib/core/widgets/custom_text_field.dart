@@ -7,6 +7,7 @@ class CustomTextField extends StatelessWidget {
   final TextEditingController? controller;
   final bool isPassword;
   final TextInputType keyboardType;
+  final TextInputAction textInputAction;
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
@@ -18,6 +19,7 @@ class CustomTextField extends StatelessWidget {
     this.controller,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
+    this.textInputAction = TextInputAction.done,
     this.prefixIcon,
     this.suffixIcon,
     this.validator,
@@ -43,6 +45,7 @@ class CustomTextField extends StatelessWidget {
           controller: controller,
           obscureText: isPassword,
           keyboardType: keyboardType,
+          textInputAction: textInputAction,
           validator: validator,
           decoration: InputDecoration(
             hintText: hintText,

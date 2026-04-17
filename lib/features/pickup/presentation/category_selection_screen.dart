@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:easy_localization/easy_localization.dart';
+
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
-import '../providers/pickup_provider.dart';
-import '../providers/pickup_draft_provider.dart';
+import '../../../core/widgets/loading_skeletons.dart';
+import '../../settings/providers/settings_provider.dart';
+import '../domain/models/category.dart';
+import '../providers/category_provider.dart';
+import 'widgets/category_list_tile.dart';
+import 'widgets/category_support_banner.dart';
 
 class CategorySelectionScreen extends ConsumerStatefulWidget {
   const CategorySelectionScreen({super.key});
@@ -18,307 +23,233 @@ class CategorySelectionScreen extends ConsumerStatefulWidget {
 
 class _CategorySelectionScreenState
     extends ConsumerState<CategorySelectionScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
-  void initState() {
-    super.initState();
-    Future.microtask(
-        () => ref.read(pickupProvider.notifier).loadCategories());
-  }
-
-  static final _fallbackCategories = [
-    {
-      'id': null,
-      'name': 'Iron / Steel',
-      'name_hi': 'लोहा / स्टील',
-      'icon': FontAwesomeIcons.screwdriverWrench,
-    },
-    {
-      'id': null,
-      'name': 'Plastic',
-      'name_hi': 'प्लास्टिक',
-      'icon': FontAwesomeIcons.recycle,
-    },
-    {
-      'id': null,
-      'name': 'E-Waste',
-      'name_hi': 'ई-कचरा',
-      'icon': FontAwesomeIcons.computer,
-    },
-    {
-      'id': null,
-      'name': 'Appliances',
-      'name_hi': 'बड़े उपकरण',
-      'icon': FontAwesomeIcons.kitchenSet,
-    },
-  ];
-
-  IconData _iconForCategory(String name) {
-    final lower = name.toLowerCase();
-    if (lower.contains('iron') || lower.contains('steel') || lower.contains('metal'))
-      return FontAwesomeIcons.screwdriverWrench;
-    if (lower.contains('plastic')) return FontAwesomeIcons.recycle;
-    if (lower.contains('e-waste') || lower.contains('electronic'))
-      return FontAwesomeIcons.computer;
-    if (lower.contains('paper') || lower.contains('newspaper'))
-      return FontAwesomeIcons.newspaper;
-    if (lower.contains('appliance') || lower.contains('ac') || lower.contains('fridge'))
-      return FontAwesomeIcons.kitchenSet;
-    if (lower.contains('glass')) return FontAwesomeIcons.wineGlass;
-    if (lower.contains('copper')) return FontAwesomeIcons.boltLightning;
-    return FontAwesomeIcons.boxesStacked;
-  }
-
-  void _onCategoryTap(int? id, String name) {
-    ref.read(pickupDraftProvider.notifier).setCategory(id ?? 0, name);
-    context.push(AppRoutes.questionForm);
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(pickupProvider);
+    final appSettings = ref.watch(settingsProvider);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-              color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
-        title: Text(
-          'login.app_name'.tr(),
-          style: const TextStyle(
+        title: const Text(
+          'Select Category',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
             color: AppTheme.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
           ),
         ),
-        actions: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const FaIcon(FontAwesomeIcons.bell,
-                    color: AppTheme.textPrimary),
-                onPressed: () {},
-              ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
+      ),
+      body: ref
+          .watch(categoriesProvider)
+          .when(
+            data: (categories) {
+              final filtered = _filterCategories(categories, _searchQuery);
+              final showDonationTile =
+                  appSettings.features.donationEnabled &&
+                  _matchesDonationQuery(_searchQuery);
+              return ListView(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+                children: [
+                  const Text(
+                    'Scrapify',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.textPrimary,
+                    ),
                   ),
+                  const SizedBox(height: 6),
+                  Text(
+                    context.locale.languageCode == 'hi'
+                        ? 'पिकअप बुकिंग जारी रखने के लिए एक श्रेणी चुनें।'
+                        : 'Choose a category to continue with pickup booking.',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildSearchField(),
+                  const SizedBox(height: 24),
+                  if (filtered.isEmpty)
+                    if (!showDonationTile) _buildEmptyState(),
+                  if (showDonationTile) ...[
+                    CategoryListTile(
+                      title: context.locale.languageCode == 'hi'
+                          ? 'दान आइटम्स'
+                          : 'Donate Items',
+                      subtitle: context.locale.languageCode == 'hi'
+                          ? 'कपड़े, फर्नीचर और उपयोगी वस्तुएं दान करें'
+                          : 'Donate clothes, furniture, and reusable goods',
+                      iconData: FontAwesomeIcons.heartCirclePlus,
+                      onTap: () =>
+                          context.push(AppRoutes.donationCategorySelection),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+                  if (filtered.isNotEmpty)
+                    ...filtered.map(
+                      (category) => Padding(
+                        padding: const EdgeInsets.only(bottom: 14),
+                        child: CategoryListTile(
+                          title: category.getName(context),
+                          subtitle: _categorySubtitle(category),
+                          iconData: _getIconForCategory(category.slug),
+                          imageUrl: category.imageUrl,
+                          onTap: () => context.push(
+                            '${AppRoutes.subCategorySelection}/${category.id}',
+                          ),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                  const CategorySupportBanner(
+                    title: 'Not sure where it fits?',
+                    description:
+                        'Choose the nearest category for now. You can refine the exact item on the next screen.',
+                  ),
+                ],
+              );
+            },
+            loading: () => const CategoryListLoadingSkeleton(),
+            error: (error, stack) => Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  'Error loading categories: $error',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.red.shade700),
                 ),
               ),
-            ],
+            ),
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Select Items / सामान चुनें',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'What do you want to sell today?\nआज आप क्या बेचना चाहते हैं?',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.primaryColor,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 32),
+    );
+  }
 
-            if (state.isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (state.categories.isNotEmpty)
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.9,
-                children: state.categories
-                    .whereType<Map<String, dynamic>>()
-                    .take(8)
-                    .map((cat) {
-                  final id = cat['id'] as int?;
-                  final name = cat['name']?.toString() ?? 'Category';
-                  final nameHi = cat['name_hi']?.toString() ??
-                      cat['hindi_name']?.toString() ?? '';
-                  return _buildCategoryCard(
-                    title: name,
-                    subtitle: nameHi,
-                    icon: _iconForCategory(name),
-                    onTap: () => _onCategoryTap(id, name),
-                  );
-                }).toList(),
-              )
-            else
-              // Fallback to hardcoded
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.9,
-                children: _fallbackCategories.map((cat) {
-                  return _buildCategoryCard(
-                    title: cat['name'] as String,
-                    subtitle: cat['name_hi'] as String,
-                    icon: cat['icon'] as IconData,
-                    onTap: () => _onCategoryTap(
-                        cat['id'] as int?, cat['name'] as String),
-                  );
-                }).toList(),
-              ),
-
-            const SizedBox(height: 24),
-
-            // View All Categories
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppTheme.backgroundLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const FaIcon(FontAwesomeIcons.ellipsis,
-                        color: AppTheme.textSecondary),
-                  ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'View All Categories',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: AppTheme.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          'अन्य श्रेणियां देखें',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppTheme.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const FaIcon(FontAwesomeIcons.chevronRight,
-                      color: Colors.grey, size: 16),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 100),
-          ],
+  Widget _buildSearchField() {
+    return TextField(
+      controller: _searchController,
+      onChanged: (value) => setState(() => _searchQuery = value.trim()),
+      decoration: InputDecoration(
+        hintText: context.locale.languageCode == 'hi'
+            ? 'धातु, कागज, ई-वेस्ट, प्लास्टिक खोजें...'
+            : 'Find metal, paper, e-waste, plastic...',
+        prefixIcon: const Icon(
+          Icons.search_rounded,
+          color: AppTheme.primaryColor,
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        elevation: 10,
-        backgroundColor: Colors.white,
-        selectedItemColor: AppTheme.primaryColor,
-        unselectedItemColor: Colors.grey.shade400,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.listCheck), label: 'Orders'),
-          BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.indianRupeeSign), label: 'Rates'),
-          BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.user), label: 'Profile'),
-        ],
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide.none,
+        ),
       ),
     );
   }
 
-  Widget _buildCategoryCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: AppTheme.primaryLight,
-                shape: BoxShape.circle,
-              ),
-              child: FaIcon(icon, color: AppTheme.primaryColor, size: 28),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            if (subtitle.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppTheme.textSecondary,
-                ),
-              ),
-            ],
-          ],
+  Widget _buildEmptyState() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: AppTheme.softShadow,
+      ),
+      child: Text(
+        context.locale.languageCode == 'hi'
+            ? 'आपकी खोज से कोई श्रेणी मेल नहीं खाती।'
+            : 'No categories match your search.',
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: AppTheme.textSecondary,
         ),
       ),
     );
+  }
+
+  List<Category> _filterCategories(List<Category> categories, String query) {
+    if (query.isEmpty) {
+      return categories;
+    }
+    final normalized = query.toLowerCase();
+    return categories.where((category) {
+      return category.name.en.toLowerCase().contains(normalized) ||
+          category.name.hi.toLowerCase().contains(normalized) ||
+          category.slug.toLowerCase().contains(normalized);
+    }).toList();
+  }
+
+  bool _matchesDonationQuery(String query) {
+    if (query.isEmpty) {
+      return true;
+    }
+    final normalized = query.toLowerCase();
+    return normalized.contains('donat') ||
+        normalized.contains('charity') ||
+        normalized.contains('cloth') ||
+        normalized.contains('furniture') ||
+        normalized.contains('reuse') ||
+        normalized.contains('दान') ||
+        normalized.contains('कप') ||
+        normalized.contains('फर्नी');
+  }
+
+  String _categorySubtitle(Category category) {
+    return context.locale.languageCode == 'hi'
+        ? 'उप-श्रेणियां देखने के लिए टैप करें'
+        : 'Tap to explore sub-categories';
+  }
+
+  IconData _getIconForCategory(String slug) {
+    switch (slug.toLowerCase()) {
+      case 'e-waste':
+      case 'electronics':
+        return FontAwesomeIcons.microchip;
+      case 'hazardous-waste':
+        return FontAwesomeIcons.triangleExclamation;
+      case 'metal-scrap':
+      case 'metal':
+      case 'iron-steel':
+        return FontAwesomeIcons.screwdriverWrench;
+      case 'plastic-scrap':
+      case 'plastic':
+        return FontAwesomeIcons.recycle;
+      case 'paper-carton-scrap':
+      case 'paper':
+        return FontAwesomeIcons.boxArchive;
+      case 'vehicle-machinery-waste':
+        return FontAwesomeIcons.truckMonster;
+      case 'furniture-scrap':
+        return FontAwesomeIcons.couch;
+      default:
+        return FontAwesomeIcons.box;
+    }
   }
 }

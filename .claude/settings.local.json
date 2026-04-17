@@ -1,17 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(flutter analyze:*)",
-      "Bash(flutter pub:*)",
-      "Bash(git add:*)",
-      "Bash(git commit -m ':*)",
-      "Bash(git push:*)",
-      "Bash(gh pr create --title 'feat: 100% API integration — Pickup Boy, Warehouse, Channel Partner, Customer' --body ':*)",
-      "Bash(brew list:*)",
-      "Read(//Users/amitsinha/.config/gh/**)",
-      "Read(//Users/amitsinha/**)",
-      "Bash(security find-internet-password:*)",
-      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('html_url', d.get\\('message','error'\\)\\)\\)\")"
+      "Bash(sed -n '60:80p' /Users/amitsinha/Devzign/flutter/scrapify/lib/features/pickup/presentation/rate_pickup_screen.dart)",
+      "Bash(sed -n '500:520p' /Users/amitsinha/Devzign/flutter/scrapify/lib/features/customer/presentation/customer_dashboard.dart)",
+      "Bash(sed -n '1240:1255p' /Users/amitsinha/Devzign/flutter/scrapify/lib/features/customer/presentation/customer_dashboard.dart)",
+      "Bash(flutter pub *)",
+      "Bash(dart run *)"
     ]
   }
 }

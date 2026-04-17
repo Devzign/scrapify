@@ -1,0 +1,9 @@
+// Target-level xcconfig for Staging flavor.
+// The Pods xcconfig (Pods-Runner.debug-staging.xcconfig) must be set at the
+// PROJECT level (blue Runner row → "None" → pick Pods-Runner.debug-staging.xcconfig).
+#include "Debug.xcconfig"
+
+// ── Staging flavor overrides ──────────────────────────────────────────────────
+FLUTTER_TARGET=lib/main_staging.dart
+APP_DISPLAY_NAME=Scrapify Stag
+PRODUCT_BUNDLE_IDENTIFIER=com.abhyuthanam.scrapify.stag

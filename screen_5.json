@@ -1,0 +1,28 @@
+{
+  "id": 3,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"name\":\"projects/5625103553911243484/screens/2bcfdcb194d44410858ff056d1465a97\",\"title\":\"Polished Agent Reschedule Request\",\"screenshot\":{\"name\":\"projects/5625103553911243484/files/2a51cedb16584ad3bd642f12bed65693\",\"downloadUrl\":\"https://lh3.googleusercontent.com/aida/ADBb0uhHc-6Ew2BeKHDby4zBoWJ_rRuJUN9I9TZWLCkbJvNxtDVlVdjL9jaD8XZY0sY-Hgvn-AKJ5Ew89ToBnrsjBrCP-MF8_m8s0cqdsTaqgz8iwgs5vixfgiYXo3T_Uucbtgko1Z3kW6G6lEcJskI3a-uoc8N1woNokybRRlKyPRDopTcFW-Q5HydMnG8EkBIDoTz_ncp0vUWWJc-7W-GmY4m1Byw0rcNaKG64M0ndrjctMCnH6xVeZiLT5m0\"},\"htmlCode\":{\"name\":\"projects/5625103553911243484/files/6034e85dce4f47fdb60d74911736412a\",\"downloadUrl\":\"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzMwNGI5MDU3ZjUzNzRiYzk4NTYyMTZjYmQxYWExNjhmEgsSBxCD0PftlRQYAZIBIwoKcHJvamVjdF9pZBIVQhM1NjI1MTAzNTUzOTExMjQzNDg0&filename=&opi=89354086\",\"mimeType\":\"text/html\"},\"width\":\"1036\",\"height\":\"2506\",\"deviceType\":\"MOBILE\"}",
+        "type": "text"
+      }
+    ],
+    "structuredContent": {
+      "deviceType": "MOBILE",
+      "height": "2506",
+      "htmlCode": {
+        "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzMwNGI5MDU3ZjUzNzRiYzk4NTYyMTZjYmQxYWExNjhmEgsSBxCD0PftlRQYAZIBIwoKcHJvamVjdF9pZBIVQhM1NjI1MTAzNTUzOTExMjQzNDg0&filename=&opi=89354086",
+        "mimeType": "text/html",
+        "name": "projects/5625103553911243484/files/6034e85dce4f47fdb60d74911736412a"
+      },
+      "name": "projects/5625103553911243484/screens/2bcfdcb194d44410858ff056d1465a97",
+      "screenshot": {
+        "downloadUrl": "https://lh3.googleusercontent.com/aida/ADBb0uhHc-6Ew2BeKHDby4zBoWJ_rRuJUN9I9TZWLCkbJvNxtDVlVdjL9jaD8XZY0sY-Hgvn-AKJ5Ew89ToBnrsjBrCP-MF8_m8s0cqdsTaqgz8iwgs5vixfgiYXo3T_Uucbtgko1Z3kW6G6lEcJskI3a-uoc8N1woNokybRRlKyPRDopTcFW-Q5HydMnG8EkBIDoTz_ncp0vUWWJc-7W-GmY4m1Byw0rcNaKG64M0ndrjctMCnH6xVeZiLT5m0",
+        "name": "projects/5625103553911243484/files/2a51cedb16584ad3bd642f12bed65693"
+      },
+      "title": "Polished Agent Reschedule Request",
+      "width": "1036"
+    }
+  }
+}

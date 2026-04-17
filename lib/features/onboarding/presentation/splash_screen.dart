@@ -1,107 +1,42 @@
-import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
-import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/app_routes.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class SplashScreen extends StatefulWidget {
+import 'view_models/splash_view_model.dart';
+import 'view_models/splash_view_state.dart';
+import 'widgets/splash_content.dart';
+
+class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<SplashViewState>(splashViewModelProvider, (previous, next) {
+      final nextRoute = next.nextRoute;
+      final targetLanguage = next.targetLanguage;
 
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _navigateToNext();
-  }
+      if (targetLanguage != null &&
+          targetLanguage != context.locale.languageCode) {
+        context.setLocale(Locale(targetLanguage));
+      }
 
-  Future<void> _navigateToNext() async {
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      // In a real app, this would check auth state / first time open.
-      context.go(AppRoutes.onboarding);
+      if (nextRoute == null) {
+        return;
+      }
+
+      ref.read(splashViewModelProvider.notifier).clearNavigation();
+      context.go(nextRoute);
+    });
+
+    final state = ref.watch(splashViewModelProvider);
+
+    if (!state.hasResolvedRoute) {
+      Future<void>.microtask(
+        ref.read(splashViewModelProvider.notifier).initialize,
+      );
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.primaryColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(),
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: const Center(
-                      child: FaIcon(
-                        FontAwesomeIcons.recycle,
-                        color: Colors.white,
-                        size: 50,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Scrapify',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 36,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'splash.subtitle'.tr(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 32.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FaIcon(
-                    FontAwesomeIcons.leaf,
-                    color: Colors.white.withValues(alpha: 0.8),
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'splash.footer'.tr(),
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return const SplashContent();
   }
 }

@@ -1,0 +1,28 @@
+{
+  "id": 3,
+  "jsonrpc": "2.0",
+  "result": {
+    "content": [
+      {
+        "text": "{\"name\":\"projects/5625103553911243484/screens/ca4ffd5bc00c4c56a763ec4b0537f87f\",\"title\":\"Pickup Order Verification\",\"screenshot\":{\"name\":\"projects/5625103553911243484/files/aaaeab0a535d4d77a93dc8a649694bba\",\"downloadUrl\":\"https://lh3.googleusercontent.com/aida/ADBb0ugq3mDBTACmmtlMPIeQc-TILLzer6ewLSewZZVg78ZBNeftCI4IR3Y0EhbcVl40f2mELwfkLRjmZsywGP9fGWKCMx6xovsrvat2Bd6fooluDCICDOJUtZQHLTSWhTWK2hhUC5SjXy6YuyPJc2Z_8tOzc3Xlh4xBm7S8bRj7gRWCkgxdzpZUzYu25eG53PQ2mLaDk6j4ACQOhJsr4-vE2IVlthlsbCMZnLNzsUUT2Nf-0LJpjrKdTHdUILE\"},\"htmlCode\":{\"name\":\"projects/5625103553911243484/files/9635525a99084afcb8e2b84b8a24b488\",\"downloadUrl\":\"https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzM2MjgwZDFmN2I0NjQzOTY5NDMwNWE1ZDJkYmU1MzUzEgsSBxCD0PftlRQYAZIBIwoKcHJvamVjdF9pZBIVQhM1NjI1MTAzNTUzOTExMjQzNDg0&filename=&opi=89354086\",\"mimeType\":\"text/html\"},\"width\":\"780\",\"height\":\"4846\",\"deviceType\":\"MOBILE\"}",
+        "type": "text"
+      }
+    ],
+    "structuredContent": {
+      "deviceType": "MOBILE",
+      "height": "4846",
+      "htmlCode": {
+        "downloadUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ7Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpaCiVodG1sXzM2MjgwZDFmN2I0NjQzOTY5NDMwNWE1ZDJkYmU1MzUzEgsSBxCD0PftlRQYAZIBIwoKcHJvamVjdF9pZBIVQhM1NjI1MTAzNTUzOTExMjQzNDg0&filename=&opi=89354086",
+        "mimeType": "text/html",
+        "name": "projects/5625103553911243484/files/9635525a99084afcb8e2b84b8a24b488"
+      },
+      "name": "projects/5625103553911243484/screens/ca4ffd5bc00c4c56a763ec4b0537f87f",
+      "screenshot": {
+        "downloadUrl": "https://lh3.googleusercontent.com/aida/ADBb0ugq3mDBTACmmtlMPIeQc-TILLzer6ewLSewZZVg78ZBNeftCI4IR3Y0EhbcVl40f2mELwfkLRjmZsywGP9fGWKCMx6xovsrvat2Bd6fooluDCICDOJUtZQHLTSWhTWK2hhUC5SjXy6YuyPJc2Z_8tOzc3Xlh4xBm7S8bRj7gRWCkgxdzpZUzYu25eG53PQ2mLaDk6j4ACQOhJsr4-vE2IVlthlsbCMZnLNzsUUT2Nf-0LJpjrKdTHdUILE",
+        "name": "projects/5625103553911243484/files/aaaeab0a535d4d77a93dc8a649694bba"
+      },
+      "title": "Pickup Order Verification",
+      "width": "780"
+    }
+  }
+}

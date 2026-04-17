@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
-import '../providers/pickup_draft_provider.dart';
-import '../providers/pickup_provider.dart';
-import '../../auth/providers/auth_provider.dart';
+import '../../../core/widgets/custom_button.dart';
+import '../../profile/providers/address_provider.dart';
+import '../providers/booking_provider.dart';
+import '../providers/basket_provider.dart';
+import '../providers/donation_provider.dart';
 
-class SelectDateTimeScreen extends ConsumerStatefulWidget {
-  const SelectDateTimeScreen({super.key});
+class SelectAddressTimeScreen extends ConsumerStatefulWidget {
+  const SelectAddressTimeScreen({super.key});
 
   @override
-  ConsumerState<SelectDateTimeScreen> createState() =>
-      _SelectDateTimeScreenState();
+  ConsumerState<SelectAddressTimeScreen> createState() =>
+      _SelectAddressTimeScreenState();
 }
 
-class _SelectDateTimeScreenState extends ConsumerState<SelectDateTimeScreen> {
-  DateTime? _selectedDate;
-  String? _selectedTime;
-  bool _isSubmitting = false;
-
+class _SelectAddressTimeScreenState
+    extends ConsumerState<SelectAddressTimeScreen> {
   final List<String> _timeSlots = [
     '10:00 AM - 01:00 PM',
     '02:00 PM - 05:00 PM',
@@ -30,243 +29,371 @@ class _SelectDateTimeScreenState extends ConsumerState<SelectDateTimeScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime.now().add(const Duration(days: 1));
-  }
-
-  String _buildScheduledAt() {
-    if (_selectedDate == null || _selectedTime == null) return '';
-    final date = _selectedDate!;
-    // Parse AM/PM time slot start
-    final startStr = _selectedTime!.split(' - ').first.trim();
-    final parts = startStr.split(':');
-    int hour = int.parse(parts[0]);
-    final minPart = parts[1].replaceAll(RegExp(r'[^0-9]'), '');
-    final int min = int.parse(minPart);
-    final isPm = startStr.toUpperCase().contains('PM');
-    if (isPm && hour != 12) hour += 12;
-    if (!isPm && hour == 12) hour = 0;
-    final dt = DateTime(date.year, date.month, date.day, hour, min);
-    return dt.toIso8601String();
-  }
-
-  Future<void> _confirmPickup() async {
-    final draft = ref.read(pickupDraftProvider);
-    final user = ref.read(authProvider);
-    final scheduledAt = _buildScheduledAt();
-
-    setState(() => _isSubmitting = true);
-
-    final repo = ref.read(pickupRepositoryProvider);
-    final result = await repo.createPickup(
-      address: draft.address.isNotEmpty
-          ? draft.address
-          : 'Customer Address', // fallback; ideally from profile
-      cityId: draft.cityId,
-      scheduledAt: scheduledAt,
-      items: draft.itemsPayload,
-      images: draft.images,
-      customerName: user?.name,
-      customerPhone: user?.phone,
-    );
-
-    setState(() => _isSubmitting = false);
-
-    if (!mounted) return;
-
-    if (result.isSuccess) {
-      final pickupId = result.data?.id;
-      // Reset draft so next booking starts fresh
-      ref.read(pickupDraftProvider.notifier).reset();
-      context.go(AppRoutes.successConfirmation,
-          extra: pickupId != null ? {'pickup_id': pickupId} : null);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.errorMessage ?? 'Failed to create pickup'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    // Default date if not set
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final booking = ref.read(bookingProvider);
+      if (booking.selectedDate == null) {
+        ref
+            .read(bookingProvider.notifier)
+            .setSelectedDate(DateTime.now().add(const Duration(days: 1)));
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final basketItems = ref.watch(basketProvider);
+    final donationItems = ref.watch(donationProvider);
+    final totalEstimate = basketItems.fold<double>(
+      0,
+      (sum, item) => sum + item.totalEstimate,
+    );
+    final booking = ref.watch(bookingProvider);
+    final isDonationFlow = booking.isDonationFlow;
+    final addressesAsync = ref.watch(addressProvider);
+    final availableTimeSlots = _getAvailableTimeSlots(booking.selectedDate);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final selectedTimeSlot = booking.selectedTimeSlot;
+      if (selectedTimeSlot != null &&
+          !availableTimeSlots.contains(selectedTimeSlot) &&
+          mounted) {
+        ref.read(bookingProvider.notifier).clearSelectedTimeSlot();
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-              color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
-        title: Text(
-          'date_time.title'.tr(),
-          style: const TextStyle(
+        title: const Text(
+          'Address & Time',
+          style: TextStyle(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
         ),
+        centerTitle: true,
       ),
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // --- Date Selection ---
-                      Text(
-                        'date_time.select_date'.tr(),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // --- Address Selection ---
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Select Address',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.textPrimary,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        height: 90,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: 7,
-                          itemBuilder: (context, index) {
-                            final date =
-                                DateTime.now().add(Duration(days: index));
+                        TextButton(
+                          onPressed: () => context.push(AppRoutes.addAddress),
+                          child: const Text('+ Add New'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    addressesAsync.when(
+                      data: (addresses) {
+                        if (addresses.isEmpty) {
+                          return const Text(
+                            'No addresses found. Please add one.',
+                          );
+                        }
+                        return Column(
+                          children: addresses.map((addr) {
                             final isSelected =
-                                _selectedDate?.year == date.year &&
-                                    _selectedDate?.month == date.month &&
-                                    _selectedDate?.day == date.day;
-
+                                booking.selectedAddress?.id == addr.id;
                             return GestureDetector(
-                              onTap: () =>
-                                  setState(() => _selectedDate = date),
+                              onTap: () => ref
+                                  .read(bookingProvider.notifier)
+                                  .setSelectedAddress(addr),
                               child: Container(
-                                width: 70,
-                                margin: const EdgeInsets.only(right: 12),
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? AppTheme.primaryColor
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: AppTheme.softShadow,
                                   border: Border.all(
                                     color: isSelected
                                         ? AppTheme.primaryColor
-                                        : Colors.grey.shade300,
-                                    width: 1.5,
+                                        : Colors.transparent,
+                                    width: 2,
                                   ),
-                                  boxShadow: isSelected
-                                      ? [
-                                          BoxShadow(
-                                            color: AppTheme.primaryColor
-                                                .withValues(alpha: 0.3),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ]
-                                      : [],
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                child: Row(
                                   children: [
-                                    Text(
-                                      DateFormat('MMM')
-                                          .format(date)
-                                          .toUpperCase(),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : AppTheme.textSecondary,
+                                    Container(
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? AppTheme.primaryColor
+                                              : const Color(0xFFE2E8F0),
+                                          width: isSelected ? 7 : 2,
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      DateFormat('dd').format(date),
-                                      style: TextStyle(
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w900,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : AppTheme.textPrimary,
+                                    const SizedBox(width: 20),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            addr.title.toUpperCase(),
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              color: AppTheme.primaryColor,
+                                              fontSize: 11,
+                                              letterSpacing: 1.1,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            addr.addressLine1,
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppTheme.textPrimary,
+                                            ),
+                                          ),
+                                          Text(
+                                            '${addr.cityName}, ${addr.pincode}',
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              color: AppTheme.textSecondary,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      DateFormat('EEE').format(date),
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        color: isSelected
-                                            ? Colors.white
-                                                .withValues(alpha: 0.8)
-                                            : AppTheme.textSecondary,
-                                      ),
+                                    const FaIcon(
+                                      FontAwesomeIcons.pen,
+                                      color: Color(0xFF94A3B8),
+                                      size: 14,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    const FaIcon(
+                                      FontAwesomeIcons.trashCan,
+                                      color: Color(0xFFFCA5A5),
+                                      size: 14,
                                     ),
                                   ],
                                 ),
                               ),
                             );
-                          },
-                        ),
-                      ),
+                          }).toList(),
+                        );
+                      },
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (err, stack) =>
+                          Text('Error loading addresses: $err'),
+                    ),
 
-                      const SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
-                      // --- Time Selection ---
-                      Text(
-                        'date_time.select_time'.tr(),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.textPrimary,
-                        ),
+                    // --- Date Selection ---
+                    Text(
+                      'date_time.select_date'.tr(),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
                       ),
-                      const SizedBox(height: 16),
-                      Column(
-                        children: _timeSlots.map((time) {
-                          final isSelected = _selectedTime == time;
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 100,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 7,
+                        itemBuilder: (context, index) {
+                          final date = DateTime.now().add(
+                            Duration(days: index),
+                          );
+                          final isSelected =
+                              booking.selectedDate?.year == date.year &&
+                              booking.selectedDate?.month == date.month &&
+                              booking.selectedDate?.day == date.day;
+
                           return GestureDetector(
-                            onTap: () =>
-                                setState(() => _selectedTime = time),
+                            onTap: () => ref
+                                .read(bookingProvider.notifier)
+                                .setSelectedDate(date),
+                            child: Container(
+                              width: 75,
+                              margin: const EdgeInsets.only(right: 12),
+                              decoration: BoxDecoration(
+                                gradient: isSelected
+                                    ? AppTheme.primaryGradient
+                                    : null,
+                                color: isSelected ? null : Colors.white,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: isSelected
+                                    ? AppTheme.softShadow
+                                    : null,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? Colors.transparent
+                                      : const Color(0xFFF1F5F9),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    DateFormat(
+                                      'MMM',
+                                    ).format(date).toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      color: isSelected
+                                          ? Colors.white.withValues(alpha: 0.9)
+                                          : AppTheme.textSecondary,
+                                      letterSpacing: 1.1,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    DateFormat('dd').format(date),
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w900,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppTheme.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    DateFormat(
+                                      'EEE',
+                                    ).format(date).toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w800,
+                                      color: isSelected
+                                          ? Colors.white.withValues(alpha: 0.7)
+                                          : AppTheme.textSecondary,
+                                      letterSpacing: 1.1,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // --- Time Selection ---
+                    Text(
+                      'date_time.select_time'.tr(),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    if (availableTimeSlots.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: AppTheme.softShadow,
+                        ),
+                        child: const Text(
+                          'No pickup slots are available for the selected date.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      )
+                    else
+                      Column(
+                        children: availableTimeSlots.map((time) {
+                          final isSelected = booking.selectedTimeSlot == time;
+                          return GestureDetector(
+                            onTap: () => ref
+                                .read(bookingProvider.notifier)
+                                .setSelectedTimeSlot(time),
                             child: Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 16),
+                                horizontal: 24,
+                                vertical: 20,
+                              ),
                               decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppTheme.primaryLight
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(16),
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: AppTheme.softShadow,
                                 border: Border.all(
                                   color: isSelected
                                       ? AppTheme.primaryColor
-                                      : Colors.grey.shade300,
-                                  width: 1.5,
+                                      : Colors.transparent,
+                                  width: 2,
                                 ),
                               ),
                               child: Row(
                                 children: [
-                                  FaIcon(
-                                    FontAwesomeIcons.clock,
-                                    color: isSelected
-                                        ? AppTheme.primaryColor
-                                        : AppTheme.textSecondary,
-                                    size: 20,
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppTheme.primaryColor
+                                          : const Color(0xFFF8FAFC),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: FaIcon(
+                                        FontAwesomeIcons.clock,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : const Color(0xFF94A3B8),
+                                        size: 18,
+                                      ),
+                                    ),
                                   ),
-                                  const SizedBox(width: 16),
+                                  const SizedBox(width: 20),
                                   Expanded(
                                     child: Text(
                                       time,
                                       style: TextStyle(
                                         fontSize: 16,
-                                        fontWeight: isSelected
-                                            ? FontWeight.bold
-                                            : FontWeight.w500,
+                                        fontWeight: FontWeight.w800,
                                         color: isSelected
                                             ? AppTheme.primaryColor
                                             : AppTheme.textPrimary,
@@ -274,17 +401,10 @@ class _SelectDateTimeScreenState extends ConsumerState<SelectDateTimeScreen> {
                                     ),
                                   ),
                                   if (isSelected)
-                                    Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: AppTheme.primaryColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const FaIcon(
-                                        FontAwesomeIcons.check,
-                                        color: Colors.white,
-                                        size: 12,
-                                      ),
+                                    const FaIcon(
+                                      FontAwesomeIcons.solidCircleCheck,
+                                      color: AppTheme.primaryColor,
+                                      size: 22,
                                     ),
                                 ],
                               ),
@@ -292,57 +412,147 @@ class _SelectDateTimeScreenState extends ConsumerState<SelectDateTimeScreen> {
                           );
                         }).toList(),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
               ),
             ),
 
-            // Bottom Button
+            // --- Bottom Button ---
             Container(
               padding: const EdgeInsets.all(24.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -4),
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, -10),
                   ),
                 ],
               ),
-              child: ElevatedButton(
-                onPressed: (_selectedDate != null &&
-                        _selectedTime != null &&
-                        !_isSubmitting)
-                    ? _confirmPickup
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  disabledBackgroundColor: Colors.grey.shade300,
-                  disabledForegroundColor: Colors.grey.shade600,
-                ),
-                child: _isSubmitting
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
+              child: SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isDonationFlow
+                                  ? 'DONATION PICKUP'
+                                  : 'PAYOUT ESTIMATE',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF94A3B8),
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              isDonationFlow
+                                  ? 'Schedule donation collection'
+                                  : 'Calculated at Pickup',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
+                          ],
                         ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('date_time.confirm_pickup'.tr()),
-                          const SizedBox(width: 8),
-                          const FaIcon(FontAwesomeIcons.arrowRight, size: 16),
-                        ],
-                      ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              isDonationFlow ? 'ITEMS' : 'NET PAYOUT',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: AppTheme.primaryColor,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              isDonationFlow
+                                  ? '${donationItems.items.fold<int>(0, (sum, item) => sum + item.quantity.round())} item(s)'
+                                  : '₹${totalEstimate.toStringAsFixed(0)}',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    CustomButton(
+                      onPressed:
+                          booking.selectedAddress != null &&
+                              booking.selectedDate != null &&
+                              booking.selectedTimeSlot != null &&
+                              availableTimeSlots.contains(
+                                booking.selectedTimeSlot,
+                              )
+                          ? () => context.push(AppRoutes.reviewBooking)
+                          : null,
+                      text: isDonationFlow
+                          ? 'REVIEW DONATION'
+                          : 'REVIEW BOOKING',
+                      minHeight: 60,
+                      borderRadius: 20,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  List<String> _getAvailableTimeSlots(DateTime? selectedDate) {
+    if (selectedDate == null) {
+      return _timeSlots;
+    }
+
+    final now = DateTime.now();
+    final isToday =
+        selectedDate.year == now.year &&
+        selectedDate.month == now.month &&
+        selectedDate.day == now.day;
+
+    if (!isToday) {
+      return _timeSlots;
+    }
+
+    return _timeSlots.where((slot) {
+      final endTimeText = slot.split(' - ').last.trim();
+      final slotEnd = _parseSlotTime(selectedDate, endTimeText);
+      return slotEnd.isAfter(now);
+    }).toList();
+  }
+
+  DateTime _parseSlotTime(DateTime date, String timeText) {
+    final parts = timeText.split(' ');
+    final hourMinute = parts.first.split(':');
+    var hour = int.parse(hourMinute.first);
+    final minute = int.parse(hourMinute.last);
+    final meridian = parts.last.toUpperCase();
+
+    if (meridian == 'PM' && hour != 12) {
+      hour += 12;
+    } else if (meridian == 'AM' && hour == 12) {
+      hour = 0;
+    }
+
+    return DateTime(date.year, date.month, date.day, hour, minute);
   }
 }

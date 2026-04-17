@@ -119,16 +119,101 @@ components:
         id:
           type: integer
         name:
-          type: string
+          type: object
+          properties:
+            en:
+              type: string
+            hi:
+              type: string
         slug:
           type: string
-        type:
+        category_type_id:
+          type: integer
+        category_type:
+          $ref: '#/components/schemas/CategoryType'
+        pricing_type:
           type: string
-          enum: [electronics, metal, plastic]
+          enum: [per_kg, per_piece, per_capacity]
+        base_price:
+          type: number
+        image_url:
+          type: string
+          nullable: true
+          example: "https://example.com/storage/categories/image.png"
         attributes:
           type: array
           items:
             $ref: '#/components/schemas/Attribute'
+
+    CategoryType:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        image_url:
+          type: string
+          nullable: true
+          example: "https://example.com/storage/category_types/icon.png"
+        status:
+          type: boolean
+
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          example: "Home"
+        address_line_1:
+          type: string
+          example: "123 Main St"
+        address_line_2:
+          type: string
+          nullable: true
+          example: "Apt 4B"
+        pincode:
+          type: string
+          example: "400001"
+        city_id:
+          type: integer
+          example: 1
+        state:
+          type: string
+          nullable: true
+        is_default:
+          type: boolean
+          example: true
+          
+    PaymentDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [bank, upi]
+        bank_name:
+          type: string
+          nullable: true
+        account_number:
+          type: string
+          nullable: true
+        ifsc_code:
+          type: string
+          nullable: true
+        account_holder_name:
+          type: string
+          nullable: true
+        upi_id:
+          type: string
+          nullable: true
+        is_default:
+          type: boolean
 
     Attribute:
       type: object
@@ -320,6 +405,58 @@ paths:
                   data:
                     $ref: '#/components/schemas/User'
 
+  /auth/profile/update:
+    post:
+      tags:
+        - Profile
+      summary: Update user profile
+      description: Update the user's name, email, city ID, and optionally upload a profile photo.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "John Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                city_id:
+                  type: integer
+                  example: 1
+                profile_photo:
+                  type: string
+                  format: binary
+                  description: Profile photo image file (jpeg, png, jpg, webp)
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: profile.updated
+                  data:
+                    type: object
+        '422':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /auth/logout:
     post:
       tags:
@@ -330,6 +467,220 @@ paths:
       responses:
         '200':
           description: Logged out successfully
+
+  /auth/profile/addresses:
+    get:
+      tags:
+        - Profile
+      summary: Get all user addresses
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Addresses fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Address'
+    post:
+      tags:
+        - Profile
+      summary: Add new address
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [address_line_1, pincode, city_id]
+              properties:
+                title:
+                  type: string
+                address_line_1:
+                  type: string
+                address_line_2:
+                  type: string
+                pincode:
+                  type: string
+                city_id:
+                  type: integer
+                state:
+                  type: string
+                is_default:
+                  type: boolean
+      responses:
+        '200':
+          description: Address created successfully
+
+  /auth/profile/addresses/{id}:
+    put:
+      tags:
+        - Profile
+      summary: Update address
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                address_line_1:
+                  type: string
+                address_line_2:
+                  type: string
+                pincode:
+                  type: string
+                city_id:
+                  type: integer
+                state:
+                  type: string
+                is_default:
+                  type: boolean
+      responses:
+        '200':
+          description: Address updated successfully
+    delete:
+      tags:
+        - Profile
+      summary: Delete address
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Address deleted successfully
+
+  /auth/profile/payment-details:
+    get:
+      tags:
+        - Profile
+      summary: Get all payment details
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Payment details fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PaymentDetail'
+    post:
+      tags:
+        - Profile
+      summary: Add new payment details
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type:
+                  type: string
+                  enum: [bank, upi]
+                account_number:
+                  type: string
+                ifsc_code:
+                  type: string
+                bank_name:
+                  type: string
+                account_holder_name:
+                  type: string
+                upi_id:
+                  type: string
+                is_default:
+                  type: boolean
+      responses:
+        '200':
+          description: Payment details added successfully
+
+  /auth/profile/payment-details/{id}:
+    put:
+      tags:
+        - Profile
+      summary: Update payment details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum: [bank, upi]
+                account_number:
+                  type: string
+                ifsc_code:
+                  type: string
+                bank_name:
+                  type: string
+                account_holder_name:
+                  type: string
+                upi_id:
+                  type: string
+                is_default:
+                  type: boolean
+      responses:
+        '200':
+          description: Payment details updated successfully
+    delete:
+      tags:
+        - Profile
+      summary: Delete payment details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Payment details deleted successfully
 
   /auth/profile/bank-details:
     post:
@@ -471,6 +822,123 @@ paths:
       tags:
         - Categories
       summary: Get category details
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Category details fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/Category'
+
+  /category-types:
+    get:
+      tags:
+        - Categories
+      summary: List all category types
+      responses:
+        '200':
+          description: Category types fetched successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CategoryType'
+    post:
+      tags:
+        - Admin
+      summary: Create special category type (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                image:
+                  type: string
+                  format: binary
+                status:
+                  type: boolean
+      responses:
+        '201':
+          description: Category type created
+
+  /category-types/{id}:
+    post:
+      tags:
+        - Admin
+      summary: Update category type (Admin)
+      description: Use POST with _method=PUT for multipart support
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                _method:
+                  type: string
+                  enum: [PUT]
+                name:
+                  type: string
+                image:
+                  type: string
+                  format: binary
+                status:
+                  type: boolean
+      responses:
+        '200':
+          description: Updated successfully
+    delete:
+      tags:
+        - Admin
+      summary: Delete category type (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Deleted successfully
+    get:
+      tags:
+        - Admin
+      summary: Get category type details
       security:
         - bearerAuth: []
       parameters:

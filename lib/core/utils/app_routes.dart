@@ -1,32 +1,46 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/onboarding/presentation/splash_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/auth/presentation/language_selection_screen.dart';
 import '../../features/auth/presentation/role_selection_screen.dart';
 import '../../features/auth/presentation/login_otp_screen.dart';
-import '../../features/dashboard/presentation/customer_dashboard.dart';
+import '../../features/customer/presentation/customer_dashboard.dart';
+import '../../features/pickup/domain/models/pickup_catalog_item.dart';
 import '../../features/pickup/presentation/category_selection_screen.dart';
 import '../../features/pickup/presentation/dynamic_question_form_screen.dart';
 import '../../features/pickup/presentation/upload_photo_screen.dart';
 import '../../features/pickup/presentation/select_date_time_screen.dart';
+import '../../features/pickup/presentation/subcategory_selection_screen.dart';
+import '../../features/pickup/presentation/item_selection_screen.dart';
+import '../../features/pickup/presentation/household_item_details_screen.dart';
+import '../../features/pickup/presentation/basket_screen.dart';
+import '../../features/pickup/presentation/review_booking_screen.dart';
+import '../../features/pickup/presentation/payout_method_screen.dart';
 import '../../features/pickup/presentation/success_confirmation_screen.dart';
 import '../../features/pickup/presentation/pickup_tracking_screen.dart';
-import '../../features/dashboard/presentation/pickup_boy_dashboard.dart';
-import '../../features/dashboard/presentation/warehouse_dashboard.dart';
-import '../../features/dashboard/presentation/partner_dashboard.dart';
+import '../../features/pickup/presentation/weight_entry_screen.dart';
+import '../../features/pickup/presentation/donation_category_selection_screen.dart';
+import '../../features/pickup/presentation/donation_items_screen.dart';
+import '../../features/pickup_boy/presentation/pickup_boy_dashboard.dart';
+import '../../features/warehouse/presentation/warehouse_dashboard.dart';
+import '../../features/partner/presentation/partner_dashboard.dart';
 import '../../features/pricing/presentation/material_price_list_screen.dart';
 import '../../features/pickup/presentation/rate_pickup_screen.dart';
 import '../../features/pickup/presentation/pickup_details_screen.dart';
 import '../../features/notifications/presentation/notifications_screen.dart';
 import '../../features/profile/presentation/user_profile_screen.dart';
-// New screens
-import '../../features/pickup_boy/presentation/pickup_boy_detail_screen.dart';
-import '../../features/pickup_boy/presentation/pickup_boy_verification_screen.dart';
-import '../../features/warehouse/presentation/warehouse_requests_screen.dart';
-import '../../features/warehouse/presentation/warehouse_request_detail_screen.dart';
-import '../../features/warehouse/presentation/warehouse_pickup_boys_screen.dart';
-import '../../features/channel_partner/presentation/partner_orders_screen.dart';
+import '../../features/profile/presentation/saved_addresses_screen.dart';
+import '../../features/profile/presentation/add_address_screen.dart';
+import '../../features/profile/presentation/edit_profile_screen.dart';
+import '../../features/profile/presentation/settings_screen.dart';
+import '../../features/profile/presentation/faq_screen.dart';
+import '../../features/profile/presentation/payment_methods_screen.dart';
+import '../../features/profile/presentation/add_edit_payment_screen.dart';
+import '../../features/profile/domain/models/payment_method_model.dart';
+import '../../features/pickup/domain/models/pickup_request_model.dart';
+import '../../features/pickup/presentation/pickup_order_verification_screen.dart';
+import '../../features/pickup/presentation/agent_reschedule_request_screen.dart';
+import '../../features/pickup/presentation/user_reschedule_pickup_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -42,6 +56,14 @@ class AppRoutes {
   static const String successConfirmation = '/pickup/success';
   static const String pickupTracking = '/pickup/tracking';
   static const String pickupDetails = '/pickup/details';
+  static const String basket = '/pickup/basket';
+  static const String donationCategorySelection = '/donation/categories';
+  static const String donationItems = '/donation/items';
+  static const String subCategorySelection = '/pickup/subcategory';
+  static const String itemSelection = '/pickup/items';
+  static const String householdItemDetails = '/pickup/item-details';
+  static const String reviewBooking = '/pickup/review';
+  static const String payoutMethod = '/pickup/payout';
   static const String ratePickup = '/pickup/rate';
   static const String pickupDashboard = '/dashboard/pickup';
   static const String warehouseDashboard = '/dashboard/warehouse';
@@ -49,23 +71,21 @@ class AppRoutes {
   static const String materialPriceList = '/pricing/materials';
   static const String notifications = '/notifications';
   static const String profile = '/profile';
-  // Pickup Boy
-  static const String pickupBoyDetail = '/pickup-boy/pickups/:id';
-  static const String pickupBoyVerify = '/pickup-boy/pickups/:id/verify';
-  // Warehouse
-  static const String warehouseRequests = '/warehouse/requests';
-  static const String warehouseRequestDetail = '/warehouse/requests/:id';
-  static const String warehousePickupBoys = '/warehouse/pickup-boys';
-  // Channel Partner
-  static const String partnerOrders = '/partner/orders';
+  static const String savedAddresses = '/profile/addresses';
+  static const String addAddress = '/profile/addresses/add';
+  static const String editProfile = '/profile/edit';
+  static const String settings = '/profile/settings';
+  static const String faq = '/profile/faq';
+  static const String paymentMethods = '/profile/payment-methods';
+  static const String addEditPayment = '/profile/payment-methods/add-edit';
+  static const String orderVerification = '/pickup/verification';
+  static const String agentReschedule = '/pickup/agent-reschedule';
+  static const String userReschedule = '/pickup/user-reschedule';
 
   static final router = GoRouter(
     initialLocation: splash,
     routes: [
-      GoRoute(
-        path: splash,
-        builder: (context, state) => const SplashScreen(),
-      ),
+      GoRoute(path: splash, builder: (context, state) => const SplashScreen()),
       GoRoute(
         path: onboarding,
         builder: (context, state) => const OnboardingScreen(),
@@ -107,6 +127,14 @@ class AppRoutes {
         builder: (context, state) => const CategorySelectionScreen(),
       ),
       GoRoute(
+        path: donationCategorySelection,
+        builder: (context, state) => const DonationCategorySelectionScreen(),
+      ),
+      GoRoute(
+        path: donationItems,
+        builder: (context, state) => const DonationItemsScreen(),
+      ),
+      GoRoute(
         path: questionForm,
         builder: (context, state) => const DynamicQuestionFormScreen(),
       ),
@@ -116,35 +144,77 @@ class AppRoutes {
       ),
       GoRoute(
         path: selectDateTime,
-        builder: (context, state) => const SelectDateTimeScreen(),
+        builder: (context, state) => const SelectAddressTimeScreen(),
       ),
       GoRoute(
         path: successConfirmation,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          return SuccessConfirmationScreen(pickupId: extra?['pickup_id'] as int?);
+          return SuccessConfirmationScreen(
+            pickup: extra?['pickup'] as PickupRequestModel?,
+            isDonation: extra?['isDonation'] as bool? ?? false,
+          );
         },
       ),
       GoRoute(
-        path: pickupTracking,
+        path: '$pickupTracking/:pickupId',
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          return PickupTrackingScreen(pickupId: extra?['pickup_id'] as int?);
+          final pickupId = int.parse(state.pathParameters['pickupId']!);
+          return PickupTrackingScreen(pickupId: pickupId);
         },
       ),
       GoRoute(
         path: pickupDetails,
+        builder: (context, state) => const PickupDetailsScreen(),
+      ),
+      GoRoute(path: basket, builder: (context, state) => const BasketScreen()),
+      GoRoute(
+        path: '$subCategorySelection/:parentId',
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          return PickupDetailsScreen(pickupId: extra?['pickup_id'] as int?);
+          final parentId = state.pathParameters['parentId']!;
+          return SubCategorySelectionScreen(parentId: int.parse(parentId));
+        },
+      ),
+      GoRoute(
+        path: '$itemSelection/:categoryId',
+        builder: (context, state) {
+          final categoryId = state.pathParameters['categoryId']!;
+          return ItemSelectionScreen(categoryId: int.parse(categoryId));
+        },
+      ),
+      GoRoute(
+        path: householdItemDetails,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return HouseholdItemDetailsScreen(
+            item: extra['item'] as PickupCatalogItem,
+            parentCategoryName: extra['parentCategoryName'] as String,
+            applianceCategoryId: extra['applianceCategoryId'] as int,
+          );
+        },
+      ),
+      GoRoute(
+        path: reviewBooking,
+        builder: (context, state) => const ReviewBookingScreen(),
+      ),
+      GoRoute(
+        path: payoutMethod,
+        builder: (context, state) => const PayoutMethodScreen(),
+      ),
+      GoRoute(
+        path: '/pickup/weight-entry',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return WeightEntryScreen(
+            itemName: extra['itemName'] as String,
+            basePrice: extra['basePrice'] as double,
+            unit: extra['unit'] as String,
+          );
         },
       ),
       GoRoute(
         path: ratePickup,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          return RatePickupScreen(pickupId: extra?['pickup_id'] as int?);
-        },
+        builder: (context, state) => const RatePickupScreen(),
       ),
       GoRoute(
         path: materialPriceList,
@@ -158,58 +228,46 @@ class AppRoutes {
         path: profile,
         builder: (context, state) => const UserProfileScreen(),
       ),
-
-      // --- Pickup Boy Routes ---
       GoRoute(
-        path: '/pickup-boy/pickups/:id',
+        path: savedAddresses,
+        builder: (context, state) => const SavedAddressesScreen(),
+      ),
+      GoRoute(
+        path: addAddress,
+        builder: (context, state) => const AddAddressScreen(),
+      ),
+      GoRoute(
+        path: editProfile,
+        builder: (context, state) => const EditProfileScreen(),
+      ),
+      GoRoute(
+        path: settings,
+        builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(path: faq, builder: (context, state) => const FaqScreen()),
+      GoRoute(
+        path: paymentMethods,
+        builder: (context, state) => const PaymentMethodsScreen(),
+      ),
+      GoRoute(
+        path: addEditPayment,
         builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
-          return PickupBoyDetailScreen(pickupId: id);
+          final paymentMethod = state.extra as PaymentMethodModel?;
+          return AddEditPaymentScreen(paymentMethod: paymentMethod);
         },
       ),
       GoRoute(
-        path: '/pickup-boy/pickups/:id/verify',
-        builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
-          return PickupBoyVerificationScreen(pickupId: id);
-        },
-      ),
-
-      // --- Warehouse Routes ---
-      GoRoute(
-        path: warehouseRequests,
-        builder: (context, state) => const WarehouseRequestsScreen(),
+        path: orderVerification,
+        builder: (context, state) => const PickupOrderVerificationScreen(),
       ),
       GoRoute(
-        path: '/warehouse/requests/:id',
-        builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
-          return WarehouseRequestDetailScreen(requestId: id);
-        },
+        path: agentReschedule,
+        builder: (context, state) => const AgentRescheduleRequestScreen(),
       ),
       GoRoute(
-        path: warehousePickupBoys,
-        builder: (context, state) => const WarehousePickupBoysScreen(),
-      ),
-
-      // --- Channel Partner Routes ---
-      GoRoute(
-        path: partnerOrders,
-        builder: (context, state) => const PartnerOrdersScreen(),
+        path: userReschedule,
+        builder: (context, state) => const UserReschedulePickupScreen(),
       ),
     ],
   );
-}
-
-class PlaceholderScreen extends StatelessWidget {
-  final String title;
-  const PlaceholderScreen({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('Screen: $title')),
-    );
-  }
 }

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Reschedule Pickup | Scrapi5</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#bbf7d0",
+                        "secondary-container": "#f1f5f9",
+                        "on-background": "#0f172a",
+                        "tertiary-fixed-dim": "#ffb1c1",
+                        "on-surface": "#0f172a",
+                        "error-container": "#fee2e2",
+                        "error": "#ef4444",
+                        "on-secondary-container": "#1e293b",
+                        "surface-dim": "#f3f4ee",
+                        "secondary-fixed-dim": "#e2e8f0",
+                        "outline": "#689c71",
+                        "on-tertiary-fixed": "#390918",
+                        "primary": "#689c71",
+                        "tertiary-fixed": "#ffd9df",
+                        "on-surface-variant": "#475569",
+                        "on-secondary-fixed-variant": "#334155",
+                        "background": "#f7f7f7",
+                        "on-primary-container": "#14532d",
+                        "on-error-container": "#991b1b",
+                        "on-tertiary-container": "#390918",
+                        "surface-bright": "#ffffff",
+                        "primary-fixed": "#dcfce7",
+                        "inverse-surface": "#1e293b",
+                        "on-error": "#ffffff",
+                        "tertiary": "#884958",
+                        "tertiary-container": "#ffd9df",
+                        "surface-variant": "#f1f5f9",
+                        "surface-tint": "#689c71",
+                        "primary-container": "#dcfce7",
+                        "secondary-fixed": "#f1f5f9",
+                        "inverse-primary": "#9dd3a4",
+                        "on-secondary-fixed": "#0f172a",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e2e8f0",
+                        "inverse-on-surface": "#f8fafc",
+                        "secondary": "#475569",
+                        "on-primary-fixed": "#064e3b",
+                        "surface-container-low": "#f7f7f7",
+                        "surface-container": "#f1f5f9",
+                        "outline-variant": "#e2e8f0",
+                        "on-tertiary-fixed-variant": "#6f3443",
+                        "on-primary-fixed-variant": "#14532d",
+                        "surface-container-highest": "#cbd5e1",
+                        "surface": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f7f7; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-low text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-white dark:bg-slate-900 w-full top-0 border-b-[1px] border-slate-100/50 shadow-sm flex justify-between items-center px-6 py-4 sticky z-50">
+<div class="flex items-center gap-4">
+<button class="transition-all duration-200 active:scale-95 text-slate-500">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h1 class="font-['Inter'] font-extrabold text-2xl tracking-tight text-[#689c71]">Reschedule Pickup</h1>
+<span class="text-[10px] text-primary font-bold uppercase tracking-widest -mt-1">पिकअप पुनर्निर्धारित करें</span>
+</div>
+</div>
+<button class="transition-all duration-200 active:scale-95 text-slate-500 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="max-w-md mx-auto px-6 py-8">
+<!-- Status Card (Asymmetric Layout) -->
+<div class="relative bg-white p-6 rounded-3xl shadow-sm overflow-hidden mb-8 group transition-all duration-300 hover:shadow-lg">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary-fixed/30 rounded-full blur-2xl group-hover:bg-primary-fixed/50 transition-colors"></div>
+<div class="relative z-10">
+<div class="flex items-start justify-between">
+<div>
+<p class="text-xs font-bold text-primary mb-1">CURRENT SLOT</p>
+<h2 class="text-xl font-extrabold text-on-surface">Oct 24, 4:00 PM</h2>
+<p class="text-xs text-on-surface-variant mt-1 font-medium italic">Too busy for this time? No worries.</p>
+</div>
+<div class="bg-primary-container p-3 rounded-2xl">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Date Selection (Scrollable Chips) -->
+<section class="mb-10">
+<div class="flex items-baseline justify-between mb-4">
+<h3 class="text-lg font-bold text-on-surface">Select Date</h3>
+<span class="text-[12px] font-medium text-primary">तारीख चुनें</span>
+</div>
+<div class="flex overflow-x-auto gap-3 pb-2 hide-scrollbar">
+<!-- Today -->
+<button class="flex-shrink-0 flex flex-col items-center justify-center w-24 h-32 rounded-2xl bg-white border-2 border-transparent transition-all duration-200 active:scale-95 shadow-sm hover:bg-slate-50">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">Today</span>
+<span class="text-2xl font-black text-on-surface">24</span>
+<span class="text-[10px] font-bold text-slate-400 mt-2">OCT</span>
+</button>
+<!-- Tomorrow (Active) -->
+<button class="flex-shrink-0 flex flex-col items-center justify-center w-24 h-32 rounded-2xl bg-primary text-white border-2 border-primary transition-all duration-200 active:scale-95 shadow-lg shadow-primary/20">
+<span class="text-[10px] font-bold text-white/80 uppercase mb-2">Tomorrow</span>
+<span class="text-2xl font-black">25</span>
+<span class="text-[10px] font-bold text-white/80 mt-2">OCT</span>
+</button>
+<!-- Oct 26 -->
+<button class="flex-shrink-0 flex flex-col items-center justify-center w-24 h-32 rounded-2xl bg-white border-2 border-transparent transition-all duration-200 active:scale-95 shadow-sm hover:bg-slate-50">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">SAT</span>
+<span class="text-2xl font-black text-on-surface">26</span>
+<span class="text-[10px] font-bold text-slate-400 mt-2">OCT</span>
+</button>
+<!-- Oct 27 -->
+<button class="flex-shrink-0 flex flex-col items-center justify-center w-24 h-32 rounded-2xl bg-white border-2 border-transparent transition-all duration-200 active:scale-95 shadow-sm hover:bg-slate-50">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase mb-2">SUN</span>
+<span class="text-2xl font-black text-on-surface">27</span>
+<span class="text-[10px] font-bold text-slate-400 mt-2">OCT</span>
+</button>
+</div>
+</section>
+<!-- Time Slots (Large Accessible Buttons) -->
+<section class="mb-10">
+<div class="flex items-baseline justify-between mb-4">
+<h3 class="text-lg font-bold text-on-surface">Select Time Slot</h3>
+<span class="text-[12px] font-medium text-primary">समय स्लॉट चुनें</span>
+</div>
+<div class="space-y-3">
+<!-- Morning -->
+<button class="w-full flex items-center justify-between p-5 bg-white rounded-2xl shadow-sm border-2 border-transparent hover:border-primary/20 transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400">light_mode</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-on-surface">Morning</p>
+<p class="text-xs text-on-surface-variant">9 AM - 12 PM</p>
+</div>
+</div>
+<span class="text-[10px] font-bold text-primary px-2 py-1 bg-primary-fixed rounded-lg">AVAILABLE</span>
+</button>
+<!-- Afternoon -->
+<button class="w-full flex items-center justify-between p-5 bg-primary-fixed border-2 border-primary rounded-2xl shadow-sm transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">sunny</span>
+</div>
+<div class="text-left">
+<p class="font-extrabold text-on-primary-fixed">Afternoon</p>
+<p class="text-xs text-on-primary-fixed-variant">12 PM - 3 PM</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Evening -->
+<button class="w-full flex items-center justify-between p-5 bg-white rounded-2xl shadow-sm border-2 border-transparent hover:border-primary/20 transition-all active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400">dark_mode</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-on-surface">Evening</p>
+<p class="text-xs text-on-surface-variant">3 PM - 6 PM</p>
+</div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 px-2 py-1 bg-slate-100 rounded-lg uppercase">Few Slots</span>
+</button>
+</div>
+</section>
+<!-- Reason Chips -->
+<section class="mb-12">
+<div class="flex items-baseline justify-between mb-4">
+<h3 class="text-lg font-bold text-on-surface">Reason for Rescheduling</h3>
+<span class="text-[12px] font-medium text-primary italic">Optional</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 bg-white rounded-full text-sm font-medium text-on-surface-variant shadow-sm border border-slate-100 hover:bg-slate-50 active:scale-95 transition-all">I am busy</button>
+<button class="px-4 py-2 bg-white rounded-full text-sm font-medium text-on-surface-variant shadow-sm border border-slate-100 hover:bg-slate-50 active:scale-95 transition-all">Out of town</button>
+<button class="px-4 py-2 bg-primary-fixed border border-primary/20 rounded-full text-sm font-bold text-on-primary-fixed shadow-sm active:scale-95 transition-all">Need more time</button>
+<button class="px-4 py-2 bg-white rounded-full text-sm font-medium text-on-surface-variant shadow-sm border border-slate-100 hover:bg-slate-50 active:scale-95 transition-all">Emergency</button>
+</div>
+</section>
+<!-- Action Button Container -->
+<div class="fixed bottom-24 left-0 w-full px-6 pointer-events-none">
+<div class="max-w-md mx-auto pointer-events-auto">
+<button class="w-full bg-primary text-white py-5 rounded-2xl font-black text-lg shadow-2xl shadow-primary/40 flex items-center justify-center gap-3 transition-all active:scale-95 hover:bg-[#5a8b62]">
+                    Confirm New Slot
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<p class="text-center text-[10px] text-slate-400 mt-3 font-bold uppercase tracking-widest">नया स्लॉट सुनिश्चित करें</p>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white dark:bg-slate-900 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-3xl">
+<!-- Home -->
+<button class="flex flex-col items-center justify-center text-slate-400 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Inter'] text-[12px] font-medium">Home</span>
+</button>
+<!-- Pickups (Active) -->
+<button class="flex flex-col items-center justify-center text-[#689c71] font-bold transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_today</span>
+<span class="font-['Inter'] text-[12px]">Pickups</span>
+</button>
+<!-- Eco-Stats -->
+<button class="flex flex-col items-center justify-center text-slate-400 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">eco</span>
+<span class="font-['Inter'] text-[12px] font-medium">Eco-Stats</span>
+</button>
+<!-- Account -->
+<button class="flex flex-col items-center justify-center text-slate-400 transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Inter'] text-[12px] font-medium">Account</span>
+</button>
+</nav>
+</body></html>

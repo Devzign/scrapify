@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_routes.dart';
+import '../domain/models/tracking_timeline_model.dart';
 import '../providers/pickup_provider.dart';
 
 class PickupTrackingScreen extends ConsumerStatefulWidget {
-  final int? pickupId;
-  const PickupTrackingScreen({super.key, this.pickupId});
+  final int pickupId;
+
+  const PickupTrackingScreen({super.key, required this.pickupId});
 
   @override
   ConsumerState<PickupTrackingScreen> createState() =>
@@ -16,281 +20,316 @@ class PickupTrackingScreen extends ConsumerStatefulWidget {
 }
 
 class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
-  Map<String, dynamic>? _tracking;
-  bool _loading = true;
-  String? _error;
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.pickupId != null) _loadTracking();
-    else setState(() => _loading = false);
-  }
-
-  Future<void> _loadTracking() async {
-    setState(() { _loading = true; _error = null; });
-    final repo = ref.read(pickupRepositoryProvider);
-    final result = await repo.getTracking(widget.pickupId!);
-    if (mounted) {
-      setState(() {
-        _loading = false;
-        if (result.isSuccess) _tracking = result.data;
-        else _error = result.errorMessage;
-      });
-    }
-  }
-
-  String get _orderCode {
-    if (_tracking != null) {
-      return _tracking!['order_code']?.toString() ??
-          _tracking!['pickup_code']?.toString() ??
-          '#${widget.pickupId}';
-    }
-    return widget.pickupId != null ? '#${widget.pickupId}' : '#OD-4921';
-  }
-
-  String get _currentStatus {
-    return _tracking?['status']?.toString() ?? 'assigned';
-  }
-
-  String? get _agentName {
-    final pb = _tracking?['pickup_boy'];
-    if (pb is Map) return pb['name']?.toString();
-    return _tracking?['pickup_boy_name']?.toString();
-  }
-
-  String? get _agentPhone {
-    final pb = _tracking?['pickup_boy'];
-    if (pb is Map) return pb['phone']?.toString();
-    return null;
-  }
-
-  List<_TrackStep> get _steps {
-    final s = _currentStatus.toLowerCase();
-    return [
-      _TrackStep(
-        title: 'tracking.step_1_title'.tr(),
-        subtitle: 'tracking.step_1_sub'.tr(),
-        done: true,
-      ),
-      _TrackStep(
-        title: 'tracking.step_2_title'.tr(),
-        subtitle: _agentName != null
-            ? '$_agentName assigned'
-            : 'tracking.step_2_sub'.tr(),
-        done: ['assigned', 'on_the_way', 'arrived', 'completed'].contains(s),
-        active: s == 'assigned',
-      ),
-      _TrackStep(
-        title: 'On The Way',
-        subtitle: 'Agent heading to your location',
-        done: ['on_the_way', 'arrived', 'completed'].contains(s),
-        active: s == 'on_the_way',
-      ),
-      _TrackStep(
-        title: 'tracking.step_3_title'.tr(),
-        subtitle: 'tracking.step_3_sub'.tr(),
-        done: ['arrived', 'completed'].contains(s),
-        active: s == 'arrived',
-      ),
-      _TrackStep(
-        title: 'Completed',
-        subtitle: 'Pickup completed',
-        done: s == 'completed',
-        active: s == 'completed',
-      ),
-    ];
-  }
+  final Set<Marker> _markers = {};
 
   @override
   Widget build(BuildContext context) {
+    final trackingAsync = ref.watch(trackingProvider(widget.pickupId));
+
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-              color: AppTheme.textPrimary),
-          onPressed: () => context.pop(),
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+              return;
+            }
+            context.go(AppRoutes.customerDashboard);
+          },
         ),
         title: Text(
-          '${'tracking.title'.tr()} $_orderCode',
+          'Track Pickup #OD-${widget.pickupId}',
           style: const TextStyle(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
-            fontSize: 16,
+            fontSize: 18,
           ),
         ),
         centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null && _tracking == null
-              ? _buildError()
-              : SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Status badge
-                      Container(
-                        margin: const EdgeInsets.all(24),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryColor,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const FaIcon(FontAwesomeIcons.truck,
-                                color: Colors.white, size: 14),
-                            const SizedBox(width: 8),
-                            Text(
-                              _currentStatus
-                                  .replaceAll('_', ' ')
-                                  .toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Header
-                      Text(
-                        'tracking.collection_progress'.tr(),
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'tracking.est_arrival'.tr(),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Timeline
-                      Padding(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 32.0),
-                        child: Column(
-                          children: _steps
-                              .asMap()
-                              .entries
-                              .map(
-                                (e) => _buildTimelineStep(
-                                  step: e.value,
-                                  isLast: e.key == _steps.length - 1,
-                                  agentCard: e.key == 1 && _agentName != null
-                                      ? _buildAgentCard()
-                                      : null,
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-
-                      // Bottom actions
-                      Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 16),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                children: [
-                                  const FaIcon(
-                                      FontAwesomeIcons.solidCircleQuestion,
-                                      color: Colors.grey,
-                                      size: 18),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      'tracking.need_help'.tr(),
-                                      style: const TextStyle(
-                                          color: AppTheme.textSecondary,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ),
-                                  const FaIcon(
-                                      FontAwesomeIcons.chevronRight,
-                                      color: Colors.grey,
-                                      size: 14),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            if (_agentPhone != null)
-                              ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2C3E50),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const FaIcon(FontAwesomeIcons.phone,
-                                        size: 16),
-                                    const SizedBox(width: 8),
-                                    Text('tracking.call_agent'.tr()),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+      body: trackingAsync.when(
+        data: (tracking) {
+          _updateMarkers(tracking);
+          return _buildBody(context, tracking);
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              'Error: $err',
+              style: const TextStyle(color: AppTheme.textSecondary),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildError() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FaIcon(FontAwesomeIcons.triangleExclamation,
-              color: Colors.orange, size: 48),
-          const SizedBox(height: 16),
-          Text(_error ?? 'Failed to load tracking',
-              style: const TextStyle(color: AppTheme.textSecondary)),
-          const SizedBox(height: 16),
-          ElevatedButton(
-              onPressed: _loadTracking, child: const Text('Retry')),
-        ],
-      ),
+  void _updateMarkers(TrackingTimelineModel tracking) {
+    if (tracking.latitude != null && tracking.longitude != null) {
+      _markers.clear();
+      _markers.add(
+        Marker(
+          markerId: MarkerId('pickup_location_${tracking.id}'),
+          position: LatLng(tracking.latitude!, tracking.longitude!),
+          infoWindow: InfoWindow(
+            title: 'Pickup Location',
+            snippet: tracking.pickupCode,
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildBody(BuildContext context, TrackingTimelineModel tracking) {
+    final statusLabel = _formatStatusLabel(tracking.status);
+
+    return Column(
+      children: [
+        // Top Map Section
+        Expanded(
+          flex: 4,
+          child: Stack(
+            children: [
+              if (tracking.latitude != null && tracking.longitude != null)
+                GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(tracking.latitude!, tracking.longitude!),
+                    zoom: 15,
+                  ),
+                  markers: _markers,
+                  zoomControlsEnabled: false,
+                  myLocationButtonEnabled: false,
+                )
+              else
+                Container(
+                  color: Colors.grey.shade100,
+                  child: const Center(
+                    child: Icon(
+                      Icons.map_outlined,
+                      size: 64,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+
+              // Status Badge floating on map
+              Positioned(
+                bottom: 20,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF639A70).withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.local_shipping,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          statusLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Timeline Content
+        Expanded(
+          flex: 6,
+          child: Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(32),
+                topRight: Radius.circular(32),
+              ),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Column(
+                children: [
+                  const Text(
+                    'Collection in Progress',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Estimated arrival: 15-20 mins',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppTheme.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Dynamic Timeline
+                  ...List.generate(3, (index) {
+                    // Mapping statuses to timeline steps for visualization
+                    // Step 0: Request Sent (Completed)
+                    // Step 1: Agent Assigned (Active/Assigned)
+                    // Step 2: Pickup in Progress (Next)
+
+                    if (index == 0) {
+                      return _buildTimelineStep(
+                        title: 'Request Sent',
+                        subtitle: 'Today, 10:00 AM',
+                        isCompleted: true,
+                        isActive: false,
+                        isLast: false,
+                      );
+                    } else if (index == 1) {
+                      return _buildTimelineStep(
+                        title: 'Agent Assigned',
+                        subtitle: tracking.agent != null
+                            ? '${tracking.agent!.name} is on the way'
+                            : 'Assigning pickup agent...',
+                        isCompleted: false,
+                        isActive: true,
+                        isLast: false,
+                        child: tracking.agent != null
+                            ? _buildAgentCard(tracking.agent!)
+                            : null,
+                      );
+                    } else {
+                      return _buildTimelineStep(
+                        title: 'Pickup in Progress',
+                        subtitle: 'Pending arrival',
+                        isCompleted: false,
+                        isActive: false,
+                        isLast: true,
+                      );
+                    }
+                  }),
+
+                  const SizedBox(height: 32),
+
+                  // Need help button
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.help_outline,
+                          color: AppTheme.textSecondary,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Need help with this order?',
+                            style: TextStyle(
+                              color: Color(0xFF475569),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right,
+                          color: Color(0xFF94A3B8),
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Call Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 64,
+                    child: ElevatedButton(
+                      onPressed: tracking.agent?.phone != null
+                          ? () => _makePhoneCall(tracking.agent!.phone!)
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2D3E50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.call, color: Colors.white, size: 20),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'CALL AGENT',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildTimelineStep({
-    required _TrackStep step,
+    required String title,
+    required String subtitle,
+    required bool isCompleted,
+    required bool isActive,
     required bool isLast,
-    Widget? agentCard,
+    Widget? child,
   }) {
-    final Color iconBg = step.done
-        ? AppTheme.primaryColor
-        : step.active
-            ? Colors.blue.shade500
-            : Colors.grey.shade300;
-    final IconData icon =
-        step.done ? FontAwesomeIcons.check : FontAwesomeIcons.circle;
-
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -298,98 +337,158 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
           Column(
             children: [
               Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: isCompleted
+                      ? const Color(0xFF639A70)
+                      : (isActive ? const Color(0xFF3B82F6) : Colors.white),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isCompleted
+                        ? const Color(0xFF639A70)
+                        : (isActive
+                              ? const Color(0xFF3B82F6)
+                              : const Color(0xFFE2E8F0)),
+                    width: 2,
+                  ),
+                ),
                 child: Center(
-                    child: FaIcon(icon, color: Colors.white, size: 12)),
+                  child: Icon(
+                    isCompleted
+                        ? Icons.check
+                        : (isActive ? Icons.person : null),
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
               ),
               if (!isLast)
                 Expanded(
-                  child: Container(
-                    width: 2,
-                    color: step.done
-                        ? AppTheme.primaryColor
-                        : Colors.grey.shade300,
+                  child: Container(width: 2, color: const Color(0xFFE2E8F0)),
+                ),
+            ],
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                      color: isActive
+                          ? const Color(0xFF3B82F6)
+                          : AppTheme.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+                  if (child != null) ...[const SizedBox(height: 16), child],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAgentCard(TrackingAgent agent) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+      ),
+      child: Row(
+        children: [
+          Stack(
+            alignment: Alignment.bottomRight,
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: const DecorationImage(
+                    image: NetworkImage(
+                      'https://i.pravatar.cc/150?img=11',
+                    ), // Use agent image if available
+                    fit: BoxFit.cover,
+                  ),
+                  border: Border.all(color: Colors.white, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                bottom: -4,
+                right: -4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFACC15),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        '4.8',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(width: 2),
+                      Icon(Icons.star, size: 8, color: Colors.black),
+                    ],
                   ),
                 ),
+              ),
             ],
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 4),
-                Text(
-                  step.title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: step.done || step.active
-                        ? AppTheme.textPrimary
-                        : AppTheme.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(step.subtitle,
-                    style: const TextStyle(
-                        fontSize: 13, color: AppTheme.textSecondary)),
-                if (agentCard != null) ...[
-                  const SizedBox(height: 12),
-                  agentCard,
-                ],
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAgentCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppTheme.primaryLight,
-            ),
-            child: const Center(
-              child: FaIcon(FontAwesomeIcons.user,
-                  color: AppTheme.primaryColor, size: 20),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _agentName ?? 'Pickup Agent',
+                  agent.name,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 14,
+                    fontSize: 16,
                     color: AppTheme.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
-                  'tracking.agent_details'.tr(),
+                  'Tata Ace • ${agent.vehicle ?? 'GJ-01-AB-1234'}',
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     color: AppTheme.textSecondary,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -399,18 +498,22 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
       ),
     );
   }
-}
 
-class _TrackStep {
-  final String title;
-  final String subtitle;
-  final bool done;
-  final bool active;
+  String _formatStatusLabel(String status) {
+    if (status.isEmpty) return 'Pending';
+    return status[0].toUpperCase() + status.substring(1).toLowerCase();
+  }
 
-  const _TrackStep({
-    required this.title,
-    required this.subtitle,
-    this.done = false,
-    this.active = false,
-  });
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not launch dialer for $phoneNumber')),
+        );
+      }
+    }
+  }
 }

@@ -1,29 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
-import '../providers/pickup_draft_provider.dart';
 
-class DynamicQuestionFormScreen extends ConsumerStatefulWidget {
+class DynamicQuestionFormScreen extends StatefulWidget {
   const DynamicQuestionFormScreen({super.key});
 
   @override
-  ConsumerState<DynamicQuestionFormScreen> createState() =>
+  State<DynamicQuestionFormScreen> createState() =>
       _DynamicQuestionFormScreenState();
 }
 
-class _DynamicQuestionFormScreenState
-    extends ConsumerState<DynamicQuestionFormScreen> {
-  late String _selectedWeight;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedWeight = ref.read(pickupDraftProvider).estimatedWeight;
-  }
+class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
+  String _selectedWeight = 'medium'; // default selection based on image
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +22,10 @@ class _DynamicQuestionFormScreenState
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-              color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -69,15 +62,15 @@ class _DynamicQuestionFormScreenState
                 Text(
                   'pickup.step_2_of_4'.tr(),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: AppTheme.textPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   'pickup.50_complete'.tr(),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTheme.textSecondary,
-                      ),
+                    color: AppTheme.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -87,45 +80,13 @@ class _DynamicQuestionFormScreenState
               child: LinearProgressIndicator(
                 value: 0.5,
                 backgroundColor: AppTheme.primaryLight,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppTheme.primaryColor),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  AppTheme.primaryColor,
+                ),
                 minHeight: 8,
               ),
             ),
             const SizedBox(height: 32),
-
-            // Category hint
-            Consumer(builder: (context, ref, _) {
-              final draft = ref.watch(pickupDraftProvider);
-              if (draft.categoryName.isNotEmpty) {
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryLight,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const FaIcon(FontAwesomeIcons.tag,
-                          size: 12, color: AppTheme.primaryColor),
-                      const SizedBox(width: 6),
-                      Text(
-                        draft.categoryName,
-                        style: const TextStyle(
-                          color: AppTheme.primaryDark,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            }),
 
             // Header
             Text(
@@ -178,6 +139,13 @@ class _DynamicQuestionFormScreenState
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
@@ -204,18 +172,12 @@ class _DynamicQuestionFormScreenState
           padding: const EdgeInsets.all(24.0),
           child: ElevatedButton(
             onPressed: () {
-              ref
-                  .read(pickupDraftProvider.notifier)
-                  .setWeight(_selectedWeight);
               context.push(AppRoutes.uploadPhoto);
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'common.next'.tr(),
-                  style: const TextStyle(fontSize: 16),
-                ),
+                Text('common.next'.tr(), style: const TextStyle(fontSize: 16)),
                 const SizedBox(width: 8),
                 const FaIcon(FontAwesomeIcons.arrowRight, size: 20),
               ],
@@ -234,7 +196,11 @@ class _DynamicQuestionFormScreenState
     required bool isSelected,
   }) {
     return GestureDetector(
-      onTap: () => setState(() => _selectedWeight = id),
+      onTap: () {
+        setState(() {
+          _selectedWeight = id;
+        });
+      },
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -243,8 +209,7 @@ class _DynamicQuestionFormScreenState
               : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color:
-                isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
+            color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
             width: 2,
           ),
           boxShadow: [
@@ -270,8 +235,7 @@ class _DynamicQuestionFormScreenState
               child: Center(
                 child: FaIcon(
                   icon,
-                  color:
-                      isSelected ? Colors.white : AppTheme.textSecondary,
+                  color: isSelected ? Colors.white : AppTheme.textSecondary,
                   size: 20,
                 ),
               ),
@@ -283,16 +247,18 @@ class _DynamicQuestionFormScreenState
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
+                      color: isSelected
+                          ? AppTheme.textPrimary
+                          : AppTheme.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       color: AppTheme.textSecondary,
                     ),
@@ -312,8 +278,7 @@ class _DynamicQuestionFormScreenState
                 width: 24,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border:
-                      Border.all(color: Colors.grey.shade300, width: 2),
+                  border: Border.all(color: Colors.grey.shade300, width: 2),
                 ),
               ),
           ],

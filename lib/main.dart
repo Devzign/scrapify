@@ -5,13 +5,24 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/app_routes.dart';
-
+import 'core/config/app_config.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+/// Called directly only in development/fallback scenarios.
+/// Flavor-specific entry points (main_dev, main_staging, main_production)
+/// call [runMain] after setting up [AppConfig].
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); // must be first
+  // Fallback: if run without a flavor entry point, default to dev.
+  if (!AppConfig.isInitialized) {
+    AppConfig.initialize(AppFlavor.dev);
+  }
   await EasyLocalization.ensureInitialized();
-  
+  runMain();
+}
+
+/// Shared bootstrap called by each flavor's entry point.
+void runMain() {
   runApp(
     ProviderScope(
       child: EasyLocalization(
@@ -29,16 +40,15 @@ class ScrapifyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Set up ScreenUtil for responsive metrics
-    // using a generalized base mobile design size (e.g. 375x812 iPhone 11 Pro)
+    final config = AppConfig.instance;
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp.router(
-          title: 'Scrapify',
-          debugShowCheckedModeBanner: false,
+          title: config.appName,
+          debugShowCheckedModeBanner: config.isDev,
           theme: AppTheme.lightTheme.copyWith(
             textTheme: GoogleFonts.interTextTheme(
               AppTheme.lightTheme.textTheme,
@@ -49,16 +59,13 @@ class ScrapifyApp extends StatelessWidget {
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           builder: (context, child) {
-            // Apply 20% horizontal padding on desktop web browsers
             if (kIsWeb && MediaQuery.of(context).size.width > 800) {
               final double padding = MediaQuery.of(context).size.width * 0.20;
               return Container(
-                color: Colors.grey.shade100, // Background color for the empty space
+                color: Colors.grey.shade100,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding),
-                  child: ClipRect(
-                    child: child ?? const SizedBox.shrink(),
-                  ),
+                  child: ClipRect(child: child ?? const SizedBox.shrink()),
                 ),
               );
             }

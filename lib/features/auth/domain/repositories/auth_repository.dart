@@ -1,15 +1,19 @@
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../core/network/dio_client.dart';
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
+
+import '../../../../core/network/api_endpoints.dart';
+import '../../../../core/network/api_role_mapper.dart';
 import '../../../../core/network/api_response.dart';
+import '../../../../core/network/dio_client.dart';
+import '../../../../core/storage/app_preferences.dart';
 import '../models/user.dart';
 
 class AuthRepository {
   final DioClient _apiClient;
-  
-  static const String _tokenKey = 'auth_token';
-  static const String _userKey = 'user_data';
+  final AppPreferences _preferences;
 
-  AuthRepository(this._apiClient);
+  AuthRepository(this._apiClient, this._preferences);
 
   /// Send OTP to a provided mobile number and role
   Future<ApiResponse<String>> sendOtp({
@@ -17,15 +21,12 @@ class AuthRepository {
     required String role,
   }) async {
     final response = await _apiClient.post(
-      '/auth/send-otp',
-      data: {
-        'phone': phone,
-        'role': role,
-      },
+      ApiEndpoints.authSendOtp,
+      data: {'phone': phone, 'role': ApiRoleMapper.toApiRole(role)},
     );
 
     if (response.isSuccess) {
-      // Return the OTP only for testing/development if provided by backend, 
+      // Return the OTP only for testing/development if provided by backend,
       // otherwise just return a success message.
       final otp = response.data?['data']?['otp']?.toString() ?? 'OTP Sent';
       return ApiResponse.success(otp);
@@ -40,11 +41,11 @@ class AuthRepository {
     required String otp,
   }) async {
     final response = await _apiClient.post(
-      '/auth/verify-otp',
+      ApiEndpoints.authVerifyOtp,
       data: {
         'phone': phone,
         'otp': otp,
-        'device_name': 'Scrapify Mobile',
+        'device_name': kIsWeb ? 'Web' : Platform.operatingSystem,
       },
     );
 
@@ -53,9 +54,10 @@ class AuthRepository {
         final data = response.data['data'];
         final token = data['token'] as String;
         final user = User.fromJson(data['user']);
-        
+
         await _saveSession(token, user);
-        
+        await _preferences.setHasSeenOnboarding(true);
+
         return ApiResponse.success(user);
       } catch (e) {
         return ApiResponse.error('Failed to parse user data');
@@ -67,42 +69,54 @@ class AuthRepository {
 
   /// Fetch user profile
   Future<ApiResponse<User>> fetchProfile() async {
-    final response = await _apiClient.get('/auth/profile');
+    final response = await _apiClient.get(ApiEndpoints.authProfile);
     if (response.isSuccess) {
       try {
         final user = User.fromJson(response.data['data']);
+        // Update local user data
+        await _saveUser(user);
         return ApiResponse.success(user);
       } catch (e) {
         return ApiResponse.error('Failed to parse user data');
       }
     }
-    return ApiResponse.error(response.errorMessage ?? 'Failed to fetch profile');
+    return ApiResponse.error(
+      response.errorMessage ?? 'Failed to fetch profile',
+    );
   }
 
   /// Logs the user out locally and remotely
   Future<void> logout() async {
     // Attempt remote logout, ignore errors if token already expired
-    await _apiClient.post('/auth/logout');
+    await _apiClient.post(ApiEndpoints.authLogout);
     await _clearSession();
   }
 
   // --- Session Management Helpers ---
 
   Future<void> _saveSession(String token, User user) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
-    // Ideally save user data too, or just refetch on boot
-    // await prefs.setString(_userKey, jsonEncode(user.toJson()));
+    await _preferences.saveSession(token: token, userData: user.toJson());
+  }
+
+  Future<void> _saveUser(User user) async {
+    await _preferences.saveUserData(user.toJson());
+  }
+
+  Future<User?> getUser() async {
+    final userData = await _preferences.getSavedUserData();
+
+    if (userData == null) {
+      return null;
+    }
+
+    return User.fromJson(userData);
   }
 
   Future<void> _clearSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
-    await prefs.remove(_userKey);
+    await _preferences.clearSession();
   }
 
   Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
+    return _preferences.getAuthToken();
   }
 }

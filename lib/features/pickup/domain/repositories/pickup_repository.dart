@@ -1,210 +1,194 @@
 import 'dart:io';
+
 import 'package:dio/dio.dart';
-import '../../../../core/network/dio_client.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_response.dart';
-import '../models/pickup_request.dart';
+import '../../../../core/network/dio_client.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../models/pickup_request_model.dart';
+import '../models/tracking_timeline_model.dart';
+
+final pickupRepositoryProvider = Provider<PickupRepository>((ref) {
+  return PickupRepository(DioClient());
+});
 
 class PickupRepository {
-  final DioClient _apiClient;
+  final DioClient _dioClient;
 
-  PickupRepository(this._apiClient);
+  PickupRepository(this._dioClient);
 
-  Future<ApiResponse<PickupRequest>> createPickup({
-    required String address,
-    required int cityId,
-    required String scheduledAt,
-    required List<Map<String, dynamic>> items,
-    required List<File> images,
-    int? addressId,
-    double? latitude,
-    double? longitude,
-    String? payoutMethod,
-    int? paymentDetailId,
-    String? customerName,
-    String? customerPhone,
-  }) async {
+  Future<ApiResponse<PickupRequestModel>> createPickup(
+    Map<String, dynamic> data,
+  ) async {
+    return _submitPickupForm(ApiEndpoints.pickupRequest, data);
+  }
+
+  Future<ApiResponse<PickupRequestModel>> createDonationPickup(
+    Map<String, dynamic> data,
+  ) async {
+    return _submitPickupForm(ApiEndpoints.donationRequest, data);
+  }
+
+  Future<ApiResponse<PickupRequestModel>> clonePickupAsDonation(int id) async {
+    return _dioClient.post<PickupRequestModel>(
+      ApiEndpoints.pickupRequestCloneAsDonation(id),
+      parser: (json) =>
+          PickupRequestModel.fromJson(json['data'] as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiResponse<PickupRequestModel>> _submitPickupForm(
+    String path,
+    Map<String, dynamic> data,
+  ) async {
+    final Map<String, dynamic> payload = Map<String, dynamic>.from(data);
+    final List<XFile> images =
+        (payload.remove('images') as List<dynamic>? ?? []).cast<XFile>();
+    final List<dynamic> items = payload.remove('items') as List<dynamic>? ?? [];
+
     final formData = FormData();
 
-    formData.fields.addAll([
-      MapEntry('address', address),
-      MapEntry('city_id', cityId.toString()),
-      MapEntry('scheduled_at', scheduledAt),
-      if (addressId != null) MapEntry('address_id', addressId.toString()),
-      if (latitude != null) MapEntry('latitude', latitude.toString()),
-      if (longitude != null) MapEntry('longitude', longitude.toString()),
-      if (payoutMethod != null) MapEntry('payout_method', payoutMethod),
-      if (paymentDetailId != null) MapEntry('payment_detail_id', paymentDetailId.toString()),
-      if (customerName != null) MapEntry('customer_name', customerName),
-      if (customerPhone != null) MapEntry('customer_phone', customerPhone),
-    ]);
+    _addFieldIfPresent(formData, 'address', payload['address']);
+    _addFieldIfPresent(formData, 'address_id', payload['address_id']);
+    _addFieldIfPresent(formData, 'city_id', payload['city_id']);
+    _addFieldIfPresent(formData, 'pincode', payload['pincode']);
+    _addFieldIfPresent(formData, 'latitude', payload['latitude']);
+    _addFieldIfPresent(formData, 'longitude', payload['longitude']);
+    _addFieldIfPresent(formData, 'scheduled_at', payload['scheduled_at']);
+    _addFieldIfPresent(formData, 'payout_method', payload['payout_method']);
+    _addFieldIfPresent(
+      formData,
+      'payment_detail_id',
+      payload['payment_detail_id'],
+    );
 
-    for (int i = 0; i < items.length; i++) {
-      items[i].forEach((key, value) {
-        if (value != null) {
-          formData.fields.add(MapEntry('items[$i][$key]', value.toString()));
+    for (var itemIndex = 0; itemIndex < items.length; itemIndex++) {
+      final item = Map<String, dynamic>.from(items[itemIndex] as Map);
+      _addFieldIfPresent(
+        formData,
+        'items[$itemIndex][category_id]',
+        item['category_id'],
+      );
+      _addFieldIfPresent(
+        formData,
+        'items[$itemIndex][item_id]',
+        item['item_id'],
+      );
+      _addFieldIfPresent(
+        formData,
+        'items[$itemIndex][quantity]',
+        item['quantity'],
+      );
+      _addFieldIfPresent(formData, 'items[$itemIndex][weight]', item['weight']);
+
+      final attributes = item['attributes'] as List<dynamic>? ?? [];
+      for (var attrIndex = 0; attrIndex < attributes.length; attrIndex++) {
+        final attribute = Map<String, dynamic>.from(
+          attributes[attrIndex] as Map,
+        );
+        _addFieldIfPresent(
+          formData,
+          'items[$itemIndex][attributes][$attrIndex][attribute_id]',
+          attribute['attribute_id'],
+        );
+        _addFieldIfPresent(
+          formData,
+          'items[$itemIndex][attributes][$attrIndex][value]',
+          attribute['value'],
+        );
+      }
+    }
+
+    for (var i = 0; i < images.length; i++) {
+      final imageFile = File(images[i].path);
+      final exists = await imageFile.exists();
+      if (!exists) {
+        throw Exception('Selected image not found: ${images[i].path}');
+      }
+
+      formData.files.add(
+        MapEntry(
+          'images[]',
+          await MultipartFile.fromFile(
+            images[i].path,
+            filename: images[i].name,
+          ),
+        ),
+      );
+    }
+
+    AppLogger.info(
+      'Pickup request prepared with ${formData.fields.length} fields and ${formData.files.length} files.',
+    );
+
+    return _dioClient.post<PickupRequestModel>(
+      path,
+      data: formData,
+      parser: (json) =>
+          PickupRequestModel.fromJson(json['data'] as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiResponse<List<PickupRequestModel>>> fetchPickups() async {
+    return _dioClient.get<List<PickupRequestModel>>(
+      ApiEndpoints.pickupRequests,
+      parser: (json) {
+        final data = json['data'];
+        final List<dynamic> list;
+
+        if (data is List<dynamic>) {
+          list = data;
+        } else if (data is Map<String, dynamic>) {
+          list = data['items'] as List<dynamic>? ?? const [];
+        } else {
+          throw const FormatException('Unexpected pickup list response shape');
         }
-      });
-    }
 
-    for (final image in images) {
-      formData.files.add(MapEntry(
-        'images[]',
-        await MultipartFile.fromFile(image.path),
-      ));
-    }
-
-    final response = await _apiClient.post('/pickup-request', data: formData);
-    if (response.isSuccess) {
-      try {
-        final data = response.data['data'] ?? response.data;
-        return ApiResponse.success(PickupRequest.fromJson(data as Map<String, dynamic>));
-      } catch (e) {
-        return ApiResponse.error('Failed to parse pickup response');
-      }
-    }
-    return ApiResponse.error(response.errorMessage ?? 'Failed to create pickup');
-  }
-
-  Future<ApiResponse<List<PickupRequest>>> getPickups({String? status}) async {
-    final queryParams = <String, dynamic>{};
-    if (status != null) queryParams['status'] = status;
-
-    final response = await _apiClient.get(
-      '/pickup-requests',
-      queryParameters: queryParams.isNotEmpty ? queryParams : null,
-    );
-    if (response.isSuccess) {
-      try {
-        final data = response.data['data'] ?? response.data;
-        final list = (data as List<dynamic>)
-            .whereType<Map<String, dynamic>>()
-            .map((e) => PickupRequest.fromJson(e))
+        return list
+            .map((e) => PickupRequestModel.fromJson(e as Map<String, dynamic>))
             .toList();
-        return ApiResponse.success(list);
-      } catch (e) {
-        return ApiResponse.error('Failed to parse pickups');
-      }
-    }
-    return ApiResponse.error(response.errorMessage ?? 'Failed to load pickups');
-  }
-
-  Future<ApiResponse<PickupStats>> getStats() async {
-    final response = await _apiClient.get('/pickup-requests/stats');
-    if (response.isSuccess) {
-      try {
-        return ApiResponse.success(PickupStats.fromJson(response.data));
-      } catch (e) {
-        return ApiResponse.error('Failed to parse stats');
-      }
-    }
-    return ApiResponse.error(response.errorMessage ?? 'Failed to load stats');
-  }
-
-  Future<ApiResponse<PickupRequest>> getPickupDetail(int id) async {
-    final response = await _apiClient.get('/pickup-requests/$id');
-    if (response.isSuccess) {
-      try {
-        final data = response.data['data'] ?? response.data;
-        return ApiResponse.success(PickupRequest.fromJson(data as Map<String, dynamic>));
-      } catch (e) {
-        return ApiResponse.error('Failed to parse pickup detail');
-      }
-    }
-    return ApiResponse.error(response.errorMessage ?? 'Failed to load pickup detail');
-  }
-
-  Future<ApiResponse<void>> reschedule(
-    int id, {
-    required String scheduledAt,
-    String? reason,
-  }) async {
-    final response = await _apiClient.post(
-      '/pickup-requests/$id/reschedule',
-      data: {
-        'scheduled_at': scheduledAt,
-        if (reason != null) 'reason': reason,
       },
     );
-    if (response.isSuccess) return ApiResponse.success(null);
-    return ApiResponse.error(response.errorMessage ?? 'Failed to reschedule');
   }
 
-  Future<ApiResponse<Map<String, dynamic>>> getTracking(int id) async {
-    final response = await _apiClient.get('/pickup-requests/$id/tracking');
-    if (response.isSuccess) {
-      try {
-        final data = response.data['data'] ?? response.data;
-        return ApiResponse.success(data as Map<String, dynamic>);
-      } catch (e) {
-        return ApiResponse.error('Failed to parse tracking data');
-      }
-    }
-    return ApiResponse.error(response.errorMessage ?? 'Failed to load tracking');
-  }
-
-  Future<ApiResponse<void>> cancelPickup(int id, String reason) async {
-    final response = await _apiClient.post(
-      '/pickup-requests/$id/cancel',
-      data: {'reason': reason},
+  Future<ApiResponse<PickupRequestModel>> fetchPickupById(int id) async {
+    return _dioClient.get<PickupRequestModel>(
+      ApiEndpoints.pickupRequestById(id),
+      parser: (json) =>
+          PickupRequestModel.fromJson(json['data'] as Map<String, dynamic>),
     );
-    if (response.isSuccess) return ApiResponse.success(null);
-    return ApiResponse.error(response.errorMessage ?? 'Failed to cancel pickup');
   }
 
-  Future<ApiResponse<void>> submitReview(int id, int rating, {String? review}) async {
-    final response = await _apiClient.post(
-      '/pickup-requests/$id/review',
-      data: {
-        'rating': rating,
-        if (review != null) 'review': review,
-      },
+  Future<ApiResponse<TrackingTimelineModel>> fetchTracking(int id) async {
+    return _dioClient.get<TrackingTimelineModel>(
+      ApiEndpoints.pickupRequestTracking(id),
+      parser: (json) => TrackingTimelineModel.fromJson(json),
     );
-    if (response.isSuccess) return ApiResponse.success(null);
-    return ApiResponse.error(response.errorMessage ?? 'Failed to submit review');
   }
 
-  Future<ApiResponse<List<dynamic>>> getCategories() async {
-    final response = await _apiClient.get('/categories');
-    if (response.isSuccess) {
-      try {
-        final data = response.data['data'] ?? [];
-        return ApiResponse.success(data as List<dynamic>);
-      } catch (e) {
-        return ApiResponse.error('Failed to parse categories');
-      }
-    }
-    return ApiResponse.error(response.errorMessage ?? 'Failed to load categories');
-  }
-
-  Future<ApiResponse<List<dynamic>>> getSubcategories(int categoryId) async {
-    final response = await _apiClient.get(
-      '/subcategories',
-      queryParameters: {'category_id': categoryId},
+  Future<ApiResponse<void>> submitReview(
+    int id,
+    int rating,
+    String? review,
+  ) async {
+    return _dioClient.post<void>(
+      ApiEndpoints.pickupRequestReview(id),
+      data: {'rating': rating, 'review': review},
     );
-    if (response.isSuccess) {
-      try {
-        final data = response.data['data'] ?? [];
-        return ApiResponse.success(data as List<dynamic>);
-      } catch (e) {
-        return ApiResponse.error('Failed to parse subcategories');
-      }
-    }
-    return ApiResponse.error(response.errorMessage ?? 'Failed to load subcategories');
+  }
+}
+
+void _addFieldIfPresent(FormData formData, String key, dynamic value) {
+  if (value == null) {
+    return;
   }
 
-  Future<ApiResponse<List<dynamic>>> getItems(int subcategoryId) async {
-    final response = await _apiClient.get(
-      '/items',
-      queryParameters: {'subcategory_id': subcategoryId},
-    );
-    if (response.isSuccess) {
-      try {
-        final data = response.data['data'] ?? [];
-        return ApiResponse.success(data as List<dynamic>);
-      } catch (e) {
-        return ApiResponse.error('Failed to parse items');
-      }
-    }
-    return ApiResponse.error(response.errorMessage ?? 'Failed to load items');
+  final stringValue = value.toString();
+  if (stringValue.isEmpty) {
+    return;
   }
+
+  formData.fields.add(MapEntry(key, stringValue));
 }
