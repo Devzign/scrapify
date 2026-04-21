@@ -443,20 +443,20 @@ class _SelectAddressTimeScreenState
                             Text(
                               isDonationFlow
                                   ? 'DONATION PICKUP'
-                                  : 'PAYOUT ESTIMATE',
-                              style: TextStyle(
+                                  : 'SCRAP PICKUP',
+                              style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFF94A3B8),
                                 letterSpacing: 1.2,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               isDonationFlow
                                   ? 'Schedule donation collection'
-                                  : 'Calculated at Pickup',
-                              style: TextStyle(
+                                  : 'Scrap pickup booking',
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.textPrimary,
@@ -468,8 +468,8 @@ class _SelectAddressTimeScreenState
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              isDonationFlow ? 'ITEMS' : 'NET PAYOUT',
-                              style: TextStyle(
+                              isDonationFlow ? 'ITEMS' : 'ITEMS',
+                              style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
                                 color: AppTheme.primaryColor,
@@ -480,7 +480,7 @@ class _SelectAddressTimeScreenState
                             Text(
                               isDonationFlow
                                   ? '${donationItems.items.fold<int>(0, (sum, item) => sum + item.quantity.round())} item(s)'
-                                  : '₹${totalEstimate.toStringAsFixed(0)}',
+                                  : '${basketItems.length} item(s)',
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w900,

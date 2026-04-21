@@ -20,6 +20,8 @@ Build a Channel Partner app where the partner can monitor their own business net
 
 The channel partner can manage their own network, but sensitive actions must remain under admin approval because of background verification and operational control.
 
+Before this, there is a Channel Partner onboarding/registration stage where a new applicant buys/requests franchise and submits KYC/compliance documents. That registration must be admin-verified.
+
 ## 3. Confirmed Business Decisions
 
 These points are finalized based on stakeholder input:
@@ -33,6 +35,8 @@ These points are finalized based on stakeholder input:
 5. Approval requests should support attachments/documents for verification.
 6. Pickup boy live location is not needed in phase 1.
    Only current status is needed for now. Live location can be added later.
+7. Channel Partner registration must support both app-side and web-side submission, with one common admin verification workflow.
+8. Mandatory registration docs include Aadhaar, PAN, GST (if applicable), police verification, and business location details.
 
 ## 4. Business Objective
 
@@ -75,6 +79,24 @@ Cannot:
 - see another partner's data
 - access global admin data
 
+### 5.0 Channel Partner Applicant (Pre-Approval)
+
+Can:
+
+- submit franchise/channel partner registration request
+- upload onboarding docs:
+  - Aadhaar
+  - PAN
+  - GST (if applicable)
+  - police verification
+  - business location details
+- view registration status: `in_progress`, `approved`, `rejected`
+
+Cannot:
+
+- operate as full channel partner before admin approval
+- create pickup boy/warehouse requests before registration approval
+
 ### 5.2 Warehouse User
 
 Can:
@@ -99,6 +121,8 @@ Can:
 
 ### In Scope
 
+- channel partner onboarding/registration request flow (app + web)
+- registration document upload and verification status tracking
 - OTP login
 - dashboard
 - orders list and detail
@@ -116,6 +140,16 @@ Can:
 - warehouse inventory management
 - advanced finance settlement workflows
 - QR-based operations
+
+### 6.1 Registration Workflow (Pre-Login/Onboarding)
+
+1. Applicant fills channel partner registration form from app or web panel.
+2. Applicant uploads required KYC/compliance docs.
+3. Backend creates `in_progress` registration request.
+4. Admin reviews and verifies documents.
+5. Admin approves/rejects:
+   - approved: applicant can operate as channel partner
+   - rejected: applicant sees reason and can re-apply/update
 
 ## 7. High-Level App Flow
 

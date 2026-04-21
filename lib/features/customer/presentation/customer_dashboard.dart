@@ -154,7 +154,10 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
               isServiceable: appSettings.serviceAvailability.isServiceable,
               serviceMessage: appSettings.serviceAvailability.message,
               onDashboardTap: () => setState(() => _currentIndex = 0),
-              onOrdersTap: () => setState(() => _currentIndex = 1),
+              onOrdersTap: () {
+                setState(() => _currentIndex = 1);
+                ref.invalidate(pickupsProvider);
+              },
               onMoneyTap: _handleMoneyTap,
             )
           : null,
@@ -359,9 +362,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
-
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
             // Categories Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -477,7 +478,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 subtitle: error.toString(),
               ),
             ),
-            const SizedBox(height: 80), // Padding for FAB
+            const SizedBox(height: 130), // Padding for FAB/bottom nav
           ],
         ),
       ),
@@ -944,18 +945,18 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 color: const Color(0xFFFFEEF1),
                 borderRadius: BorderRadius.circular(999),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.favorite_rounded,
                     color: Color(0xFFF43F5E),
                     size: 18,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
-                    'Give Back to Community',
-                    style: TextStyle(
+                    isHindi ? 'समुदाय को वापस दें' : 'Give Back to Community',
+                    style: const TextStyle(
                       color: Color(0xFFF43F5E),
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
@@ -971,9 +972,9 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Donate Items',
-                        style: TextStyle(
+                      Text(
+                        isHindi ? 'वस्तुएं दान करें' : 'Donate Items',
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w900,
                           color: AppTheme.textPrimary,
@@ -981,7 +982,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        isHindi ? 'वस्तुएं दान करें' : 'Donate reusable goods',
+                        isHindi ? 'पुनः उपयोगी वस्तुएं दान करें' : 'Donate reusable goods',
                         style: const TextStyle(
                           fontSize: 16,
                           color: AppTheme.textSecondary,
@@ -1214,6 +1215,8 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
         return 'Pending';
       case 'assigned':
         return 'Assigned';
+      case 'rescheduled':
+        return 'Rescheduled';
       case 'completed':
         return 'Completed';
       case 'cancelled':
@@ -1229,6 +1232,8 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
         return AppTheme.primaryColor;
       case 'assigned':
         return const Color(0xFF2563EB);
+      case 'rescheduled':
+        return const Color(0xFF7C3AED);
       case 'cancelled':
         return const Color(0xFFDC2626);
       case 'pending':

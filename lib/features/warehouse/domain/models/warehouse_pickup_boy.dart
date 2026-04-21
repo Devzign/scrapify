@@ -22,16 +22,23 @@ class WarehousePickupBoy {
   });
 
   factory WarehousePickupBoy.fromJson(Map<String, dynamic> json) {
+    int asInt(dynamic value) {
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value is String) return int.tryParse(value.trim()) ?? 0;
+      return 0;
+    }
+
     return WarehousePickupBoy(
-      id: json['id'] ?? 0,
+      id: asInt(json['id']),
       name: json['name']?.toString() ?? '',
       phone: json['phone']?.toString() ?? '',
       profilePhoto: json['profile_photo']?.toString(),
       isActive: json['is_active'] == true,
       isOnline: json['is_online'] == true,
       isAvailable: json['is_available'] == true,
-      currentAssignmentCount: json['current_assignment_count'] ?? 0,
-      completedCount: json['completed_count'] ?? 0,
+      currentAssignmentCount: asInt(json['current_assignment_count']),
+      completedCount: asInt(json['completed_count']),
     );
   }
 }

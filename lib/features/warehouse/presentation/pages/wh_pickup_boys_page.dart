@@ -1,35 +1,83 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../domain/models/warehouse_pickup_boy.dart';
+import '../../providers/warehouse_provider.dart';
 
-class WhPickupBoysPage extends StatelessWidget {
+class WhPickupBoysPage extends ConsumerStatefulWidget {
   const WhPickupBoysPage({super.key});
 
   @override
+  ConsumerState<WhPickupBoysPage> createState() => _WhPickupBoysPageState();
+}
+
+class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(warehouseProvider.notifier).loadPickupBoys());
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = ref.watch(warehouseProvider);
+    final boys = state.pickupBoys;
+    final d = state.dashboard;
+
+    final totalActive = d?.activePickupBoys ?? boys.where((b) => b.isOnline).length;
+    final totalAvail = d?.availablePickupBoys ?? boys.where((b) => b.isAvailable).length;
+    final totalBoys = d?.totalPickupBoys ?? boys.length;
+    final onRoute = boys.where((b) => b.isOnline && !b.isAvailable).length;
+    final dailyComp = boys.fold<int>(0, (sum, b) => sum + b.completedCount);
+    final availPct = totalBoys > 0 ? (totalAvail / totalBoys * 100).round() : 0;
+
+    final isHindi = context.locale.languageCode == 'hi';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppTheme.primaryColor,
-        child: const Icon(Icons.person_add_rounded, color: Colors.white, size: 28),
-      ),
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(),
+            _buildAppBar(d?.warehouse?.name, isHindi),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 80),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeader(),
-                    _buildStatusBento(),
-                    _buildAgentCards(),
-                  ],
-                ),
-              ),
+              child: state.isLoading && boys.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : RefreshIndicator(
+                      onRefresh: () =>
+                          ref.read(warehouseProvider.notifier).loadPickupBoys(),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 80),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (state.error != null)
+                              Container(
+                                margin: const EdgeInsets.all(16),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.orange.shade200),
+                                ),
+                                child: Text(state.error!,
+                                    style: TextStyle(
+                                        color: Colors.orange.shade800, fontSize: 13)),
+                              ),
+                            _buildHeader(isHindi),
+                            _buildStatusBento(
+                              totalActive: totalActive,
+                              onRoute: onRoute,
+                              dailyComp: dailyComp,
+                              availPct: availPct,
+                              isHindi: isHindi,
+                            ),
+                            _buildAgentCards(boys, isHindi),
+                          ],
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -37,7 +85,7 @@ class WhPickupBoysPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(String? warehouseName, bool isHindi) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
@@ -58,9 +106,9 @@ class WhPickupBoysPage extends StatelessWidget {
             children: [
               Icon(Icons.warehouse_rounded, color: AppTheme.primaryColor, size: 24),
               const SizedBox(width: 10),
-              const Text(
-                'Scrapi5 Warehouse',
-                style: TextStyle(
+              Text(
+                warehouseName ?? (isHindi ? 'गोदाम' : 'Warehouse'),
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -83,15 +131,15 @@ class WhPickupBoysPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(bool isHindi) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Agent Fleet',
-            style: TextStyle(
+          Text(
+            isHindi ? 'एजेंट फ्लीट' : 'Agent Fleet',
+            style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w900,
               color: Color(0xFF0F172A),
@@ -99,7 +147,7 @@ class WhPickupBoysPage extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'FIELD OPERATIONS / फ़ील्ड ऑपरेशंस',
+            isHindi ? 'फ़ील्ड ऑपरेशंस' : 'FIELD OPERATIONS',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -108,7 +156,6 @@ class WhPickupBoysPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // Search bar
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -117,11 +164,10 @@ class WhPickupBoysPage extends StatelessWidget {
             ),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Search by name or ID...',
-                hintStyle: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade400,
-                ),
+                hintText: isHindi
+                    ? 'नाम या फोन से खोजें...'
+                    : 'Search by name or phone...',
+                hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
                 prefixIcon: Icon(Icons.search, color: Colors.grey.shade400),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 16),
@@ -133,12 +179,17 @@ class WhPickupBoysPage extends StatelessWidget {
     );
   }
 
-  Widget _buildStatusBento() {
+  Widget _buildStatusBento({
+    required int totalActive,
+    required int onRoute,
+    required int dailyComp,
+    required int availPct,
+    required bool isHindi,
+  }) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Active Agents Card (Green)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -155,7 +206,8 @@ class WhPickupBoysPage extends StatelessWidget {
                     Icon(Icons.engineering_rounded,
                         color: AppTheme.primaryColor, size: 36),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -172,9 +224,9 @@ class WhPickupBoysPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  '12',
-                  style: TextStyle(
+                Text(
+                  '$totalActive',
+                  style: const TextStyle(
                     fontSize: 38,
                     fontWeight: FontWeight.w900,
                     color: Color(0xFF14532D),
@@ -183,7 +235,7 @@ class WhPickupBoysPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Active Pickup Boys',
+                  isHindi ? 'सक्रिय पिकअप बॉय' : 'Active Pickup Boys',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -196,7 +248,6 @@ class WhPickupBoysPage extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              // Route Stats
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -233,7 +284,7 @@ class WhPickupBoysPage extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                '82%',
+                                '$availPct%',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
@@ -245,27 +296,23 @@ class WhPickupBoysPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        '8 On Route',
-                        style: TextStyle(
+                      Text(
+                        isHindi ? '$onRoute रास्ते में' : '$onRoute On Route',
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: Color(0xFF0F172A),
                         ),
                       ),
                       Text(
-                        'En-route / रास्ते में',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey.shade500,
-                        ),
+                        isHindi ? 'रास्ते में' : 'En-route',
+                        style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                       ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(width: 12),
-              // Efficiency
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -294,16 +341,16 @@ class WhPickupBoysPage extends StatelessWidget {
                             color: Colors.white, size: 22),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        '148',
-                        style: TextStyle(
+                      Text(
+                        '$dailyComp',
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
                         ),
                       ),
                       Text(
-                        'DAILY COMPLETIONS',
+                        isHindi ? 'कुल पूर्ण' : 'TOTAL COMPLETIONS',
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w800,
@@ -322,113 +369,89 @@ class WhPickupBoysPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAgentCards() {
-    final agents = [
-      _AgentData(
-        name: 'Arjun Sharma',
-        id: '#SB-9021',
-        status: 'AVAILABLE / उपलब्ध',
-        statusColor: AppTheme.primaryColor,
-        dotColor: const Color(0xFF22C55E),
-        borderColor: AppTheme.primaryColor,
-        activeCount: '2',
-        completedCount: '24',
-        isGrayscale: false,
-        actionLabel: 'Assign',
-        actionIcon: Icons.call,
-        canAssign: true,
-        avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBo628LJQFlxCpaV-xJJE8LuqD7FS4IJhLUhlmU8sQr2fsH7QkYklt8mx71HVqsaEs-6jnyr1sZ4U-wMA01sYCD4LimU8onS3mx1tykswFPXwEhbWwbm9FSwJJU_1S29Xkxl2hd3ptuAB9MMsI83HyyloCkKD0cRrdOCHypvpYRngbFEmCWRlFN9AK7qzwF0VH8o3xu5vTopFBJNtLKIov8P-ASd8lAF2oKEyLk3n3ZwVpas4fvBRWOfZCtmdcNUUAMrBGtObUDV7M',
-      ),
-      _AgentData(
-        name: 'Rahul Verma',
-        id: '#SB-9044',
-        status: 'ON ROUTE / रास्ते में',
-        statusColor: const Color(0xFFEA580C),
-        dotColor: const Color(0xFFFB923C),
-        borderColor: Colors.grey.shade200,
-        activeCount: '5',
-        completedCount: '18',
-        isGrayscale: true,
-        actionLabel: 'Full',
-        actionIcon: Icons.location_on_rounded,
-        canAssign: false,
-        avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBwG7cP66KJO48A9mJXR3PN7Hu8eOZEZZqug0IE-suq85npDxLIKbnHKNSp4_UUUzdlxSs5F_rO0ic3sWe3Tklzb_Cb2zV7yH9CHQxeCArA28SkOaqwHYQdsXKD0n9spIaaxTYfkAHU0sNuBYiphDP4bKwNuzTgA0sxe-CWk7za0XENgcrEJHb9lW5sPNOjMWK-vZncJLuPPEozkvFPOArH3wirZvDduC7LwjcnFiJ6pTibWE6ueNjMG6wrQFJiGBTJpAhalLiqPrI',
-      ),
-      _AgentData(
-        name: 'Priya Das',
-        id: '#SB-8821',
-        status: 'OFFLINE / ऑफलाइन',
-        statusColor: Colors.grey.shade400,
-        dotColor: Colors.grey.shade300,
-        borderColor: Colors.grey.shade100,
-        activeCount: '0',
-        completedCount: '32',
-        isGrayscale: true,
-        isOffline: true,
-        actionLabel: 'Manage',
-        actionIcon: Icons.history_rounded,
-        canAssign: false,
-        avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD-Zq1HocENgXBMwZaH9Rd43eFg47Saktc_zh6NjhywX2Q-ESF-aJzM_tlQC7GT7mRvaN28poGzZt-rlSdWoHZd08gx1xYlpg0vp7xulzCLSB4Fs6a6hfXputfiC1ULbCmiMWDpGHr_vWYAjwQo3sln64oYfEqHTP4D2gbMSfOcanSHao6AzPO4jxO3z-QeRUtWXLWuRtVBVz_XGXIMPI0zncmKu_M83vwNKYOQ6t4XF2upuiyPAxzbZTApbwRiFcd037hd0grrSC4',
-      ),
-    ];
+  Widget _buildAgentCards(List<WarehousePickupBoy> boys, bool isHindi) {
+    if (boys.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+        child: Center(
+          child: Text(
+            isHindi ? 'कोई पिकअप बॉय नहीं मिला' : 'No pickup boys found',
+            style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+          ),
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        children: agents.map((a) => _buildAgentCard(a)).toList(),
+        children: boys.map((b) => _buildAgentCard(b, isHindi)).toList(),
       ),
     );
   }
 
-  Widget _buildAgentCard(_AgentData agent) {
+  Widget _buildAgentCard(WarehousePickupBoy boy, bool isHindi) {
+    final isAvailable = boy.isAvailable;
+    final isOnline = boy.isOnline;
+    final isOffline = !isOnline;
+
+    final statusLabel = isOffline
+        ? (isHindi ? 'ऑफलाइन' : 'OFFLINE')
+        : isAvailable
+            ? (isHindi ? 'उपलब्ध' : 'AVAILABLE')
+            : (isHindi ? 'रास्ते में' : 'ON ROUTE');
+
+    final statusColor = isOffline
+        ? Colors.grey.shade400
+        : isAvailable
+            ? AppTheme.primaryColor
+            : const Color(0xFFEA580C);
+
+    final dotColor = isOffline
+        ? Colors.grey.shade300
+        : isAvailable
+            ? const Color(0xFF22C55E)
+            : const Color(0xFFFB923C);
+
+    final borderColor = isAvailable && isOnline
+        ? AppTheme.primaryColor
+        : isOffline
+            ? Colors.grey.shade100
+            : Colors.grey.shade200;
+
+    final initial = boy.name.isNotEmpty ? boy.name[0].toUpperCase() : '?';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppTheme.softShadow,
-        border: Border(
-          left: BorderSide(
-            color: agent.borderColor,
-            width: 4,
-          ),
-        ),
+        border: Border(left: BorderSide(color: borderColor, width: 4)),
       ),
       child: Opacity(
-        opacity: agent.isOffline ? 0.75 : 1.0,
+        opacity: isOffline ? 0.75 : 1.0,
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              // Agent Info Row
               Row(
                 children: [
-                  // Avatar
                   Stack(
                     children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFFF1F5F9),
-                        ),
-                        child: ClipOval(
-                          child: ColorFiltered(
-                            colorFilter: agent.isGrayscale
-                                ? const ColorFilter.mode(
-                                    Colors.grey, BlendMode.saturation)
-                                : const ColorFilter.mode(
-                                    Colors.transparent, BlendMode.multiply),
-                            child: Image.network(
-                              agent.avatarUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Icon(
-                                Icons.person,
-                                color: Colors.grey.shade400,
-                                size: 28,
-                              ),
-                            ),
+                      CircleAvatar(
+                        radius: 28,
+                        backgroundColor: isAvailable
+                            ? AppTheme.primaryLight.withValues(alpha: 0.3)
+                            : Colors.grey.shade100,
+                        child: Text(
+                          initial,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            color: isAvailable
+                                ? AppTheme.primaryDark
+                                : Colors.grey.shade500,
                           ),
                         ),
                       ),
@@ -439,7 +462,7 @@ class WhPickupBoysPage extends StatelessWidget {
                           width: 16,
                           height: 16,
                           decoration: BoxDecoration(
-                            color: agent.dotColor,
+                            color: dotColor,
                             shape: BoxShape.circle,
                             border: Border.all(color: Colors.white, width: 2),
                           ),
@@ -448,30 +471,34 @@ class WhPickupBoysPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(width: 16),
-                  // Name & Status
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Text(
-                              agent.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w800,
-                                color: Color(0xFF0F172A),
+                            Expanded(
+                              child: Text(
+                                boy.name,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF0F172A),
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF1F5F9),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                'ID: ${agent.id}',
+                                'ID: ${boy.id}',
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
@@ -483,14 +510,11 @@ class WhPickupBoysPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          agent.status,
+                          statusLabel,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w800,
-                            color: agent.statusColor,
-                            fontStyle: agent.statusColor == const Color(0xFFEA580C)
-                                ? FontStyle.italic
-                                : FontStyle.normal,
+                            color: statusColor,
                           ),
                         ),
                       ],
@@ -499,64 +523,47 @@ class WhPickupBoysPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              // Stats + Actions Row
               Row(
                 children: [
-                  // Stats
                   Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        border: Border.symmetric(
-                          vertical: BorderSide(color: Colors.grey.shade50),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildStatColumn(
+                          '${boy.currentAssignmentCount}',
+                          isHindi ? 'सक्रिय' : 'Active',
+                          isOffline ? Colors.grey.shade400 : null,
                         ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _buildStatColumn(agent.activeCount, 'Active',
-                              agent.isOffline ? Colors.grey.shade400 : null),
-                          _buildStatColumn(agent.completedCount, 'Completed', null),
-                        ],
-                      ),
+                        _buildStatColumn(
+                          '${boy.completedCount}',
+                          isHindi ? 'पूर्ण' : 'Completed',
+                          null,
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Actions
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: Icon(agent.actionIcon,
-                          color: Colors.grey.shade600, size: 22),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed: agent.canAssign ? () {} : null,
+                    onPressed: isAvailable ? () {} : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: agent.canAssign
+                      backgroundColor: isAvailable
                           ? const Color(0xFF0F172A)
                           : const Color(0xFFF1F5F9),
-                      foregroundColor: agent.canAssign
+                      foregroundColor: isAvailable
                           ? Colors.white
                           : Colors.grey.shade400,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                          borderRadius: BorderRadius.circular(12)),
                       elevation: 0,
                     ),
                     child: Text(
-                      agent.actionLabel,
+                      isAvailable
+                          ? (isHindi ? 'असाइन करें' : 'Assign')
+                          : (isHindi ? 'व्यस्त' : 'Busy'),
                       style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
+                          fontWeight: FontWeight.w700, fontSize: 13),
                     ),
                   ),
                 ],
@@ -591,38 +598,4 @@ class WhPickupBoysPage extends StatelessWidget {
       ],
     );
   }
-}
-
-class _AgentData {
-  final String name;
-  final String id;
-  final String status;
-  final Color statusColor;
-  final Color dotColor;
-  final Color borderColor;
-  final String activeCount;
-  final String completedCount;
-  final bool isGrayscale;
-  final bool isOffline;
-  final String actionLabel;
-  final IconData actionIcon;
-  final bool canAssign;
-  final String avatarUrl;
-
-  const _AgentData({
-    required this.name,
-    required this.id,
-    required this.status,
-    required this.statusColor,
-    required this.dotColor,
-    required this.borderColor,
-    required this.activeCount,
-    required this.completedCount,
-    required this.isGrayscale,
-    required this.actionLabel,
-    required this.actionIcon,
-    required this.canAssign,
-    required this.avatarUrl,
-    this.isOffline = false,
-  });
 }

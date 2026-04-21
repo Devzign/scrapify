@@ -8,6 +8,10 @@ It is based on:
 - `api-docs.json`
 - `openapi.yaml`
 
+## New Priority Rule Script
+For Channel Partner + Warehouse verification/limit workflow, refer to:
+- `backend-channel-partner-warehouse-verification-script.md`
+
 ## Roles In App
 The current app UI supports these business roles:
 - `customer`

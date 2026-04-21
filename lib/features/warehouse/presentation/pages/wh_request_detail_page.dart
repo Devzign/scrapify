@@ -1,11 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../domain/models/warehouse_pickup_boy.dart';
+import '../../domain/models/warehouse_request.dart';
+import '../../providers/warehouse_provider.dart';
 
-class WhRequestDetailPage extends StatelessWidget {
-  const WhRequestDetailPage({super.key});
+class WhRequestDetailPage extends ConsumerStatefulWidget {
+  final WarehouseRequest request;
+
+  const WhRequestDetailPage({super.key, required this.request});
+
+  @override
+  ConsumerState<WhRequestDetailPage> createState() =>
+      _WhRequestDetailPageState();
+}
+
+class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
+  int? _selectedBoyId;
 
   @override
   Widget build(BuildContext context) {
+    final r = widget.request;
+    final state = ref.watch(warehouseProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       body: SafeArea(
@@ -19,9 +37,9 @@ class WhRequestDetailPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildTicketHeader(),
-                    _buildBentoContent(),
-                    _buildAgentAssignment(),
+                    _buildTicketHeader(r),
+                    _buildBentoContent(r),
+                    _buildAgentAssignment(r, state),
                   ],
                 ),
               ),
@@ -68,43 +86,23 @@ class WhRequestDetailPage extends StatelessWidget {
               ),
             ],
           ),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.notifications_none_rounded,
-                    color: Colors.grey.shade500, size: 20),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    'W',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      color: AppTheme.primaryColor,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.notifications_none_rounded,
+                color: Colors.grey.shade500, size: 20),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTicketHeader() {
+  Widget _buildTicketHeader(WarehouseRequest r) {
+    final (statusBg, statusText, statusLabel) = _statusStyle(r.status);
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Row(
@@ -124,9 +122,9 @@ class WhRequestDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                '#SCR-4921',
-                style: TextStyle(
+              Text(
+                r.orderCode,
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -135,9 +133,10 @@ class WhRequestDetailPage extends StatelessWidget {
             ],
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFFDCFCE7),
+              color: statusBg,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
@@ -146,17 +145,17 @@ class WhRequestDetailPage extends StatelessWidget {
                   width: 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
+                    color: statusText,
                     shape: BoxShape.circle,
                   ),
                 ),
                 const SizedBox(width: 6),
-                const Text(
-                  'ACTIVE / सक्रिय',
+                Text(
+                  statusLabel.toUpperCase(),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF14532D),
+                    color: statusText,
                   ),
                 ),
               ],
@@ -167,16 +166,32 @@ class WhRequestDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBentoContent() {
+  (Color, Color, String) _statusStyle(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return (const Color(0xFFEDE9FE), const Color(0xFF7C3AED), 'Completed');
+      case 'assigned':
+        return (const Color(0xFFDCFCE7), const Color(0xFF16A34A), 'Assigned');
+      case 'active':
+      case 'in_progress':
+        return (const Color(0xFFFEF3C7), const Color(0xFFD97706), 'Active');
+      case 'rescheduled':
+        return (const Color(0xFFFCE7F3), const Color(0xFFDB2777), 'Rescheduled');
+      case 'cancelled':
+        return (const Color(0xFFFEE2E2), const Color(0xFFEF4444), 'Cancelled');
+      default:
+        return (const Color(0xFFFEE2E2), const Color(0xFFEF4444), 'Unassigned');
+    }
+  }
+
+  Widget _buildBentoContent(WarehouseRequest r) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Customer Details + Item Summary Row
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Customer Card
               Expanded(
                 flex: 2,
                 child: Container(
@@ -205,9 +220,9 @@ class WhRequestDetailPage extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
-                                'Rajesh Kumar',
-                                style: TextStyle(
+                              Text(
+                                r.customerName,
+                                style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w800,
                                   color: Color(0xFF0F172A),
@@ -215,72 +230,102 @@ class WhRequestDetailPage extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                          if (r.customerPhone.isNotEmpty)
+                            GestureDetector(
+                              onTap: () async {
+                                final uri =
+                                    Uri.parse('tel:${r.customerPhone}');
+                                if (await canLaunchUrl(uri)) {
+                                  launchUrl(uri);
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primaryColor,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppTheme.primaryColor
+                                          .withValues(alpha: 0.3),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                                child: const Icon(Icons.call,
+                                    color: Colors.white, size: 20),
+                              ),
                             ),
-                            child: const Icon(Icons.call,
-                                color: Colors.white, size: 20),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 16),
-                      // Address
                       _buildInfoRow(
                         icon: Icons.location_on_rounded,
-                        value: 'Flat 402, Green Meadows Apartment, Sector 45, Gurgaon, Haryana - 122003',
+                        value: r.address,
                         subLabel: 'Full Address / पूरा पता',
                       ),
                       const SizedBox(height: 14),
-                      // Schedule
                       _buildInfoRow(
                         icon: Icons.access_time_rounded,
-                        value: 'Today, 10:00 AM - 1:00 PM',
+                        value: r.scheduledAt,
                         subLabel: 'Scheduled Slot / निर्धारित समय',
                         isBold: true,
                       ),
                       const SizedBox(height: 16),
-                      // Map placeholder
-                      Container(
-                        height: 110,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: Colors.grey.shade100),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.near_me_rounded,
-                                    color: AppTheme.primaryColor, size: 16),
-                                const SizedBox(width: 6),
-                                const Text(
-                                  'Open in Maps',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                    color: Color(0xFF0F172A),
+                      GestureDetector(
+                        onTap: () async {
+                          final lat = r.latitude;
+                          final lng = r.longitude;
+                          Uri uri;
+                          if (lat != null && lng != null) {
+                            uri = Uri.parse(
+                                'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng');
+                          } else if (r.address.isNotEmpty) {
+                            uri = Uri.parse(
+                                'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(r.address)}');
+                          } else {
+                            return;
+                          }
+                          if (await canLaunchUrl(uri)) {
+                            launchUrl(uri,
+                                mode: LaunchMode.externalApplication);
+                          }
+                        },
+                        child: Container(
+                          height: 110,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                    color: Colors.grey.shade100),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.near_me_rounded,
+                                      color: AppTheme.primaryColor,
+                                      size: 16),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    'Open in Maps',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF0F172A),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -290,7 +335,6 @@ class WhRequestDetailPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              // Item Summary Card (green)
               Expanded(
                 flex: 1,
                 child: Container(
@@ -319,52 +363,58 @@ class WhRequestDetailPage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 18),
-                      // Laptops
-                      _buildItemRow(
-                        icon: Icons.laptop_mac_rounded,
-                        value: '2 Units',
-                        label: 'Laptops / लैपटॉप',
-                      ),
-                      const SizedBox(height: 14),
-                      // Iron Scrap
-                      _buildItemRow(
-                        icon: Icons.hardware_rounded,
-                        value: '15.0 kg',
-                        label: 'Iron Scrap / लोहा',
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        padding: const EdgeInsets.only(top: 16),
-                        decoration: BoxDecoration(
-                          border: Border(
-                            top: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.1),
-                            ),
+                      if (r.itemSummary != null && r.itemSummary!.isNotEmpty)
+                        Text(
+                          r.itemSummary!,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                            height: 1.4,
+                          ),
+                        )
+                      else
+                        Text(
+                          'No item details.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.white.withValues(alpha: 0.6),
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'ESTIMATED VALUE',
-                              style: TextStyle(
-                                fontSize: 9,
-                                color: Colors.white.withValues(alpha: 0.7),
-                                letterSpacing: 0.5,
-                              ),
+                      const SizedBox(height: 20),
+                      if (r.estimatedWeight != null)
+                        Container(
+                          padding: const EdgeInsets.only(top: 16),
+                          decoration: BoxDecoration(
+                            border: Border(
+                              top: BorderSide(
+                                  color:
+                                      Colors.white.withValues(alpha: 0.1)),
                             ),
-                            const SizedBox(height: 4),
-                            const Text(
-                              '₹1,450.00',
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'EST. WEIGHT',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color:
+                                      Colors.white.withValues(alpha: 0.7),
+                                  letterSpacing: 0.5,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 4),
+                              Text(
+                                '${r.estimatedWeight} kg',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -372,7 +422,6 @@ class WhRequestDetailPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          // Status Timeline
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -385,7 +434,7 @@ class WhRequestDetailPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'STATUS TIMELINE',
+                  'ASSIGNMENT INFO',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -393,26 +442,53 @@ class WhRequestDetailPage extends StatelessWidget {
                     letterSpacing: 1,
                   ),
                 ),
-                const SizedBox(height: 20),
-                _buildTimelineItem(
-                  title: 'Request Received',
-                  subtitle: '09:15 AM, Today',
-                  isCompleted: true,
-                  hasLine: true,
-                ),
-                _buildTimelineItem(
-                  title: 'Assigning Agent',
-                  subtitle: 'Processing...',
-                  isCompleted: true,
-                  isCurrent: true,
-                  hasLine: true,
-                ),
-                _buildTimelineItem(
-                  title: 'Pickup Commenced',
-                  subtitle: 'TBD',
-                  isCompleted: false,
-                  hasLine: false,
-                ),
+                const SizedBox(height: 12),
+                if (r.assignedPickupBoyName != null &&
+                    r.assignedPickupBoyName!.isNotEmpty)
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor:
+                            AppTheme.primaryColor.withValues(alpha: 0.15),
+                        child: Text(
+                          r.assignedPickupBoyName![0].toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Assigned Agent',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                          Text(
+                            r.assignedPickupBoyName!,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                else
+                  Text(
+                    'No pickup boy assigned yet.',
+                    style: TextStyle(
+                        fontSize: 13, color: Colors.grey.shade500),
+                  ),
               ],
             ),
           ),
@@ -443,7 +519,8 @@ class WhRequestDetailPage extends StatelessWidget {
                 value,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight:
+                      isBold ? FontWeight.w700 : FontWeight.w500,
                   color: const Color(0xFF0F172A),
                   height: 1.3,
                 ),
@@ -465,147 +542,9 @@ class WhRequestDetailPage extends StatelessWidget {
     );
   }
 
-  Widget _buildItemRow({
-    required IconData icon,
-    required String value,
-    required String label,
-  }) {
-    return Row(
-      children: [
-        Container(
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, color: Colors.white, size: 20),
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
-                color: Colors.white,
-                height: 1,
-              ),
-            ),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.white.withValues(alpha: 0.7),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimelineItem({
-    required String title,
-    required String subtitle,
-    required bool isCompleted,
-    bool isCurrent = false,
-    bool hasLine = true,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            Container(
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                color: isCompleted
-                    ? AppTheme.primaryColor
-                    : Colors.grey.shade300,
-                shape: BoxShape.circle,
-              ),
-              child: isCompleted
-                  ? Icon(
-                      isCurrent
-                          ? Icons.pending_rounded
-                          : Icons.check_rounded,
-                      size: 12,
-                      color: Colors.white,
-                    )
-                  : null,
-            ),
-            if (hasLine)
-              Container(
-                width: 2,
-                height: 30,
-                color: isCompleted && !isCurrent
-                    ? AppTheme.primaryColor
-                    : Colors.grey.shade200,
-              ),
-          ],
-        ),
-        const SizedBox(width: 14),
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Opacity(
-            opacity: isCompleted ? 1.0 : 0.4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: isCompleted ? FontWeight.w700 : FontWeight.w500,
-                    color: const Color(0xFF0F172A),
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey.shade500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAgentAssignment() {
-    final agents = [
-      _AgentOption(
-        name: 'Amit Sharma',
-        distance: '2km away',
-        activePickups: '2 Active Pickups',
-        activeColor: const Color(0xFFFEF3C7),
-        activeTextColor: const Color(0xFFB45309),
-        dotColor: const Color(0xFF22C55E),
-      ),
-      _AgentOption(
-        name: 'Vikram Singh',
-        distance: '0.8km away',
-        activePickups: '0 Active Pickups',
-        activeColor: const Color(0xFFDCFCE7),
-        activeTextColor: const Color(0xFF15803D),
-        dotColor: const Color(0xFF22C55E),
-      ),
-      _AgentOption(
-        name: 'Sunil Verma',
-        distance: '4.5km away',
-        activePickups: '4 Active Pickups',
-        activeColor: const Color(0xFFFEE2E2),
-        activeTextColor: const Color(0xFFB91C1C),
-        dotColor: const Color(0xFFF59E0B),
-      ),
-    ];
+  Widget _buildAgentAssignment(WarehouseRequest r, WarehouseState state) {
+    final alreadyAssigned = r.assignedPickupBoyId != null;
+    final boys = state.assignablePickupBoys;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -618,7 +557,6 @@ class WhRequestDetailPage extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Header
             Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
@@ -627,9 +565,11 @@ class WhRequestDetailPage extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Assign Pickup Boy',
-                        style: TextStyle(
+                      Text(
+                        alreadyAssigned
+                            ? 'Reassign Pickup Boy'
+                            : 'Assign Pickup Boy',
+                        style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w900,
                           color: Color(0xFF0F172A),
@@ -644,13 +584,14 @@ class WhRequestDetailPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                  GestureDetector(
+                    onTap: () {
+                      ref
+                          .read(warehouseProvider.notifier)
+                          .loadAssignablePickupBoys(r.id);
+                    },
                     child: Text(
-                      'REASSIGN',
+                      'REFRESH',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
@@ -662,153 +603,206 @@ class WhRequestDetailPage extends StatelessWidget {
               ),
             ),
             Divider(height: 1, color: Colors.grey.shade50),
-            // Agent options
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: agents.map((a) => _buildAgentOption(a)).toList(),
+            if (state.isActionLoading)
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (boys.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  'Tap REFRESH to load available agents.',
+                  style: TextStyle(
+                      fontSize: 13, color: Colors.grey.shade400),
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    ...boys.map((boy) => _buildAgentOption(boy, r)),
+                    if (_selectedBoyId != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: state.isActionLoading
+                                ? null
+                                : () => _doAssign(r),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryColor,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              alreadyAssigned
+                                  ? 'Reassign Agent'
+                                  : 'Confirm Assignment',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAgentOption(_AgentOption agent) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          // Avatar
-          Stack(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFFE2E8F0),
-                ),
-                child: Icon(Icons.person,
-                    color: Colors.grey.shade400, size: 24),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    color: agent.dotColor,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 12),
-          // Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildAgentOption(WarehousePickupBoy boy, WarehouseRequest r) {
+    final isSelected = _selectedBoyId == boy.id;
+    final dotColor = boy.isOnline && boy.isAvailable
+        ? const Color(0xFF22C55E)
+        : const Color(0xFFF59E0B);
+    final workloadColor = boy.currentAssignmentCount > 2
+        ? (const Color(0xFFFEE2E2), const Color(0xFFB91C1C))
+        : boy.currentAssignmentCount > 0
+            ? (const Color(0xFFFEF3C7), const Color(0xFFB45309))
+            : (const Color(0xFFDCFCE7), const Color(0xFF15803D));
+
+    return GestureDetector(
+      onTap: () => setState(() => _selectedBoyId = boy.id),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.primaryColor.withValues(alpha: 0.08)
+              : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(14),
+          border: isSelected
+              ? Border.all(color: AppTheme.primaryColor)
+              : Border.all(color: Colors.transparent),
+        ),
+        child: Row(
+          children: [
+            Stack(
               children: [
-                Text(
-                  agent.name,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: const Color(0xFFE2E8F0),
+                  child: Text(
+                    boy.name.isNotEmpty ? boy.name[0].toUpperCase() : 'A',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF475569),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.grey.shade100),
-                      ),
-                      child: Text(
-                        agent.distance,
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey.shade500,
-                        ),
-                      ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
+                      color: dotColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
                     ),
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: agent.activeColor,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(
-                            color: agent.activeColor),
-                      ),
-                      child: Text(
-                        agent.activePickups,
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: agent.activeTextColor,
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
-          // Assign Button
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.2)),
-            ),
-            child: Text(
-              'ASSIGN',
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: AppTheme.primaryColor,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    boy.name,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: workloadColor.$1,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '${boy.currentAssignmentCount} Active',
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: workloadColor.$2,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+            if (isSelected)
+              Icon(Icons.check_circle_rounded,
+                  color: AppTheme.primaryColor, size: 20)
+            else
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                      color: AppTheme.primaryColor.withValues(alpha: 0.2)),
+                ),
+                child: Text(
+                  'SELECT',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
-}
 
-class _AgentOption {
-  final String name;
-  final String distance;
-  final String activePickups;
-  final Color activeColor;
-  final Color activeTextColor;
-  final Color dotColor;
+  Future<void> _doAssign(WarehouseRequest r) async {
+    if (_selectedBoyId == null) return;
+    final notifier = ref.read(warehouseProvider.notifier);
+    final alreadyAssigned = r.assignedPickupBoyId != null;
 
-  const _AgentOption({
-    required this.name,
-    required this.distance,
-    required this.activePickups,
-    required this.activeColor,
-    required this.activeTextColor,
-    required this.dotColor,
-  });
+    bool success;
+    if (alreadyAssigned) {
+      success = await notifier.reassignPickupBoy(r.id, _selectedBoyId!, 'Reassigned from detail view');
+    } else {
+      success = await notifier.assignPickupBoy(r.id, _selectedBoyId!);
+    }
+
+    if (success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(alreadyAssigned ? 'Reassigned successfully.' : 'Assigned successfully.'),
+          backgroundColor: AppTheme.primaryColor,
+        ),
+      );
+      Navigator.pop(context);
+    }
+  }
 }

@@ -22,6 +22,8 @@ import '../../features/pickup/presentation/weight_entry_screen.dart';
 import '../../features/pickup/presentation/donation_category_selection_screen.dart';
 import '../../features/pickup/presentation/donation_items_screen.dart';
 import '../../features/pickup_boy/presentation/pickup_boy_dashboard.dart';
+import '../../features/pickup_boy/presentation/pickup_boy_detail_screen.dart';
+import '../../features/pickup_boy/presentation/pickup_boy_verification_screen.dart';
 import '../../features/warehouse/presentation/warehouse_dashboard.dart';
 import '../../features/partner/presentation/partner_dashboard.dart';
 import '../../features/pricing/presentation/material_price_list_screen.dart';
@@ -81,6 +83,7 @@ class AppRoutes {
   static const String orderVerification = '/pickup/verification';
   static const String agentReschedule = '/pickup/agent-reschedule';
   static const String userReschedule = '/pickup/user-reschedule';
+  static const String pickupBoyDetail = '/pickup-boy/pickups';
 
   static final router = GoRouter(
     initialLocation: splash,
@@ -261,12 +264,32 @@ class AppRoutes {
         builder: (context, state) => const PickupOrderVerificationScreen(),
       ),
       GoRoute(
-        path: agentReschedule,
-        builder: (context, state) => const AgentRescheduleRequestScreen(),
+        path: '$agentReschedule/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return AgentRescheduleRequestScreen(pickupId: id);
+        },
       ),
       GoRoute(
-        path: userReschedule,
-        builder: (context, state) => const UserReschedulePickupScreen(),
+        path: '$userReschedule/:id',
+        builder: (context, state) {
+          final id = int.tryParse(state.pathParameters['id'] ?? '');
+          return UserReschedulePickupScreen(pickupId: id);
+        },
+      ),
+      GoRoute(
+        path: '$pickupBoyDetail/:id',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return PickupBoyDetailScreen(pickupId: id);
+        },
+      ),
+      GoRoute(
+        path: '$pickupBoyDetail/:id/verify',
+        builder: (context, state) {
+          final id = int.parse(state.pathParameters['id']!);
+          return PickupBoyVerificationScreen(pickupId: id);
+        },
       ),
     ],
   );

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_endpoints.dart';
@@ -59,11 +60,9 @@ class PickupRepository {
     _addFieldIfPresent(formData, 'longitude', payload['longitude']);
     _addFieldIfPresent(formData, 'scheduled_at', payload['scheduled_at']);
     _addFieldIfPresent(formData, 'payout_method', payload['payout_method']);
-    _addFieldIfPresent(
-      formData,
-      'payment_detail_id',
-      payload['payment_detail_id'],
-    );
+    _addFieldIfPresent(formData, 'payment_detail_id', payload['payment_detail_id']);
+    _addFieldIfPresent(formData, 'donation_category', payload['donation_category']);
+    _addFieldIfPresent(formData, 'notes', payload['notes']);
 
     for (var itemIndex = 0; itemIndex < items.length; itemIndex++) {
       final item = Map<String, dynamic>.from(items[itemIndex] as Map);
@@ -109,15 +108,22 @@ class PickupRepository {
         throw Exception('Selected image not found: ${images[i].path}');
       }
 
-      formData.files.add(
-        MapEntry(
-          'images[]',
-          await MultipartFile.fromFile(
-            images[i].path,
-            filename: images[i].name,
-          ),
-        ),
+      // Compress to stay under 5MB server limit
+      final bytes = await FlutterImageCompress.compressWithFile(
+        images[i].path,
+        quality: 80,
+        minWidth: 1280,
+        minHeight: 720,
       );
+
+      final MultipartFile multipart;
+      if (bytes != null) {
+        multipart = MultipartFile.fromBytes(bytes, filename: images[i].name);
+      } else {
+        multipart = await MultipartFile.fromFile(images[i].path, filename: images[i].name);
+      }
+
+      formData.files.add(MapEntry('images[]', multipart));
     }
 
     AppLogger.info(
@@ -224,6 +230,22 @@ class PickupRepository {
     return _dioClient.post<void>(
       ApiEndpoints.pickupRequestCancel(id),
       data: {'reason': reason},
+    );
+  }
+
+  Future<ApiResponse<void>> reschedulePickup(
+    int id, {
+    required String scheduledDate,
+    required String timeSlot,
+    String? reason,
+  }) async {
+    return _dioClient.post<void>(
+      ApiEndpoints.pickupRequestReschedule(id),
+      data: {
+        'scheduled_date': scheduledDate,
+        'time_slot': timeSlot,
+        if (reason != null) 'reason': reason,
+      },
     );
   }
 }

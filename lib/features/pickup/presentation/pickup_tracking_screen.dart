@@ -312,6 +312,39 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                       ),
                     ),
                   ),
+                  if (_canReschedule(tracking.status)) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 58,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          await context.push(
+                            '${AppRoutes.userReschedule}/${widget.pickupId}',
+                          );
+                          ref.invalidate(trackingProvider(widget.pickupId));
+                          ref.invalidate(pickupsProvider);
+                          ref.invalidate(pickupDetailProvider(widget.pickupId));
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppTheme.primaryColor,
+                          side: const BorderSide(color: AppTheme.primaryColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        icon: const Icon(Icons.schedule_rounded),
+                        label: const Text(
+                          'RESCHEDULE PICKUP',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 24),
                 ],
               ),
@@ -502,6 +535,18 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
   String _formatStatusLabel(String status) {
     if (status.isEmpty) return 'Pending';
     return status[0].toUpperCase() + status.substring(1).toLowerCase();
+  }
+
+  bool _canReschedule(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+      case 'cancelled':
+      case 'cancelled_by_user':
+      case 'failed':
+        return false;
+      default:
+        return true;
+    }
   }
 
   Future<void> _makePhoneCall(String phoneNumber) async {

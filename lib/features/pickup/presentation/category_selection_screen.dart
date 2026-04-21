@@ -9,6 +9,7 @@ import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/loading_skeletons.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../domain/models/category.dart';
+import '../providers/booking_provider.dart';
 import '../providers/category_provider.dart';
 import 'widgets/category_list_tile.dart';
 import 'widgets/category_support_banner.dart';
@@ -25,6 +26,15 @@ class _CategorySelectionScreenState
     extends ConsumerState<CategorySelectionScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    // Always start a fresh scrap flow when entering category selection
+    Future.microtask(() {
+      ref.read(bookingProvider.notifier).startScrapFlow();
+    });
+  }
 
   @override
   void dispose() {
@@ -91,22 +101,7 @@ class _CategorySelectionScreenState
                   const SizedBox(height: 20),
                   _buildSearchField(),
                   const SizedBox(height: 24),
-                  if (filtered.isEmpty)
-                    if (!showDonationTile) _buildEmptyState(),
-                  if (showDonationTile) ...[
-                    CategoryListTile(
-                      title: context.locale.languageCode == 'hi'
-                          ? 'दान आइटम्स'
-                          : 'Donate Items',
-                      subtitle: context.locale.languageCode == 'hi'
-                          ? 'कपड़े, फर्नीचर और उपयोगी वस्तुएं दान करें'
-                          : 'Donate clothes, furniture, and reusable goods',
-                      iconData: FontAwesomeIcons.heartCirclePlus,
-                      onTap: () =>
-                          context.push(AppRoutes.donationCategorySelection),
-                    ),
-                    const SizedBox(height: 14),
-                  ],
+                  if (filtered.isEmpty && !showDonationTile) _buildEmptyState(),
                   if (filtered.isNotEmpty)
                     ...filtered.map(
                       (category) => Padding(
@@ -122,6 +117,21 @@ class _CategorySelectionScreenState
                         ),
                       ),
                     ),
+                  if (showDonationTile) ...[
+                    const SizedBox(height: 4),
+                    CategoryListTile(
+                      title: context.locale.languageCode == 'hi'
+                          ? 'दान आइटम्स'
+                          : 'Donate Items',
+                      subtitle: context.locale.languageCode == 'hi'
+                          ? 'कपड़े, फर्नीचर और उपयोगी वस्तुएं दान करें'
+                          : 'Donate clothes, furniture, and reusable goods',
+                      iconData: FontAwesomeIcons.heartCirclePlus,
+                      onTap: () =>
+                          context.push(AppRoutes.donationCategorySelection),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
                   const SizedBox(height: 12),
                   const CategorySupportBanner(
                     title: 'Not sure where it fits?',

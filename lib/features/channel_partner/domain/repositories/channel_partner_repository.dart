@@ -52,7 +52,8 @@ class ChannelPartnerRepository {
     );
     if (response.isSuccess) {
       try {
-        final data = response.data['data'] ?? [];
+        final raw = response.data['data'];
+        final data = (raw is Map) ? (raw['items'] ?? []) : (raw ?? []);
         return ApiResponse.success(data as List<dynamic>);
       } catch (e) {
         return ApiResponse.error('Failed to parse orders');
@@ -110,7 +111,8 @@ class ChannelPartnerRepository {
     );
     if (response.isSuccess) {
       try {
-        final data = response.data['data'] ?? [];
+        final raw = response.data['data'];
+        final data = (raw is Map) ? (raw['items'] ?? []) : (raw ?? []);
         return ApiResponse.success(data as List<dynamic>);
       } catch (e) {
         return ApiResponse.error('Failed to parse approval requests');

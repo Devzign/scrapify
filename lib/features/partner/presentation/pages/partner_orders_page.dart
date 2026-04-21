@@ -1,44 +1,128 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../features/auth/providers/auth_provider.dart';
+import '../../../../features/channel_partner/providers/channel_partner_provider.dart';
+import '../partner_locale.dart';
 
-class PartnerOrdersPage extends StatefulWidget {
+class PartnerOrdersPage extends ConsumerStatefulWidget {
   const PartnerOrdersPage({super.key});
 
   @override
-  State<PartnerOrdersPage> createState() => _PartnerOrdersPageState();
+  ConsumerState<PartnerOrdersPage> createState() => _PartnerOrdersPageState();
 }
 
-class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
-  final String _selectedStatus = 'All Statuses';
-  final String _selectedWarehouse = 'North Hub';
+class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
+  String? _statusFilter;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () => ref.read(channelPartnerProvider.notifier).loadOrders(),
+    );
+  }
+
+  void _applyStatus(String? status) {
+    setState(() => _statusFilter = status);
+    ref.read(channelPartnerProvider.notifier).loadOrders(status: status);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(channelPartnerProvider);
+    final user = ref.watch(authProvider);
+    final orders = state.orders.whereType<Map<String, dynamic>>().toList();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppTheme.primaryColor,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(),
+            _buildAppBar(user?.name),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeader(),
-                    _buildSearchBar(),
-                    _buildFilterBento(),
-                    _buildOrderCards(),
-                  ],
-                ),
-              ),
+              child: state.isLoading && state.orders.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : RefreshIndicator(
+                      onRefresh: () => ref
+                          .read(channelPartnerProvider.notifier)
+                          .loadOrders(status: _statusFilter),
+                      child: CustomScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          SliverToBoxAdapter(
+                            child: _buildHeader(orders.length),
+                          ),
+                          SliverToBoxAdapter(child: _buildSearchBar()),
+                          SliverToBoxAdapter(child: _buildStatusChips()),
+                          if (state.error != null)
+                            SliverToBoxAdapter(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.orange.shade200,
+                                  ),
+                                ),
+                                child: Text(
+                                  state.error!,
+                                  style: TextStyle(
+                                    color: Colors.orange.shade800,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (orders.isEmpty && !state.isLoading)
+                            SliverFillRemaining(
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.inbox_rounded,
+                                      size: 48,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      context.partnerText(
+                                        'No orders found',
+                                        'कोई ऑर्डर नहीं मिला',
+                                      ),
+                                      style: TextStyle(
+                                        color: Colors.grey.shade400,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          else
+                            SliverPadding(
+                              padding: const EdgeInsets.fromLTRB(
+                                20,
+                                12,
+                                20,
+                                24,
+                              ),
+                              sliver: SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (ctx, i) => _buildOrderCard(orders[i]),
+                                  childCount: orders.length,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
             ),
           ],
         ),
@@ -46,7 +130,10 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(String? name) {
+    final initial = (name?.trim().isNotEmpty ?? false)
+        ? name!.trim()[0].toUpperCase()
+        : 'P';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
@@ -65,11 +152,21 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.menu, color: Colors.grey.shade500),
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.12),
+                child: Text(
+                  initial,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ),
               const SizedBox(width: 12),
-              const Text(
-                'Emerald Moss',
-                style: TextStyle(
+              Text(
+                name ?? 'Partner',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -77,37 +174,24 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
               ),
             ],
           ),
-          Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.notifications_none_rounded,
-                    color: Colors.grey.shade500, size: 22),
-              ),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.notifications_none_rounded,
+              color: Colors.grey.shade500,
+              size: 22,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(int count) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Column(
@@ -115,8 +199,8 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
         children: [
           Row(
             children: [
-              const Text(
-                'Active Orders',
+              Text(
+                context.partnerText('Orders', 'ऑर्डर्स'),
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
@@ -132,7 +216,7 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  'सक्रिय ऑर्डर',
+                  '$count',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -144,7 +228,10 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Manage and track your regional distribution requests.',
+            context.partnerText(
+              'Manage and track your regional distribution requests.',
+              'अपने क्षेत्रीय अनुरोध और ऑर्डर ट्रैक करें।',
+            ),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -167,7 +254,10 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
         ),
         child: TextField(
           decoration: InputDecoration(
-            hintText: 'Search Order ID or Customer...',
+            hintText: context.partnerText(
+              'Search order ID or customer...',
+              'ऑर्डर आईडी या ग्राहक खोजें...',
+            ),
             hintStyle: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -182,170 +272,75 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
     );
   }
 
-  Widget _buildFilterBento() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.8,
-        children: [
-          _buildFilterCard(
-            icon: Icons.filter_list,
-            label: 'STATUS स्थिति',
-            value: _selectedStatus,
-            isDropdown: true,
-          ),
-          _buildFilterCard(
-            icon: Icons.calendar_today,
-            label: 'DATE दिनांक',
-            value: 'Today, 24 Oct',
-          ),
-          _buildFilterCard(
-            icon: Icons.warehouse_rounded,
-            label: 'WAREHOUSE गोदाम',
-            value: _selectedWarehouse,
-            isDropdown: true,
-          ),
-          _buildFilterCard(
-            icon: Icons.badge_rounded,
-            label: 'AGENT एजेंट',
-            value: 'All Agents',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    bool isDropdown = false,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: AppTheme.primaryColor, size: 16),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 8,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.8,
-                    color: Colors.grey.shade400,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (isDropdown)
-                Icon(Icons.keyboard_arrow_down, color: Colors.grey.shade400, size: 16),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOrderCards() {
-    final orders = [
-      _OrderCardData(
-        name: 'Arjun Sharma',
-        orderId: '#EM-90214',
-        placedOn: 'Oct 24, 10:30 AM',
-        warehouse: 'Central Distribution Hub',
-        agentName: 'Rahul V.',
-        agentStatus: '(Active)',
-        status: 'In Transit',
-        statusColor: const Color(0xFFDCFCE7),
-        statusTextColor: const Color(0xFF14532D),
-        hasAgent: true,
-        avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDfpOc-3MKZ5vYIR_qMPgDPDPKXQrxHaYhv8DYfbrlPg2xGX6estbjexWkHST8D5wRoe7rMGsiCz-icgdVZN0SezZGtko3qFEW2jNkArR0LNS-BWxqKOZlSgf4c2_OpZDxq-xMaEMQuydV5kab5EXtAvQJCJkdRAacIfhfpY-YKpcxe0klEpf4oxXZ1Yp1ot0bKCXZkQrrp1c6qm8V4G19qWs4Kdxb-H4PckRUrEfOD8aXKRe5FDB2KgZWiIxORpfy1go7htJBlf6Y',
-        buttonColor: const Color(0xFF0F172A),
-        buttonText: 'View Details',
-      ),
-      _OrderCardData(
-        name: 'Priya Kapur',
-        orderId: '#EM-90215',
-        placedOn: 'Oct 24, 11:15 AM',
-        warehouse: 'North Sector Terminal',
-        agentName: 'Assign Agent Now',
-        agentStatus: '',
-        status: 'Pending',
-        statusColor: const Color(0xFFFEF3C7),
-        statusTextColor: const Color(0xFF92400E),
-        hasAgent: false,
-        avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDUCbzl2r47Ul4vqPuvB74GvTc0JicnlwxdRegwPgqlifqGEcmkPWA0DGL5L1Rh_ErAhgoqUmoK_HG6-DH07HU3m45L8CCBTd_iBqnKG3ph3L8rkvVfzHaNp_XkERUOfT4viB-R3IQXyqDie6NdeMdkOEuUEs7aog1cSGF5CtqZop9SSJ8AA3eSevLjRpQUhEls9jzAW2ZQPjoA7_yFzkE7byfz5Wp5OVc7W6FcdiGFrEi3LlRQS0TdcfMJT9E3UPZKBgQM5osQlLA',
-        buttonColor: const Color(0xFF0F172A),
-        buttonText: 'View Details',
-      ),
-      _OrderCardData(
-        name: 'Vikram Rao',
-        orderId: '#EM-90199',
-        placedOn: 'Oct 23, 04:50 PM',
-        warehouse: 'South Center Base',
-        agentName: 'Sanjay M.',
-        agentStatus: '(Completed)',
-        status: 'Delivered',
-        statusColor: const Color(0xFFF1F5F9),
-        statusTextColor: const Color(0xFF64748B),
-        hasAgent: true,
-        avatarUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCcnCfEzYQvUOTarSGcZGlE2vIsga9CCvuwkDeHZMrfITKnGPMYXXGtw7MMt6IyWSWf3DQSjoPNErwywpwATFddpvjGIJwvyS6I7IlYnLNGsPSAxlHt9_yGDUXXZlSsrvUG6VuNQmPTmDBRTpqyJQ8kcHufGpzQdSLzGZUikWu9ohQV580vH-jNfE3AFYERg4eDEBGW_I4p6-iO_DQzJh75kPMcVhBuIVfsindsxXmuEa_uZEQ-m2_4YSnXoJh9DtAaFxArTvoCPjE',
-        buttonColor: const Color(0xFFF1F5F9),
-        buttonText: 'Review Order',
-        buttonTextColor: const Color(0xFF94A3B8),
-      ),
+  Widget _buildStatusChips() {
+    final statuses = [
+      (null, context.partnerText('All', 'सभी')),
+      ('active', localizedPartnerStatus(context, 'active')),
+      ('assigned', localizedPartnerStatus(context, 'assigned')),
+      ('completed', localizedPartnerStatus(context, 'completed')),
+      ('cancelled', localizedPartnerStatus(context, 'cancelled')),
+      ('rescheduled', localizedPartnerStatus(context, 'rescheduled')),
     ];
 
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: orders.map((order) => _buildOrderDetailCard(order)).toList(),
+    return SizedBox(
+      height: 36,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: statuses.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final isSelected = _statusFilter == statuses[i].$1;
+          return GestureDetector(
+            onTap: () => _applyStatus(statuses[i].$1),
+            child: Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? AppTheme.primaryColor : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Text(
+                statuses[i].$2,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? Colors.white : Colors.grey.shade600,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildOrderDetailCard(_OrderCardData order) {
+  Widget _buildOrderCard(Map<String, dynamic> o) {
+    final orderCode =
+        o['order_code']?.toString() ??
+        o['pickup_code']?.toString() ??
+        '#${o['id']}';
+    final customerName = o['customer_name']?.toString() ?? 'Customer';
+    final scheduledAt = o['scheduled_at']?.toString() ?? '';
+    final address = o['address']?.toString() ?? '';
+    final status = o['status']?.toString() ?? 'pending';
+    final assignedBoy = o['assigned_pickup_boy'] as Map<String, dynamic>?;
+    final pickupBoyName =
+        assignedBoy?['name']?.toString() ?? o['pickup_boy_name']?.toString();
+    final statusStyle = _statusStyle(status);
+    final initial = customerName.isNotEmpty
+        ? customerName[0].toUpperCase()
+        : '?';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -357,27 +352,22 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFFF1F5F9),
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppTheme.primaryLight.withValues(
+                        alpha: 0.3,
                       ),
-                      child: ClipOval(
-                        child: Image.network(
-                          order.avatarUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Icon(
-                            Icons.person,
-                            color: Colors.grey.shade400,
-                          ),
+                      child: Text(
+                        initial,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 18,
+                          color: AppTheme.primaryDark,
                         ),
                       ),
                     ),
@@ -386,7 +376,7 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          order.name,
+                          customerName,
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -394,7 +384,7 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
                           ),
                         ),
                         Text(
-                          'Customer ग्राहक',
+                          context.partnerText('Customer', 'ग्राहक'),
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
@@ -407,24 +397,26 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: order.statusColor,
+                    color: statusStyle.$1,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    order.status,
+                    localizedPartnerStatus(context, status),
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      color: order.statusTextColor,
+                      color: statusStyle.$2,
                     ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            // Order ID & Placed On
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
@@ -439,21 +431,19 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'ORDER ID',
+                          context.partnerText('ORDER ID', 'ऑर्डर आईडी'),
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                             color: Colors.grey.shade400,
-                            letterSpacing: -0.3,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          order.orderId,
+                          orderCode,
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            fontFamily: 'monospace',
                             color: Color(0xFF334155),
                           ),
                         ),
@@ -465,17 +455,16 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'PLACED ON',
+                          context.partnerText('SCHEDULED', 'समय'),
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                             color: Colors.grey.shade400,
-                            letterSpacing: -0.3,
                           ),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          order.placedOn,
+                          _fmtDate(scheduledAt),
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -489,34 +478,41 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
               ),
             ),
             const SizedBox(height: 12),
-            // Warehouse row
             _buildInfoRow(
-              icon: Icons.warehouse_rounded,
+              icon: Icons.location_on_rounded,
               iconColor: Colors.grey.shade500,
-              label: 'Warehouse',
-              value: order.warehouse,
+              label: context.partnerText('Address', 'पता'),
+              value: address.length > 35
+                  ? '${address.substring(0, 35)}…'
+                  : address,
             ),
             const SizedBox(height: 8),
-            // Agent row
             _buildInfoRow(
-              icon: order.hasAgent ? Icons.moped_rounded : Icons.add_circle_rounded,
-              iconColor: order.hasAgent ? Colors.grey.shade500 : AppTheme.primaryColor,
-              label: 'Pickup Boy',
-              value: order.hasAgent
-                  ? '${order.agentName} ${order.agentStatus}'
-                  : order.agentName,
-              valueColor: order.hasAgent ? null : AppTheme.primaryColor,
-              bgColor: order.hasAgent ? null : AppTheme.primaryColor.withValues(alpha: 0.1),
+              icon: pickupBoyName != null
+                  ? Icons.moped_rounded
+                  : Icons.add_circle_rounded,
+              iconColor: pickupBoyName != null
+                  ? Colors.grey.shade500
+                  : AppTheme.primaryColor,
+              label: context.partnerText('Pickup Boy', 'पिकअप बॉय'),
+              value:
+                  pickupBoyName ??
+                  context.partnerText('Not yet assigned', 'अभी असाइन नहीं हुआ'),
+              valueColor: pickupBoyName == null ? AppTheme.primaryColor : null,
+              bgColor: pickupBoyName == null
+                  ? AppTheme.primaryColor.withValues(alpha: 0.1)
+                  : null,
             ),
             const SizedBox(height: 16),
-            // CTA Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: ref.watch(channelPartnerProvider).isActionLoading
+                    ? null
+                    : () => _showOrderDetail(o),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: order.buttonColor,
-                  foregroundColor: order.buttonTextColor ?? Colors.white,
+                  backgroundColor: const Color(0xFF0F172A),
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
@@ -527,25 +523,284 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      order.buttonText,
-                      style: const TextStyle(
+                      context.partnerText('View Details', 'विवरण देखें'),
+                      style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      order.buttonText == 'Review Order'
-                          ? Icons.visibility
-                          : Icons.chevron_right,
-                      size: 16,
-                    ),
+                    SizedBox(width: 4),
+                    Icon(Icons.chevron_right, size: 16),
                   ],
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<void> _showOrderDetail(Map<String, dynamic> order) async {
+    final id = int.tryParse('${order['id'] ?? ''}');
+    if (id == null) {
+      _presentOrderDetail(order);
+      return;
+    }
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final detail = await ref
+        .read(channelPartnerProvider.notifier)
+        .getOrderDetail(id);
+
+    if (mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
+
+    if (!mounted) return;
+
+    if (detail == null) {
+      final message =
+          ref.read(channelPartnerProvider).error ??
+          context.partnerText(
+            'Failed to load order details',
+            'ऑर्डर विवरण लोड नहीं हो सका',
+          );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    _presentOrderDetail(detail);
+  }
+
+  void _presentOrderDetail(Map<String, dynamic> detail) {
+    final assignedBoy = detail['assigned_pickup_boy'] as Map<String, dynamic>?;
+    final orderCode =
+        detail['order_code']?.toString() ??
+        detail['pickup_code']?.toString() ??
+        '#${detail['id']}';
+    final customerName = detail['customer_name']?.toString() ?? 'Customer';
+    final customerPhone = detail['customer_phone']?.toString() ?? '';
+    final address = detail['address']?.toString() ?? 'Address unavailable';
+    final status = detail['status']?.toString() ?? 'pending';
+    final scheduledAt = detail['scheduled_at']?.toString() ?? '';
+    final notes = detail['notes']?.toString() ?? '';
+    final pickupBoyName =
+        assignedBoy?['name']?.toString() ??
+        detail['pickup_boy_name']?.toString() ??
+        'Not assigned';
+    final warehouseName =
+        detail['warehouse_name']?.toString() ??
+        detail['assigned_warehouse']?.toString() ??
+        '';
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.72,
+        minChildSize: 0.5,
+        maxChildSize: 0.92,
+        expand: false,
+        builder: (context, scrollController) => Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+            children: [
+              Center(
+                child: Container(
+                  width: 48,
+                  height: 5,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                orderCode,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                customerName,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildDetailChip(
+                    icon: Icons.schedule_rounded,
+                    label: _fmtDate(scheduledAt),
+                  ),
+                  _buildDetailChip(
+                    icon: Icons.flag_rounded,
+                    label: localizedPartnerStatus(context, status),
+                    accent: _statusStyle(status).$2,
+                    background: _statusStyle(status).$1,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _buildDetailSection(
+                title: context.partnerText('Order Details', 'ऑर्डर विवरण'),
+                children: [
+                  _buildDetailRow(
+                    context.partnerText('Customer', 'ग्राहक'),
+                    customerName,
+                  ),
+                  if (customerPhone.isNotEmpty)
+                    _buildDetailRow(
+                      context.partnerText('Phone', 'फ़ोन'),
+                      customerPhone,
+                    ),
+                  _buildDetailRow(
+                    context.partnerText('Pickup Boy', 'पिकअप बॉय'),
+                    pickupBoyName,
+                  ),
+                  if (warehouseName.isNotEmpty)
+                    _buildDetailRow(
+                      context.partnerText('Warehouse', 'गोदाम'),
+                      warehouseName,
+                    ),
+                  _buildDetailRow(
+                    context.partnerText('Address', 'पता'),
+                    address,
+                  ),
+                ],
+              ),
+              if (notes.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                _buildDetailSection(
+                  title: context.partnerText('Notes', 'नोट्स'),
+                  children: [
+                    Text(
+                      notes,
+                      style: TextStyle(
+                        fontSize: 14,
+                        height: 1.5,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailChip({
+    required IconData icon,
+    required String label,
+    Color? accent,
+    Color? background,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: background ?? const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: accent ?? const Color(0xFF475569)),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: accent ?? const Color(0xFF334155),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailSection({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w900,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 92,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF334155),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -570,62 +825,63 @@ class _PartnerOrdersPageState extends State<PartnerOrdersPage> {
           child: Icon(icon, color: iconColor, size: 18),
         ),
         const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label.toUpperCase(),
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                color: Colors.grey.shade400,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey.shade400,
+                ),
               ),
-            ),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: valueColor ?? const Color(0xFF334155),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: valueColor ?? const Color(0xFF334155),
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
   }
-}
 
-class _OrderCardData {
-  final String name;
-  final String orderId;
-  final String placedOn;
-  final String warehouse;
-  final String agentName;
-  final String agentStatus;
-  final String status;
-  final Color statusColor;
-  final Color statusTextColor;
-  final bool hasAgent;
-  final String avatarUrl;
-  final Color buttonColor;
-  final String buttonText;
-  final Color? buttonTextColor;
+  (Color, Color) _statusStyle(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+      case 'delivered':
+      case 'paid':
+        return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+      case 'assigned':
+      case 'in_transit':
+      case 'on_the_way':
+        return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+      case 'active':
+      case 'pending':
+        return (const Color(0xFFFEF3C7), const Color(0xFF92400E));
+      case 'cancelled':
+        return (const Color(0xFFFEE2E2), const Color(0xFF991B1B));
+      case 'rescheduled':
+        return (const Color(0xFFFFD9DF), const Color(0xFF6F3443));
+      default:
+        return (const Color(0xFFF1F5F9), const Color(0xFF64748B));
+    }
+  }
 
-  const _OrderCardData({
-    required this.name,
-    required this.orderId,
-    required this.placedOn,
-    required this.warehouse,
-    required this.agentName,
-    required this.agentStatus,
-    required this.status,
-    required this.statusColor,
-    required this.statusTextColor,
-    required this.hasAgent,
-    required this.avatarUrl,
-    required this.buttonColor,
-    required this.buttonText,
-    this.buttonTextColor,
-  });
+  String _fmtDate(String raw) {
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      return '${dt.day}/${dt.month}  ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+    } catch (_) {
+      return raw.isNotEmpty ? raw : '—';
+    }
+  }
 }

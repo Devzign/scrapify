@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
+import 'partner_locale.dart';
 import 'pages/partner_dashboard_page.dart';
 import 'pages/partner_orders_page.dart';
 import 'pages/partner_team_page.dart';
 import 'pages/partner_warehouses_page.dart';
-import 'pages/partner_approvals_page.dart';
+import 'pages/partner_profile_page.dart';
 
 class PartnerBottomNav extends StatefulWidget {
   const PartnerBottomNav({super.key});
@@ -21,22 +22,17 @@ class _PartnerBottomNavState extends State<PartnerBottomNav> {
     PartnerOrdersPage(),
     PartnerTeamPage(),
     PartnerWarehousesPage(),
-    PartnerApprovalsPage(),
+    PartnerProfilePage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(
-            top: BorderSide(color: Colors.grey.shade100),
-          ),
+          border: Border(top: BorderSide(color: Colors.grey.shade100)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -51,11 +47,31 @@ class _PartnerBottomNavState extends State<PartnerBottomNav> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(Icons.home_rounded, 'Home', 0),
-                _buildNavItem(Icons.list_alt_rounded, 'Orders', 1),
-                _buildNavItem(Icons.group_rounded, 'Team', 2),
-                _buildNavItem(Icons.warehouse_rounded, 'Warehouses', 3),
-                _buildNavItem(Icons.person_rounded, 'Profile', 4),
+                _buildNavItem(
+                  Icons.home_rounded,
+                  context.partnerText('Home', 'होम'),
+                  0,
+                ),
+                _buildNavItem(
+                  Icons.list_alt_rounded,
+                  context.partnerText('Orders', 'ऑर्डर्स'),
+                  1,
+                ),
+                _buildNavItem(
+                  Icons.group_rounded,
+                  context.partnerText('Team', 'टीम'),
+                  2,
+                ),
+                _buildNavItem(
+                  Icons.warehouse_rounded,
+                  context.partnerText('Warehouses', 'गोदाम'),
+                  3,
+                ),
+                _buildNavItem(
+                  Icons.person_rounded,
+                  context.partnerText('Profile', 'प्रोफ़ाइल'),
+                  4,
+                ),
               ],
             ),
           ),
@@ -77,7 +93,9 @@ class _PartnerBottomNavState extends State<PartnerBottomNav> {
           children: [
             Icon(
               icon,
-              color: isSelected ? AppTheme.primaryColor : const Color(0xFF94A3B8),
+              color: isSelected
+                  ? AppTheme.primaryColor
+                  : const Color(0xFF94A3B8),
               size: 24,
             ),
             const SizedBox(height: 4),
@@ -86,7 +104,9 @@ class _PartnerBottomNavState extends State<PartnerBottomNav> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? AppTheme.primaryColor : const Color(0xFF94A3B8),
+                color: isSelected
+                    ? AppTheme.primaryColor
+                    : const Color(0xFF94A3B8),
               ),
             ),
           ],

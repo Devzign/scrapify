@@ -17,6 +17,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedItems = ref.watch(donationProvider);
     final donationNotifier = ref.read(donationProvider.notifier);
+    final isHindi = context.locale.languageCode == 'hi';
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -28,9 +29,9 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
           ),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'Donate Items',
-          style: TextStyle(
+        title: Text(
+          context.locale.languageCode == 'hi' ? 'वस्तुएं दान करें' : 'Donate Items',
+          style: const TextStyle(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -68,18 +69,18 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                               color: const Color(0xFFFFEEF1),
                               borderRadius: BorderRadius.circular(999),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.favorite_rounded,
                                   color: Color(0xFFF43F5E),
                                   size: 18,
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
-                                  'Give Back to Community',
-                                  style: TextStyle(
+                                  isHindi ? 'समुदाय को वापस दें' : 'Give Back to Community',
+                                  style: const TextStyle(
                                     color: Color(0xFFF43F5E),
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,
@@ -89,9 +90,9 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 22),
-                          const Text(
-                            'Donate Items',
-                            style: TextStyle(
+                          Text(
+                            isHindi ? 'वस्तुएं दान करें' : 'Donate Items',
+                            style: const TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w900,
                               color: AppTheme.textPrimary,
@@ -99,8 +100,8 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            context.locale.languageCode == 'hi'
-                                ? 'वस्तुएं दान करें'
+                            isHindi
+                                ? 'पुराने कपड़े और फर्नीचर दान करें।'
                                 : 'Support social causes with reusable goods',
                             style: const TextStyle(
                               fontSize: 17,
@@ -109,9 +110,11 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          const Text(
-                            'Choose what you want to donate today. We are currently accepting clothes and old furniture.',
-                            style: TextStyle(
+                          Text(
+                            isHindi
+                                ? 'आज आप क्या दान करना चाहते हैं? हम अभी कपड़े और पुराने फर्नीचर स्वीकार कर रहे हैं।'
+                                : 'Choose what you want to donate today. We are currently accepting clothes and old furniture.',
+                            style: const TextStyle(
                               fontSize: 15,
                               height: 1.5,
                               color: AppTheme.textSecondary,
@@ -121,18 +124,20 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'What would you like to donate today?',
-                      style: TextStyle(
+                    Text(
+                      isHindi ? 'आज क्या दान करना है?' : 'What would you like to donate today?',
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
                         color: AppTheme.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'Choose one or both categories to start your donation pickup.',
-                      style: TextStyle(
+                    Text(
+                      isHindi
+                          ? 'डोनेशन पिकअप शुरू करने के लिए एक या दोनों श्रेणियां चुनें।'
+                          : 'Choose one or both categories to start your donation pickup.',
+                      style: const TextStyle(
                         fontSize: 14,
                         color: AppTheme.textSecondary,
                       ),
@@ -206,18 +211,20 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(height: 14),
-                          const Text(
-                            'Every piece counts.',
-                            style: TextStyle(
+                          Text(
+                            isHindi ? 'हर वस्तु मायने रखती है।' : 'Every piece counts.',
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
                               color: AppTheme.primaryDark,
                             ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'Your donations help build a circular economy and reduce landfill waste.',
-                            style: TextStyle(
+                          Text(
+                            isHindi
+                                ? 'आपके दान से सर्कुलर इकोनॉमी बनती है और लैंडफिल वेस्ट कम होता है।'
+                                : 'Your donations help build a circular economy and reduce landfill waste.',
+                            style: const TextStyle(
                               height: 1.5,
                               color: AppTheme.textSecondary,
                             ),
@@ -255,7 +262,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                               );
                           context.push(AppRoutes.donationItems);
                         },
-                  text: 'CONTINUE TO PICKUP DETAILS',
+                  text: isHindi ? 'पिकअप विवरण जारी रखें' : 'CONTINUE TO PICKUP DETAILS',
                   minHeight: 60,
                   borderRadius: 20,
                 ),

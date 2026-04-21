@@ -1,31 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../features/auth/providers/auth_provider.dart';
+import '../../../../features/channel_partner/domain/models/channel_partner_dashboard.dart';
+import '../../../../features/channel_partner/providers/channel_partner_provider.dart';
+import '../partner_locale.dart';
 
-class PartnerDashboardPage extends StatelessWidget {
+class PartnerDashboardPage extends ConsumerStatefulWidget {
   const PartnerDashboardPage({super.key});
 
   @override
+  ConsumerState<PartnerDashboardPage> createState() =>
+      _PartnerDashboardPageState();
+}
+
+class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () => ref.read(channelPartnerProvider.notifier).loadDashboard(),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = ref.watch(channelPartnerProvider);
+    final user = ref.watch(authProvider);
+    final d = state.dashboard;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(context),
+            _buildAppBar(user?.name),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeaderSection(),
-                    _buildMetricsGrid(),
-                    _buildOrderHealthAndFleet(),
-                    _buildRecentOrders(context),
-                  ],
-                ),
-              ),
+              child: state.isLoading && d == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : RefreshIndicator(
+                      onRefresh: () => ref
+                          .read(channelPartnerProvider.notifier)
+                          .loadDashboard(),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (state.error != null)
+                              Container(
+                                margin: const EdgeInsets.all(16),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.orange.shade200,
+                                  ),
+                                ),
+                                child: Text(
+                                  state.error!,
+                                  style: TextStyle(
+                                    color: Colors.orange.shade800,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            _buildHeaderSection(user?.name, user?.id),
+                            _buildMetricsGrid(d),
+                            _buildOrderHealthAndFleet(d),
+                            _buildRecentOrders(d),
+                          ],
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -33,7 +82,10 @@ class PartnerDashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
+  Widget _buildAppBar(String? name) {
+    final initial = (name?.trim().isNotEmpty ?? false)
+        ? name!.trim()[0].toUpperCase()
+        : 'P';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
@@ -52,11 +104,21 @@ class PartnerDashboardPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.menu, color: Colors.grey.shade500),
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.12),
+                child: Text(
+                  initial,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ),
               const SizedBox(width: 12),
-              const Text(
-                'Emerald Moss',
-                style: TextStyle(
+              Text(
+                name ?? 'Partner',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -81,14 +143,14 @@ class PartnerDashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderSection() {
+  Widget _buildHeaderSection(String? name, int? userId) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Partner Dashboard',
+          Text(
+            context.partnerText('Partner Dashboard', 'पार्टनर डैशबोर्ड'),
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
@@ -100,21 +162,20 @@ class PartnerDashboardPage extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Urban Steward',
+                name ?? 'Channel Partner',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.primaryColor,
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                '| ID: EM-9921',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey.shade400,
+              if (userId != null) ...[
+                const SizedBox(width: 8),
+                Text(
+                  '| ID: $userId',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
                 ),
-              ),
+              ],
             ],
           ),
         ],
@@ -122,12 +183,12 @@ class PartnerDashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMetricsGrid() {
+  Widget _buildMetricsGrid(ChannelPartnerDashboard? d) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Total Orders - Large Card
+          // Total Orders — Large Card
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -146,7 +207,7 @@ class PartnerDashboardPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'TOTAL ORDERS / कुल ऑर्डर',
+                          context.partnerText('TOTAL ORDERS', 'कुल ऑर्डर'),
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w800,
@@ -155,9 +216,9 @@ class PartnerDashboardPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        const Text(
-                          '2,482',
-                          style: TextStyle(
+                        Text(
+                          _fmt(d?.totalOrders ?? 0),
+                          style: const TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.w900,
                             color: Color(0xFF0F172A),
@@ -193,7 +254,7 @@ class PartnerDashboardPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'ACTIVE / सक्रिय',
+                              context.partnerText('ACTIVE', 'सक्रिय'),
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w800,
@@ -201,9 +262,9 @@ class PartnerDashboardPage extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
-                              '142',
-                              style: TextStyle(
+                            Text(
+                              '${d?.activeOrders ?? 0}',
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFF0F172A),
@@ -225,7 +286,7 @@ class PartnerDashboardPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'COMPLETED / पूरा हुआ',
+                              context.partnerText('COMPLETED', 'पूरा हुआ'),
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w800,
@@ -233,9 +294,9 @@ class PartnerDashboardPage extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            const Text(
-                              '2,104',
-                              style: TextStyle(
+                            Text(
+                              _fmt(d?.completedOrders ?? 0),
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
                                 color: Color(0xFF0F172A),
@@ -254,23 +315,43 @@ class PartnerDashboardPage extends StatelessWidget {
           // Warehouses & Team Row
           Row(
             children: [
-              Expanded(child: _buildMiniMetricCard(
-                icon: Icons.warehouse_rounded,
-                title: 'WAREHOUSES / गोदाम',
-                items: [
-                  _MetricItem('Active / सक्रिय', '12', AppTheme.primaryColor),
-                  _MetricItem('Pending / लंबित', '02', Colors.grey.shade500),
-                ],
-              )),
+              Expanded(
+                child: _buildMiniMetricCard(
+                  icon: Icons.warehouse_rounded,
+                  title: context.partnerText('WAREHOUSES', 'गोदाम'),
+                  items: [
+                    _MetricItem(
+                      context.partnerText('Active', 'सक्रिय'),
+                      '${d?.activeWarehouses ?? 0}',
+                      AppTheme.primaryColor,
+                    ),
+                    _MetricItem(
+                      context.partnerText('Pending', 'लंबित'),
+                      '${d?.pendingWarehouseApprovals ?? 0}',
+                      Colors.grey.shade500,
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(width: 16),
-              Expanded(child: _buildMiniMetricCard(
-                icon: Icons.group_rounded,
-                title: 'TEAM / टीम',
-                items: [
-                  _MetricItem('Available / उपलब्ध', '34', AppTheme.primaryColor),
-                  _MetricItem('Active / सक्रिय', '18', Colors.grey.shade500),
-                ],
-              )),
+              Expanded(
+                child: _buildMiniMetricCard(
+                  icon: Icons.group_rounded,
+                  title: context.partnerText('TEAM', 'टीम'),
+                  items: [
+                    _MetricItem(
+                      context.partnerText('Available', 'उपलब्ध'),
+                      '${d?.availablePickupBoys ?? 0}',
+                      AppTheme.primaryColor,
+                    ),
+                    _MetricItem(
+                      context.partnerText('Active', 'सक्रिय'),
+                      '${d?.activePickupBoys ?? 0}',
+                      Colors.grey.shade500,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ],
@@ -313,51 +394,63 @@ class PartnerDashboardPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          ...items.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    item.label,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF0F172A),
+          ...items.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.label,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF0F172A),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: item.color == AppTheme.primaryColor
-                        ? const Color(0xFFDCFCE7)
-                        : const Color(0xFFE2E8F0),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    item.value,
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w800,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
                       color: item.color == AppTheme.primaryColor
-                          ? const Color(0xFF14532D)
-                          : const Color(0xFF475569),
+                          ? const Color(0xFFDCFCE7)
+                          : const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      item.value,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        color: item.color == AppTheme.primaryColor
+                            ? const Color(0xFF14532D)
+                            : const Color(0xFF475569),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          )),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildOrderHealthAndFleet() {
+  Widget _buildOrderHealthAndFleet(ChannelPartnerDashboard? d) {
+    final cancelled = d?.cancelledOrders ?? 0;
+    final rescheduled = d?.rescheduledOrders ?? 0;
+    final maxVal = [cancelled, rescheduled, 1].reduce((a, b) => a > b ? a : b);
+    const maxBarH = 120.0;
+    final cancelH = (cancelled / maxVal * maxBarH).clamp(20.0, maxBarH);
+    final reschedH = (rescheduled / maxVal * maxBarH).clamp(20.0, maxBarH);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -375,7 +468,7 @@ class PartnerDashboardPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Order Health / स्वास्थ्य',
+                  context.partnerText('Order Health', 'ऑर्डर स्थिति'),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -389,15 +482,19 @@ class PartnerDashboardPage extends StatelessWidget {
                       child: Column(
                         children: [
                           Container(
-                            height: 80,
+                            height: cancelH,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFEF4444).withValues(alpha: 0.1),
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                              color: const Color(
+                                0xFFEF4444,
+                              ).withValues(alpha: 0.1),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(8),
+                              ),
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Text(
-                                '42',
-                                style: TextStyle(
+                                '$cancelled',
+                                style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
                                   color: Color(0xFFEF4444),
@@ -407,7 +504,7 @@ class PartnerDashboardPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Cancelled',
+                            context.partnerText('Cancelled', 'रद्द'),
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
@@ -422,14 +519,18 @@ class PartnerDashboardPage extends StatelessWidget {
                       child: Column(
                         children: [
                           Container(
-                            height: 110,
+                            height: reschedH,
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade200.withValues(alpha: 0.5),
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                              color: Colors.grey.shade200.withValues(
+                                alpha: 0.5,
+                              ),
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(8),
+                              ),
                             ),
                             child: Center(
                               child: Text(
-                                '86',
+                                '$rescheduled',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
@@ -440,7 +541,10 @@ class PartnerDashboardPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Rescheduled',
+                            context.partnerText(
+                              'Rescheduled',
+                              'पुनर्निर्धारित',
+                            ),
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
@@ -477,7 +581,6 @@ class PartnerDashboardPage extends StatelessWidget {
             ),
             child: Stack(
               children: [
-                // Decorative pattern
                 Positioned(
                   right: -20,
                   top: -20,
@@ -490,18 +593,6 @@ class PartnerDashboardPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                Positioned(
-                  left: 20,
-                  top: 20,
-                  child: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.05),
-                    ),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
@@ -510,11 +601,17 @@ class PartnerDashboardPage extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.local_shipping_rounded,
-                              color: Colors.white.withValues(alpha: 0.9), size: 20),
+                          Icon(
+                            Icons.local_shipping_rounded,
+                            color: Colors.white.withValues(alpha: 0.9),
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Text(
-                            'FLEET TRACKING',
+                            context.partnerText(
+                              'FLEET TRACKING',
+                              'फ्लीट ट्रैकिंग',
+                            ),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
@@ -525,8 +622,11 @@ class PartnerDashboardPage extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      const Text(
-                        'Active Fleet Tracking',
+                      Text(
+                        context.partnerText(
+                          'Active Fleet Tracking',
+                          'सक्रिय फ्लीट ट्रैकिंग',
+                        ),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
@@ -535,7 +635,10 @@ class PartnerDashboardPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Real-time status of 52 pickup partners',
+                        context.partnerText(
+                          'Real-time status of ${d?.totalPickupBoys ?? 0} pickup partners',
+                          '${d?.totalPickupBoys ?? 0} पिकअप पार्टनर्स की लाइव स्थिति',
+                        ),
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.white.withValues(alpha: 0.8),
@@ -552,42 +655,8 @@ class PartnerDashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentOrders(BuildContext context) {
-    final orders = [
-      _OrderData(
-        id: '#ORD-7721',
-        items: 'Paper & Metal',
-        location: 'South Extension, New Delhi',
-        time: '10:30 AM',
-        amount: '₹450.00',
-        status: 'IN-TRANSIT',
-        statusColor: const Color(0xFFDCFCE7),
-        statusTextColor: const Color(0xFF14532D),
-        icon: Icons.recycling_rounded,
-      ),
-      _OrderData(
-        id: '#ORD-7719',
-        items: 'E-Waste (Laptops)',
-        location: 'Malviya Nagar',
-        time: '09:15 AM',
-        amount: '₹1,280.00',
-        status: 'ASSIGNED',
-        statusColor: const Color(0xFFE2E8F0),
-        statusTextColor: const Color(0xFF475569),
-        icon: Icons.computer_rounded,
-      ),
-      _OrderData(
-        id: '#ORD-7715',
-        items: 'Mixed Plastic',
-        location: 'Green Park • Yesterday',
-        time: '',
-        amount: '₹210.00',
-        status: 'PAID',
-        statusColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-        statusTextColor: AppTheme.primaryColor,
-        icon: Icons.inventory_2_rounded,
-      ),
-    ];
+  Widget _buildRecentOrders(ChannelPartnerDashboard? d) {
+    final rawOrders = d?.recentOrders ?? [];
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -600,20 +669,12 @@ class PartnerDashboardPage extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Recent Orders',
+                  Text(
+                    context.partnerText('Recent Orders', 'नवीनतम ऑर्डर'),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF0F172A),
-                    ),
-                  ),
-                  Text(
-                    'नवीनतम ऑर्डर - Updated 2m ago',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: AppTheme.primaryColor,
                     ),
                   ),
                 ],
@@ -621,26 +682,54 @@ class PartnerDashboardPage extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'View All',
+                    context.partnerText('View All', 'सभी देखें'),
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: AppTheme.primaryColor,
                     ),
                   ),
-                  Icon(Icons.arrow_forward, size: 16, color: AppTheme.primaryColor),
+                  Icon(
+                    Icons.arrow_forward,
+                    size: 16,
+                    color: AppTheme.primaryColor,
+                  ),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 16),
-          ...orders.map((order) => _buildOrderCard(order)),
+          if (rawOrders.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Text(
+                context.partnerText('No recent orders', 'कोई नया ऑर्डर नहीं'),
+                style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+              ),
+            )
+          else
+            ...rawOrders
+                .whereType<Map<String, dynamic>>()
+                .take(5)
+                .map((o) => _buildOrderCard(o)),
         ],
       ),
     );
   }
 
-  Widget _buildOrderCard(_OrderData order) {
+  Widget _buildOrderCard(Map<String, dynamic> o) {
+    final orderCode =
+        o['order_code']?.toString() ??
+        o['pickup_code']?.toString() ??
+        '#${o['id']}';
+    final itemSummary =
+        o['items_summary']?.toString() ??
+        o['item_summary']?.toString() ??
+        context.partnerText('Items', 'आइटम');
+    final address = o['address']?.toString() ?? '';
+    final status = o['status']?.toString() ?? 'pending';
+    final statusStyle = _orderStatusStyle(status);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
@@ -654,11 +743,15 @@ class PartnerDashboardPage extends StatelessWidget {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF8FAFC),
               shape: BoxShape.circle,
             ),
-            child: Icon(order.icon, color: Colors.grey.shade500, size: 20),
+            child: Icon(
+              Icons.inventory_2_rounded,
+              color: Colors.grey.shade500,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -666,21 +759,24 @@ class PartnerDashboardPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${order.id} - ${order.items}',
+                  '$orderCode - $itemSummary',
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF0F172A),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  order.location,
+                  address.length > 30
+                      ? '${address.substring(0, 30)}…'
+                      : address,
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
                     color: Colors.grey.shade500,
-                    letterSpacing: -0.2,
                   ),
                 ),
               ],
@@ -689,15 +785,15 @@ class PartnerDashboardPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: order.statusColor,
+              color: statusStyle.$1,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              order.status,
+              status.toUpperCase().replaceAll('_', ' '),
               style: TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.w800,
-                color: order.statusTextColor,
+                color: statusStyle.$2,
               ),
             ),
           ),
@@ -707,6 +803,42 @@ class PartnerDashboardPage extends StatelessWidget {
       ),
     );
   }
+
+  (Color, Color) _orderStatusStyle(String status) {
+    switch (status.toLowerCase()) {
+      case 'completed':
+      case 'paid':
+        return (
+          AppTheme.primaryColor.withValues(alpha: 0.1),
+          AppTheme.primaryColor,
+        );
+      case 'assigned':
+      case 'in_transit':
+      case 'on_the_way':
+        return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+      case 'cancelled':
+        return (const Color(0xFFFEE2E2), const Color(0xFF991B1B));
+      case 'rescheduled':
+        return (const Color(0xFFFFD9DF), const Color(0xFF6F3443));
+      default:
+        return (const Color(0xFFE2E8F0), const Color(0xFF475569));
+    }
+  }
+
+  String _fmt(int n) {
+    if (n >= 1000) {
+      final s = n.toString();
+      final buf = StringBuffer();
+      int count = 0;
+      for (int i = s.length - 1; i >= 0; i--) {
+        if (count > 0 && count % 3 == 0) buf.write(',');
+        buf.write(s[i]);
+        count++;
+      }
+      return buf.toString().split('').reversed.join();
+    }
+    return '$n';
+  }
 }
 
 class _MetricItem {
@@ -714,28 +846,4 @@ class _MetricItem {
   final String value;
   final Color color;
   const _MetricItem(this.label, this.value, this.color);
-}
-
-class _OrderData {
-  final String id;
-  final String items;
-  final String location;
-  final String time;
-  final String amount;
-  final String status;
-  final Color statusColor;
-  final Color statusTextColor;
-  final IconData icon;
-
-  const _OrderData({
-    required this.id,
-    required this.items,
-    required this.location,
-    required this.time,
-    required this.amount,
-    required this.status,
-    required this.statusColor,
-    required this.statusTextColor,
-    required this.icon,
-  });
 }

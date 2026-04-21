@@ -15,7 +15,8 @@ class BookingState {
   final String? selectedTimeSlot;
   final String? payoutMethod;
   final PaymentMethodModel? selectedPaymentDetail;
-  final List<XFile> images;
+  // categoryImages: categoryId → list of photos for that category
+  final Map<int, List<XFile>> categoryImages;
   final bool isSubmitting;
   final String? error;
 
@@ -27,10 +28,14 @@ class BookingState {
     this.selectedTimeSlot,
     this.payoutMethod,
     this.selectedPaymentDetail,
-    this.images = const [],
+    this.categoryImages = const {},
     this.isSubmitting = false,
     this.error,
   });
+
+  /// Flat list of all images across all categories (used in submission)
+  List<XFile> get images =>
+      categoryImages.values.expand((list) => list).toList();
 
   BookingState copyWith({
     String? requestType,
@@ -40,7 +45,7 @@ class BookingState {
     String? selectedTimeSlot,
     String? payoutMethod,
     PaymentMethodModel? selectedPaymentDetail,
-    List<XFile>? images,
+    Map<int, List<XFile>>? categoryImages,
     bool? isSubmitting,
     String? error,
   }) {
@@ -53,7 +58,7 @@ class BookingState {
       payoutMethod: payoutMethod ?? this.payoutMethod,
       selectedPaymentDetail:
           selectedPaymentDetail ?? this.selectedPaymentDetail,
-      images: images ?? this.images,
+      categoryImages: categoryImages ?? this.categoryImages,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       error: error,
     );
@@ -76,6 +81,7 @@ class BookingNotifier extends Notifier<BookingState> {
     state = BookingState(
       requestType: 'scrap',
       selectedAddress: state.selectedAddress,
+      categoryImages: const {},
     );
   }
 
@@ -84,6 +90,7 @@ class BookingNotifier extends Notifier<BookingState> {
       requestType: 'donation',
       donationCategory: donationCategory,
       selectedAddress: state.selectedAddress,
+      categoryImages: const {},
     );
   }
 
@@ -116,18 +123,34 @@ class BookingNotifier extends Notifier<BookingState> {
     state = state.copyWith(selectedPaymentDetail: payment);
   }
 
-  void addImages(List<XFile> newImages) {
-    state = state.copyWith(images: [...state.images, ...newImages]);
+  void addCategoryImage(int categoryId, XFile image) {
+    final updated = Map<int, List<XFile>>.from(state.categoryImages);
+    updated[categoryId] = [...(updated[categoryId] ?? []), image];
+    state = state.copyWith(categoryImages: updated);
   }
 
-  void setImages(List<XFile> images) {
-    state = state.copyWith(images: images);
+  void removeCategoryImage(int categoryId, int imageIndex) {
+    final updated = Map<int, List<XFile>>.from(state.categoryImages);
+    final list = List<XFile>.from(updated[categoryId] ?? []);
+    list.removeAt(imageIndex);
+    updated[categoryId] = list;
+    state = state.copyWith(categoryImages: updated);
+  }
+
+  // Legacy helpers kept for non-category flows
+  void addImages(List<XFile> newImages) {
+    // Add to a generic key (0) for backward compatibility
+    final updated = Map<int, List<XFile>>.from(state.categoryImages);
+    updated[0] = [...(updated[0] ?? []), ...newImages];
+    state = state.copyWith(categoryImages: updated);
   }
 
   void removeImage(int index) {
-    final newImages = List<XFile>.from(state.images);
-    newImages.removeAt(index);
-    state = state.copyWith(images: newImages);
+    final updated = Map<int, List<XFile>>.from(state.categoryImages);
+    final list = List<XFile>.from(updated[0] ?? []);
+    if (index < list.length) list.removeAt(index);
+    updated[0] = list;
+    state = state.copyWith(categoryImages: updated);
   }
 
   Future<PickupRequestModel?> submitBooking(List<dynamic> basketItems) async {

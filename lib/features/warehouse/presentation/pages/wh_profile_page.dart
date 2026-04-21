@@ -1,17 +1,36 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/app_routes.dart';
+import '../../../auth/providers/auth_provider.dart';
+import '../../providers/warehouse_provider.dart';
 
-class WhProfilePage extends StatelessWidget {
+class WhProfilePage extends ConsumerWidget {
   const WhProfilePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isHindi = context.locale.languageCode == 'hi';
+    final user = ref.watch(authProvider);
+    final dashboard = ref.watch(warehouseProvider).dashboard;
+    final warehouse = dashboard?.warehouse;
+
+    final name = user?.name ?? '';
+    final phone = user?.phone ?? '';
+    final initials = name.trim().isNotEmpty
+        ? name.trim().split(' ').map((w) => w[0]).take(2).join().toUpperCase()
+        : 'W';
+    final warehouseName = warehouse?.name ?? '';
+    final warehouseAddress = warehouse?.address ?? warehouse?.city ?? '';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(),
+            _buildAppBar(warehouseName, isHindi),
             Expanded(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -19,10 +38,11 @@ class WhProfilePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeroProfile(),
-                    _buildInfoBento(),
-                    _buildAccountSettings(),
-                    _buildLogout(),
+                    _buildHeroProfile(name, phone, initials, isHindi),
+                    _buildInfoSection(warehouseName, warehouseAddress, isHindi),
+                    _buildSupportSection(isHindi),
+                    _buildAccountSettings(isHindi),
+                    _buildLogout(context, ref, isHindi),
                     _buildAppVersion(),
                   ],
                 ),
@@ -34,7 +54,7 @@ class WhProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(String warehouseName, bool isHindi) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
@@ -53,11 +73,17 @@ class WhProfilePage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.warehouse_rounded, color: AppTheme.primaryColor, size: 24),
+              Icon(
+                Icons.warehouse_rounded,
+                color: AppTheme.primaryColor,
+                size: 24,
+              ),
               const SizedBox(width: 10),
-              const Text(
-                'Scrapi5 Warehouse',
-                style: TextStyle(
+              Text(
+                warehouseName.isNotEmpty
+                    ? warehouseName
+                    : (isHindi ? 'गोदाम' : 'Warehouse'),
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -72,15 +98,23 @@ class WhProfilePage extends StatelessWidget {
               color: Colors.grey.shade50,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.notifications_none_rounded,
-                color: Colors.grey.shade500, size: 22),
+            child: Icon(
+              Icons.notifications_none_rounded,
+              color: Colors.grey.shade500,
+              size: 22,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeroProfile() {
+  Widget _buildHeroProfile(
+    String name,
+    String phone,
+    String initials,
+    bool isHindi,
+  ) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Container(
@@ -92,7 +126,6 @@ class WhProfilePage extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Avatar
             Stack(
               children: [
                 Container(
@@ -104,14 +137,13 @@ class WhProfilePage extends StatelessWidget {
                     border: Border.all(color: Colors.white, width: 3),
                     boxShadow: AppTheme.softShadow,
                   ),
-                  child: ClipOval(
-                    child: Image.network(
-                      'https://lh3.googleusercontent.com/aida-public/AB6AXuDOTgYf2YWEups3lp9nppkiaxjFlSzAdacL2sUxArwM0oYXRtS4CS1Y8qnmKrU_KK_byi6WEp3LuGE3RTl4txaEQMxQaaj0yvTGvpVFpC8TQXDdE8Sl4gaPcQ73x7RuFUeNQAgRGp6yhVNgGT9vI0iJYPlYMw5Gd8GZNYIQwEZVpdRYK269MqqM6t5juGLRuyIEvZFVew37VX7l589Za0U1fg5nNUDGEwT4ExyEZQg7sr7-a7igiIFPN8IQyhJXlEAroqwuD-4pq90',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(
-                        Icons.person,
+                  child: Center(
+                    child: Text(
+                      initials,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
                         color: AppTheme.primaryColor,
-                        size: 40,
                       ),
                     ),
                   ),
@@ -126,49 +158,58 @@ class WhProfilePage extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 2),
                     ),
-                    child: const Icon(Icons.verified_rounded,
-                        color: Colors.white, size: 12),
+                    child: const Icon(
+                      Icons.verified_rounded,
+                      color: Colors.white,
+                      size: 12,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(width: 18),
-            // Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Arjun Sharma',
-                    style: TextStyle(
+                  Text(
+                    name.isNotEmpty
+                        ? name
+                        : (isHindi ? 'गोदाम प्रशासक' : 'Warehouse Admin'),
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFF0F172A),
                     ),
                   ),
                   Text(
-                    'Warehouse Supervisor / गोदाम पर्यवेक्षक',
+                    isHindi ? 'गोदाम पर्यवेक्षक' : 'Warehouse Supervisor',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: AppTheme.primaryColor,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      Icon(Icons.call_rounded,
-                          size: 14, color: Colors.grey.shade500),
-                      const SizedBox(width: 4),
-                      Text(
-                        '+91 98765 43210',
-                        style: TextStyle(
-                          fontSize: 12,
+                  if (phone.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.call_rounded,
+                          size: 14,
                           color: Colors.grey.shade500,
                         ),
-                      ),
-                    ],
-                  ),
+                        const SizedBox(width: 4),
+                        Text(
+                          phone,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -178,127 +219,156 @@ class WhProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoBento() {
+  Widget _buildInfoSection(
+    String warehouseName,
+    String warehouseAddress,
+    bool isHindi,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Warehouse Identity Card
-          Expanded(
-            flex: 2,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: AppTheme.softShadow,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFDCFCE7),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(Icons.location_on_rounded,
-                            color: AppTheme.primaryColor, size: 20),
-                      ),
-                      const SizedBox(width: 10),
-                      const Text(
-                        'Warehouse Identity',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF0F172A),
-                        ),
-                      ),
-                    ],
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppTheme.softShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFDCFCE7),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  const SizedBox(height: 20),
-                  _buildInfoField(
-                    label: 'Entity Name / संस्था का नाम',
-                    value: 'Sector 45 Hub',
-                    isLarge: true,
+                  child: Icon(
+                    Icons.location_on_rounded,
+                    color: AppTheme.primaryColor,
+                    size: 20,
                   ),
-                  const SizedBox(height: 14),
-                  _buildInfoField(
-                    label: 'Address / पता',
-                    value: 'Plot No. 12, Industrial Area Phase 2, Sector 45, Gurugram, Haryana - 122003',
-                    isLarge: false,
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  isHindi ? 'गोदाम पहचान' : 'Warehouse Identity',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0F172A),
                   ),
-                  const SizedBox(height: 18),
-                  Row(
-                    children: [
-                      _buildSmallButton(Icons.map_rounded, 'View Map'),
-                      const SizedBox(width: 8),
-                      _buildSmallButton(Icons.edit_rounded, 'Edit Details'),
-                    ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _buildInfoField(
+              label: isHindi ? 'संस्था का नाम' : 'ENTITY NAME',
+              value: warehouseName.isNotEmpty ? warehouseName : '—',
+              isLarge: true,
+            ),
+            const SizedBox(height: 14),
+            _buildInfoField(
+              label: isHindi ? 'पता' : 'ADDRESS',
+              value: warehouseAddress.isNotEmpty ? warehouseAddress : '—',
+              isLarge: false,
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                _buildSmallButton(
+                  Icons.map_rounded,
+                  isHindi ? 'मानचित्र' : 'View Map',
+                ),
+                const SizedBox(width: 8),
+                _buildSmallButton(
+                  Icons.edit_rounded,
+                  isHindi ? 'संपादित करें' : 'Edit Details',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSupportSection(bool isHindi) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppTheme.primaryColor,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.primaryColor.withValues(alpha: 0.3),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                ],
+                  child: const Icon(
+                    Icons.support_agent_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  isHindi ? 'सहायता' : 'Support',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Text(
+              isHindi
+                  ? 'लॉजिस्टिक्स या इन्वेंटरी में मदद चाहिए? हमारी 24/7 सपोर्ट लाइन यहाँ है।'
+                  : 'Need help with logistics or inventory? Our 24/7 support line is here.',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.white.withValues(alpha: 0.85),
+                height: 1.4,
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          // Support Card (Green)
-          Expanded(
-            flex: 1,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryColor,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                    blurRadius: 16,
-                    offset: const Offset(0, 6),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildSupportAction(
+                    Icons.phone_in_talk_rounded,
+                    isHindi ? 'कॉल करें' : 'Call Support',
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(Icons.support_agent_rounded,
-                        color: Colors.white, size: 20),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildSupportAction(
+                    Icons.chat_bubble_rounded,
+                    isHindi ? 'WhatsApp' : 'WhatsApp Chat',
                   ),
-                  const SizedBox(height: 14),
-                  const Text(
-                    'Support',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Need help with logistics or inventory? Our 24/7 support line is here.',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.white.withValues(alpha: 0.8),
-                      height: 1.3,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  _buildSupportAction(Icons.phone_in_talk_rounded, 'Call Support'),
-                  const SizedBox(height: 8),
-                  _buildSupportAction(Icons.chat_bubble_rounded, 'WhatsApp Chat'),
-                ],
-              ),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -342,6 +412,7 @@ class WhProfilePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: const Color(0xFF0F172A)),
           const SizedBox(width: 6),
@@ -366,10 +437,11 @@ class WhProfilePage extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, color: Colors.white, size: 16),
           const SizedBox(width: 8),
-          Expanded(
+          Flexible(
             child: Text(
               label,
               style: const TextStyle(
@@ -377,6 +449,7 @@ class WhProfilePage extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -384,7 +457,7 @@ class WhProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAccountSettings() {
+  Widget _buildAccountSettings(bool isHindi) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Container(
@@ -399,7 +472,7 @@ class WhProfilePage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
               child: Text(
-                'Account Settings',
+                isHindi ? 'खाता सेटिंग्स' : 'Account Settings',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
@@ -410,20 +483,24 @@ class WhProfilePage extends StatelessWidget {
             const SizedBox(height: 8),
             _buildSettingsItem(
               icon: Icons.lock_rounded,
-              title: 'Security',
-              subtitle: 'Update password and 2FA',
+              title: isHindi ? 'सुरक्षा' : 'Security',
+              subtitle: isHindi
+                  ? 'पासवर्ड और 2FA अपडेट करें'
+                  : 'Update password and 2FA',
             ),
             Divider(height: 1, color: Colors.grey.shade50),
             _buildSettingsItem(
               icon: Icons.translate_rounded,
-              title: 'Language',
-              subtitle: 'English, Hindi',
+              title: isHindi ? 'भाषा' : 'Language',
+              subtitle: isHindi ? 'हिंदी, अंग्रेजी' : 'English, Hindi',
             ),
             Divider(height: 1, color: Colors.grey.shade50),
             _buildSettingsItem(
               icon: Icons.policy_rounded,
-              title: 'Compliance Docs',
-              subtitle: 'View warehouse certifications',
+              title: isHindi ? 'अनुपालन दस्तावेज़' : 'Compliance Docs',
+              subtitle: isHindi
+                  ? 'गोदाम प्रमाणपत्र देखें'
+                  : 'View warehouse certifications',
             ),
           ],
         ),
@@ -445,8 +522,8 @@ class WhProfilePage extends StatelessWidget {
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF1F5F9),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: Colors.grey.shade500, size: 20),
@@ -466,32 +543,63 @@ class WhProfilePage extends StatelessWidget {
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade500,
-                    ),
+                    style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded,
-                color: Colors.grey.shade400, size: 22),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.grey.shade400,
+              size: 22,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLogout() {
+  Widget _buildLogout(BuildContext context, WidgetRef ref, bool isHindi) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: SizedBox(
         width: double.infinity,
         child: OutlinedButton.icon(
-          onPressed: () {},
+          onPressed: () async {
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (_) => AlertDialog(
+                title: Text(isHindi ? 'लॉगआउट' : 'Logout'),
+                content: Text(
+                  isHindi
+                      ? 'क्या आप लॉगआउट करना चाहते हैं?'
+                      : 'Are you sure you want to logout?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text(isHindi ? 'रद्द करें' : 'Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: Text(
+                      isHindi ? 'लॉगआउट' : 'Logout',
+                      style: TextStyle(color: AppTheme.errorColor),
+                    ),
+                  ),
+                ],
+              ),
+            );
+            if (confirmed == true) {
+              await ref.read(authProvider.notifier).logout();
+              if (context.mounted) {
+                context.go(AppRoutes.role);
+              }
+            }
+          },
           icon: Icon(Icons.logout_rounded, color: AppTheme.errorColor),
           label: Text(
-            'Logout',
+            isHindi ? 'लॉगआउट' : 'Logout',
             style: TextStyle(
               fontWeight: FontWeight.w900,
               color: AppTheme.errorColor,
@@ -499,7 +607,10 @@ class WhProfilePage extends StatelessWidget {
           ),
           style: OutlinedButton.styleFrom(
             backgroundColor: Colors.white,
-            side: BorderSide(color: AppTheme.errorColor.withValues(alpha: 0.1), width: 2),
+            side: BorderSide(
+              color: AppTheme.errorColor.withValues(alpha: 0.1),
+              width: 2,
+            ),
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),

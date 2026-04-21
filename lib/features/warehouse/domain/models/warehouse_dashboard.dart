@@ -14,8 +14,15 @@ class WarehouseInfo {
   });
 
   factory WarehouseInfo.fromJson(Map<String, dynamic> json) {
+    int asInt(dynamic value) {
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value is String) return int.tryParse(value.trim()) ?? 0;
+      return 0;
+    }
+
     return WarehouseInfo(
-      id: json['id'] ?? 0,
+      id: asInt(json['id']),
       name: json['name']?.toString() ?? '',
       code: json['code']?.toString(),
       city: json['city']?.toString(),
@@ -52,21 +59,44 @@ class WarehouseDashboard {
   });
 
   factory WarehouseDashboard.fromJson(Map<String, dynamic> json) {
+    int asInt(dynamic value) {
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value is String) return int.tryParse(value.trim()) ?? 0;
+      return 0;
+    }
+
     final data = json['data'] ?? json;
     final metrics = data['metrics'] as Map<String, dynamic>? ?? {};
     final warehouseJson = data['warehouse'] as Map<String, dynamic>?;
 
     return WarehouseDashboard(
-      warehouse: warehouseJson != null ? WarehouseInfo.fromJson(warehouseJson) : null,
-      totalRequests: metrics['total_requests'] ?? data['total_requests'] ?? 0,
-      unassignedRequests: metrics['unassigned_requests'] ?? data['unassigned_requests'] ?? 0,
-      assignedRequests: metrics['assigned_requests'] ?? data['assigned_requests'] ?? 0,
-      activePickups: metrics['active_pickups'] ?? data['active_pickups'] ?? 0,
-      completedPickups: metrics['completed_pickups'] ?? data['completed_pickups'] ?? 0,
-      rescheduledRequests: metrics['rescheduled_requests'] ?? data['rescheduled_requests'] ?? 0,
-      totalPickupBoys: metrics['total_pickup_boys'] ?? data['total_pickup_boys'] ?? 0,
-      activePickupBoys: metrics['active_pickup_boys'] ?? data['active_pickup_boys'] ?? 0,
-      availablePickupBoys: metrics['available_pickup_boys'] ?? data['available_pickup_boys'] ?? 0,
+      warehouse: warehouseJson != null
+          ? WarehouseInfo.fromJson(warehouseJson)
+          : null,
+      totalRequests: asInt(metrics['total_requests'] ?? data['total_requests']),
+      unassignedRequests: asInt(
+        metrics['unassigned_requests'] ?? data['unassigned_requests'],
+      ),
+      assignedRequests: asInt(
+        metrics['assigned_requests'] ?? data['assigned_requests'],
+      ),
+      activePickups: asInt(metrics['active_pickups'] ?? data['active_pickups']),
+      completedPickups: asInt(
+        metrics['completed_pickups'] ?? data['completed_pickups'],
+      ),
+      rescheduledRequests: asInt(
+        metrics['rescheduled_requests'] ?? data['rescheduled_requests'],
+      ),
+      totalPickupBoys: asInt(
+        metrics['total_pickup_boys'] ?? data['total_pickup_boys'],
+      ),
+      activePickupBoys: asInt(
+        metrics['active_pickup_boys'] ?? data['active_pickup_boys'],
+      ),
+      availablePickupBoys: asInt(
+        metrics['available_pickup_boys'] ?? data['available_pickup_boys'],
+      ),
       recentRequests: data['recent_requests'] as List<dynamic>? ?? [],
     );
   }

@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -6,8 +8,9 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../domain/models/pickup_request_model.dart';
+import '../providers/pickup_provider.dart';
 
-class SuccessConfirmationScreen extends StatelessWidget {
+class SuccessConfirmationScreen extends ConsumerWidget {
   final PickupRequestModel? pickup;
   final bool isDonation;
 
@@ -18,24 +21,28 @@ class SuccessConfirmationScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isHindi = context.locale.languageCode == 'hi';
+
     final bookingId = pickup?.pickupCode.isNotEmpty == true
         ? pickup!.pickupCode
         : 'SCR-2026-001';
 
     final scheduledDate = pickup?.scheduledAt.toLocal() ?? DateTime.now();
-    final dateStr = DateFormat('EEEE, hh:mm a').format(scheduledDate);
-    // Rough Hindi translation for "Tomorrow, 10:00 AM" equivalent
-    final hindiDateStr = "कल, सुबह ${DateFormat('hh:mm').format(scheduledDate)} बजे";
+    final dateStr = isHindi
+        ? "कल, सुबह ${DateFormat('hh:mm').format(scheduledDate)} बजे"
+        : DateFormat('EEEE, hh:mm a').format(scheduledDate);
 
     final itemCount = pickup?.items.length ?? 0;
     final firstCategory = pickup?.items.isNotEmpty == true
-        ? (pickup?.items.first.name ?? 'Scrap')
-        : 'Items';
-    final itemsSummary = "$itemCount Items ($firstCategory)";
-    final hindiItemsSummary = "$itemCount आइटम ($firstCategory)";
+        ? (pickup?.items.first.name ?? (isHindi ? 'स्क्रैप' : 'Scrap'))
+        : (isHindi ? 'आइटम' : 'Items');
+    final itemsSummary = isHindi
+        ? "$itemCount आइटम ($firstCategory)"
+        : "$itemCount Items ($firstCategory)";
 
-    final address = pickup?.address ?? "Flat 402, Green Valley Apartments, HSR Layout, Bangalore";
+    final address = pickup?.address ??
+        "Flat 402, Green Valley Apartments, HSR Layout, Bangalore";
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -45,10 +52,15 @@ class SuccessConfirmationScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
-          onPressed: () => context.go(AppRoutes.customerDashboard),
+          onPressed: () {
+            ref.invalidate(pickupsProvider);
+            context.go(AppRoutes.customerDashboard);
+          },
         ),
         title: Text(
-          isDonation ? 'Donation Confirmed' : 'Booking Confirmed',
+          isHindi
+              ? (isDonation ? 'दान पुष्टि' : 'बुकिंग पुष्टि')
+              : (isDonation ? 'Donation Confirmed' : 'Booking Confirmed'),
           style: const TextStyle(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.w900,
@@ -70,7 +82,9 @@ class SuccessConfirmationScreen extends StatelessWidget {
             _buildHeroSection(),
             const SizedBox(height: 24),
             Text(
-              isDonation ? 'Donation Successful!' : 'Booking Successful!',
+              isHindi
+                  ? (isDonation ? 'दान सफल!' : 'बुकिंग सफल!')
+                  : (isDonation ? 'Donation Successful!' : 'Booking Successful!'),
               style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w900,
@@ -78,35 +92,29 @@ class SuccessConfirmationScreen extends StatelessWidget {
                 letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              isDonation ? 'दान सफल!' : 'बुकिंग सफल!',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF639A70),
-              ),
-            ),
             const SizedBox(height: 16),
-            _buildBookingIdChip(bookingId),
+            _buildBookingIdChip(bookingId, isHindi),
             const SizedBox(height: 32),
             _buildIllustrationCard(),
             const SizedBox(height: 24),
             _buildPickupSummary(
               dateStr: dateStr,
-              hindiDateStr: hindiDateStr,
               itemsSummary: itemsSummary,
-              hindiItemsSummary: hindiItemsSummary,
               address: address,
+              isHindi: isHindi,
             ),
+            if (pickup != null && pickup!.images.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              _buildItemImagesRow(pickup!.images, isHindi),
+            ],
             const SizedBox(height: 32),
-            _buildActionButtons(context),
+            _buildActionButtons(context, ref, isHindi),
             const SizedBox(height: 32),
-            _buildBottomBanner(),
+            _buildBottomBanner(isHindi, address),
+            const SizedBox(height: 32),
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
@@ -115,7 +123,6 @@ class SuccessConfirmationScreen extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Outer circles
           Container(
             width: 140,
             height: 140,
@@ -132,7 +139,6 @@ class SuccessConfirmationScreen extends StatelessWidget {
               color: const Color(0xFF639A70).withValues(alpha: 0.2),
             ),
           ),
-          // Inner checkmark circle
           Container(
             width: 75,
             height: 75,
@@ -151,7 +157,7 @@ class SuccessConfirmationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBookingIdChip(String bookingId) {
+  Widget _buildBookingIdChip(String bookingId, bool isHindi) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -161,9 +167,9 @@ class SuccessConfirmationScreen extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'BOOKING ID: ',
-            style: TextStyle(
+          Text(
+            isHindi ? 'बुकिंग ID: ' : 'BOOKING ID: ',
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: Color(0xFF64748B),
@@ -194,7 +200,6 @@ class SuccessConfirmationScreen extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Recycling symbol watermark
           Positioned(
             right: -10,
             bottom: -10,
@@ -225,10 +230,9 @@ class SuccessConfirmationScreen extends StatelessWidget {
 
   Widget _buildPickupSummary({
     required String dateStr,
-    required String hindiDateStr,
     required String itemsSummary,
-    required String hindiItemsSummary,
     required String address,
+    required bool isHindi,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -250,11 +254,15 @@ class SuccessConfirmationScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.receipt_long_outlined, color: Color(0xFF639A70), size: 22),
+              const Icon(
+                Icons.receipt_long_outlined,
+                color: Color(0xFF639A70),
+                size: 22,
+              ),
               const SizedBox(width: 12),
-              const Text(
-                'Pickup Summary',
-                style: TextStyle(
+              Text(
+                isHindi ? 'पिकअप सारांश' : 'Pickup Summary',
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -265,21 +273,19 @@ class SuccessConfirmationScreen extends StatelessWidget {
           const SizedBox(height: 24),
           _buildSummaryItem(
             icon: Icons.calendar_today_outlined,
-            label: 'SCHEDULED FOR',
+            label: isHindi ? 'समय-सारणी' : 'SCHEDULED FOR',
             value: dateStr,
-            hindiValue: hindiDateStr,
           ),
           const SizedBox(height: 20),
           _buildSummaryItem(
             icon: Icons.inventory_2_outlined,
-            label: 'ITEMS',
+            label: isHindi ? 'आइटम' : 'ITEMS',
             value: itemsSummary,
-            hindiValue: hindiItemsSummary,
           ),
           const SizedBox(height: 20),
           _buildSummaryItem(
             icon: Icons.location_on_outlined,
-            label: 'PICKUP ADDRESS',
+            label: isHindi ? 'पिकअप पता' : 'PICKUP ADDRESS',
             value: address,
             isLast: true,
           ),
@@ -292,7 +298,6 @@ class SuccessConfirmationScreen extends StatelessWidget {
     required IconData icon,
     required String label,
     required String value,
-    String? hindiValue,
     bool isLast = false,
   }) {
     return Row(
@@ -330,17 +335,6 @@ class SuccessConfirmationScreen extends StatelessWidget {
                   height: 1.3,
                 ),
               ),
-              if (hindiValue != null) ...[
-                const SizedBox(height: 2),
-                Text(
-                  hindiValue,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF639A70),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -348,66 +342,76 @@ class SuccessConfirmationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        children: [
-          ElevatedButton(
-            onPressed: pickup == null
-                ? null
-                : () => context.go('${AppRoutes.pickupTracking}/${pickup!.id}'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF639A70),
-              foregroundColor: Colors.white,
-              minimumSize: const Size(double.infinity, 64),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              elevation: 0,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isDonation ? 'TRACK DONATION' : 'Track Pickup',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-                ),
-                Text(
-                  isDonation ? 'दान ट्रैक करें' : 'पिकअप ट्रैक करें',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
+  Widget _buildItemImagesRow(List<PickupImageModel> images, bool isHindi) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () => context.go(AppRoutes.customerDashboard),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFF1F5F9),
-              foregroundColor: const Color(0xFF0F172A),
-              minimumSize: const Size(double.infinity, 64),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              elevation: 0,
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Back to Home',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.photo_library_outlined,
+                  color: Color(0xFF639A70), size: 20),
+              const SizedBox(width: 10),
+              Text(
+                isHindi
+                    ? 'अपलोड की गई तस्वीरें (${images.length})'
+                    : 'Uploaded Photos (${images.length})',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF0F172A),
                 ),
-                Text(
-                  'होम पर जाएं',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B),
-                  ),
-                ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 72,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: images.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              itemBuilder: (context, index) {
+                final img = images[index];
+                final url = img.url ?? '';
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: url.isNotEmpty
+                      ? Image.network(
+                          url,
+                          width: 72,
+                          height: 72,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 72,
+                            height: 72,
+                            color: const Color(0xFFF0FDF4),
+                            child: const Icon(Icons.image_not_supported,
+                                color: Color(0xFF639A70)),
+                          ),
+                        )
+                      : Container(
+                          width: 72,
+                          height: 72,
+                          color: const Color(0xFFF0FDF4),
+                          child: const Icon(Icons.image, color: Color(0xFF639A70)),
+                        ),
+                );
+              },
             ),
           ),
         ],
@@ -415,7 +419,58 @@ class SuccessConfirmationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomBanner() {
+  Widget _buildActionButtons(BuildContext context, WidgetRef ref, bool isHindi) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          ElevatedButton(
+            onPressed: pickup == null
+                ? null
+                : () =>
+                    context.go('${AppRoutes.pickupTracking}/${pickup!.id}'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF639A70),
+              foregroundColor: Colors.white,
+              minimumSize: const Size(double.infinity, 64),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 0,
+            ),
+            child: Text(
+              isHindi
+                  ? (isDonation ? 'दान ट्रैक करें' : 'पिकअप ट्रैक करें')
+                  : (isDonation ? 'TRACK DONATION' : 'TRACK PICKUP'),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              ref.invalidate(pickupsProvider);
+              context.go(AppRoutes.customerDashboard);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF1F5F9),
+              foregroundColor: const Color(0xFF0F172A),
+              minimumSize: const Size(double.infinity, 64),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 0,
+            ),
+            child: Text(
+              isHindi ? 'होम पर जाएं' : 'Back to Home',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomBanner(bool isHindi, String address) {
     return Container(
       width: double.infinity,
       height: 140,
@@ -448,9 +503,9 @@ class SuccessConfirmationScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              const Text(
-                'Driver will arrive in HSR Layout',
-                style: TextStyle(
+              Text(
+                isHindi ? 'ड्राइवर जल्द पहुंचेगा' : 'Driver will arrive soon',
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -460,23 +515,6 @@ class SuccessConfirmationScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFF639A70),
-      unselectedItemColor: const Color(0xFF94A3B8),
-      currentIndex: 1, // "My Bookings" selected
-      selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 10),
-      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 10),
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'HOME'),
-        BottomNavigationBarItem(icon: Icon(Icons.receipt_long), label: 'MY BOOKINGS'),
-        BottomNavigationBarItem(icon: Icon(Icons.currency_rupee), label: 'RATES'),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'PROFILE'),
-      ],
     );
   }
 }

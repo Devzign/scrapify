@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_routes.dart';
 import '../providers/pickup_boy_provider.dart';
 
 class PickupBoyDetailScreen extends ConsumerStatefulWidget {
@@ -239,19 +240,40 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
         );
 
       case 'accepted':
-        return ElevatedButton(
-          onPressed: () => _updateStatus(context, 'on_the_way'),
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              minimumSize: const Size(double.infinity, 48)),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FaIcon(FontAwesomeIcons.truck, size: 16, color: Colors.white),
-              SizedBox(width: 8),
-              Text('On The Way', style: TextStyle(color: Colors.white)),
-            ],
-          ),
+        return Column(
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _updateStatus(context, 'on_the_way'),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    minimumSize: const Size(double.infinity, 48)),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FaIcon(FontAwesomeIcons.truck, size: 16, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text('On The Way', style: TextStyle(color: Colors.white)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => context.push('${AppRoutes.agentReschedule}/${widget.pickupId}'),
+                icon: const Icon(Icons.schedule_rounded, size: 16),
+                label: const Text('Request Reschedule'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.orange,
+                  side: const BorderSide(color: Colors.orange),
+                  minimumSize: const Size(double.infinity, 48),
+                ),
+              ),
+            ),
+          ],
         );
 
       case 'on_the_way':

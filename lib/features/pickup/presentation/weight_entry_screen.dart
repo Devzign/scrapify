@@ -63,13 +63,6 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
-              'अनुमानित वजन दर्ज करें',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
-            ),
             const Spacer(),
             
             // Weight Display

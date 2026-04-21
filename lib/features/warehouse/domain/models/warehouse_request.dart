@@ -30,24 +30,49 @@ class WarehouseRequest {
   });
 
   factory WarehouseRequest.fromJson(Map<String, dynamic> json) {
-    final assignedBoy = json['assigned_pickup_boy'] as Map<String, dynamic>?;
+    int? asInt(dynamic value) {
+      if (value == null) return null;
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+      if (value is String) return int.tryParse(value.trim());
+      return null;
+    }
+
+    double? asDouble(dynamic value) {
+      if (value == null) return null;
+      if (value is double) return value;
+      if (value is num) return value.toDouble();
+      if (value is String) return double.tryParse(value.trim());
+      return null;
+    }
+
+    final assignedBoy = json['assigned_pickup_boy'] is Map
+        ? (json['assigned_pickup_boy'] as Map).cast<String, dynamic>()
+        : null;
+
     return WarehouseRequest(
-      id: json['id'] ?? json['pickup_id'] ?? 0,
-      orderCode: json['order_code']?.toString() ??
+      id: asInt(json['id']) ?? asInt(json['pickup_id']) ?? 0,
+      orderCode:
+          json['order_code']?.toString() ??
           json['pickup_code']?.toString() ??
           '#${json['id']}',
       customerName: json['customer_name']?.toString() ?? '',
       customerPhone: json['customer_phone']?.toString() ?? '',
       address: json['address']?.toString() ?? '',
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: asDouble(json['latitude']),
+      longitude: asDouble(json['longitude']),
       scheduledAt: json['scheduled_at']?.toString() ?? '',
       status: json['status']?.toString() ?? 'pending',
-      itemSummary: json['item_summary']?.toString() ?? json['items_summary']?.toString(),
-      estimatedWeight: (json['estimated_weight'] as num?)?.toDouble() ??
-          (json['estimated_weight_kg'] as num?)?.toDouble(),
-      assignedPickupBoyName: assignedBoy?['name']?.toString() ?? json['pickup_boy_name']?.toString(),
-      assignedPickupBoyId: assignedBoy?['id'] ?? json['pickup_boy_id'],
+      itemSummary:
+          json['item_summary']?.toString() ?? json['items_summary']?.toString(),
+      estimatedWeight:
+          asDouble(json['estimated_weight']) ??
+          asDouble(json['estimated_weight_kg']),
+      assignedPickupBoyName:
+          assignedBoy?['name']?.toString() ??
+          json['pickup_boy_name']?.toString(),
+      assignedPickupBoyId:
+          asInt(assignedBoy?['id']) ?? asInt(json['pickup_boy_id']),
     );
   }
 }

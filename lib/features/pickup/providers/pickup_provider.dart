@@ -125,6 +125,28 @@ class PickupNotifier extends StateNotifier<PickupState> {
     return result.isSuccess;
   }
 
+  Future<bool> reschedulePickup(
+    int id, {
+    required String scheduledDate,
+    required String timeSlot,
+    String? reason,
+  }) async {
+    state = state.copyWith(isActionLoading: true, clearError: true);
+    final result = await _repository.reschedulePickup(
+      id,
+      scheduledDate: scheduledDate,
+      timeSlot: timeSlot,
+      reason: reason,
+    );
+    state = state.copyWith(isActionLoading: false);
+    if (result.isSuccess) {
+      await loadPickups();
+    } else {
+      state = state.copyWith(error: result.errorMessage);
+    }
+    return result.isSuccess;
+  }
+
   void clearError() => state = state.copyWith(clearError: true);
 }
 

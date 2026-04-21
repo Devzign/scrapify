@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -60,25 +61,13 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
           ),
           onPressed: () => context.pop(),
         ),
-        title: Column(
-          children: [
-            const Text(
-              'Donation Items',
-              style: TextStyle(
-                color: AppTheme.textPrimary,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            Text(
-              'दान की वस्तुएं',
-              style: TextStyle(
-                color: AppTheme.textSecondary.withOpacity(0.7),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+        title: Text(
+          context.locale.languageCode == 'hi' ? 'दान की वस्तुएं' : 'Donate Items',
+          style: const TextStyle(
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         actions: [
           Padding(
@@ -141,20 +130,12 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          const Text(
-                            'Other Items',
-                            style: TextStyle(
+                          Text(
+                            context.locale.languageCode == 'hi' ? 'अन्य वस्तुएं' : 'Other Items',
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'अन्य वस्तुएं',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.textSecondary.withOpacity(0.7),
                             ),
                           ),
                         ],
@@ -175,21 +156,14 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Notes (optional)',
-                            style: TextStyle(
+                          Text(
+                            context.locale.languageCode == 'hi'
+                                ? 'टिप्पणियां (वैकल्पिक)'
+                                : 'Notes (optional)',
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
                               color: AppTheme.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'टिप्पणियां (वैकल्पिक)',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.textSecondary.withOpacity(0.7),
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                           const SizedBox(height: 20),
@@ -290,26 +264,17 @@ class _DonationItemUploadCard extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.category.name.en,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    Text(
-                      item.category.name.hi,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.textSecondary.withOpacity(0.7),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  context.locale.languageCode == 'hi'
+                      ? item.category.name.hi
+                      : item.category.name.en,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               TextButton.icon(
@@ -364,7 +329,9 @@ class _DonationItemUploadCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'REQUIRED • आवश्यक',
+                            context.locale.languageCode == 'hi'
+                                ? 'आवश्यक'
+                                : 'REQUIRED',
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,

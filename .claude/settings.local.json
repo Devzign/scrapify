@@ -5,7 +5,10 @@
       "Bash(sed -n '500:520p' /Users/amitsinha/Devzign/flutter/scrapify/lib/features/customer/presentation/customer_dashboard.dart)",
       "Bash(sed -n '1240:1255p' /Users/amitsinha/Devzign/flutter/scrapify/lib/features/customer/presentation/customer_dashboard.dart)",
       "Bash(flutter pub *)",
-      "Bash(dart run *)"
+      "Bash(dart run *)",
+      "Bash(python3 -c \"import json; d=json.load\\(open\\('/Users/amitsinha/Devzign/flutter/scrapify/assets/translations/en.json'\\)\\); print\\(json.dumps\\(d.get\\('pickup_dashboard', {}\\), indent=2\\)\\)\")",
+      "Bash(flutter analyze *)",
+      "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && grep \"^class\" {} | head -1')"
     ]
   }
 }

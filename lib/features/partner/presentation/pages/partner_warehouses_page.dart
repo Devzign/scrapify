@@ -1,36 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../auth/providers/auth_provider.dart';
+import '../../../channel_partner/providers/channel_partner_provider.dart';
+import '../partner_locale.dart';
 
-class PartnerWarehousesPage extends StatelessWidget {
+class PartnerWarehousesPage extends ConsumerStatefulWidget {
   const PartnerWarehousesPage({super.key});
 
   @override
+  ConsumerState<PartnerWarehousesPage> createState() =>
+      _PartnerWarehousesPageState();
+}
+
+class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(
+      () => ref.read(channelPartnerProvider.notifier).loadWarehouses(),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = ref.watch(channelPartnerProvider);
+    final user = ref.watch(authProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         backgroundColor: AppTheme.primaryColor,
-        child: const Icon(Icons.add_business_rounded, color: Colors.white, size: 28),
+        child: const Icon(
+          Icons.add_business_rounded,
+          color: Colors.white,
+          size: 28,
+        ),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(),
+            _buildAppBar(user?.name ?? ''),
             Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 80),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildHeader(),
-                    _buildWarehouseGrid(),
-                    _buildInventoryAccess(),
-                    _buildQuickActions(),
-                  ],
-                ),
-              ),
+              child: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : RefreshIndicator(
+                      onRefresh: () => ref
+                          .read(channelPartnerProvider.notifier)
+                          .loadWarehouses(),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 80),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (state.error != null)
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(
+                                  20,
+                                  20,
+                                  20,
+                                  0,
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.orange.shade200,
+                                  ),
+                                ),
+                                child: Text(
+                                  state.error!,
+                                  style: TextStyle(
+                                    color: Colors.orange.shade800,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            _buildHeader(state.warehouses.length),
+                            _buildWarehouseList(state.warehouses),
+                            _buildQuickActions(),
+                          ],
+                        ),
+                      ),
+                    ),
             ),
           ],
         ),
@@ -38,7 +93,8 @@ class PartnerWarehousesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(String name) {
+    final initial = name.trim().isNotEmpty ? name.trim()[0].toUpperCase() : 'P';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
@@ -57,11 +113,21 @@ class PartnerWarehousesPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.menu, color: Colors.grey.shade500),
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.12),
+                child: Text(
+                  initial,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+              ),
               const SizedBox(width: 12),
-              const Text(
-                'Emerald Moss',
-                style: TextStyle(
+              Text(
+                name,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
                   color: Color(0xFF0F172A),
@@ -75,15 +141,18 @@ class PartnerWarehousesPage extends StatelessWidget {
               color: Colors.grey.shade50,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.notifications_none_rounded,
-                color: Colors.grey.shade500, size: 22),
+            child: Icon(
+              Icons.notifications_none_rounded,
+              color: Colors.grey.shade500,
+              size: 22,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(int count) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Column(
@@ -91,8 +160,8 @@ class PartnerWarehousesPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text(
-                'Warehouses',
+              Text(
+                context.partnerText('Warehouses', 'गोदाम'),
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
@@ -101,18 +170,22 @@ class PartnerWarehousesPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
+              const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDCFCE7),
+                  color: AppTheme.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  'गोदाम',
+                child: Text(
+                  context.partnerText('$count hubs', '$count हब'),
                   style: TextStyle(
                     fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF14532D),
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primaryColor,
                   ),
                 ),
               ),
@@ -120,7 +193,10 @@ class PartnerWarehousesPage extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Regional hubs managed under your network.',
+            context.partnerText(
+              'Regional hubs managed under your network.',
+              'आपके नेटवर्क के अंतर्गत प्रबंधित क्षेत्रीय हब।',
+            ),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -132,85 +208,85 @@ class PartnerWarehousesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildWarehouseGrid() {
-    final warehouses = [
-      _WarehouseData(
-        name: 'Central Distribution Hub',
-        nameHindi: 'केंद्रीय वितरण',
-        region: 'South Extension, New Delhi',
-        pickupBoys: 12,
-        totalOrders: 486,
-        isActive: true,
-        emoji: '🏭',
-        statusLabel: 'Active',
-        statusColor: const Color(0xFFDCFCE7),
-        statusTextColor: const Color(0xFF14532D),
-      ),
-      _WarehouseData(
-        name: 'North Sector Terminal',
-        nameHindi: 'उत्तर सेक्टर',
-        region: 'Rohini, Sector 12',
-        pickupBoys: 8,
-        totalOrders: 310,
-        isActive: true,
-        emoji: '📦',
-        statusLabel: 'Active',
-        statusColor: const Color(0xFFDCFCE7),
-        statusTextColor: const Color(0xFF14532D),
-      ),
-      _WarehouseData(
-        name: 'East Terminal',
-        nameHindi: 'पूर्वी टर्मिनल',
-        region: 'Noida, Phase 2',
-        pickupBoys: 6,
-        totalOrders: 244,
-        isActive: true,
-        emoji: '🔧',
-        statusLabel: 'Active',
-        statusColor: const Color(0xFFDCFCE7),
-        statusTextColor: const Color(0xFF14532D),
-      ),
-      _WarehouseData(
-        name: 'South Dock (Offline)',
-        nameHindi: 'दक्षिण गोदी',
-        region: 'Faridabad',
-        pickupBoys: 0,
-        totalOrders: 128,
-        isActive: false,
-        emoji: '⚠️',
-        statusLabel: 'Offline',
-        statusColor: const Color(0xFFFEE2E2),
-        statusTextColor: const Color(0xFFEF4444),
-      ),
-    ];
+  Widget _buildWarehouseList(List<dynamic> warehouses) {
+    if (warehouses.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(40),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(
+                Icons.warehouse_rounded,
+                size: 48,
+                color: Colors.grey.shade300,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                context.partnerText(
+                  'No warehouses assigned yet',
+                  'अभी कोई गोदाम असाइन नहीं हुआ',
+                ),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey.shade400,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final wList = warehouses.whereType<Map<String, dynamic>>().toList();
 
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Larger card - first warehouse
-          _buildLargeWarehouseCard(warehouses[0]),
-          const SizedBox(height: 16),
-          // Grid for remaining
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.75,
+          if (wList.isNotEmpty) _buildLargeWarehouseCard(wList[0]),
+          if (wList.length > 1) ...[
+            const SizedBox(height: 16),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.75,
+              ),
+              itemCount: wList.length - 1,
+              itemBuilder: (context, index) =>
+                  _buildSmallWarehouseCard(wList[index + 1]),
             ),
-            itemCount: warehouses.length - 1,
-            itemBuilder: (context, index) =>
-                _buildSmallWarehouseCard(warehouses[index + 1]),
-          ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildLargeWarehouseCard(_WarehouseData warehouse) {
+  (Color, Color) _whStatusStyle(Map<String, dynamic> wh) {
+    final isActive = wh['is_active'] == true || wh['status'] == 'active';
+    if (isActive) {
+      return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+    }
+    return (const Color(0xFFFEE2E2), const Color(0xFFEF4444));
+  }
+
+  Widget _buildLargeWarehouseCard(Map<String, dynamic> wh) {
+    final name = wh['name']?.toString() ?? 'Warehouse';
+    final region =
+        wh['address']?.toString() ?? wh['location']?.toString() ?? '';
+    final pickupBoys =
+        (wh['pickup_boys_count'] ?? wh['total_pickup_boys'] ?? 0) as int;
+    final totalOrders = (wh['total_orders'] ?? wh['orders_count'] ?? 0) as int;
+    final isActive = wh['is_active'] == true || wh['status'] == 'active';
+    final (statusBg, statusText) = _whStatusStyle(wh);
+    final initials = name.trim().isNotEmpty
+        ? name.trim()[0].toUpperCase()
+        : 'W';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -225,22 +301,33 @@ class PartnerWarehousesPage extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                warehouse.emoji,
-                style: const TextStyle(fontSize: 28),
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.15),
+                child: Text(
+                  initials,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: warehouse.statusColor,
+                  color: statusBg,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  warehouse.statusLabel,
+                  localizedPartnerStatus(
+                    context,
+                    isActive ? 'active' : 'offline',
+                  ),
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: warehouse.statusTextColor,
+                    color: statusText,
                   ),
                 ),
               ),
@@ -248,29 +335,22 @@ class PartnerWarehousesPage extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            warehouse.name,
+            name,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
               color: Color(0xFF0F172A),
             ),
           ),
-          Text(
-            warehouse.nameHindi,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade400,
+          if (region.isNotEmpty)
+            Text(
+              region,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade500,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            warehouse.region,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey.shade500,
-            ),
-          ),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -285,7 +365,7 @@ class PartnerWarehousesPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'PICKUP BOYS',
+                        context.partnerText('PICKUP BOYS', 'पिकअप बॉय'),
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
@@ -294,7 +374,7 @@ class PartnerWarehousesPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${warehouse.pickupBoys}',
+                        '$pickupBoys',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
@@ -317,7 +397,7 @@ class PartnerWarehousesPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'TOTAL ORDERS',
+                        context.partnerText('TOTAL ORDERS', 'कुल ऑर्डर'),
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
@@ -326,7 +406,7 @@ class PartnerWarehousesPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${warehouse.totalOrders}',
+                        '$totalOrders',
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
@@ -352,11 +432,11 @@ class PartnerWarehousesPage extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Manage Hub',
+                    context.partnerText('Manage Hub', 'हब प्रबंधित करें'),
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
@@ -374,16 +454,26 @@ class PartnerWarehousesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSmallWarehouseCard(_WarehouseData warehouse) {
+  Widget _buildSmallWarehouseCard(Map<String, dynamic> wh) {
+    final name = wh['name']?.toString() ?? 'Warehouse';
+    final region =
+        wh['address']?.toString() ?? wh['location']?.toString() ?? '';
+    final pickupBoys =
+        (wh['pickup_boys_count'] ?? wh['total_pickup_boys'] ?? 0) as int;
+    final totalOrders = (wh['total_orders'] ?? wh['orders_count'] ?? 0) as int;
+    final isActive = wh['is_active'] == true || wh['status'] == 'active';
+    final (statusBg, statusText) = _whStatusStyle(wh);
+    final initials = name.trim().isNotEmpty
+        ? name.trim()[0].toUpperCase()
+        : 'W';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: AppTheme.softShadow,
-        border: !warehouse.isActive
-            ? Border.all(color: const Color(0xFFFEE2E2))
-            : null,
+        border: !isActive ? Border.all(color: const Color(0xFFFEE2E2)) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -395,22 +485,38 @@ class PartnerWarehousesPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    warehouse.emoji,
-                    style: const TextStyle(fontSize: 22),
+                  CircleAvatar(
+                    radius: 14,
+                    backgroundColor:
+                        (isActive ? AppTheme.primaryColor : Colors.grey)
+                            .withValues(alpha: 0.15),
+                    child: Text(
+                      initials,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        color: isActive ? AppTheme.primaryColor : Colors.grey,
+                      ),
+                    ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
-                      color: warehouse.statusColor,
+                      color: statusBg,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      warehouse.statusLabel,
+                      localizedPartnerStatus(
+                        context,
+                        isActive ? 'active' : 'offline',
+                      ),
                       style: TextStyle(
                         fontSize: 8,
                         fontWeight: FontWeight.w800,
-                        color: warehouse.statusTextColor,
+                        color: statusText,
                       ),
                     ),
                   ),
@@ -418,25 +524,24 @@ class PartnerWarehousesPage extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                warehouse.name,
+                name,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: warehouse.isActive
+                  color: isActive
                       ? const Color(0xFF0F172A)
                       : Colors.grey.shade400,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 2),
-              Text(
-                warehouse.nameHindi,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.grey.shade400,
+              if (region.isNotEmpty)
+                Text(
+                  region,
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade400),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
             ],
           ),
           Column(
@@ -444,18 +549,20 @@ class PartnerWarehousesPage extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.person_rounded,
-                      size: 14,
-                      color: warehouse.isActive
-                          ? AppTheme.primaryColor
-                          : Colors.grey.shade300),
+                  Icon(
+                    Icons.person_rounded,
+                    size: 14,
+                    color: isActive
+                        ? AppTheme.primaryColor
+                        : Colors.grey.shade300,
+                  ),
                   const SizedBox(width: 4),
                   Text(
-                    '${warehouse.pickupBoys} boys',
+                    context.partnerText('$pickupBoys boys', '$pickupBoys बॉय'),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      color: warehouse.isActive
+                      color: isActive
                           ? const Color(0xFF334155)
                           : Colors.grey.shade400,
                     ),
@@ -465,18 +572,23 @@ class PartnerWarehousesPage extends StatelessWidget {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Icon(Icons.shopping_bag_rounded,
-                      size: 14,
-                      color: warehouse.isActive
-                          ? Colors.grey.shade400
-                          : Colors.grey.shade300),
+                  Icon(
+                    Icons.shopping_bag_rounded,
+                    size: 14,
+                    color: isActive
+                        ? Colors.grey.shade400
+                        : Colors.grey.shade300,
+                  ),
                   const SizedBox(width: 4),
                   Text(
-                    '${warehouse.totalOrders} orders',
+                    context.partnerText(
+                      '$totalOrders orders',
+                      '$totalOrders ऑर्डर',
+                    ),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: warehouse.isActive
+                      color: isActive
                           ? Colors.grey.shade500
                           : Colors.grey.shade400,
                     ),
@@ -490,116 +602,14 @@ class PartnerWarehousesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildInventoryAccess() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF689C71), Color(0xFF4A7A53)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.primaryColor.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Positioned(
-              right: -20,
-              bottom: -20,
-              child: Opacity(
-                opacity: 0.15,
-                child: Transform.rotate(
-                  angle: -0.2,
-                  child: const Icon(Icons.inventory_rounded,
-                      color: Colors.white, size: 100),
-                ),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'INVENTORY ACCESS',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white.withValues(alpha: 0.8),
-                    letterSpacing: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Manage your inventory across all warehouse hubs from one place.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'सभी गोदामों में इन्वेंटरी प्रबंधित करें',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.white.withValues(alpha: 0.7),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppTheme.primaryColor,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Open Inventory',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Icon(Icons.arrow_forward, size: 16),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildQuickActions() {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Quick Actions',
+          Text(
+            context.partnerText('Quick Actions', 'क्विक एक्शन'),
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
@@ -609,23 +619,32 @@ class PartnerWarehousesPage extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Expanded(child: _buildQuickActionCard(
-                icon: Icons.add_business_rounded,
-                label: 'Add Hub',
-                color: const Color(0xFF0F172A),
-              )),
+              Expanded(
+                child: _buildQuickActionCard(
+                  icon: Icons.add_business_rounded,
+                  label: context.partnerText('Add Hub', 'हब जोड़ें'),
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _buildQuickActionCard(
-                icon: Icons.local_shipping_rounded,
-                label: 'Assign Agent',
-                color: AppTheme.primaryColor,
-              )),
+              Expanded(
+                child: _buildQuickActionCard(
+                  icon: Icons.local_shipping_rounded,
+                  label: context.partnerText(
+                    'Assign Agent',
+                    'एजेंट असाइन करें',
+                  ),
+                  color: AppTheme.primaryColor,
+                ),
+              ),
               const SizedBox(width: 12),
-              Expanded(child: _buildQuickActionCard(
-                icon: Icons.view_in_ar_rounded,
-                label: 'Audit',
-                color: const Color(0xFF6366F1),
-              )),
+              Expanded(
+                child: _buildQuickActionCard(
+                  icon: Icons.view_in_ar_rounded,
+                  label: context.partnerText('Audit', 'ऑडिट'),
+                  color: const Color(0xFF6366F1),
+                ),
+              ),
             ],
           ),
         ],
@@ -669,30 +688,4 @@ class PartnerWarehousesPage extends StatelessWidget {
       ),
     );
   }
-}
-
-class _WarehouseData {
-  final String name;
-  final String nameHindi;
-  final String region;
-  final int pickupBoys;
-  final int totalOrders;
-  final bool isActive;
-  final String emoji;
-  final String statusLabel;
-  final Color statusColor;
-  final Color statusTextColor;
-
-  const _WarehouseData({
-    required this.name,
-    required this.nameHindi,
-    required this.region,
-    required this.pickupBoys,
-    required this.totalOrders,
-    required this.isActive,
-    required this.emoji,
-    required this.statusLabel,
-    required this.statusColor,
-    required this.statusTextColor,
-  });
 }

@@ -1,15 +1,19 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../pickup_boy/providers/pickup_boy_provider.dart';
 
-class AgentRescheduleRequestScreen extends StatefulWidget {
-  const AgentRescheduleRequestScreen({super.key});
+class AgentRescheduleRequestScreen extends ConsumerStatefulWidget {
+  final int? pickupId;
+  const AgentRescheduleRequestScreen({super.key, this.pickupId});
 
   @override
-  State<AgentRescheduleRequestScreen> createState() => _AgentRescheduleRequestScreenState();
+  ConsumerState<AgentRescheduleRequestScreen> createState() => _AgentRescheduleRequestScreenState();
 }
 
-class _AgentRescheduleRequestScreenState extends State<AgentRescheduleRequestScreen> {
+class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRequestScreen> {
   String? _selectedReason;
   final TextEditingController _detailsController = TextEditingController();
 
@@ -48,6 +52,7 @@ class _AgentRescheduleRequestScreenState extends State<AgentRescheduleRequestScr
 
   @override
   Widget build(BuildContext context) {
+    final isHindi = context.locale.languageCode == 'hi';
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
       appBar: AppBar(
@@ -57,18 +62,9 @@ class _AgentRescheduleRequestScreenState extends State<AgentRescheduleRequestScr
           icon: const Icon(Icons.arrow_back, color: AppTheme.primaryColor),
           onPressed: () => context.pop(),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Reschedule Pickup',
-              style: TextStyle(color: Color(0xFF0D2B52), fontWeight: FontWeight.w900, fontSize: 20),
-            ),
-            Text(
-              'पुनर्निर्धारण का अनुरोध'.toUpperCase(),
-              style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w800, letterSpacing: 0.5),
-            ),
-          ],
+        title: Text(
+          isHindi ? 'पुनर्निर्धारण का अनुरोध' : 'Reschedule Pickup',
+          style: const TextStyle(color: Color(0xFF0D2B52), fontWeight: FontWeight.w900, fontSize: 20),
         ),
         actions: [
           IconButton(
@@ -84,11 +80,11 @@ class _AgentRescheduleRequestScreenState extends State<AgentRescheduleRequestScr
           children: [
             _buildActivePickupCard(),
             const SizedBox(height: 32),
-            _buildReasonSelectionHeader(),
+            _buildReasonSelectionHeader(isHindi),
             const SizedBox(height: 16),
-            _buildReasonGrid(),
+            _buildReasonGrid(isHindi),
             const SizedBox(height: 32),
-            _buildAdditionalDetailsSection(),
+            _buildAdditionalDetailsSection(isHindi),
             const SizedBox(height: 40),
             _buildActionButtons(),
           ],
@@ -156,32 +152,23 @@ class _AgentRescheduleRequestScreenState extends State<AgentRescheduleRequestScr
     );
   }
 
-  Widget _buildReasonSelectionHeader() {
+  Widget _buildReasonSelectionHeader(bool isHindi) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Select a Reason',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF0D2B52)),
+        Text(
+          isHindi ? 'कारण चुनें' : 'Select a Reason',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF0D2B52)),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Why can\'t you make it?',
-              style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
-            ),
-            Text(
-              'कारण चुनें'.toUpperCase(),
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: AppTheme.primaryColor, letterSpacing: 1.2),
-            ),
-          ],
+        Text(
+          isHindi ? 'आप क्यों नहीं पहुंच सकते?' : "Why can't you make it?",
+          style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
         ),
       ],
     );
   }
 
-  Widget _buildReasonGrid() {
+  Widget _buildReasonGrid(bool isHindi) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -230,12 +217,9 @@ class _AgentRescheduleRequestScreenState extends State<AgentRescheduleRequestScr
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  reason['label']!,
+                  isHindi ? reason['label_hi']! : reason['label']!,
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF0D2B52)),
-                ),
-                Text(
-                  reason['label_hi']!.toUpperCase(),
-                  style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: Colors.grey, letterSpacing: 0.5),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -260,29 +244,20 @@ class _AgentRescheduleRequestScreenState extends State<AgentRescheduleRequestScr
     }
   }
 
-  Widget _buildAdditionalDetailsSection() {
+  Widget _buildAdditionalDetailsSection(bool isHindi) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Additional Details (Optional)',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF0D2B52)),
-            ),
-            Text(
-              'अतिरिक्त विवरण',
-              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900, color: Colors.grey, letterSpacing: 1.2),
-            ),
-          ],
+        Text(
+          isHindi ? 'अतिरिक्त विवरण (वैकल्पिक)' : 'Additional Details (Optional)',
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF0D2B52)),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: _detailsController,
           maxLines: 4,
           decoration: InputDecoration(
-            hintText: 'Briefly explain the situation for the customer...',
+            hintText: isHindi ? 'संक्षेप में स्थिति बताएं...' : 'Briefly explain the situation for the customer...',
             hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
             fillColor: Colors.white,
             filled: true,
@@ -299,7 +274,7 @@ class _AgentRescheduleRequestScreenState extends State<AgentRescheduleRequestScr
     return Column(
       children: [
         ElevatedButton(
-          onPressed: _selectedReason == null ? null : () {},
+          onPressed: _selectedReason == null ? null : _submitReschedule,
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primaryColor,
             foregroundColor: Colors.white,
@@ -338,5 +313,35 @@ class _AgentRescheduleRequestScreenState extends State<AgentRescheduleRequestScr
         ),
       ],
     );
+  }
+
+  Future<void> _submitReschedule() async {
+    final id = widget.pickupId;
+    if (id == null || _selectedReason == null) return;
+
+    final reason = _selectedReason!;
+    final notes = _detailsController.text.trim();
+    final fullReason = notes.isNotEmpty ? '$reason: $notes' : reason;
+
+    final ok = await ref
+        .read(pickupBoyProvider.notifier)
+        .rescheduleRequest(id, reasonCode: reason, additionalNote: notes.isNotEmpty ? notes : null);
+
+    if (ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Reschedule request sent.'),
+          backgroundColor: AppTheme.primaryColor,
+        ),
+      );
+      context.pop();
+    } else if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to send reschedule request.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

@@ -5,7 +5,9 @@ import '../domain/models/channel_partner_dashboard.dart';
 import '../domain/repositories/channel_partner_repository.dart';
 
 // Repository provider
-final channelPartnerRepositoryProvider = Provider<ChannelPartnerRepository>((ref) {
+final channelPartnerRepositoryProvider = Provider<ChannelPartnerRepository>((
+  ref,
+) {
   final dioClient = ref.watch(dioClientProvider);
   return ChannelPartnerRepository(dioClient);
 });
@@ -106,7 +108,10 @@ class ChannelPartnerNotifier extends StateNotifier<ChannelPartnerState> {
     state = state.copyWith(isLoading: true, clearError: true);
     final result = await _repository.getApprovalRequests(status: status);
     if (result.isSuccess) {
-      state = state.copyWith(approvalRequests: result.data ?? [], isLoading: false);
+      state = state.copyWith(
+        approvalRequests: result.data ?? [],
+        isLoading: false,
+      );
     } else {
       state = state.copyWith(isLoading: false, error: result.errorMessage);
     }
@@ -122,12 +127,23 @@ class ChannelPartnerNotifier extends StateNotifier<ChannelPartnerState> {
     return result.isSuccess;
   }
 
+  Future<Map<String, dynamic>?> getOrderDetail(int id) async {
+    state = state.copyWith(isActionLoading: true, clearError: true);
+    final result = await _repository.getOrderDetail(id);
+    state = state.copyWith(isActionLoading: false);
+    if (result.isSuccess) {
+      return result.data;
+    }
+    state = state.copyWith(error: result.errorMessage);
+    return null;
+  }
+
   void clearError() => state = state.copyWith(clearError: true);
 }
 
 // Provider
 final channelPartnerProvider =
     StateNotifierProvider<ChannelPartnerNotifier, ChannelPartnerState>((ref) {
-  final repo = ref.watch(channelPartnerRepositoryProvider);
-  return ChannelPartnerNotifier(repo);
-});
+      final repo = ref.watch(channelPartnerRepositoryProvider);
+      return ChannelPartnerNotifier(repo);
+    });

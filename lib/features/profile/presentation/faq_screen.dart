@@ -14,15 +14,18 @@ class FaqScreen extends StatefulWidget {
 class _FaqScreenState extends State<FaqScreen> {
   final TextEditingController _searchController = TextEditingController();
 
-  final List<String> _categories = [
-    'All',
-    'Pickups / पिकअप',
-    'Pricing / रेट्स',
-    'Payments / भुगतान',
-    'Account / खाता',
-  ];
+  List<String> _getCategories(BuildContext context) {
+    final isHindi = context.locale.languageCode == 'hi';
+    return [
+      isHindi ? 'सभी' : 'All',
+      isHindi ? 'पिकअप' : 'Pickups',
+      isHindi ? 'रेट्स' : 'Pricing',
+      isHindi ? 'भुगतान' : 'Payments',
+      isHindi ? 'खाता' : 'Account',
+    ];
+  }
 
-  String _selectedCategory = 'All';
+  int _selectedCategoryIndex = 0;
 
   @override
   void dispose() {
@@ -53,11 +56,11 @@ class _FaqScreenState extends State<FaqScreen> {
                   isDark: isDark,
                   primaryColor: primaryColor,
                   searchController: _searchController,
-                  categories: _categories,
-                  selectedCategory: _selectedCategory,
+                  categories: _getCategories(context),
+                  selectedCategory: _getCategories(context)[_selectedCategoryIndex],
                   onCategorySelected: (category) {
                     setState(() {
-                      _selectedCategory = category;
+                      _selectedCategoryIndex = _getCategories(context).indexOf(category);
                     });
                   },
                   onPop: () => context.pop(),
