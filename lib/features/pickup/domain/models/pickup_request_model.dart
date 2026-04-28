@@ -7,6 +7,7 @@ class PickupRequestModel {
   final double longitude;
   final DateTime scheduledAt;
   final String status;
+  final String requestType;
   final String payoutMethod;
   final double? estimatedAmount;
   final String? customerName;
@@ -24,6 +25,7 @@ class PickupRequestModel {
     required this.longitude,
     required this.scheduledAt,
     required this.status,
+    required this.requestType,
     required this.payoutMethod,
     this.estimatedAmount,
     this.customerName,
@@ -34,17 +36,42 @@ class PickupRequestModel {
   });
 
   factory PickupRequestModel.fromJson(Map<String, dynamic> json) {
+    final inferredRequestType = _resolveRequestType(
+      explicit: json['request_type']?.toString() ?? json['type']?.toString(),
+      pickupCode:
+          json['pickup_code']?.toString() ??
+          json['booking_code']?.toString() ??
+          json['code']?.toString(),
+    );
+
     return PickupRequestModel(
       id: _parseInt(json['id']) ?? 0,
-      pickupCode: json['pickup_code']?.toString() ?? '',
-      address: json['address']?.toString() ?? '',
-      cityId: _parseInt(json['city_id']) ?? 0,
+      pickupCode:
+          json['pickup_code']?.toString() ??
+          json['booking_code']?.toString() ??
+          json['code']?.toString() ??
+          '',
+      address:
+          json['address']?.toString() ??
+          json['pickup_address']?.toString() ??
+          json['company_address']?.toString() ??
+          '',
+      cityId:
+          _parseInt(json['city_id']) ?? _parseInt(json['service_city_id']) ?? 0,
       latitude: _parseDouble(json['latitude']) ?? 0,
       longitude: _parseDouble(json['longitude']) ?? 0,
-      scheduledAt: _parseDateTime(json['scheduled_at']) ?? DateTime.now(),
+      scheduledAt:
+          _parseDateTime(json['scheduled_at']) ??
+          _parseDateTime(json['pickup_at']) ??
+          _parseDateTime(json['preferred_date']) ??
+          DateTime.now(),
       status: json['status']?.toString() ?? 'pending',
+      requestType: inferredRequestType,
       payoutMethod: json['payout_method']?.toString() ?? '',
-      estimatedAmount: _parseDouble(json['estimated_amount']),
+      estimatedAmount:
+          _parseDouble(json['estimated_amount']) ??
+          _parseDouble(json['quote_amount']) ??
+          _parseDouble(json['amount']),
       customerName: json['customer_name']?.toString(),
       customerPhone: json['customer_phone']?.toString(),
       items:
@@ -86,6 +113,22 @@ class PickupRequestModel {
     } catch (_) {
       return null;
     }
+  }
+
+  static String _resolveRequestType({String? explicit, String? pickupCode}) {
+    final normalized = explicit?.toLowerCase().trim();
+    if (normalized != null && normalized.isNotEmpty) {
+      if (normalized == 'donation' ||
+          normalized == 'corporate' ||
+          normalized == 'scrap') {
+        return normalized;
+      }
+    }
+
+    final code = pickupCode?.toUpperCase() ?? '';
+    if (code.startsWith('DON-')) return 'donation';
+    if (code.startsWith('CORP-')) return 'corporate';
+    return 'scrap';
   }
 }
 

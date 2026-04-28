@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../domain/models/user_type_option.dart';
 import 'view_models/role_selection_view_model.dart';
 import 'widgets/role_option_card.dart';
 
@@ -19,6 +20,11 @@ class RoleSelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(roleSelectionViewModelProvider);
     final viewModel = ref.read(roleSelectionViewModelProvider.notifier);
+    final roles = state.roles.isNotEmpty ? state.roles : _fallbackRoles();
+
+    if (!state.hasLoadedRoles && !state.isLoading) {
+      Future<void>.microtask(viewModel.loadRoles);
+    }
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -77,48 +83,123 @@ class RoleSelectionScreen extends ConsumerWidget {
                 ),
                 SizedBox(height: 32.h),
                 Expanded(
-                  child: ListView(
+                  child: ListView.separated(
                     padding: EdgeInsets.only(bottom: 16.h),
-                    children: [
-                      RoleOptionCard(
-                        icon: FontAwesomeIcons.houseUser,
-                        title: 'role.customer.title'.tr(),
-                        description: 'role.customer.desc'.tr(),
-                        isSelected: state.selectedRole == 'customer',
-                        onTap: () => viewModel.selectRole('customer'),
-                      ),
-                      SizedBox(height: 16.h),
-                      RoleOptionCard(
-                        icon: FontAwesomeIcons.truckFast,
-                        title: 'role.partner.title'.tr(),
-                        description: 'role.partner.desc'.tr(),
-                        isSelected: state.selectedRole == 'pickup_partner',
-                        onTap: () => viewModel.selectRole('pickup_partner'),
-                      ),
-                      SizedBox(height: 16.h),
-                      RoleOptionCard(
-                        icon: FontAwesomeIcons.warehouse,
-                        title: 'role.warehouse.title'.tr(),
-                        description: 'role.warehouse.desc'.tr(),
-                        isSelected: state.selectedRole == 'warehouse',
-                        onTap: () => viewModel.selectRole('warehouse'),
-                      ),
-                      SizedBox(height: 16.h),
-                      RoleOptionCard(
-                        icon: FontAwesomeIcons.handshake,
-                        title: 'role.dealer.title'.tr(),
-                        description: 'role.dealer.desc'.tr(),
-                        isSelected: state.selectedRole == 'dealer',
-                        onTap: () => viewModel.selectRole('dealer'),
-                      ),
-                    ],
+                    itemCount: roles.length,
+                    separatorBuilder: (_, _) => SizedBox(height: 16.h),
+                    itemBuilder: (context, index) {
+                      final role = roles[index];
+                      return RoleOptionCard(
+                        icon: _iconForRole(role.code),
+                        title: _titleForRole(role),
+                        description: _descriptionForRole(role),
+                        isSelected: state.selectedRole == role.code,
+                        onTap: () => viewModel.selectRole(role.code),
+                      );
+                    },
                   ),
                 ),
+                if (state.error != null && state.roles.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(
+                      state.error!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: AppTheme.errorColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  List<UserTypeOption> _fallbackRoles() {
+    return const [
+      UserTypeOption(
+        code: 'customer',
+        name: 'Customer',
+        description: '',
+        visible: true,
+        sortOrder: 1,
+      ),
+      UserTypeOption(
+        code: 'pickup_boy',
+        name: 'Pickup Partner',
+        description: '',
+        visible: true,
+        sortOrder: 2,
+      ),
+      UserTypeOption(
+        code: 'warehouse',
+        name: 'Warehouse',
+        description: '',
+        visible: true,
+        sortOrder: 3,
+      ),
+      UserTypeOption(
+        code: 'channel_partner',
+        name: 'Channel Partner',
+        description: '',
+        visible: true,
+        sortOrder: 4,
+      ),
+    ];
+  }
+
+  String _titleForRole(UserTypeOption role) {
+    switch (role.code) {
+      case 'customer':
+        return 'role.customer.title'.tr();
+      case 'pickup_boy':
+      case 'pickup_partner':
+        return 'role.partner.title'.tr();
+      case 'warehouse':
+        return 'role.warehouse.title'.tr();
+      case 'channel_partner':
+      case 'dealer':
+        return 'role.dealer.title'.tr();
+      default:
+        return role.name;
+    }
+  }
+
+  String _descriptionForRole(UserTypeOption role) {
+    switch (role.code) {
+      case 'customer':
+        return 'role.customer.desc'.tr();
+      case 'pickup_boy':
+      case 'pickup_partner':
+        return 'role.partner.desc'.tr();
+      case 'warehouse':
+        return 'role.warehouse.desc'.tr();
+      case 'channel_partner':
+      case 'dealer':
+        return 'role.dealer.desc'.tr();
+      default:
+        return role.description;
+    }
+  }
+
+  IconData _iconForRole(String code) {
+    switch (code) {
+      case 'pickup_boy':
+      case 'pickup_partner':
+        return FontAwesomeIcons.truckFast;
+      case 'warehouse':
+        return FontAwesomeIcons.warehouse;
+      case 'channel_partner':
+      case 'dealer':
+        return FontAwesomeIcons.handshake;
+      case 'customer':
+      default:
+        return FontAwesomeIcons.houseUser;
+    }
   }
 }

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_response.dart';
@@ -33,6 +32,12 @@ class PickupRepository {
     return _submitPickupForm(ApiEndpoints.donationRequest, data);
   }
 
+  Future<ApiResponse<PickupRequestModel>> createCorporateBooking(
+    Map<String, dynamic> data,
+  ) async {
+    return _submitPickupForm(ApiEndpoints.corporateBookings, data);
+  }
+
   Future<ApiResponse<PickupRequestModel>> clonePickupAsDonation(int id) async {
     return _dioClient.post<PickupRequestModel>(
       ApiEndpoints.pickupRequestCloneAsDonation(id),
@@ -60,8 +65,16 @@ class PickupRepository {
     _addFieldIfPresent(formData, 'longitude', payload['longitude']);
     _addFieldIfPresent(formData, 'scheduled_at', payload['scheduled_at']);
     _addFieldIfPresent(formData, 'payout_method', payload['payout_method']);
-    _addFieldIfPresent(formData, 'payment_detail_id', payload['payment_detail_id']);
-    _addFieldIfPresent(formData, 'donation_category', payload['donation_category']);
+    _addFieldIfPresent(
+      formData,
+      'payment_detail_id',
+      payload['payment_detail_id'],
+    );
+    _addFieldIfPresent(
+      formData,
+      'donation_category',
+      payload['donation_category'],
+    );
     _addFieldIfPresent(formData, 'notes', payload['notes']);
 
     for (var itemIndex = 0; itemIndex < items.length; itemIndex++) {
@@ -120,7 +133,10 @@ class PickupRepository {
       if (bytes != null) {
         multipart = MultipartFile.fromBytes(bytes, filename: images[i].name);
       } else {
-        multipart = await MultipartFile.fromFile(images[i].path, filename: images[i].name);
+        multipart = await MultipartFile.fromFile(
+          images[i].path,
+          filename: images[i].name,
+        );
       }
 
       formData.files.add(MapEntry('images[]', multipart));
@@ -139,7 +155,7 @@ class PickupRepository {
   }
 
   Future<ApiResponse<List<PickupRequestModel>>> fetchPickups() async {
-    return _dioClient.get<List<PickupRequestModel>>(
+    final pickupsResponse = await _dioClient.get<List<PickupRequestModel>>(
       ApiEndpoints.pickupRequests,
       parser: (json) {
         final data = json['data'];
@@ -158,6 +174,44 @@ class PickupRepository {
             .toList();
       },
     );
+
+    if (!pickupsResponse.isSuccess) {
+      return pickupsResponse;
+    }
+
+    final corporateResponse = await _dioClient.get<List<PickupRequestModel>>(
+      ApiEndpoints.corporateBookings,
+      parser: (json) {
+        final data = json['data'];
+        final List<dynamic> list;
+
+        if (data is List<dynamic>) {
+          list = data;
+        } else if (data is Map<String, dynamic>) {
+          list = data['items'] as List<dynamic>? ?? const [];
+        } else {
+          list = const [];
+        }
+
+        return list.map((e) {
+          final record = Map<String, dynamic>.from(e as Map);
+          record['request_type'] = record['request_type'] ?? 'corporate';
+          return PickupRequestModel.fromJson(record);
+        }).toList();
+      },
+    );
+
+    final merged =
+        <PickupRequestModel>[
+          ...?pickupsResponse.data,
+          ...?corporateResponse.data,
+        ]..sort((a, b) {
+          final aDate = a.createdAt ?? a.scheduledAt;
+          final bDate = b.createdAt ?? b.scheduledAt;
+          return bDate.compareTo(aDate);
+        });
+
+    return ApiResponse.success(merged, statusCode: pickupsResponse.statusCode);
   }
 
   Future<ApiResponse<PickupRequestModel>> fetchPickupById(int id) async {

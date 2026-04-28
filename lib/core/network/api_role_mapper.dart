@@ -7,8 +7,6 @@ class ApiRoleMapper {
         return 'pickup_boy';
       case 'dealer':
         return 'channel_partner';
-      case 'warehouse':
-        return 'admin';
       default:
         return role;
     }
@@ -20,8 +18,6 @@ class ApiRoleMapper {
         return 'pickup_partner';
       case 'channel_partner':
         return 'dealer';
-      case 'admin':
-        return 'warehouse';
       default:
         return role ?? 'customer';
     }

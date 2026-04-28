@@ -8,6 +8,7 @@ import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../../../core/storage/app_preferences.dart';
 import '../models/user.dart';
+import '../models/user_type_option.dart';
 
 class AuthRepository {
   final DioClient _apiClient;
@@ -33,6 +34,33 @@ class AuthRepository {
     } else {
       return ApiResponse.error(response.errorMessage ?? 'Failed to send OTP');
     }
+  }
+
+  Future<ApiResponse<List<UserTypeOption>>> fetchUserTypes() async {
+    return _apiClient.get<List<UserTypeOption>>(
+      ApiEndpoints.authUserTypes,
+      parser: (json) {
+        final rawData = json['data'];
+        final List<dynamic> list;
+
+        if (rawData is List<dynamic>) {
+          list = rawData;
+        } else if (rawData is Map<String, dynamic>) {
+          list = rawData['items'] as List<dynamic>? ?? const [];
+        } else {
+          list = const [];
+        }
+
+        return list
+            .whereType<Map>()
+            .map(
+              (entry) =>
+                  UserTypeOption.fromJson(Map<String, dynamic>.from(entry)),
+            )
+            .toList()
+          ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+      },
+    );
   }
 
   /// Verify OTP and store the resulting token and User data

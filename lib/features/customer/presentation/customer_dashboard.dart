@@ -25,6 +25,21 @@ class CustomerDashboard extends ConsumerStatefulWidget {
 
 class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
   int _currentIndex = 0;
+  int _ordersTypeTab = 0; // 0: scrap, 1: donation, 2: corporate
+  DateTime _lastScrollInteraction = DateTime.fromMillisecondsSinceEpoch(0);
+
+  bool get _isTapAllowed =>
+      DateTime.now().difference(_lastScrollInteraction) >
+      const Duration(milliseconds: 250);
+
+  void _markScrollInteraction() {
+    _lastScrollInteraction = DateTime.now();
+  }
+
+  void _guardedTap(VoidCallback onTap) {
+    if (!_isTapAllowed) return;
+    onTap();
+  }
 
   @override
   void initState() {
@@ -223,263 +238,279 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     final pickupsAsync = ref.watch(pickupsProvider);
     final appSettings = ref.watch(settingsProvider);
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Serviceability Banner
-            if (!appSettings.serviceAvailability.isServiceable)
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(bottom: 20),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.amber.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.warning_amber_rounded,
-                      color: Colors.amber.shade800,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        appSettings.serviceAvailability.message,
-                        style: TextStyle(
-                          color: Colors.amber.shade900,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            // Top Banner
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: AppTheme.primaryGradient,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: AppTheme.softShadow,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Eco-friendly badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const FaIcon(
-                                FontAwesomeIcons.leaf,
-                                color: Colors.white,
-                                size: 12,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                'dashboard.eco_badge'.tr(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          'dashboard.book_pickup'.tr(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        Text(
-                          context.locale.languageCode == 'hi'
-                              ? 'पिकअप बुक करें'
-                              : 'Schedule your pickup',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'dashboard.book_pickup_desc'.tr(),
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontSize: 14,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification is ScrollStartNotification ||
+            notification is ScrollUpdateNotification ||
+            notification is OverscrollNotification ||
+            notification is ScrollEndNotification) {
+          _markScrollInteraction();
+        }
+        return false;
+      },
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Serviceability Banner
+              if (!appSettings.serviceAvailability.isServiceable)
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.amber.shade200),
                   ),
-                  const SizedBox(width: 8),
-                  Column(
+                  child: Row(
                     children: [
-                      const FaIcon(
-                        FontAwesomeIcons.truckFast,
-                        size: 64,
-                        color: Colors.white,
+                      Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.amber.shade800,
                       ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const FaIcon(
-                          FontAwesomeIcons.arrowRight,
-                          color: AppTheme.primaryColor,
-                          size: 18,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          appSettings.serviceAvailability.message,
+                          style: TextStyle(
+                            color: Colors.amber.shade900,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Categories Header
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'dashboard.what_to_sell'.tr(),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  ),
                 ),
-                InkWell(
-                  onTap: () => context.push('/pickup/category'),
-                  child: Text(
-                    'dashboard.view_all'.tr(),
+
+              // Top Banner
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  gradient: AppTheme.primaryGradient,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: AppTheme.softShadow,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Eco-friendly badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const FaIcon(
+                                  FontAwesomeIcons.leaf,
+                                  color: Colors.white,
+                                  size: 12,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'dashboard.eco_badge'.tr(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            'dashboard.book_pickup'.tr(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          Text(
+                            context.locale.languageCode == 'hi'
+                                ? 'पिकअप बुक करें'
+                                : 'Schedule your pickup',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'dashboard.book_pickup_desc'.tr(),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontSize: 14,
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Column(
+                      children: [
+                        const FaIcon(
+                          FontAwesomeIcons.truckFast,
+                          size: 64,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const FaIcon(
+                            FontAwesomeIcons.arrowRight,
+                            color: AppTheme.primaryColor,
+                            size: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Categories Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'dashboard.what_to_sell'.tr(),
                     style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppTheme.primaryColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textPrimary,
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Horizontal scroll categories
-            Consumer(
-              builder: (context, ref, child) {
-                return ref
-                    .watch(categoriesProvider)
-                    .when(
-                      data: (categories) {
-                        if (categories.isEmpty) {
-                          return const Center(
-                            child: Text('No categories available'),
-                          );
-                        }
-                        final limitedCategories = categories.take(3).toList();
-                        return SizedBox(
-                          height: 160,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: limitedCategories.length,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(width: 16),
-                            itemBuilder: (context, index) {
-                              final category = limitedCategories[index];
-                              return _buildMaterialCard(
-                                title: category.getName(context),
-                                subtitle: category.pricingType ?? '',
-                                imageUrl: category.imageUrl,
-                                iconData: _getIconForCategory(category.slug),
-                                isDark: true,
-                                onTap: () => context.push(
-                                  '${AppRoutes.subCategorySelection}/${category.id}',
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                      loading: () =>
-                          const Center(child: DashboardLoadingSkeleton()),
-                      error: (error, stack) => Center(
-                        child: Text(
-                          'Error loading categories',
-                          style: TextStyle(color: Colors.red.shade700),
-                        ),
+                  InkWell(
+                    onTap: () =>
+                        _guardedTap(() => context.push('/pickup/category')),
+                    child: Text(
+                      'dashboard.view_all'.tr(),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppTheme.primaryColor,
                       ),
-                    );
-              },
-            ),
-            const SizedBox(height: 16),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
 
-            if (appSettings.features.donationEnabled) ...[
-              _buildDonationCard(context),
+              // Horizontal scroll categories
+              Consumer(
+                builder: (context, ref, child) {
+                  return ref
+                      .watch(categoriesProvider)
+                      .when(
+                        data: (categories) {
+                          if (categories.isEmpty) {
+                            return const Center(
+                              child: Text('No categories available'),
+                            );
+                          }
+                          final limitedCategories = categories.take(3).toList();
+                          return SizedBox(
+                            height: 160,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: limitedCategories.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(width: 16),
+                              itemBuilder: (context, index) {
+                                final category = limitedCategories[index];
+                                return _buildMaterialCard(
+                                  title: category.getName(context),
+                                  subtitle: category.pricingType ?? '',
+                                  imageUrl: category.imageUrl,
+                                  iconData: _getIconForCategory(category.slug),
+                                  isDark: true,
+                                  onTap: () => _guardedTap(
+                                    () => context.push(
+                                      '${AppRoutes.subCategorySelection}/${category.id}',
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        loading: () =>
+                            const Center(child: DashboardLoadingSkeleton()),
+                        error: (error, stack) => Center(
+                          child: Text(
+                            'Error loading categories',
+                            style: TextStyle(color: Colors.red.shade700),
+                          ),
+                        ),
+                      );
+                },
+              ),
+              const SizedBox(height: 16),
+
+              if (appSettings.features.donationEnabled) ...[
+                _buildDonationCard(context),
+                const SizedBox(height: 16),
+              ],
+              _buildCorporateCard(context),
               const SizedBox(height: 32),
+
+              // We can add more dynamic content here if needed
+              const SizedBox(height: 32),
+
+              // Active Request
+              Text(
+                'dashboard.active_request'.tr(),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              pickupsAsync.when(
+                data: (pickups) {
+                  if (pickups.isEmpty) {
+                    return _buildEmptyOrdersCard(
+                      title: context.locale.languageCode == 'hi'
+                          ? 'अभी कोई सक्रिय रिक्वेस्ट नहीं है'
+                          : 'No active request yet',
+                      subtitle: context.locale.languageCode == 'hi'
+                          ? 'नई पिकअप बुक करने के बाद वह यहां दिखाई देगी'
+                          : 'Your latest pickup request will appear here',
+                    );
+                  }
+                  return _buildActiveRequestCard(context, pickups.first);
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, stack) => _buildEmptyOrdersCard(
+                  title: 'Failed to load requests',
+                  subtitle: error.toString(),
+                ),
+              ),
+              const SizedBox(height: 130), // Padding for FAB/bottom nav
             ],
-
-            // We can add more dynamic content here if needed
-            const SizedBox(height: 32),
-
-            // Active Request
-            Text(
-              'dashboard.active_request'.tr(),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            pickupsAsync.when(
-              data: (pickups) {
-                if (pickups.isEmpty) {
-                  return _buildEmptyOrdersCard(
-                    title: context.locale.languageCode == 'hi'
-                        ? 'अभी कोई सक्रिय रिक्वेस्ट नहीं है'
-                        : 'No active request yet',
-                    subtitle: context.locale.languageCode == 'hi'
-                        ? 'नई पिकअप बुक करने के बाद वह यहां दिखाई देगी'
-                        : 'Your latest pickup request will appear here',
-                  );
-                }
-                return _buildActiveRequestCard(context, pickups.first);
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stack) => _buildEmptyOrdersCard(
-                title: 'Failed to load requests',
-                subtitle: error.toString(),
-              ),
-            ),
-            const SizedBox(height: 130), // Padding for FAB/bottom nav
-          ],
+          ),
         ),
       ),
     );
@@ -754,18 +785,21 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
       onRefresh: () => ref.refresh(pickupsProvider.future),
       child: pickupsAsync.when(
         data: (pickups) {
-          if (pickups.isEmpty) {
+          final filtered = pickups.where(_matchesOrdersTypeTab).toList();
+          if (filtered.isEmpty) {
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(24),
               children: [
+                _buildOrdersTypeTabs(),
+                const SizedBox(height: 18),
                 _buildEmptyOrdersCard(
                   title: context.locale.languageCode == 'hi'
                       ? 'कोई ऑर्डर नहीं मिला'
                       : 'No orders found',
                   subtitle: context.locale.languageCode == 'hi'
-                      ? 'जब आप पिकअप बुक करेंगे, आपकी हिस्ट्री यहां दिखाई देगी'
-                      : 'Your pickup history will appear here after booking',
+                      ? 'चुने गए टैब में अभी कोई ऑर्डर नहीं है'
+                      : 'No orders available in selected tab',
                 ),
               ],
             );
@@ -774,10 +808,14 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
           return ListView.separated(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 140),
-            itemCount: pickups.length,
+            itemCount: filtered.length + 1,
             separatorBuilder: (_, __) => const SizedBox(height: 14),
-            itemBuilder: (context, index) =>
-                _buildOrderHistoryCard(context, pickups[index]),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return _buildOrdersTypeTabs();
+              }
+              return _buildOrderHistoryCard(context, filtered[index - 1]);
+            },
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -785,6 +823,8 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(24),
           children: [
+            _buildOrdersTypeTabs(),
+            const SizedBox(height: 18),
             _buildEmptyOrdersCard(
               title: 'Failed to load orders',
               subtitle: error.toString(),
@@ -795,12 +835,72 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     );
   }
 
+  bool _matchesOrdersTypeTab(PickupRequestModel pickup) {
+    switch (_ordersTypeTab) {
+      case 0:
+        return pickup.requestType == 'scrap';
+      case 1:
+        return pickup.requestType == 'donation';
+      case 2:
+        return pickup.requestType == 'corporate';
+      default:
+        return true;
+    }
+  }
+
+  Widget _buildOrdersTypeTabs() {
+    final isHindi = context.locale.languageCode == 'hi';
+    final tabs = [
+      isHindi ? 'स्क्रैप बेचें' : 'Sell Scrap',
+      isHindi ? 'डोनेशन' : 'Donation',
+      isHindi ? 'कॉर्पोरेट' : 'Corporate',
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: AppTheme.softShadow,
+      ),
+      child: Row(
+        children: List.generate(tabs.length, (index) {
+          final selected = _ordersTypeTab == index;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => setState(() => _ordersTypeTab = index),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: selected ? AppTheme.primaryColor : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  tabs[index],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: selected ? Colors.white : AppTheme.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
   Widget _buildActiveRequestCard(
     BuildContext context,
     PickupRequestModel pickup,
   ) {
     return InkWell(
-      onTap: () => context.push('${AppRoutes.pickupTracking}/${pickup.id}'),
+      onTap: () => _guardedTap(
+        () => context.push('${AppRoutes.pickupTracking}/${pickup.id}'),
+      ),
       borderRadius: BorderRadius.circular(24),
       child: Container(
         padding: const EdgeInsets.all(20),
@@ -902,8 +1002,11 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 ),
                 const SizedBox(width: 16),
                 InkWell(
-                  onTap: () =>
-                      context.push('${AppRoutes.pickupTracking}/${pickup.id}'),
+                  onTap: () => _guardedTap(
+                    () => context.push(
+                      '${AppRoutes.pickupTracking}/${pickup.id}',
+                    ),
+                  ),
                   child: Text(
                     'dashboard.track'.tr(),
                     style: const TextStyle(
@@ -925,7 +1028,8 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     final isHindi = context.locale.languageCode == 'hi';
 
     return InkWell(
-      onTap: () => context.push(AppRoutes.donationCategorySelection),
+      onTap: () =>
+          _guardedTap(() => context.push(AppRoutes.donationCategorySelection)),
       borderRadius: BorderRadius.circular(28),
       child: Container(
         width: double.infinity,
@@ -982,7 +1086,9 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        isHindi ? 'पुनः उपयोगी वस्तुएं दान करें' : 'Donate reusable goods',
+                        isHindi
+                            ? 'पुनः उपयोगी वस्तुएं दान करें'
+                            : 'Donate reusable goods',
                         style: const TextStyle(
                           fontSize: 16,
                           color: AppTheme.textSecondary,
@@ -1041,6 +1147,128 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     );
   }
 
+  Widget _buildCorporateCard(BuildContext context) {
+    final isHindi = context.locale.languageCode == 'hi';
+
+    return InkWell(
+      onTap: () => _guardedTap(() => context.push(AppRoutes.corporateCategory)),
+      borderRadius: BorderRadius.circular(28),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: const Color(0xFFE6EBF2)),
+          boxShadow: AppTheme.softShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEBF5FF),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.business_rounded,
+                    color: Color(0xFF2563EB),
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    isHindi ? 'कॉर्पोरेट कोटेशन' : 'Corporate Quotation',
+                    style: const TextStyle(
+                      color: Color(0xFF2563EB),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isHindi ? 'कॉर्पोरेट पिकअप' : 'Corporate Pickup',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        isHindi
+                            ? 'कोटेशन के लिए जानकारी भेजें'
+                            : 'Share details for quotation',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        isHindi
+                            ? 'थोक स्क्रैप/ऑफिस कचरे के लिए शेड्यूल करें। हमारी टीम निरीक्षण के बाद कोटेशन देगी।'
+                            : 'Schedule bulk scrap or office waste pickup. Our team will quote after assessment.',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          height: 1.5,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  children: [
+                    Container(
+                      width: 68,
+                      height: 68,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFEFF6FF),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.apartment_rounded,
+                        color: Color(0xFF2563EB),
+                        size: 32,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF2563EB),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildOrderHistoryCard(
     BuildContext context,
     PickupRequestModel pickup,
@@ -1051,7 +1279,9 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     );
 
     return InkWell(
-      onTap: () => context.push('${AppRoutes.pickupTracking}/${pickup.id}'),
+      onTap: () => _guardedTap(
+        () => context.push('${AppRoutes.pickupTracking}/${pickup.id}'),
+      ),
       borderRadius: BorderRadius.circular(24),
       child: Container(
         padding: const EdgeInsets.all(18),
@@ -1269,7 +1499,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     String? imageUrl,
   }) {
     return InkWell(
-      onTap: onTap,
+      onTap: () => _guardedTap(onTap),
       borderRadius: BorderRadius.circular(20),
       child: Container(
         width: 140,

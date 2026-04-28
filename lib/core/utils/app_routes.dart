@@ -43,6 +43,9 @@ import '../../features/pickup/domain/models/pickup_request_model.dart';
 import '../../features/pickup/presentation/pickup_order_verification_screen.dart';
 import '../../features/pickup/presentation/agent_reschedule_request_screen.dart';
 import '../../features/pickup/presentation/user_reschedule_pickup_screen.dart';
+import '../../features/pickup/presentation/corporate_category_screen.dart';
+import '../../features/pickup/presentation/corporate_schedule_screen.dart';
+import '../../features/pickup/presentation/corporate_review_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -84,213 +87,245 @@ class AppRoutes {
   static const String agentReschedule = '/pickup/agent-reschedule';
   static const String userReschedule = '/pickup/user-reschedule';
   static const String pickupBoyDetail = '/pickup-boy/pickups';
+  static const String corporateCategory = '/corporate/category';
+  static const String corporateSchedule = '/corporate/schedule';
+  static const String corporateReview = '/corporate/review';
 
-  static final router = GoRouter(
-    initialLocation: splash,
-    routes: [
-      GoRoute(path: splash, builder: (context, state) => const SplashScreen()),
-      GoRoute(
-        path: onboarding,
-        builder: (context, state) => const OnboardingScreen(),
-      ),
-      GoRoute(
-        path: language,
-        builder: (context, state) => const LanguageSelectionScreen(),
-      ),
-      GoRoute(
-        path: role,
-        builder: (context, state) => const RoleSelectionScreen(),
-      ),
-      GoRoute(
-        path: login,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          final role = extra?['role'] as String?;
-          return LoginOtpScreen(role: role);
-        },
-      ),
-      GoRoute(
-        path: customerDashboard,
-        builder: (context, state) => const CustomerDashboard(),
-      ),
-      GoRoute(
-        path: pickupDashboard,
-        builder: (context, state) => const PickupBoyDashboard(),
-      ),
-      GoRoute(
-        path: warehouseDashboard,
-        builder: (context, state) => const WarehouseDashboard(),
-      ),
-      GoRoute(
-        path: partnerDashboard,
-        builder: (context, state) => const PartnerDashboard(),
-      ),
-      GoRoute(
-        path: categorySelection,
-        builder: (context, state) => const CategorySelectionScreen(),
-      ),
-      GoRoute(
-        path: donationCategorySelection,
-        builder: (context, state) => const DonationCategorySelectionScreen(),
-      ),
-      GoRoute(
-        path: donationItems,
-        builder: (context, state) => const DonationItemsScreen(),
-      ),
-      GoRoute(
-        path: questionForm,
-        builder: (context, state) => const DynamicQuestionFormScreen(),
-      ),
-      GoRoute(
-        path: uploadPhoto,
-        builder: (context, state) => const UploadPhotoScreen(),
-      ),
-      GoRoute(
-        path: selectDateTime,
-        builder: (context, state) => const SelectAddressTimeScreen(),
-      ),
-      GoRoute(
-        path: successConfirmation,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
-          return SuccessConfirmationScreen(
-            pickup: extra?['pickup'] as PickupRequestModel?,
-            isDonation: extra?['isDonation'] as bool? ?? false,
-          );
-        },
-      ),
-      GoRoute(
-        path: '$pickupTracking/:pickupId',
-        builder: (context, state) {
-          final pickupId = int.parse(state.pathParameters['pickupId']!);
-          return PickupTrackingScreen(pickupId: pickupId);
-        },
-      ),
-      GoRoute(
-        path: pickupDetails,
-        builder: (context, state) => const PickupDetailsScreen(),
-      ),
-      GoRoute(path: basket, builder: (context, state) => const BasketScreen()),
-      GoRoute(
-        path: '$subCategorySelection/:parentId',
-        builder: (context, state) {
-          final parentId = state.pathParameters['parentId']!;
-          return SubCategorySelectionScreen(parentId: int.parse(parentId));
-        },
-      ),
-      GoRoute(
-        path: '$itemSelection/:categoryId',
-        builder: (context, state) {
-          final categoryId = state.pathParameters['categoryId']!;
-          return ItemSelectionScreen(categoryId: int.parse(categoryId));
-        },
-      ),
-      GoRoute(
-        path: householdItemDetails,
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>;
-          return HouseholdItemDetailsScreen(
-            item: extra['item'] as PickupCatalogItem,
-            parentCategoryName: extra['parentCategoryName'] as String,
-            applianceCategoryId: extra['applianceCategoryId'] as int,
-          );
-        },
-      ),
-      GoRoute(
-        path: reviewBooking,
-        builder: (context, state) => const ReviewBookingScreen(),
-      ),
-      GoRoute(
-        path: payoutMethod,
-        builder: (context, state) => const PayoutMethodScreen(),
-      ),
-      GoRoute(
-        path: '/pickup/weight-entry',
-        builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>;
-          return WeightEntryScreen(
-            itemName: extra['itemName'] as String,
-            basePrice: extra['basePrice'] as double,
-            unit: extra['unit'] as String,
-          );
-        },
-      ),
-      GoRoute(
-        path: ratePickup,
-        builder: (context, state) => const RatePickupScreen(),
-      ),
-      GoRoute(
-        path: materialPriceList,
-        builder: (context, state) => const MaterialPriceListScreen(),
-      ),
-      GoRoute(
-        path: notifications,
-        builder: (context, state) => const NotificationsScreen(),
-      ),
-      GoRoute(
-        path: profile,
-        builder: (context, state) => const UserProfileScreen(),
-      ),
-      GoRoute(
-        path: savedAddresses,
-        builder: (context, state) => const SavedAddressesScreen(),
-      ),
-      GoRoute(
-        path: addAddress,
-        builder: (context, state) => const AddAddressScreen(),
-      ),
-      GoRoute(
-        path: editProfile,
-        builder: (context, state) => const EditProfileScreen(),
-      ),
-      GoRoute(
-        path: settings,
-        builder: (context, state) => const SettingsScreen(),
-      ),
-      GoRoute(path: faq, builder: (context, state) => const FaqScreen()),
-      GoRoute(
-        path: paymentMethods,
-        builder: (context, state) => const PaymentMethodsScreen(),
-      ),
-      GoRoute(
-        path: addEditPayment,
-        builder: (context, state) {
-          final paymentMethod = state.extra as PaymentMethodModel?;
-          return AddEditPaymentScreen(paymentMethod: paymentMethod);
-        },
-      ),
-      GoRoute(
-        path: orderVerification,
-        builder: (context, state) => const PickupOrderVerificationScreen(),
-      ),
-      GoRoute(
-        path: '$agentReschedule/:id',
-        builder: (context, state) {
-          final id = int.tryParse(state.pathParameters['id'] ?? '');
-          return AgentRescheduleRequestScreen(pickupId: id);
-        },
-      ),
-      GoRoute(
-        path: '$userReschedule/:id',
-        builder: (context, state) {
-          final id = int.tryParse(state.pathParameters['id'] ?? '');
-          return UserReschedulePickupScreen(pickupId: id);
-        },
-      ),
-      GoRoute(
-        path: '$pickupBoyDetail/:id',
-        builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
-          return PickupBoyDetailScreen(pickupId: id);
-        },
-      ),
-      GoRoute(
-        path: '$pickupBoyDetail/:id/verify',
-        builder: (context, state) {
-          final id = int.parse(state.pathParameters['id']!);
-          return PickupBoyVerificationScreen(pickupId: id);
-        },
-      ),
-    ],
-  );
+  static late final GoRouter router;
+  static bool _isRouterInitialized = false;
+
+  static void initializeRouter({required String initialLocation}) {
+    if (_isRouterInitialized) {
+      return;
+    }
+
+    router = GoRouter(
+      initialLocation: initialLocation,
+      routes: [
+        GoRoute(
+          path: splash,
+          builder: (context, state) => const SplashScreen(),
+        ),
+        GoRoute(
+          path: onboarding,
+          builder: (context, state) => const OnboardingScreen(),
+        ),
+        GoRoute(
+          path: language,
+          builder: (context, state) => const LanguageSelectionScreen(),
+        ),
+        GoRoute(
+          path: role,
+          builder: (context, state) => const RoleSelectionScreen(),
+        ),
+        GoRoute(
+          path: login,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final role = extra?['role'] as String?;
+            return LoginOtpScreen(role: role);
+          },
+        ),
+        GoRoute(
+          path: customerDashboard,
+          builder: (context, state) => const CustomerDashboard(),
+        ),
+        GoRoute(
+          path: pickupDashboard,
+          builder: (context, state) => const PickupBoyDashboard(),
+        ),
+        GoRoute(
+          path: warehouseDashboard,
+          builder: (context, state) => const WarehouseDashboard(),
+        ),
+        GoRoute(
+          path: partnerDashboard,
+          builder: (context, state) => const PartnerDashboard(),
+        ),
+        GoRoute(
+          path: categorySelection,
+          builder: (context, state) => const CategorySelectionScreen(),
+        ),
+        GoRoute(
+          path: corporateCategory,
+          builder: (context, state) => const CorporateCategoryScreen(),
+        ),
+        GoRoute(
+          path: corporateSchedule,
+          builder: (context, state) => const CorporateScheduleScreen(),
+        ),
+        GoRoute(
+          path: corporateReview,
+          builder: (context, state) => const CorporateReviewScreen(),
+        ),
+        GoRoute(
+          path: donationCategorySelection,
+          builder: (context, state) => const DonationCategorySelectionScreen(),
+        ),
+        GoRoute(
+          path: donationItems,
+          builder: (context, state) => const DonationItemsScreen(),
+        ),
+        GoRoute(
+          path: questionForm,
+          builder: (context, state) => const DynamicQuestionFormScreen(),
+        ),
+        GoRoute(
+          path: uploadPhoto,
+          builder: (context, state) => const UploadPhotoScreen(),
+        ),
+        GoRoute(
+          path: selectDateTime,
+          builder: (context, state) => const SelectAddressTimeScreen(),
+        ),
+        GoRoute(
+          path: successConfirmation,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return SuccessConfirmationScreen(
+              pickup: extra?['pickup'] as PickupRequestModel?,
+              isDonation: extra?['isDonation'] as bool? ?? false,
+            );
+          },
+        ),
+        GoRoute(
+          path: '$pickupTracking/:pickupId',
+          builder: (context, state) {
+            final pickupId = int.parse(state.pathParameters['pickupId']!);
+            return PickupTrackingScreen(pickupId: pickupId);
+          },
+        ),
+        GoRoute(
+          path: pickupDetails,
+          builder: (context, state) => const PickupDetailsScreen(),
+        ),
+        GoRoute(
+          path: basket,
+          builder: (context, state) => const BasketScreen(),
+        ),
+        GoRoute(
+          path: '$subCategorySelection/:parentId',
+          builder: (context, state) {
+            final parentId = state.pathParameters['parentId']!;
+            return SubCategorySelectionScreen(parentId: int.parse(parentId));
+          },
+        ),
+        GoRoute(
+          path: '$itemSelection/:categoryId',
+          builder: (context, state) {
+            final categoryId = state.pathParameters['categoryId']!;
+            return ItemSelectionScreen(categoryId: int.parse(categoryId));
+          },
+        ),
+        GoRoute(
+          path: householdItemDetails,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return HouseholdItemDetailsScreen(
+              item: extra['item'] as PickupCatalogItem,
+              parentCategoryName: extra['parentCategoryName'] as String,
+              applianceCategoryId: extra['applianceCategoryId'] as int,
+            );
+          },
+        ),
+        GoRoute(
+          path: reviewBooking,
+          builder: (context, state) => const ReviewBookingScreen(),
+        ),
+        GoRoute(
+          path: payoutMethod,
+          builder: (context, state) => const PayoutMethodScreen(),
+        ),
+        GoRoute(
+          path: '/pickup/weight-entry',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>;
+            return WeightEntryScreen(
+              itemName: extra['itemName'] as String,
+              basePrice: extra['basePrice'] as double,
+              unit: extra['unit'] as String,
+            );
+          },
+        ),
+        GoRoute(
+          path: ratePickup,
+          builder: (context, state) => const RatePickupScreen(),
+        ),
+        GoRoute(
+          path: materialPriceList,
+          builder: (context, state) => const MaterialPriceListScreen(),
+        ),
+        GoRoute(
+          path: notifications,
+          builder: (context, state) => const NotificationsScreen(),
+        ),
+        GoRoute(
+          path: profile,
+          builder: (context, state) => const UserProfileScreen(),
+        ),
+        GoRoute(
+          path: savedAddresses,
+          builder: (context, state) => const SavedAddressesScreen(),
+        ),
+        GoRoute(
+          path: addAddress,
+          builder: (context, state) => const AddAddressScreen(),
+        ),
+        GoRoute(
+          path: editProfile,
+          builder: (context, state) => const EditProfileScreen(),
+        ),
+        GoRoute(
+          path: settings,
+          builder: (context, state) => const SettingsScreen(),
+        ),
+        GoRoute(path: faq, builder: (context, state) => const FaqScreen()),
+        GoRoute(
+          path: paymentMethods,
+          builder: (context, state) => const PaymentMethodsScreen(),
+        ),
+        GoRoute(
+          path: addEditPayment,
+          builder: (context, state) {
+            final paymentMethod = state.extra as PaymentMethodModel?;
+            return AddEditPaymentScreen(paymentMethod: paymentMethod);
+          },
+        ),
+        GoRoute(
+          path: orderVerification,
+          builder: (context, state) => const PickupOrderVerificationScreen(),
+        ),
+        GoRoute(
+          path: '$agentReschedule/:id',
+          builder: (context, state) {
+            final id = int.tryParse(state.pathParameters['id'] ?? '');
+            return AgentRescheduleRequestScreen(pickupId: id);
+          },
+        ),
+        GoRoute(
+          path: '$userReschedule/:id',
+          builder: (context, state) {
+            final id = int.tryParse(state.pathParameters['id'] ?? '');
+            return UserReschedulePickupScreen(pickupId: id);
+          },
+        ),
+        GoRoute(
+          path: '$pickupBoyDetail/:id',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return PickupBoyDetailScreen(pickupId: id);
+          },
+        ),
+        GoRoute(
+          path: '$pickupBoyDetail/:id/verify',
+          builder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return PickupBoyVerificationScreen(pickupId: id);
+          },
+        ),
+      ],
+    );
+
+    _isRouterInitialized = true;
+  }
 }

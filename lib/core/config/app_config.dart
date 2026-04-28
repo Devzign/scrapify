@@ -35,7 +35,7 @@ class AppConfig {
         AppFlavor.staging =>
           'https://floralwhite-spoonbill-935004.hostingersite.com/api',
         AppFlavor.production =>
-          'https://floralwhite-spoonbill-935004.hostingersite.com/api',
+          'https://scrapi5.com/api',
       },
     );
     _initialized = true;

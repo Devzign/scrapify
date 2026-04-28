@@ -28,8 +28,8 @@ class LanguageOptionCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppTheme.primaryColor.withValues(alpha: 0.05)
-              : Colors.white,
+              ? Colors.white
+              : AppTheme.primaryColor.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(32),
           border: Border.all(
             color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
@@ -50,8 +50,8 @@ class LanguageOptionCard extends StatelessWidget {
               width: 48,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppTheme.primaryColor.withValues(alpha: 0.12)
-                    : AppTheme.backgroundLight,
+                    ? AppTheme.primaryColor
+                    : AppTheme.primaryColor.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               alignment: Alignment.center,
@@ -60,9 +60,7 @@ class LanguageOptionCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: isSelected
-                      ? AppTheme.primaryColor
-                      : AppTheme.textPrimary,
+                  color: isSelected ? Colors.white : AppTheme.primaryColor,
                 ),
               ),
             ),
@@ -77,8 +75,8 @@ class LanguageOptionCard extends StatelessWidget {
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: isSelected
-                          ? AppTheme.primaryColor
-                          : AppTheme.textPrimary,
+                          ? AppTheme.textPrimary
+                          : AppTheme.primaryColor,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -87,8 +85,8 @@ class LanguageOptionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       color: isSelected
-                          ? AppTheme.primaryColor.withValues(alpha: 0.9)
-                          : AppTheme.textSecondary,
+                          ? AppTheme.textSecondary
+                          : AppTheme.primaryColor.withValues(alpha: 0.9),
                     ),
                   ),
                 ],

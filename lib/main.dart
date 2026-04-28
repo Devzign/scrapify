@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/app_routes.dart';
+import 'core/storage/app_preferences.dart';
+import 'core/utils/role_route_resolver.dart';
 import 'core/config/app_config.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -18,11 +20,28 @@ void main() async {
     AppConfig.initialize(AppFlavor.dev);
   }
   await EasyLocalization.ensureInitialized();
-  runMain();
+  final initialLocation = await resolveInitialLocation();
+  runMain(initialLocation: initialLocation);
 }
 
 /// Shared bootstrap called by each flavor's entry point.
-void runMain() {
+Future<String> resolveInitialLocation() async {
+  final preferences = AppPreferences();
+  final token = await preferences.getAuthToken();
+  final hasSeenOnboarding = await preferences.getHasSeenOnboarding();
+
+  if (token != null && token.isNotEmpty) {
+    final primaryRole = await preferences.getPrimaryUserRole();
+    return RoleRouteResolver.resolve(primaryRole);
+  }
+
+  return hasSeenOnboarding ? AppRoutes.language : AppRoutes.onboarding;
+}
+
+/// Shared bootstrap called by each flavor's entry point.
+void runMain({required String initialLocation}) {
+  AppRoutes.initializeRouter(initialLocation: initialLocation);
+
   runApp(
     ProviderScope(
       child: EasyLocalization(

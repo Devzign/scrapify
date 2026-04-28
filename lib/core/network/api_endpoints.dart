@@ -6,6 +6,7 @@ class ApiEndpoints {
 
   static const String authSendOtp = '/auth/send-otp';
   static const String authVerifyOtp = '/auth/verify-otp';
+  static const String authUserTypes = '/auth/user-types';
   static const String authProfile = '/auth/profile';
   static const String authProfileUpdate = '/auth/profile/update';
   static const String authLogout = '/auth/logout';
@@ -27,14 +28,20 @@ class ApiEndpoints {
   static const String pickupRequests = '/pickup-requests';
   static const String donationRequest = '/donation-request';
   static const String donationRequests = '/donation-requests';
+  static const String corporateBookings = '/corporate-bookings';
   static const String pickupRequestStats = '/pickup-requests/stats';
   static const String pickupImagesUpload = '/pickup-images/upload';
+  static const String pickupSlots = '/pickup-slots';
+  static const String serviceableCities = '/serviceable-cities';
 
+  static const String pickupBoyDashboard = '/pickup-boy/dashboard';
   static const String pickupBoyAssignments = '/pickup-boy/assignments';
+  static const String pickupBoyLocation = '/pickup-boy/location';
   static const String pickupBoyStatus = '/pickup-boy/status';
 
   static const String adminPickups = '/admin/pickups';
   static const String adminPickupBoys = '/admin/pickup-boys';
+  static const String adminUserTypeVisibility = '/admin/user-types';
 
   static const String appSettings = '/app-settings';
   static const String appSettingsLanguage = '/app-settings/language';

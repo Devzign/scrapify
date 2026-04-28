@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,9 +37,9 @@ class _CorporateScheduleScreenState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final booking = ref.read(corporateBookingProvider);
       if (booking.selectedDate == null) {
-        ref.read(corporateBookingProvider.notifier).setDate(
-              DateTime.now().add(const Duration(days: 1)),
-            );
+        ref
+            .read(corporateBookingProvider.notifier)
+            .setDate(DateTime.now().add(const Duration(days: 1)));
       }
     });
   }
@@ -51,9 +53,8 @@ class _CorporateScheduleScreenState
   List<String> _availableSlots(DateTime? date) {
     if (date == null) return _timeSlots;
     final now = DateTime.now();
-    final isToday = date.year == now.year &&
-        date.month == now.month &&
-        date.day == now.day;
+    final isToday =
+        date.year == now.year && date.month == now.month && date.day == now.day;
     if (!isToday) return _timeSlots;
     return _timeSlots.where((slot) {
       final end = slot.split(' - ').last.trim();
@@ -79,8 +80,10 @@ class _CorporateScheduleScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-              color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -105,17 +108,16 @@ class _CorporateScheduleScreenState
                   const SizedBox(height: 24),
                   // Address
                   _buildSectionTitle(
-                      isHindi ? 'पता चुनें' : 'Select Address', context),
+                    isHindi ? 'पता चुनें' : 'Select Address',
+                    context,
+                  ),
                   const SizedBox(height: 12),
                   addressesAsync.when(
                     data: (addresses) => addresses.isEmpty
                         ? TextButton.icon(
-                            onPressed: () =>
-                                context.push(AppRoutes.addAddress),
+                            onPressed: () => context.push(AppRoutes.addAddress),
                             icon: const Icon(Icons.add),
-                            label: Text(isHindi
-                                ? 'पता जोड़ें'
-                                : 'Add Address'),
+                            label: Text(isHindi ? 'पता जोड़ें' : 'Add Address'),
                           )
                         : Column(
                             children: addresses.map((addr) {
@@ -126,13 +128,11 @@ class _CorporateScheduleScreenState
                                     .read(corporateBookingProvider.notifier)
                                     .setAddress(addr),
                                 child: Container(
-                                  margin:
-                                      const EdgeInsets.only(bottom: 10),
+                                  margin: const EdgeInsets.only(bottom: 10),
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(20),
                                     boxShadow: AppTheme.softShadow,
                                     border: Border.all(
                                       color: sel
@@ -195,14 +195,16 @@ class _CorporateScheduleScreenState
                               );
                             }).toList(),
                           ),
-                    loading: () => const Center(
-                        child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (e, _) => Text('$e'),
                   ),
                   const SizedBox(height: 24),
                   // Date
                   _buildSectionTitle(
-                      isHindi ? 'तारीख चुनें' : 'Select Date', context),
+                    isHindi ? 'तारीख चुनें' : 'Select Date',
+                    context,
+                  ),
                   const SizedBox(height: 12),
                   SizedBox(
                     height: 100,
@@ -210,10 +212,9 @@ class _CorporateScheduleScreenState
                       scrollDirection: Axis.horizontal,
                       itemCount: 7,
                       itemBuilder: (_, i) {
-                        final date =
-                            DateTime.now().add(Duration(days: i));
-                        final sel = booking.selectedDate?.year ==
-                                date.year &&
+                        final date = DateTime.now().add(Duration(days: i));
+                        final sel =
+                            booking.selectedDate?.year == date.year &&
                             booking.selectedDate?.month == date.month &&
                             booking.selectedDate?.day == date.day;
                         return GestureDetector(
@@ -224,9 +225,7 @@ class _CorporateScheduleScreenState
                             width: 72,
                             margin: const EdgeInsets.only(right: 10),
                             decoration: BoxDecoration(
-                              gradient: sel
-                                  ? AppTheme.primaryGradient
-                                  : null,
+                              gradient: sel ? AppTheme.primaryGradient : null,
                               color: sel ? null : Colors.white,
                               borderRadius: BorderRadius.circular(18),
                               boxShadow: sel ? AppTheme.softShadow : null,
@@ -281,7 +280,9 @@ class _CorporateScheduleScreenState
                   const SizedBox(height: 24),
                   // Time
                   _buildSectionTitle(
-                      isHindi ? 'समय चुनें' : 'Select Time', context),
+                    isHindi ? 'समय चुनें' : 'Select Time',
+                    context,
+                  ),
                   const SizedBox(height: 12),
                   ...slots.map((slot) {
                     final sel = booking.selectedTimeSlot == slot;
@@ -292,7 +293,9 @@ class _CorporateScheduleScreenState
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 16),
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
@@ -306,11 +309,13 @@ class _CorporateScheduleScreenState
                         ),
                         child: Row(
                           children: [
-                            FaIcon(FontAwesomeIcons.clock,
-                                color: sel
-                                    ? AppTheme.primaryColor
-                                    : const Color(0xFF94A3B8),
-                                size: 18),
+                            FaIcon(
+                              FontAwesomeIcons.clock,
+                              color: sel
+                                  ? AppTheme.primaryColor
+                                  : const Color(0xFF94A3B8),
+                              size: 18,
+                            ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
@@ -326,9 +331,10 @@ class _CorporateScheduleScreenState
                             ),
                             if (sel)
                               const FaIcon(
-                                  FontAwesomeIcons.solidCircleCheck,
-                                  color: AppTheme.primaryColor,
-                                  size: 20),
+                                FontAwesomeIcons.solidCircleCheck,
+                                color: AppTheme.primaryColor,
+                                size: 20,
+                              ),
                           ],
                         ),
                       ),
@@ -337,10 +343,9 @@ class _CorporateScheduleScreenState
                   const SizedBox(height: 24),
                   // Notes
                   _buildSectionTitle(
-                      isHindi
-                          ? 'नोट्स (वैकल्पिक)'
-                          : 'Notes (Optional)',
-                      context),
+                    isHindi ? 'नोट्स (वैकल्पिक)' : 'Notes (Optional)',
+                    context,
+                  ),
                   const SizedBox(height: 12),
                   Container(
                     decoration: BoxDecoration(
@@ -359,7 +364,9 @@ class _CorporateScheduleScreenState
                             ? 'जैसे: 200 कंप्यूटर, टूटे फर्नीचर, आदि'
                             : 'e.g. 200 computers, broken furniture, etc.',
                         hintStyle: const TextStyle(
-                            color: Color(0xFF94A3B8), fontSize: 13),
+                          color: Color(0xFF94A3B8),
+                          fontSize: 13,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
@@ -373,10 +380,11 @@ class _CorporateScheduleScreenState
                   const SizedBox(height: 24),
                   // Photos
                   _buildSectionTitle(
-                      isHindi
-                          ? 'फ़ोटो अपलोड करें (वैकल्पिक)'
-                          : 'Upload Photos (Optional)',
-                      context),
+                    isHindi
+                        ? 'फ़ोटो अपलोड करें (वैकल्पिक)'
+                        : 'Upload Photos (Optional)',
+                    context,
+                  ),
                   const SizedBox(height: 12),
                   _buildPhotoSection(booking, isHindi),
                 ],
@@ -396,15 +404,20 @@ class _CorporateScheduleScreenState
         color: AppTheme.primaryColor.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: AppTheme.primaryColor.withValues(alpha: 0.15), width: 1),
+          color: AppTheme.primaryColor.withValues(alpha: 0.15),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const FaIcon(FontAwesomeIcons.layerGroup,
-                  color: AppTheme.primaryColor, size: 14),
+              const FaIcon(
+                FontAwesomeIcons.layerGroup,
+                color: AppTheme.primaryColor,
+                size: 14,
+              ),
               const SizedBox(width: 8),
               Text(
                 isHindi
@@ -428,7 +441,9 @@ class _CorporateScheduleScreenState
                   : item.category.name.en;
               return Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -436,7 +451,9 @@ class _CorporateScheduleScreenState
                 child: Text(
                   '$name — ${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} ${item.unit}',
                   style: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.w700),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               );
             }).toList(),
@@ -458,15 +475,14 @@ class _CorporateScheduleScreenState
               separatorBuilder: (_, __) => const SizedBox(width: 10),
               itemBuilder: (_, i) {
                 if (i == booking.images.length) {
-                  return _AddPhotoTile(
-                      onTap: _pickImage, isHindi: isHindi);
+                  return _AddPhotoTile(onTap: _pickImage, isHindi: isHindi);
                 }
                 return Stack(
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      child: Image.network(
-                        booking.images[i].path,
+                      child: Image.file(
+                        File(booking.images[i].path),
                         width: 90,
                         height: 90,
                         fit: BoxFit.cover,
@@ -474,8 +490,10 @@ class _CorporateScheduleScreenState
                           width: 90,
                           height: 90,
                           color: const Color(0xFFF0FDF4),
-                          child: const Icon(Icons.image,
-                              color: AppTheme.primaryColor),
+                          child: const Icon(
+                            Icons.image,
+                            color: AppTheme.primaryColor,
+                          ),
                         ),
                       ),
                     ),
@@ -492,8 +510,11 @@ class _CorporateScheduleScreenState
                             color: Colors.red,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.close,
-                              color: Colors.white, size: 12),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 12,
+                          ),
                         ),
                       ),
                     ),
@@ -511,22 +532,25 @@ class _CorporateScheduleScreenState
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                    color: const Color(0xFFE2E8F0), width: 2),
+                border: Border.all(color: const Color(0xFFE2E8F0), width: 2),
                 boxShadow: AppTheme.softShadow,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const FaIcon(FontAwesomeIcons.camera,
-                      color: Color(0xFF94A3B8), size: 24),
+                  const FaIcon(
+                    FontAwesomeIcons.camera,
+                    color: Color(0xFF94A3B8),
+                    size: 24,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     isHindi ? 'फ़ोटो जोड़ें' : 'Add Photos',
                     style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF94A3B8),
-                        fontWeight: FontWeight.w600),
+                      fontSize: 13,
+                      color: Color(0xFF94A3B8),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -627,8 +651,7 @@ class _AddPhotoTile extends StatelessWidget {
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FaIcon(FontAwesomeIcons.plus,
-                color: Color(0xFF94A3B8), size: 18),
+            FaIcon(FontAwesomeIcons.plus, color: Color(0xFF94A3B8), size: 18),
           ],
         ),
       ),

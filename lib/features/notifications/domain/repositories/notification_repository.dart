@@ -12,9 +12,24 @@ class NotificationRepository {
     final response = await _apiClient.get(ApiEndpoints.notifications);
     if (response.isSuccess) {
       try {
-        final List<dynamic> data = response.data['data'] ?? [];
-        final notifications = data
-            .map((e) => NotificationModel.fromJson(e))
+        final rawData = response.data['data'];
+        final List<dynamic> items;
+
+        if (rawData is List<dynamic>) {
+          items = rawData;
+        } else if (rawData is Map<String, dynamic>) {
+          items = rawData['items'] as List<dynamic>? ?? const [];
+        } else {
+          items = const [];
+        }
+
+        final notifications = items
+            .whereType<Map>()
+            .map(
+              (e) => NotificationModel.fromJson(
+                Map<String, dynamic>.from(e),
+              ),
+            )
             .toList();
         return ApiResponse.success(notifications);
       } catch (e) {

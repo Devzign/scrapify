@@ -21,7 +21,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
     final viewModel = ref.read(languageSelectionViewModelProvider.notifier);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: Colors.white,
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
         child: SafeArea(
@@ -54,9 +54,9 @@ class LanguageSelectionScreen extends ConsumerWidget {
                 SizedBox(height: 16.h),
                 Text(
                   'language.subtitle'.tr(),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: AppTheme.textSecondary),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.textSecondary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 32.h),

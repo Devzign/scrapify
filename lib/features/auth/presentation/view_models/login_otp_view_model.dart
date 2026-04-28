@@ -160,8 +160,13 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     state = state.copyWith(isLoading: false);
 
     if (isSuccess) {
+      final loggedInUser = _ref.read(authProvider);
+      final resolvedRole = (loggedInUser?.roles.isNotEmpty ?? false)
+          ? loggedInUser!.roles.first
+          : selectedRole;
+
       state = state.copyWith(
-        nextRoute: RoleRouteResolver.resolve(selectedRole),
+        nextRoute: RoleRouteResolver.resolve(resolvedRole),
       );
       return;
     }
