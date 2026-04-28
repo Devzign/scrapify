@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
@@ -41,7 +40,8 @@ class SuccessConfirmationScreen extends ConsumerWidget {
         ? "$itemCount आइटम ($firstCategory)"
         : "$itemCount Items ($firstCategory)";
 
-    final address = pickup?.address ??
+    final address =
+        pickup?.address ??
         "Flat 402, Green Valley Apartments, HSR Layout, Bangalore";
 
     return Scaffold(
@@ -84,7 +84,9 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             Text(
               isHindi
                   ? (isDonation ? 'दान सफल!' : 'बुकिंग सफल!')
-                  : (isDonation ? 'Donation Successful!' : 'Booking Successful!'),
+                  : (isDonation
+                        ? 'Donation Successful!'
+                        : 'Booking Successful!'),
               style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w900,
@@ -146,11 +148,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
               shape: BoxShape.circle,
               color: Color(0xFF639A70),
             ),
-            child: const Icon(
-              Icons.check,
-              color: Colors.white,
-              size: 40,
-            ),
+            child: const Icon(Icons.check, color: Colors.white, size: 40),
           ),
         ],
       ),
@@ -363,8 +361,11 @@ class SuccessConfirmationScreen extends ConsumerWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.photo_library_outlined,
-                  color: Color(0xFF639A70), size: 20),
+              const Icon(
+                Icons.photo_library_outlined,
+                color: Color(0xFF639A70),
+                size: 20,
+              ),
               const SizedBox(width: 10),
               Text(
                 isHindi
@@ -400,15 +401,20 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                             width: 72,
                             height: 72,
                             color: const Color(0xFFF0FDF4),
-                            child: const Icon(Icons.image_not_supported,
-                                color: Color(0xFF639A70)),
+                            child: const Icon(
+                              Icons.image_not_supported,
+                              color: Color(0xFF639A70),
+                            ),
                           ),
                         )
                       : Container(
                           width: 72,
                           height: 72,
                           color: const Color(0xFFF0FDF4),
-                          child: const Icon(Icons.image, color: Color(0xFF639A70)),
+                          child: const Icon(
+                            Icons.image,
+                            color: Color(0xFF639A70),
+                          ),
                         ),
                 );
               },
@@ -419,7 +425,11 @@ class SuccessConfirmationScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, WidgetRef ref, bool isHindi) {
+  Widget _buildActionButtons(
+    BuildContext context,
+    WidgetRef ref,
+    bool isHindi,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -427,8 +437,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
           ElevatedButton(
             onPressed: pickup == null
                 ? null
-                : () =>
-                    context.go('${AppRoutes.pickupTracking}/${pickup!.id}'),
+                : () => context.go('${AppRoutes.pickupTracking}/${pickup!.id}'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF639A70),
               foregroundColor: Colors.white,

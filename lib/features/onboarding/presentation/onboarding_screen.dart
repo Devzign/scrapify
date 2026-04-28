@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../core/theme/app_color.dart';
 import '../../../core/widgets/custom_button.dart';
 import 'view_models/onboarding_view_model.dart';
 import 'view_models/onboarding_view_state.dart';
@@ -31,23 +32,48 @@ class OnboardingScreen extends ConsumerWidget {
     final isLastPage = state.currentPage == viewModel.pages.length - 1;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColor.onboardingBackground,
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
         child: SafeArea(
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: viewModel.skip,
-                  child: const Text(
-                    'Skip',
-                    style: TextStyle(
-                      color: Color(0xFF7A7A7A),
-                      fontWeight: FontWeight.bold,
+              Padding(
+                padding: EdgeInsets.fromLTRB(24.w, 12.h, 16.w, 0),
+                child: Row(
+                  children: [
+                    Container(
+                      height: 40.r,
+                      width: 40.r,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColor.deepNavy.withValues(alpha: 0.06),
+                            blurRadius: 14,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Image.asset(
+                        'assets/images/Scrapify-app-icon.png',
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: viewModel.skip,
+                      child: const Text(
+                        'Skip',
+                        style: TextStyle(
+                          color: Color(0xFF64748B),
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -61,7 +87,10 @@ class OnboardingScreen extends ConsumerWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
                 child: Column(
                   children: [
                     Row(
@@ -81,6 +110,10 @@ class OnboardingScreen extends ConsumerWidget {
                             ? 'Get Started  |  शुरू करें  →'
                             : 'Next  →',
                         onPressed: viewModel.handlePrimaryAction,
+                        backgroundColor: AppColor.emeraldMoss,
+                        textColor: Colors.white,
+                        borderRadius: 16,
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
                   ],

@@ -79,10 +79,14 @@ class LanguageSelectionScreen extends ConsumerWidget {
                 CustomButton(
                   onPressed: () async {
                     await viewModel.confirmLanguage();
-                    if (context.mounted) {
-                      await context.setLocale(Locale(state.selectedLanguage));
-                      context.push(AppRoutes.role);
+                    if (!context.mounted) {
+                      return;
                     }
+                    await context.setLocale(Locale(state.selectedLanguage));
+                    if (!context.mounted) {
+                      return;
+                    }
+                    context.push(AppRoutes.role);
                   },
                   text: "${'common.continue'.tr(gender: 'en')}  /  आगे बढ़ें",
                   trailing: const FaIcon(FontAwesomeIcons.arrowRight, size: 20),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../core/storage/app_preferences.dart';
 import '../../../../core/utils/app_routes.dart';
@@ -11,7 +10,10 @@ typedef OnboardingPageContent = ({
   String titleEn,
   String titleHi,
   String description,
-  IconData icon,
+  String imageAsset,
+  String badgeLabel,
+  String badgeValue,
+  IconData badgeIcon,
 });
 
 const List<OnboardingPageContent> onboardingPages = [
@@ -20,21 +22,30 @@ const List<OnboardingPageContent> onboardingPages = [
     titleHi: 'घर बैठे सामान बेचें',
     description:
         'Sell your scrap and e-waste easily without going anywhere. Schedule a pickup in just a few clicks.',
-    icon: FontAwesomeIcons.boxOpen,
+    imageAsset: 'assets/images/onboarding/home_pickup.png',
+    badgeLabel: 'Doorstep Pickup',
+    badgeValue: 'Free visit',
+    badgeIcon: Icons.local_shipping_rounded,
   ),
   (
     titleEn: 'Best Prices',
     titleHi: 'सही दाम पाएँ',
     description:
         'Get transparent and fair market prices for your metal and electronic waste.',
-    icon: FontAwesomeIcons.moneyBillTrendUp,
+    imageAsset: 'assets/images/onboarding/daily_rate_card.png',
+    badgeLabel: 'Daily Rate Card',
+    badgeValue: 'Fair value',
+    badgeIcon: Icons.sell_rounded,
   ),
   (
     titleEn: 'Instant Payment',
     titleHi: 'तुरंत पैसे पाएँ',
     description:
         'Receive money directly in your bank account after the pickup.',
-    icon: FontAwesomeIcons.buildingColumns,
+    imageAsset: 'assets/images/onboarding/instant_wallet.png',
+    badgeLabel: 'Received',
+    badgeValue: '₹ 850.00',
+    badgeIcon: Icons.check_circle_rounded,
   ),
 ];
 

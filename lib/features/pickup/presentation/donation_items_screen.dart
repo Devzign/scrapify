@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/extensions/color_opacity.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../domain/models/basket_item.dart';
@@ -62,7 +63,9 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          context.locale.languageCode == 'hi' ? 'दान की वस्तुएं' : 'Donate Items',
+          context.locale.languageCode == 'hi'
+              ? 'दान की वस्तुएं'
+              : 'Donate Items',
           style: const TextStyle(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
@@ -76,7 +79,7 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
               child: Text(
                 'Step 1 of 2',
                 style: TextStyle(
-                  color: AppTheme.primaryColor.withOpacity(0.8),
+                  color: AppTheme.primaryColor.o(0.8),
                   fontWeight: FontWeight.bold,
                   fontSize: 13,
                 ),
@@ -91,14 +94,19 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
                 child: Column(
                   children: [
                     // Item Cards
-                    ...selectedItems.map((item) => _DonationItemUploadCard(
-                          item: item,
-                          onAddPhoto: () => _pickImage(item.category.id),
-                        )),
+                    ...selectedItems.map(
+                      (item) => _DonationItemUploadCard(
+                        item: item,
+                        onAddPhoto: () => _pickImage(item.category.id),
+                      ),
+                    ),
 
                     const SizedBox(height: 12),
 
@@ -110,7 +118,7 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: const Color(0xFFD1D5DB).withOpacity(0.4),
+                          color: const Color(0xFFD1D5DB).o(0.4),
                           style: BorderStyle.solid,
                           width: 1.5,
                         ),
@@ -120,7 +128,7 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: AppTheme.primaryColor.withOpacity(0.1),
+                              color: AppTheme.primaryColor.o(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -131,7 +139,9 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            context.locale.languageCode == 'hi' ? 'अन्य वस्तुएं' : 'Other Items',
+                            context.locale.languageCode == 'hi'
+                                ? 'अन्य वस्तुएं'
+                                : 'Other Items',
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
@@ -171,9 +181,10 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                             controller: _notesController,
                             maxLines: 4,
                             decoration: InputDecoration(
-                              hintText: 'Describe condition, quantity, or specific pickup instructions...',
+                              hintText:
+                                  'Describe condition, quantity, or specific pickup instructions...',
                               hintStyle: TextStyle(
-                                color: AppTheme.textSecondary.withOpacity(0.5),
+                                color: AppTheme.textSecondary.o(0.5),
                                 fontSize: 14,
                               ),
                               filled: true,
@@ -229,10 +240,7 @@ class _DonationItemUploadCard extends StatelessWidget {
   final BasketItem item;
   final VoidCallback onAddPhoto;
 
-  const _DonationItemUploadCard({
-    required this.item,
-    required this.onAddPhoto,
-  });
+  const _DonationItemUploadCard({required this.item, required this.onAddPhoto});
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +295,10 @@ class _DonationItemUploadCard extends StatelessWidget {
                 style: TextButton.styleFrom(
                   foregroundColor: AppTheme.primaryColor,
                   backgroundColor: const Color(0xFFEAF6EE),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -324,7 +335,7 @@ class _DonationItemUploadCard extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.add_a_photo_outlined,
-                            color: AppTheme.textSecondary.withOpacity(0.4),
+                            color: AppTheme.textSecondary.o(0.4),
                             size: 32,
                           ),
                           const SizedBox(height: 12),
@@ -335,7 +346,7 @@ class _DonationItemUploadCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
-                              color: AppTheme.textSecondary.withOpacity(0.5),
+                              color: AppTheme.textSecondary.o(0.5),
                               letterSpacing: 1.1,
                             ),
                           ),

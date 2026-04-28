@@ -16,8 +16,22 @@ class WhRequestsPage extends ConsumerStatefulWidget {
 
 class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
   int _selectedFilter = 0;
-  final _filters = ['All', 'Unassigned', 'Assigned', 'In Progress', 'Completed', 'Rescheduled'];
-  final _statusParams = [null, 'unassigned', 'assigned', 'in_progress', 'completed', 'rescheduled'];
+  final _filters = [
+    'All',
+    'Unassigned',
+    'Assigned',
+    'In Progress',
+    'Completed',
+    'Rescheduled',
+  ];
+  final _statusParams = [
+    null,
+    'unassigned',
+    'assigned',
+    'in_progress',
+    'completed',
+    'rescheduled',
+  ];
 
   @override
   void initState() {
@@ -27,7 +41,9 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
 
   void _applyFilter(int index) {
     setState(() => _selectedFilter = index);
-    ref.read(warehouseProvider.notifier).loadRequests(status: _statusParams[index]);
+    ref
+        .read(warehouseProvider.notifier)
+        .loadRequests(status: _statusParams[index]);
   }
 
   @override
@@ -44,26 +60,37 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
               child: state.isLoading && state.requests.isEmpty
                   ? const Center(child: CircularProgressIndicator())
                   : RefreshIndicator(
-                      onRefresh: () => ref.read(warehouseProvider.notifier)
+                      onRefresh: () => ref
+                          .read(warehouseProvider.notifier)
                           .loadRequests(status: _statusParams[_selectedFilter]),
                       child: CustomScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         slivers: [
-                          SliverToBoxAdapter(child: _buildHeader(state.requests.length)),
+                          SliverToBoxAdapter(
+                            child: _buildHeader(state.requests.length),
+                          ),
                           SliverToBoxAdapter(child: _buildFilterChips()),
                           if (state.error != null)
                             SliverToBoxAdapter(
                               child: Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color: Colors.orange.shade50,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.orange.shade200),
+                                  border: Border.all(
+                                    color: Colors.orange.shade200,
+                                  ),
                                 ),
                                 child: Text(
                                   state.error!,
-                                  style: TextStyle(color: Colors.orange.shade800, fontSize: 13),
+                                  style: TextStyle(
+                                    color: Colors.orange.shade800,
+                                    fontSize: 13,
+                                  ),
                                 ),
                               ),
                             ),
@@ -73,13 +100,18 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.inbox_rounded,
-                                        size: 48, color: Colors.grey.shade300),
+                                    Icon(
+                                      Icons.inbox_rounded,
+                                      size: 48,
+                                      color: Colors.grey.shade300,
+                                    ),
                                     const SizedBox(height: 12),
                                     Text(
                                       'No requests found',
                                       style: TextStyle(
-                                          color: Colors.grey.shade400, fontSize: 15),
+                                        color: Colors.grey.shade400,
+                                        fontSize: 15,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -90,7 +122,8 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                               padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                               sliver: SliverList(
                                 delegate: SliverChildBuilderDelegate(
-                                  (ctx, i) => _buildRequestCard(state.requests[i]),
+                                  (ctx, i) =>
+                                      _buildRequestCard(state.requests[i]),
                                   childCount: state.requests.length,
                                 ),
                               ),
@@ -124,7 +157,11 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.warehouse_rounded, color: AppTheme.primaryColor, size: 24),
+              Icon(
+                Icons.warehouse_rounded,
+                color: AppTheme.primaryColor,
+                size: 24,
+              ),
               const SizedBox(width: 10),
               Text(
                 warehouseName ?? 'Scrapi5 Warehouse',
@@ -143,8 +180,11 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
               color: Colors.grey.shade50,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.notifications_none_rounded,
-                color: Colors.grey.shade500, size: 22),
+            child: Icon(
+              Icons.notifications_none_rounded,
+              color: Colors.grey.shade500,
+              size: 22,
+            ),
           ),
         ],
       ),
@@ -230,7 +270,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                           color: AppTheme.primaryColor.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
-                        )
+                        ),
                       ]
                     : null,
               ),
@@ -253,158 +293,174 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
 
   Widget _buildRequestCard(WarehouseRequest r) {
     final statusStyle = _statusStyle(r.status);
-    final isUnassigned = r.status.toLowerCase() == 'unassigned' ||
+    final isUnassigned =
+        r.status.toLowerCase() == 'unassigned' ||
         (r.status.toLowerCase() == 'pending' && r.assignedPickupBoyId == null);
 
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => WhRequestDetailPage(request: r),
-        ),
+        MaterialPageRoute(builder: (_) => WhRequestDetailPage(request: r)),
       ),
       child: Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'ORDER CODE  ',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.grey.shade400,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      Text(
-                        r.orderCode,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF0F172A),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    r.customerName,
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
-                    ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: statusStyle.$1,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  r.status.toUpperCase().replaceAll('_', ' '),
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w900,
-                    color: statusStyle.$2,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildDetailRow(
-            icon: Icons.access_time_rounded,
-            label: 'Scheduled Time',
-            value: _formatScheduled(r.scheduledAt),
-            labelColor: AppTheme.primaryColor,
-          ),
-          const SizedBox(height: 10),
-          _buildDetailRow(
-            icon: Icons.location_on_rounded,
-            label: r.assignedPickupBoyName != null ? 'Driver Assigned' : 'Address',
-            value: r.assignedPickupBoyName ?? r.address,
-            labelColor: AppTheme.primaryColor,
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: isUnassigned
-                    ? ElevatedButton.icon(
-                        onPressed: () => _showAssignSheet(r),
-                        icon: const Icon(Icons.person_add_rounded, size: 18),
-                        label: const Text(
-                          'Assign Driver',
-                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppTheme.primaryColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          elevation: 0,
-                        ),
-                      )
-                    : OutlinedButton(
-                        onPressed: r.assignedPickupBoyId != null
-                            ? () => _showReassignSheet(r)
-                            : null,
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: Colors.grey.shade200),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: Text(
-                          r.assignedPickupBoyId != null ? 'Reassign' : 'View Details',
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppTheme.softShadow,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'ORDER CODE  ',
                           style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13,
-                              color: Colors.grey.shade600),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.grey.shade400,
+                            letterSpacing: -0.3,
+                          ),
                         ),
+                        Text(
+                          r.orderCode,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      r.customerName,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0F172A),
                       ),
-              ),
-              if (r.customerPhone.isNotEmpty) ...[
-                const SizedBox(width: 10),
+                    ),
+                  ],
+                ),
                 Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade200),
-                    borderRadius: BorderRadius.circular(12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
                   ),
-                  child: IconButton(
-                    onPressed: () async {
-                      final uri = Uri.parse('tel:${r.customerPhone}');
-                      if (await canLaunchUrl(uri)) launchUrl(uri);
-                    },
-                    icon: Icon(Icons.call, color: AppTheme.primaryColor, size: 20),
+                  decoration: BoxDecoration(
+                    color: statusStyle.$1,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    r.status.toUpperCase().replaceAll('_', ' '),
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      color: statusStyle.$2,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ],
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(height: 16),
+            _buildDetailRow(
+              icon: Icons.access_time_rounded,
+              label: 'Scheduled Time',
+              value: _formatScheduled(r.scheduledAt),
+              labelColor: AppTheme.primaryColor,
+            ),
+            const SizedBox(height: 10),
+            _buildDetailRow(
+              icon: Icons.location_on_rounded,
+              label: r.assignedPickupBoyName != null
+                  ? 'Driver Assigned'
+                  : 'Address',
+              value: r.assignedPickupBoyName ?? r.address,
+              labelColor: AppTheme.primaryColor,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: isUnassigned
+                      ? ElevatedButton.icon(
+                          onPressed: () => _showAssignSheet(r),
+                          icon: const Icon(Icons.person_add_rounded, size: 18),
+                          label: const Text(
+                            'Assign Driver',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppTheme.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                        )
+                      : OutlinedButton(
+                          onPressed: r.assignedPickupBoyId != null
+                              ? () => _showReassignSheet(r)
+                              : null,
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: Colors.grey.shade200),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            r.assignedPickupBoyId != null
+                                ? 'Reassign'
+                                : 'View Details',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ),
+                ),
+                if (r.customerPhone.isNotEmpty) ...[
+                  const SizedBox(width: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade200),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      onPressed: () async {
+                        final uri = Uri.parse('tel:${r.customerPhone}');
+                        if (await canLaunchUrl(uri)) launchUrl(uri);
+                      },
+                      icon: Icon(
+                        Icons.call,
+                        color: AppTheme.primaryColor,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -478,7 +534,9 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
   }
 
   Future<void> _showAssignSheet(WarehouseRequest request) async {
-    await ref.read(warehouseProvider.notifier).loadAssignablePickupBoys(request.id);
+    await ref
+        .read(warehouseProvider.notifier)
+        .loadAssignablePickupBoys(request.id);
     if (!mounted) return;
     showModalBottomSheet(
       context: context,
@@ -490,7 +548,8 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
         requestId: request.id,
         orderCode: request.orderCode,
         onAssigned: () {
-          ref.read(warehouseProvider.notifier)
+          ref
+              .read(warehouseProvider.notifier)
               .loadRequests(status: _statusParams[_selectedFilter]);
         },
       ),
@@ -498,7 +557,9 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
   }
 
   Future<void> _showReassignSheet(WarehouseRequest request) async {
-    await ref.read(warehouseProvider.notifier).loadAssignablePickupBoys(request.id);
+    await ref
+        .read(warehouseProvider.notifier)
+        .loadAssignablePickupBoys(request.id);
     if (!mounted) return;
     showModalBottomSheet(
       context: context,
@@ -510,7 +571,8 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
         requestId: request.id,
         orderCode: request.orderCode,
         onReassigned: () {
-          ref.read(warehouseProvider.notifier)
+          ref
+              .read(warehouseProvider.notifier)
               .loadRequests(status: _statusParams[_selectedFilter]);
         },
       ),
@@ -542,7 +604,9 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
     final boys = state.assignablePickupBoys;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Container(
         padding: const EdgeInsets.all(20),
         constraints: BoxConstraints(
@@ -561,13 +625,17 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
                     const Text(
                       'Assign Driver',
                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF0F172A)),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0F172A),
+                      ),
                     ),
                     Text(
                       widget.orderCode,
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
@@ -609,7 +677,10 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
                         final ok = await ref
                             .read(warehouseProvider.notifier)
                             .assignPickupBoy(widget.requestId, _selectedBoyId!);
-                        if (ok && mounted) {
+                        if (!context.mounted) {
+                          return;
+                        }
+                        if (ok) {
                           Navigator.pop(context);
                           widget.onAssigned();
                         }
@@ -619,17 +690,22 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: state.isActionLoading
                     ? const SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
-                    : const Text('Confirm Assignment',
-                        style: TextStyle(fontWeight: FontWeight.w700)),
+                    : const Text(
+                        'Confirm Assignment',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
               ),
             ),
           ],
@@ -670,7 +746,9 @@ class _ReassignSheetState extends ConsumerState<_ReassignSheet> {
     final boys = state.assignablePickupBoys;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Container(
         padding: const EdgeInsets.all(20),
         constraints: BoxConstraints(
@@ -689,13 +767,17 @@ class _ReassignSheetState extends ConsumerState<_ReassignSheet> {
                     const Text(
                       'Reassign Driver',
                       style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF0F172A)),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF0F172A),
+                      ),
                     ),
                     Text(
                       widget.orderCode,
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                   ],
                 ),
@@ -710,8 +792,13 @@ class _ReassignSheetState extends ConsumerState<_ReassignSheet> {
               controller: _reasonController,
               decoration: InputDecoration(
                 labelText: 'Reason for reassignment',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
               maxLines: 2,
             ),
@@ -741,7 +828,8 @@ class _ReassignSheetState extends ConsumerState<_ReassignSheet> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _selectedBoyId == null ||
+                onPressed:
+                    _selectedBoyId == null ||
                         _reasonController.text.trim().isEmpty ||
                         state.isActionLoading
                     ? null
@@ -753,7 +841,10 @@ class _ReassignSheetState extends ConsumerState<_ReassignSheet> {
                               _selectedBoyId!,
                               _reasonController.text.trim(),
                             );
-                        if (ok && mounted) {
+                        if (!context.mounted) {
+                          return;
+                        }
+                        if (ok) {
                           Navigator.pop(context);
                           widget.onReassigned();
                         }
@@ -763,17 +854,22 @@ class _ReassignSheetState extends ConsumerState<_ReassignSheet> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: state.isActionLoading
                     ? const SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
-                    : const Text('Confirm Reassignment',
-                        style: TextStyle(fontWeight: FontWeight.w700)),
+                    : const Text(
+                        'Confirm Reassignment',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
               ),
             ),
           ],
@@ -819,7 +915,9 @@ class _PickupBoyTile extends StatelessWidget {
               child: Text(
                 boy.name.isNotEmpty ? boy.name[0].toUpperCase() : '?',
                 style: TextStyle(
-                    color: AppTheme.primaryDark, fontWeight: FontWeight.w700),
+                  color: AppTheme.primaryDark,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -830,22 +928,28 @@ class _PickupBoyTile extends StatelessWidget {
                   Text(
                     boy.name,
                     style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        color: Color(0xFF0F172A)),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: Color(0xFF0F172A),
+                    ),
                   ),
                   if (boy.phone.isNotEmpty)
                     Text(
                       boy.phone,
-                      style:
-                          TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                 ],
               ),
             ),
             if (selected)
-              Icon(Icons.check_circle_rounded,
-                  color: AppTheme.primaryColor, size: 22),
+              Icon(
+                Icons.check_circle_rounded,
+                color: AppTheme.primaryColor,
+                size: 22,
+              ),
           ],
         ),
       ),

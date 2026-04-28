@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,11 +67,7 @@ class ScrapifyApp extends StatelessWidget {
         return MaterialApp.router(
           title: config.appName,
           debugShowCheckedModeBanner: config.isDev,
-          theme: AppTheme.lightTheme.copyWith(
-            textTheme: GoogleFonts.interTextTheme(
-              AppTheme.lightTheme.textTheme,
-            ),
-          ),
+          theme: AppTheme.lightTheme,
           routerConfig: AppRoutes.router,
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,

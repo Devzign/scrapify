@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scrapify Onboarding - Best Prices</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec30",
+                        "primary-dark": "#0ea623",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102213",
+                        "navy": "#0f172a", // Adding navy as requested in description
+                        "navy-light": "#1e293b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom styles for specific needs not covered by Tailwind config alone */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 antialiased h-screen w-full flex justify-center">
+<!-- Main Container - Mobile Form Factor -->
+<div class="relative flex h-full w-full max-w-md flex-col overflow-hidden bg-background-light dark:bg-background-dark shadow-2xl sm:rounded-xl sm:h-[90vh] sm:my-auto">
+<!-- Header -->
+<div class="flex justify-end px-6 pt-12 pb-4 sm:pt-6">
+<button class="text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+                Skip
+            </button>
+</div>
+<!-- Scrollable Content Area -->
+<div class="flex-1 flex flex-col items-center justify-center px-6 pb-6 relative z-10">
+<!-- Illustration Area -->
+<div class="w-full relative flex items-center justify-center mb-10">
+<!-- Decorative background blob -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-emerald-100/50 dark:from-primary/5 dark:to-emerald-900/20 rounded-full blur-3xl scale-125 z-0"></div>
+<!-- Main Image Container -->
+<div class="relative z-10 w-full aspect-square max-h-[340px] rounded-3xl overflow-hidden bg-white/40 dark:bg-white/5 backdrop-blur-sm border border-white/50 dark:border-white/10 shadow-lg flex items-center justify-center p-8 group">
+<div class="w-full h-full bg-contain bg-center bg-no-repeat transition-transform duration-700 hover:scale-105" data-alt="3D illustration of coins and financial growth representing best prices" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA1qZZY9aVzNCq0j8rWz8I_8hwkvG--uF37zPN6A4zLbXPTbbQknBCcNgrPfO24txQ3qV_09xz6mgqJ9ISAVMJcaGy9M2ajxGADK0J6YGilMj03S_RjHNwABK0JOVBVm49MAOsML2AS9krjV0TcVtawWsifwb2-3D7b6-ziNyJY3WO3WYUos99RgUYAJLEGE7wyDaZIiZ66vy8NRdUwpWEal1YOJyJdifnuiz13U-o9NM7adiO9qsQzoMoQO92SuguUE74vKUI26zE');"></div>
+<!-- Floating Badge Overlay (Price Tag Concept) -->
+<div class="absolute bottom-6 right-6 bg-white dark:bg-navy-light px-4 py-2 rounded-xl shadow-lg border border-primary/20 flex items-center gap-2 animate-bounce" style="animation-duration: 3s;">
+<span class="material-symbols-outlined text-primary">sell</span>
+<div class="flex flex-col">
+<span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Market Rate</span>
+<span class="text-sm font-bold text-slate-800 dark:text-white">₹ Best Value</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Content Area -->
+<div class="w-full text-center space-y-4">
+<div class="space-y-1">
+<h1 class="text-3xl font-bold tracking-tight text-navy dark:text-white font-display">
+                        Best Prices
+                    </h1>
+<h2 class="text-2xl font-semibold text-navy/80 dark:text-white/80 font-display">
+                        सही दाम पाएँ
+                    </h2>
+</div>
+<p class="text-slate-600 dark:text-slate-300 text-base leading-relaxed max-w-[280px] mx-auto">
+                    Get transparent and fair market prices for your metal and electronic waste.
+                </p>
+</div>
+</div>
+<!-- Footer / Action Area -->
+<div class="w-full px-6 pb-10 pt-4 bg-background-light dark:bg-background-dark z-20">
+<!-- Progress Indicators -->
+<div class="flex w-full items-center justify-center gap-2 mb-8">
+<!-- Inactive Dot 1 -->
+<div class="h-2 w-2 rounded-full bg-slate-200 dark:bg-slate-700 transition-all duration-300"></div>
+<!-- Active Dot 2 (Primary Color - Expanded slightly) -->
+<div class="h-2 w-8 rounded-full bg-primary shadow-[0_0_10px_rgba(19,236,48,0.4)] transition-all duration-300"></div>
+<!-- Inactive Dot 3 -->
+<div class="h-2 w-2 rounded-full bg-slate-200 dark:bg-slate-700 transition-all duration-300"></div>
+</div>
+<!-- Next Button -->
+<button class="w-full py-4 bg-primary hover:bg-primary-dark active:scale-[0.98] rounded-xl shadow-lg shadow-primary/20 text-navy-light font-bold text-lg tracking-wide transition-all duration-200 flex items-center justify-center gap-2 group">
+<span>Next</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</body></html>

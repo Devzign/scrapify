@@ -44,10 +44,7 @@ class _SelectAddressTimeScreenState
   Widget build(BuildContext context) {
     final basketItems = ref.watch(basketProvider);
     final donationItems = ref.watch(donationProvider);
-    final totalEstimate = basketItems.fold<double>(
-      0,
-      (sum, item) => sum + item.totalEstimate,
-    );
+
     final booking = ref.watch(bookingProvider);
     final isDonationFlow = booking.isDonationFlow;
     final addressesAsync = ref.watch(addressProvider);

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scrapify - Onboarding Instant Payment</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec30",
+                        "primary-dark": "#0fb825",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102213",
+                        "neutral-surface": "#ffffff",
+                        "neutral-text": "#111812",
+                        "neutral-text-secondary": "#4b5563",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "Noto Sans", "sans-serif"],
+                        "body": ["Inter", "Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-neutral-text antialiased selection:bg-primary/30">
+<div class="relative flex h-screen w-full flex-col overflow-hidden max-w-md mx-auto shadow-2xl bg-white dark:bg-background-dark">
+<!-- Top Bar -->
+<div class="flex items-center justify-end p-6 pt-12 z-20">
+<button class="flex items-center justify-center text-neutral-text-secondary hover:text-primary transition-colors duration-200">
+<span class="text-sm font-semibold tracking-wide">Skip</span>
+</button>
+</div>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col items-center justify-center px-6 pb-6 relative z-10">
+<!-- Illustration Container -->
+<div class="w-full max-w-[320px] aspect-[4/5] relative mb-8 flex items-center justify-center">
+<!-- Decorative background blob -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-primary/5 rounded-full scale-110 blur-3xl opacity-60"></div>
+<!-- Main Image -->
+<div class="w-full h-full bg-center bg-contain bg-no-repeat relative z-10 drop-shadow-xl transition-transform hover:scale-105 duration-500" data-alt="Smartphone showing a successful digital bank transfer with green checkmarks" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDXcqGvh3m8-BZT_yzXqkhcy-Sf472C35HKDcsr58nh-MBaJNomaIri6H_MiNBIyNCWZAmj6qymUQlTWKUTHENWzpGbir2fbFkEHYnyMG9aoaH0pE_u4whHzu0ou1ObQn25bBiwGjmHWymvv7X6f-bztnD8u3bdBz0MYKYFh97v_f60moKeFxXbfTZb8dm8FCTaEs7Jmooq5NJJghXTH4tAnjp73SsZl0o9qKLvJQQrSDYDy_EZdfcEyYSh845NQbU1TZ50uTNff_Y');"></div>
+<!-- Floating Success Badge Overlay -->
+<div class="absolute bottom-10 right-0 bg-white dark:bg-zinc-800 p-3 rounded-xl shadow-lg flex items-center gap-3 animate-bounce" style="animation-duration: 3s;">
+<div class="bg-primary/20 p-2 rounded-full">
+<span class="material-symbols-outlined text-primary-dark dark:text-primary text-2xl">check_circle</span>
+</div>
+<div class="flex flex-col pr-2">
+<span class="text-xs text-neutral-text-secondary font-medium">Received</span>
+<span class="text-sm font-bold text-neutral-text dark:text-white">₹ 850.00</span>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="flex flex-col items-center text-center space-y-4 max-w-xs">
+<h1 class="text-3xl font-bold leading-tight tracking-tight text-neutral-text dark:text-white">
+<span class="text-primary-dark dark:text-primary block mb-1">Instant Payment</span>
+<span class="text-2xl font-semibold opacity-90">तुरंत पैसे पाएँ</span>
+</h1>
+<p class="text-neutral-text-secondary dark:text-gray-400 text-base font-normal leading-relaxed">
+                    Receive money directly in your bank account after the pickup.
+                </p>
+<!-- Trust Badges -->
+<div class="flex items-center gap-4 pt-2 opacity-70 grayscale hover:grayscale-0 transition-all duration-300">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xl">account_balance</span>
+<span class="text-xs font-medium">Bank</span>
+</div>
+<div class="h-1 w-1 bg-gray-300 rounded-full"></div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-xl">qr_code_scanner</span>
+<span class="text-xs font-medium">UPI</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Controls -->
+<div class="w-full px-6 pb-10 pt-4 bg-white dark:bg-background-dark z-20">
+<!-- Progress Indicators -->
+<div class="flex w-full flex-row items-center justify-center gap-2 mb-8">
+<div class="h-2 w-2 rounded-full bg-gray-200 dark:bg-gray-700 transition-colors"></div>
+<div class="h-2 w-2 rounded-full bg-gray-200 dark:bg-gray-700 transition-colors"></div>
+<div class="h-2 w-8 rounded-full bg-primary transition-all duration-300 shadow-sm shadow-primary/30"></div>
+</div>
+<!-- Primary Action Button -->
+<button class="w-full group relative flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-neutral-text dark:text-background-dark font-bold text-lg py-4 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-[0.98]">
+<span>Get Started</span>
+<span class="w-px h-4 bg-black/10 mx-1"></span>
+<span>शुरू करें</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</body></html>

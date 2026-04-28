@@ -321,7 +321,6 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
 
     final reason = _selectedReason!;
     final notes = _detailsController.text.trim();
-    final fullReason = notes.isNotEmpty ? '$reason: $notes' : reason;
 
     final ok = await ref
         .read(pickupBoyProvider.notifier)

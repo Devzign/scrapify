@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Scrapify - Sell from Home</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec30",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102213",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased overflow-hidden">
+<div class="relative flex h-screen w-full flex-col max-w-md mx-auto bg-white dark:bg-background-dark shadow-xl overflow-hidden">
+<!-- Skip Button Header -->
+<div class="flex px-6 pt-6 pb-2 justify-end z-10">
+<button class="flex items-center justify-center rounded-xl h-10 px-4 bg-transparent text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5 text-sm font-semibold transition-colors">
+<span>Skip</span>
+</button>
+</div>
+<!-- Main Content Area -->
+<div class="flex flex-1 flex-col items-center justify-center px-6 relative z-0">
+<!-- Hero Illustration Container -->
+<div class="relative w-full aspect-square max-h-[400px] mb-8 flex items-center justify-center">
+<!-- Background decorative blob -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-emerald-100/50 dark:from-primary/5 dark:to-emerald-900/20 rounded-full scale-90 blur-2xl"></div>
+<!-- Main Illustration -->
+<div class="w-full h-full bg-center bg-contain bg-no-repeat relative z-10 drop-shadow-lg" data-alt="Professional 3D illustration of a friendly recycling agent picking up a box from a home doorstep" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuACq9tW0m4eRI904UwV30kIujlyijgEwyzbP76wSWSuxxyo-e-DY0l_9T5CyfZy3DVdJ7XKngJHMI-6xUldQncYIiqQlKLeUoGeB94KpcCCMHm84Ucy38LlEUAnMGA9YQIOTGgMjCH5CtY573eoq_zSFBhcxorII98RyP2AIYbCQQTkxkncVEZzX-eVuNL8LWe7DzLPsGYpeeHPK_icXtAlQKQzs4faKoSe2ErwnAkQRyJlz_CgiOuXR9ZOC6_dMGgvj709SwC05bE');"></div>
+</div>
+<!-- Text Content -->
+<div class="flex flex-col items-center text-center space-y-4 max-w-xs mx-auto">
+<h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+<span class="text-primary dark:text-primary brightness-90">Sell from Home</span>
+<span class="block text-2xl mt-1 font-bold text-slate-800 dark:text-slate-200">घर बैठे सामान बेचें</span>
+</h1>
+<p class="text-slate-500 dark:text-slate-400 text-base leading-relaxed font-medium">
+                    Sell your scrap and e-waste easily without going anywhere. Schedule a pickup in just a few clicks.
+                </p>
+</div>
+</div>
+<!-- Footer / Controls -->
+<div class="flex flex-col items-center w-full px-6 pb-10 pt-4 bg-white dark:bg-background-dark">
+<!-- Progress Dots -->
+<div class="flex items-center gap-2 mb-8">
+<div class="h-2.5 w-8 rounded-full bg-primary shadow-sm shadow-primary/30 transition-all duration-300"></div>
+<div class="h-2.5 w-2.5 rounded-full bg-slate-200 dark:bg-slate-700 transition-all duration-300"></div>
+<div class="h-2.5 w-2.5 rounded-full bg-slate-200 dark:bg-slate-700 transition-all duration-300"></div>
+</div>
+<!-- Next Button -->
+<button class="w-full h-14 bg-primary hover:bg-[#0fd629] text-slate-900 dark:text-slate-900 font-bold text-lg rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/25 active:scale-[0.98] transition-all">
+<span>Next</span>
+<span class="material-symbols-outlined text-[24px]">arrow_forward</span>
+</button>
+</div>
+<!-- iOS Home Indicator Safe Area Placeholder -->
+<div class="h-1 w-full bg-transparent"></div>
+</div>
+</body></html>
