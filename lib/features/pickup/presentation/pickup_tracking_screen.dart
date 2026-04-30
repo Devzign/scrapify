@@ -172,12 +172,11 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
           flex: 6,
           child: Container(
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(32),
-                topRight: Radius.circular(32),
-              ),
+              borderRadius: AppTheme.cardBorderRadius,
+              border: AppTheme.cardBorder,
+              boxShadow: AppTheme.cardShadow,
             ),
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),

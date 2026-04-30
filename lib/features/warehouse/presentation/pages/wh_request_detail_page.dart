@@ -25,7 +25,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
     final state = ref.watch(warehouseProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -71,8 +71,11 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
             children: [
               GestureDetector(
                 onTap: () => Navigator.pop(context),
-                child: Icon(Icons.arrow_back_rounded,
-                    color: AppTheme.primaryColor, size: 24),
+                child: Icon(
+                  Icons.arrow_back_rounded,
+                  color: AppTheme.primaryColor,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 12),
               const Text(
@@ -92,8 +95,11 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
               color: Colors.grey.shade50,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.notifications_none_rounded,
-                color: Colors.grey.shade500, size: 20),
+            child: Icon(
+              Icons.notifications_none_rounded,
+              color: Colors.grey.shade500,
+              size: 20,
+            ),
           ),
         ],
       ),
@@ -133,8 +139,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
             ],
           ),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: statusBg,
               borderRadius: BorderRadius.circular(20),
@@ -176,7 +181,11 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
       case 'in_progress':
         return (const Color(0xFFFEF3C7), const Color(0xFFD97706), 'Active');
       case 'rescheduled':
-        return (const Color(0xFFFCE7F3), const Color(0xFFDB2777), 'Rescheduled');
+        return (
+          const Color(0xFFFCE7F3),
+          const Color(0xFFDB2777),
+          'Rescheduled',
+        );
       case 'cancelled':
         return (const Color(0xFFFEE2E2), const Color(0xFFEF4444), 'Cancelled');
       default:
@@ -198,8 +207,9 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: AppTheme.softShadow,
+                    borderRadius: AppTheme.cardBorderRadius,
+                    border: AppTheme.cardBorder,
+                    boxShadow: AppTheme.cardShadow,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,8 +243,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                           if (r.customerPhone.isNotEmpty)
                             GestureDetector(
                               onTap: () async {
-                                final uri =
-                                    Uri.parse('tel:${r.customerPhone}');
+                                final uri = Uri.parse('tel:${r.customerPhone}');
                                 if (await canLaunchUrl(uri)) {
                                   launchUrl(uri);
                                 }
@@ -246,15 +255,19 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                                   shape: BoxShape.circle,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: AppTheme.primaryColor
-                                          .withValues(alpha: 0.3),
+                                      color: AppTheme.primaryColor.withValues(
+                                        alpha: 0.3,
+                                      ),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                                child: const Icon(Icons.call,
-                                    color: Colors.white, size: 20),
+                                child: const Icon(
+                                  Icons.call,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
                               ),
                             ),
                         ],
@@ -280,16 +293,20 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                           Uri uri;
                           if (lat != null && lng != null) {
                             uri = Uri.parse(
-                                'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng');
+                              'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng',
+                            );
                           } else if (r.address.isNotEmpty) {
                             uri = Uri.parse(
-                                'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(r.address)}');
+                              'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(r.address)}',
+                            );
                           } else {
                             return;
                           }
                           if (await canLaunchUrl(uri)) {
-                            launchUrl(uri,
-                                mode: LaunchMode.externalApplication);
+                            launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
                           }
                         },
                         child: Container(
@@ -302,19 +319,22 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                           child: Center(
                             child: Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                    color: Colors.grey.shade100),
+                                border: Border.all(color: Colors.grey.shade100),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.near_me_rounded,
-                                      color: AppTheme.primaryColor,
-                                      size: 16),
+                                  Icon(
+                                    Icons.near_me_rounded,
+                                    color: AppTheme.primaryColor,
+                                    size: 16,
+                                  ),
                                   const SizedBox(width: 6),
                                   const Text(
                                     'Open in Maps',
@@ -387,8 +407,8 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                           decoration: BoxDecoration(
                             border: Border(
                               top: BorderSide(
-                                  color:
-                                      Colors.white.withValues(alpha: 0.1)),
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
                             ),
                           ),
                           child: Column(
@@ -398,8 +418,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                                 'EST. WEIGHT',
                                 style: TextStyle(
                                   fontSize: 9,
-                                  color:
-                                      Colors.white.withValues(alpha: 0.7),
+                                  color: Colors.white.withValues(alpha: 0.7),
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -427,8 +446,9 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: AppTheme.softShadow,
+              borderRadius: AppTheme.cardBorderRadius,
+              border: AppTheme.cardBorder,
+              boxShadow: AppTheme.cardShadow,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,8 +469,9 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                     children: [
                       CircleAvatar(
                         radius: 18,
-                        backgroundColor:
-                            AppTheme.primaryColor.withValues(alpha: 0.15),
+                        backgroundColor: AppTheme.primaryColor.withValues(
+                          alpha: 0.15,
+                        ),
                         child: Text(
                           r.assignedPickupBoyName![0].toUpperCase(),
                           style: TextStyle(
@@ -486,8 +507,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 else
                   Text(
                     'No pickup boy assigned yet.',
-                    style: TextStyle(
-                        fontSize: 13, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
                   ),
               ],
             ),
@@ -519,8 +539,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 value,
                 style: TextStyle(
                   fontSize: 13,
-                  fontWeight:
-                      isBold ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
                   color: const Color(0xFF0F172A),
                   height: 1.3,
                 ),
@@ -551,9 +570,9 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppTheme.cardBorderRadius,
           border: Border.all(color: Colors.grey.shade100),
-          boxShadow: AppTheme.softShadow,
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
           children: [
@@ -613,8 +632,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 padding: const EdgeInsets.all(20),
                 child: Text(
                   'Tap REFRESH to load available agents.',
-                  style: TextStyle(
-                      fontSize: 13, color: Colors.grey.shade400),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
                 ),
               )
             else
@@ -634,8 +652,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                                 : () => _doAssign(r),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppTheme.primaryColor,
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 14),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -670,8 +687,8 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
     final workloadColor = boy.currentAssignmentCount > 2
         ? (const Color(0xFFFEE2E2), const Color(0xFFB91C1C))
         : boy.currentAssignmentCount > 0
-            ? (const Color(0xFFFEF3C7), const Color(0xFFB45309))
-            : (const Color(0xFFDCFCE7), const Color(0xFF15803D));
+        ? (const Color(0xFFFEF3C7), const Color(0xFFB45309))
+        : (const Color(0xFFDCFCE7), const Color(0xFF15803D));
 
     return GestureDetector(
       onTap: () => setState(() => _selectedBoyId = boy.id),
@@ -736,7 +753,9 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: workloadColor.$1,
                           borderRadius: BorderRadius.circular(4),
@@ -756,17 +775,23 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
               ),
             ),
             if (isSelected)
-              Icon(Icons.check_circle_rounded,
-                  color: AppTheme.primaryColor, size: 20)
+              Icon(
+                Icons.check_circle_rounded,
+                color: AppTheme.primaryColor,
+                size: 20,
+              )
             else
               Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 8),
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.2)),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Text(
                   'SELECT',
@@ -790,7 +815,11 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
 
     bool success;
     if (alreadyAssigned) {
-      success = await notifier.reassignPickupBoy(r.id, _selectedBoyId!, 'Reassigned from detail view');
+      success = await notifier.reassignPickupBoy(
+        r.id,
+        _selectedBoyId!,
+        'Reassigned from detail view',
+      );
     } else {
       success = await notifier.assignPickupBoy(r.id, _selectedBoyId!);
     }
@@ -798,7 +827,11 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(alreadyAssigned ? 'Reassigned successfully.' : 'Assigned successfully.'),
+          content: Text(
+            alreadyAssigned
+                ? 'Reassigned successfully.'
+                : 'Assigned successfully.',
+          ),
           backgroundColor: AppTheme.primaryColor,
         ),
       );

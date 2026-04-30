@@ -59,7 +59,10 @@ class BasketScreen extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text('ADD ITEMS', style: TextStyle(color: Colors.white)),
+                    child: const Text(
+                      'ADD ITEMS',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -69,9 +72,13 @@ class BasketScreen extends ConsumerWidget {
                 _buildEcologicalImpactCard(basketItems.length, totalEstimate),
                 Expanded(
                   child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 8,
+                    ),
                     itemCount: basketItems.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 12),
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final item = basketItems[index];
                       return _buildBasketItemCard(context, ref, item, index);
@@ -173,13 +180,19 @@ class BasketScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBasketItemCard(BuildContext context, WidgetRef ref, dynamic item, int index) {
+  Widget _buildBasketItemCard(
+    BuildContext context,
+    WidgetRef ref,
+    dynamic item,
+    int index,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Row(
         children: [
@@ -236,7 +249,8 @@ class BasketScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 4),
               GestureDetector(
-                onTap: () => ref.read(basketProvider.notifier).removeItem(index),
+                onTap: () =>
+                    ref.read(basketProvider.notifier).removeItem(index),
                 child: const FaIcon(
                   FontAwesomeIcons.trashCan,
                   color: Color(0xFFFCA5A5),
@@ -266,7 +280,10 @@ class BasketScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: AppTheme.primaryColor,
                   borderRadius: BorderRadius.circular(20),
@@ -280,7 +297,11 @@ class BasketScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              const FaIcon(FontAwesomeIcons.leaf, color: AppTheme.primaryColor, size: 16),
+              const FaIcon(
+                FontAwesomeIcons.leaf,
+                color: AppTheme.primaryColor,
+                size: 16,
+              ),
             ],
           ),
           const SizedBox(height: 16),

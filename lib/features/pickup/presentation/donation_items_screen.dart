@@ -160,8 +160,9 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: AppTheme.softShadow,
+                        borderRadius: AppTheme.cardBorderRadius,
+                        border: AppTheme.cardBorder,
+                        boxShadow: AppTheme.cardShadow,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,8 +250,9 @@ class _DonationItemUploadCard extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

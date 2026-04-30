@@ -211,9 +211,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
     final isSaving = addressState is AsyncLoading;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF102213)
-          : const Color(0xFFF6F8F6),
+      backgroundColor: isDark ? const Color(0xFF102213) : Colors.white,
       appBar: AppBar(
         backgroundColor: isDark
             ? const Color(0xFF1A331F).withValues(alpha: 0.95)

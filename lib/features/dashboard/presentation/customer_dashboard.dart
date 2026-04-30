@@ -169,7 +169,9 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: AppTheme.cardBorderRadius,
+                                border: AppTheme.cardBorder,
+                                boxShadow: AppTheme.cardShadow,
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -557,7 +559,9 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         children: [

@@ -30,8 +30,9 @@ class CategoryListTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: AppTheme.softShadow,
+            borderRadius: AppTheme.cardBorderRadius,
+            border: AppTheme.cardBorder,
+            boxShadow: AppTheme.cardShadow,
           ),
           child: Row(
             children: [

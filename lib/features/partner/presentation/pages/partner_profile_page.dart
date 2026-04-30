@@ -50,7 +50,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
         : 'CP';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -116,8 +116,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: AppTheme.softShadow,
+                  borderRadius: AppTheme.cardBorderRadius,
+                  border: AppTheme.cardBorder,
+                  boxShadow: AppTheme.cardShadow,
                 ),
                 child: Column(
                   children: [
@@ -310,8 +311,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,8 +355,9 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: AppTheme.softShadow,
+          borderRadius: AppTheme.cardBorderRadius,
+          border: AppTheme.cardBorder,
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Row(
           children: [

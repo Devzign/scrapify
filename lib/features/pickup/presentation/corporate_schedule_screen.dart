@@ -132,8 +132,8 @@ class _CorporateScheduleScreenState
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: AppTheme.softShadow,
+                                    borderRadius: AppTheme.cardBorderRadius,
+                                    boxShadow: AppTheme.cardShadow,
                                     border: Border.all(
                                       color: sel
                                           ? AppTheme.primaryColor
@@ -298,8 +298,8 @@ class _CorporateScheduleScreenState
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: AppTheme.softShadow,
+                          borderRadius: AppTheme.cardBorderRadius,
+                          boxShadow: AppTheme.cardShadow,
                           border: Border.all(
                             color: sel
                                 ? AppTheme.primaryColor
@@ -350,8 +350,9 @@ class _CorporateScheduleScreenState
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: AppTheme.softShadow,
+                      borderRadius: AppTheme.cardBorderRadius,
+                      border: AppTheme.cardBorder,
+                      boxShadow: AppTheme.cardShadow,
                     ),
                     child: TextField(
                       controller: _notesController,
@@ -446,7 +447,9 @@ class _CorporateScheduleScreenState
                 ),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppTheme.cardBorderRadius,
+                  border: AppTheme.cardBorder,
+                  boxShadow: AppTheme.cardShadow,
                 ),
                 child: Text(
                   '$name — ${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} ${item.unit}',
@@ -531,9 +534,9 @@ class _CorporateScheduleScreenState
               height: 100,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppTheme.cardBorderRadius,
                 border: Border.all(color: const Color(0xFFE2E8F0), width: 2),
-                boxShadow: AppTheme.softShadow,
+                boxShadow: AppTheme.cardShadow,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

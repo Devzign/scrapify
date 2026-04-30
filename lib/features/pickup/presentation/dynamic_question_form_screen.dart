@@ -204,9 +204,7 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryLight.withValues(alpha: 0.5)
-              : Colors.white,
+          color: isSelected ? AppTheme.primaryColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
@@ -250,9 +248,7 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: isSelected
-                          ? AppTheme.textPrimary
-                          : AppTheme.textPrimary,
+                      color: isSelected ? Colors.white : AppTheme.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -260,7 +256,9 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 13,
-                      color: AppTheme.textSecondary,
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.82)
+                          : AppTheme.textSecondary,
                     ),
                   ),
                 ],
@@ -269,7 +267,7 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
             if (isSelected)
               const FaIcon(
                 FontAwesomeIcons.solidCircleCheck,
-                color: AppTheme.primaryColor,
+                color: Colors.white,
                 size: 24,
               )
             else

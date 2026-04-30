@@ -58,7 +58,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
         : 'P';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -195,8 +195,9 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                               padding: const EdgeInsets.all(28),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(18),
-                                boxShadow: AppTheme.softShadow,
+                                borderRadius: AppTheme.cardBorderRadius,
+                                border: AppTheme.cardBorder,
+                                boxShadow: AppTheme.cardShadow,
                               ),
                               child: Text(
                                 context.partnerText(
@@ -232,8 +233,9 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,8 +345,9 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

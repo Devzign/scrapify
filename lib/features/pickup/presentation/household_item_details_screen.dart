@@ -164,8 +164,9 @@ class _HouseholdItemDetailsScreenState
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         children: [
@@ -245,8 +246,9 @@ class _HouseholdItemDetailsScreenState
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: AppTheme.softShadow,
+              borderRadius: AppTheme.cardBorderRadius,
+              border: AppTheme.cardBorder,
+              boxShadow: AppTheme.cardShadow,
             ),
             child: Column(
               children: section.options
@@ -477,7 +479,7 @@ class _HouseholdItemDetailsScreenState
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 18),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFEAF8EC) : Colors.white,
+          color: isSelected ? AppTheme.primaryColor : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected ? AppTheme.primaryColor : const Color(0xFFE6ECF1),
@@ -489,19 +491,17 @@ class _HouseholdItemDetailsScreenState
           children: [
             Icon(
               _typeIcon(label),
-              color: isSelected
-                  ? AppTheme.primaryColor
-                  : AppTheme.textSecondary,
+              color: isSelected ? Colors.white : AppTheme.textSecondary,
               size: 22,
             ),
             const SizedBox(height: 10),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w800,
-                color: AppTheme.textPrimary,
+                color: isSelected ? Colors.white : AppTheme.textPrimary,
               ),
             ),
           ],
@@ -521,7 +521,7 @@ class _HouseholdItemDetailsScreenState
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFEAF8EC) : Colors.white,
+          color: isSelected ? AppTheme.primaryColor : Colors.white,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -529,10 +529,10 @@ class _HouseholdItemDetailsScreenState
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
-                  color: AppTheme.textPrimary,
+                  color: isSelected ? Colors.white : AppTheme.textPrimary,
                 ),
               ),
             ),
@@ -540,9 +540,7 @@ class _HouseholdItemDetailsScreenState
               isSelected
                   ? Icons.radio_button_checked_rounded
                   : Icons.radio_button_off_rounded,
-              color: isSelected
-                  ? AppTheme.primaryColor
-                  : const Color(0xFFCBD5E1),
+              color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
             ),
           ],
         ),
@@ -558,8 +556,9 @@ class _HouseholdItemDetailsScreenState
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Row(
         children: section.options

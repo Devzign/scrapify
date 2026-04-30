@@ -35,7 +35,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
     final orders = state.orders.whereType<Map<String, dynamic>>().toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -249,8 +249,9 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppTheme.softShadow,
+          borderRadius: AppTheme.cardBorderRadius,
+          border: AppTheme.cardBorder,
+          boxShadow: AppTheme.cardShadow,
         ),
         child: TextField(
           decoration: InputDecoration(
@@ -345,8 +346,9 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -611,9 +613,11 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
         maxChildSize: 0.92,
         expand: false,
         builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            borderRadius: AppTheme.cardBorderRadius,
+            border: AppTheme.cardBorder,
+            boxShadow: AppTheme.cardShadow,
           ),
           child: ListView(
             controller: scrollController,

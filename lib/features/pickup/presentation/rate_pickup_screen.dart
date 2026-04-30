@@ -237,7 +237,7 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryLight : Colors.white,
+          color: isSelected ? AppTheme.primaryColor : Colors.white,
           border: Border.all(
             color: isSelected ? AppTheme.primaryColor : Colors.grey.shade300,
             width: isSelected ? 2 : 1,
@@ -250,7 +250,7 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
             FaIcon(
               icon,
               size: 20,
-              color: isSelected ? AppTheme.primaryColor : Colors.grey.shade400,
+              color: isSelected ? Colors.white : Colors.grey.shade400,
             ),
             const SizedBox(height: 8),
             Text(
@@ -258,9 +258,7 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: isSelected
-                    ? AppTheme.primaryColor
-                    : AppTheme.textPrimary,
+                color: isSelected ? Colors.white : AppTheme.textPrimary,
               ),
             ),
             Text(
@@ -268,7 +266,7 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
               style: TextStyle(
                 fontSize: 10,
                 color: isSelected
-                    ? AppTheme.primaryColor
+                    ? Colors.white.withValues(alpha: 0.82)
                     : AppTheme.textSecondary,
               ),
             ),

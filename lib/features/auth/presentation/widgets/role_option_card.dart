@@ -26,19 +26,22 @@ class RoleOptionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryLight : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected ? AppTheme.primaryColor : Colors.white,
+          borderRadius: AppTheme.cardBorderRadius,
           border: Border.all(
-            color: isSelected ? AppTheme.primaryColor : Colors.grey.shade200,
-            width: 2,
+            color: isSelected
+                ? AppTheme.primaryColor
+                : AppTheme.cardBorderColor,
+            width: AppTheme.cardBorderWidth,
           ),
           boxShadow: [
-            if (!isSelected)
-              BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
+            BoxShadow(
+              color: isSelected
+                  ? AppTheme.primaryColor.withValues(alpha: 0.22)
+                  : Colors.grey.withValues(alpha: 0.1),
+              blurRadius: isSelected ? 18 : 10,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Row(
@@ -48,7 +51,7 @@ class RoleOptionCard extends StatelessWidget {
               width: 50,
               decoration: BoxDecoration(
                 color: isSelected
-                    ? AppTheme.primaryColor
+                    ? Colors.white.withValues(alpha: 0.18)
                     : Colors.grey.shade100,
                 shape: BoxShape.circle,
               ),
@@ -70,17 +73,17 @@ class RoleOptionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isSelected
-                          ? AppTheme.primaryColor
-                          : AppTheme.textPrimary,
+                      color: isSelected ? Colors.white : AppTheme.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppTheme.textSecondary,
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.82)
+                          : AppTheme.textSecondary,
                     ),
                   ),
                 ],
@@ -89,7 +92,7 @@ class RoleOptionCard extends StatelessWidget {
             if (isSelected)
               const FaIcon(
                 FontAwesomeIcons.solidCircleCheck,
-                color: AppTheme.primaryColor,
+                color: Colors.white,
                 size: 20,
               ),
           ],

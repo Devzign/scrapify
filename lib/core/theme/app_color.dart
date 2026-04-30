@@ -14,9 +14,10 @@ class AppColor {
   static const Color hintPeach = Color(0xFFFEF3C7);
   static const Color alertBlue = Color(0xFFEFF6FF);
 
-  static const Color backgroundLight = Color(0xFFF5F5F5);
+  static const Color backgroundLight = Colors.white;
   static const Color onboardingBackground = Color(0xFFF6F8F6);
   static const Color surface = Colors.white;
+  static const Color cardBorder = Color(0xFFE6ECF1);
 
   static const Color textPrimary = Color(0xFF0F172A);
   static const Color textSecondary = Color(0xFF64748B);

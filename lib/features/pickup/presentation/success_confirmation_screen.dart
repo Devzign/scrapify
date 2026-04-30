@@ -498,7 +498,9 @@ class SuccessConfirmationScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.9),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppTheme.cardBorderRadius,
+            border: AppTheme.cardBorder,
+            boxShadow: AppTheme.cardShadow,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

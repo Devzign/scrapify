@@ -31,8 +31,9 @@ class SubCategoryGridCard extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: AppTheme.softShadow,
+            borderRadius: AppTheme.cardBorderRadius,
+            border: AppTheme.cardBorder,
+            boxShadow: AppTheme.cardShadow,
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {

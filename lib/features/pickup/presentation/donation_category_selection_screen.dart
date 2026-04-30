@@ -30,7 +30,9 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          context.locale.languageCode == 'hi' ? 'वस्तुएं दान करें' : 'Donate Items',
+          context.locale.languageCode == 'hi'
+              ? 'वस्तुएं दान करें'
+              : 'Donate Items',
           style: const TextStyle(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
@@ -53,9 +55,9 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(28),
+                        borderRadius: AppTheme.cardBorderRadius,
                         border: Border.all(color: const Color(0xFFE8EAF2)),
-                        boxShadow: AppTheme.softShadow,
+                        boxShadow: AppTheme.cardShadow,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +81,9 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  isHindi ? 'समुदाय को वापस दें' : 'Give Back to Community',
+                                  isHindi
+                                      ? 'समुदाय को वापस दें'
+                                      : 'Give Back to Community',
                                   style: const TextStyle(
                                     color: Color(0xFFF43F5E),
                                     fontWeight: FontWeight.w700,
@@ -125,7 +129,9 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      isHindi ? 'आज क्या दान करना है?' : 'What would you like to donate today?',
+                      isHindi
+                          ? 'आज क्या दान करना है?'
+                          : 'What would you like to donate today?',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
@@ -212,7 +218,9 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 14),
                           Text(
-                            isHindi ? 'हर वस्तु मायने रखती है।' : 'Every piece counts.',
+                            isHindi
+                                ? 'हर वस्तु मायने रखती है।'
+                                : 'Every piece counts.',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -262,7 +270,9 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                               );
                           context.push(AppRoutes.donationItems);
                         },
-                  text: isHindi ? 'पिकअप विवरण जारी रखें' : 'CONTINUE TO PICKUP DETAILS',
+                  text: isHindi
+                      ? 'पिकअप विवरण जारी रखें'
+                      : 'CONTINUE TO PICKUP DETAILS',
                   minHeight: 60,
                   borderRadius: 20,
                 ),
@@ -311,8 +321,8 @@ class _DonationCategoryCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        boxShadow: AppTheme.cardShadow,
         border: Border.all(
           color: isSelected ? AppTheme.primaryColor : const Color(0xFFE9EEF5),
           width: isSelected ? 2 : 1,

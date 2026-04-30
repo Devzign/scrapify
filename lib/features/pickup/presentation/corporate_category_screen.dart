@@ -40,8 +40,10 @@ class _CorporateCategoryScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-              color: AppTheme.textPrimary),
+          icon: const FaIcon(
+            FontAwesomeIcons.arrowLeft,
+            color: AppTheme.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -57,10 +59,9 @@ class _CorporateCategoryScreenState
         children: [
           Expanded(
             child: categoriesAsync.when(
-              data: (categories) => _buildCategoryList(
-                  context, categories, booking, isHindi),
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              data: (categories) =>
+                  _buildCategoryList(context, categories, booking, isHindi),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => Center(child: Text('Error: $e')),
             ),
           ),
@@ -98,13 +99,15 @@ class _CorporateCategoryScreenState
             decoration: BoxDecoration(
               color: const Color(0xFFFFF7ED),
               borderRadius: BorderRadius.circular(16),
-              border:
-                  Border.all(color: const Color(0xFFFED7AA), width: 1),
+              border: Border.all(color: const Color(0xFFFED7AA), width: 1),
             ),
             child: Row(
               children: [
-                const FaIcon(FontAwesomeIcons.circleInfo,
-                    color: Color(0xFFEA580C), size: 16),
+                const FaIcon(
+                  FontAwesomeIcons.circleInfo,
+                  color: Color(0xFFEA580C),
+                  size: 16,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -112,25 +115,28 @@ class _CorporateCategoryScreenState
                         ? 'कीमत पिकअप के समय एजेंट तय करेगा। कोई पेमेंट पहले नहीं।'
                         : 'Price will be quoted by agent at pickup. No payment now.',
                     style: const TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFFEA580C),
-                        height: 1.4),
+                      fontSize: 12,
+                      color: Color(0xFFEA580C),
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 20),
-          ...categories.map((cat) => _CategoryQuantityCard(
-                category: cat,
-                item: booking.items
-                    .where((i) => i.category.id == cat.id)
-                    .firstOrNull,
-                isHindi: isHindi,
-                onChanged: (qty, unit) => ref
-                    .read(corporateBookingProvider.notifier)
-                    .setItem(cat, qty, unit),
-              )),
+          ...categories.map(
+            (cat) => _CategoryQuantityCard(
+              category: cat,
+              item: booking.items
+                  .where((i) => i.category.id == cat.id)
+                  .firstOrNull,
+              isHindi: isHindi,
+              onChanged: (qty, unit) => ref
+                  .read(corporateBookingProvider.notifier)
+                  .setItem(cat, qty, unit),
+            ),
+          ),
         ],
       ),
     );
@@ -173,9 +179,7 @@ class _CorporateCategoryScreenState
                     ),
                   ),
                   Text(
-                    isHindi
-                        ? 'कोटेशन पिकअप पर'
-                        : 'Quotation at pickup',
+                    isHindi ? 'कोटेशन पिकअप पर' : 'Quotation at pickup',
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -190,9 +194,7 @@ class _CorporateCategoryScreenState
               onPressed: itemCount > 0
                   ? () => context.push(AppRoutes.corporateSchedule)
                   : null,
-              text: isHindi
-                  ? 'शेड्यूल करें'
-                  : 'SCHEDULE PICKUP',
+              text: isHindi ? 'शेड्यूल करें' : 'SCHEDULE PICKUP',
               minHeight: 60,
               borderRadius: 20,
             ),
@@ -228,9 +230,10 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
   void initState() {
     super.initState();
     _controller = TextEditingController(
-        text: widget.item != null && widget.item!.quantity > 0
-            ? widget.item!.quantity.toString()
-            : '');
+      text: widget.item != null && widget.item!.quantity > 0
+          ? widget.item!.quantity.toString()
+          : '',
+    );
     _unit = widget.item?.unit ?? 'kg';
   }
 
@@ -248,8 +251,8 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        boxShadow: AppTheme.cardShadow,
         border: Border.all(
           color: isSelected ? AppTheme.primaryColor : Colors.transparent,
           width: 2,
@@ -295,8 +298,11 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
                   ),
                 ),
                 if (isSelected)
-                  const FaIcon(FontAwesomeIcons.solidCircleCheck,
-                      color: AppTheme.primaryColor, size: 18),
+                  const FaIcon(
+                    FontAwesomeIcons.solidCircleCheck,
+                    color: AppTheme.primaryColor,
+                    size: 18,
+                  ),
               ],
             ),
             const SizedBox(height: 14),
@@ -306,14 +312,17 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
                   flex: 3,
                   child: TextField(
                     controller: _controller,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: InputDecoration(
                       hintText: widget.isHindi
                           ? 'मात्रा दर्ज करें'
                           : 'Enter quantity',
                       hintStyle: const TextStyle(
-                          color: Color(0xFF94A3B8), fontSize: 13),
+                        color: Color(0xFF94A3B8),
+                        fontSize: 13,
+                      ),
                       filled: true,
                       fillColor: const Color(0xFFF8FAFC),
                       border: OutlineInputBorder(
@@ -321,7 +330,9 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
                         borderSide: BorderSide.none,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 12),
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                     ),
                     onChanged: (val) {
                       final qty = double.tryParse(val) ?? 0;
@@ -344,8 +355,7 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
                           selected: _unit == 'kg',
                           onTap: () {
                             setState(() => _unit = 'kg');
-                            final qty =
-                                double.tryParse(_controller.text) ?? 0;
+                            final qty = double.tryParse(_controller.text) ?? 0;
                             if (qty > 0) widget.onChanged(qty, 'kg');
                           },
                         ),
@@ -354,8 +364,7 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
                           selected: _unit == 'pcs',
                           onTap: () {
                             setState(() => _unit = 'pcs');
-                            final qty =
-                                double.tryParse(_controller.text) ?? 0;
+                            final qty = double.tryParse(_controller.text) ?? 0;
                             if (qty > 0) widget.onChanged(qty, 'pcs');
                           },
                         ),

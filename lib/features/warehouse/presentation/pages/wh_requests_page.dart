@@ -51,7 +51,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
     final state = ref.watch(warehouseProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -307,8 +307,9 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppTheme.softShadow,
+          borderRadius: AppTheme.cardBorderRadius,
+          border: AppTheme.cardBorder,
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

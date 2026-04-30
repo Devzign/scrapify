@@ -26,7 +26,7 @@ class WhProfilePage extends ConsumerWidget {
     final warehouseAddress = warehouse?.address ?? warehouse?.city ?? '';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -121,8 +121,9 @@ class WhProfilePage extends ConsumerWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppTheme.softShadow,
+          borderRadius: AppTheme.cardBorderRadius,
+          border: AppTheme.cardBorder,
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Row(
           children: [
@@ -135,7 +136,7 @@ class WhProfilePage extends ConsumerWidget {
                     shape: BoxShape.circle,
                     color: const Color(0xFFDCFCE7),
                     border: Border.all(color: Colors.white, width: 3),
-                    boxShadow: AppTheme.softShadow,
+                    boxShadow: AppTheme.cardShadow,
                   ),
                   child: Center(
                     child: Text(
@@ -230,8 +231,9 @@ class WhProfilePage extends ConsumerWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppTheme.softShadow,
+          borderRadius: AppTheme.cardBorderRadius,
+          border: AppTheme.cardBorder,
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,7 +321,9 @@ class WhProfilePage extends ConsumerWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: AppTheme.cardBorderRadius,
+                    border: AppTheme.cardBorder,
+                    boxShadow: AppTheme.cardShadow,
                   ),
                   child: const Icon(
                     Icons.support_agent_rounded,
@@ -434,7 +438,9 @@ class WhProfilePage extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -463,8 +469,9 @@ class WhProfilePage extends ConsumerWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: AppTheme.softShadow,
+          borderRadius: AppTheme.cardBorderRadius,
+          border: AppTheme.cardBorder,
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

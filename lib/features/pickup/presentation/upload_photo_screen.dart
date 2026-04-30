@@ -67,7 +67,9 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                   ),
                 ),
                 title: Text(
-                  context.locale.languageCode == 'hi' ? 'कैमरा खोलें' : 'Take Photo',
+                  context.locale.languageCode == 'hi'
+                      ? 'कैमरा खोलें'
+                      : 'Take Photo',
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 onTap: () => Navigator.pop(ctx, ImageSource.camera),
@@ -85,7 +87,9 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                   ),
                 ),
                 title: Text(
-                  context.locale.languageCode == 'hi' ? 'गैलरी से चुनें' : 'Choose from Gallery',
+                  context.locale.languageCode == 'hi'
+                      ? 'गैलरी से चुनें'
+                      : 'Choose from Gallery',
                   style: const TextStyle(fontWeight: FontWeight.w700),
                 ),
                 onTap: () => Navigator.pop(ctx, ImageSource.gallery),
@@ -104,11 +108,12 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
     final isHindi = context.locale.languageCode == 'hi';
 
     // Every category must have at least 1 photo
-    final allCovered = basketItems.isNotEmpty &&
+    final allCovered =
+        basketItems.isNotEmpty &&
         basketItems.every(
           (item) =>
               (bookingState.categoryImages[item.category.id]?.isNotEmpty ??
-                  false),
+              false),
         );
 
     return Scaffold(
@@ -228,8 +233,9 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: AppTheme.softShadow,
+                borderRadius: AppTheme.cardBorderRadius,
+                border: AppTheme.cardBorder,
+                boxShadow: AppTheme.cardShadow,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,9 +264,18 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
-                      _tipChip(FontAwesomeIcons.sun, 'upload.good_lighting'.tr()),
-                      _tipChip(FontAwesomeIcons.layerGroup, 'upload.separate_items'.tr()),
-                      _tipChip(FontAwesomeIcons.eyeSlash, 'upload.no_blur'.tr()),
+                      _tipChip(
+                        FontAwesomeIcons.sun,
+                        'upload.good_lighting'.tr(),
+                      ),
+                      _tipChip(
+                        FontAwesomeIcons.layerGroup,
+                        'upload.separate_items'.tr(),
+                      ),
+                      _tipChip(
+                        FontAwesomeIcons.eyeSlash,
+                        'upload.no_blur'.tr(),
+                      ),
                     ],
                   ),
                 ],
@@ -300,7 +315,10 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
         children: [
           FaIcon(icon, size: 12, color: Colors.grey.shade600),
           const SizedBox(width: 6),
-          Text(text, style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+          Text(
+            text,
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+          ),
         ],
       ),
     );
@@ -324,7 +342,9 @@ class _CategoryPhotoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isHindi = context.locale.languageCode == 'hi';
     final hasPhoto = images.isNotEmpty;
-    final categoryName = isHindi ? item.category.name.hi : item.category.name.en;
+    final categoryName = isHindi
+        ? item.category.name.hi
+        : item.category.name.en;
     final subName = item.subCategoryName;
 
     return Container(
@@ -332,14 +352,14 @@ class _CategoryPhotoCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppTheme.cardBorderRadius,
         border: Border.all(
           color: hasPhoto
               ? AppTheme.primaryColor.withValues(alpha: 0.4)
               : Colors.grey.shade200,
           width: hasPhoto ? 2 : 1,
         ),
-        boxShadow: AppTheme.softShadow,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,7 +411,10 @@ class _CategoryPhotoCard extends StatelessWidget {
               ),
               // Required / Done badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: hasPhoto
                       ? const Color(0xFFDCFCE7)
@@ -444,7 +467,9 @@ class _CategoryPhotoCard extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.add_a_photo_rounded,
-                              color: AppTheme.primaryColor.withValues(alpha: 0.7),
+                              color: AppTheme.primaryColor.withValues(
+                                alpha: 0.7,
+                              ),
                               size: 24,
                             ),
                             const SizedBox(height: 6),
@@ -453,7 +478,9 @@ class _CategoryPhotoCard extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: AppTheme.primaryColor.withValues(alpha: 0.8),
+                                color: AppTheme.primaryColor.withValues(
+                                  alpha: 0.8,
+                                ),
                               ),
                             ),
                           ],
@@ -519,7 +546,8 @@ class _CategoryPhotoCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
-                        boxShadow: AppTheme.softShadow,
+                        border: AppTheme.cardBorder,
+                        boxShadow: AppTheme.cardShadow,
                       ),
                       child: const Icon(
                         Icons.camera_alt_rounded,

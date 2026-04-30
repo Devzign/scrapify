@@ -67,9 +67,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final isLoading = profileState is AsyncLoading;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF102213)
-          : const Color(0xFFF6F8F6),
+      backgroundColor: isDark ? const Color(0xFF102213) : Colors.white,
       appBar: AppBar(
         backgroundColor: isDark
             ? const Color(0xFF1A331D).withValues(alpha: 0.95)

@@ -19,9 +19,7 @@ class SavedAddressesScreen extends ConsumerWidget {
     final addressState = ref.watch(addressProvider);
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF102213)
-          : const Color(0xFFF6F8F6),
+      backgroundColor: isDark ? const Color(0xFF102213) : Colors.white,
       appBar: AppBar(
         backgroundColor: isDark
             ? const Color(0xFF102213).withValues(alpha: 0.9)

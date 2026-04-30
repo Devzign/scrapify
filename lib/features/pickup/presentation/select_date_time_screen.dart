@@ -127,8 +127,8 @@ class _SelectAddressTimeScreenState
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
-                                  boxShadow: AppTheme.softShadow,
+                                  borderRadius: AppTheme.cardBorderRadius,
+                                  boxShadow: AppTheme.cardShadow,
                                   border: Border.all(
                                     color: isSelected
                                         ? AppTheme.primaryColor
@@ -325,8 +325,9 @@ class _SelectAddressTimeScreenState
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: AppTheme.softShadow,
+                          borderRadius: AppTheme.cardBorderRadius,
+                          border: AppTheme.cardBorder,
+                          boxShadow: AppTheme.cardShadow,
                         ),
                         child: const Text(
                           'No pickup slots are available for the selected date.',
@@ -354,8 +355,8 @@ class _SelectAddressTimeScreenState
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: AppTheme.softShadow,
+                                borderRadius: AppTheme.cardBorderRadius,
+                                boxShadow: AppTheme.cardShadow,
                                 border: Border.all(
                                   color: isSelected
                                       ? AppTheme.primaryColor

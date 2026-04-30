@@ -33,8 +33,9 @@ class PickupItemCard extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: AppTheme.softShadow,
+            borderRadius: AppTheme.cardBorderRadius,
+            border: AppTheme.cardBorder,
+            boxShadow: AppTheme.cardShadow,
           ),
           child: Row(
             children: [

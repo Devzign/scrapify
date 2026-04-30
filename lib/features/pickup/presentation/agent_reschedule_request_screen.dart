@@ -10,10 +10,12 @@ class AgentRescheduleRequestScreen extends ConsumerStatefulWidget {
   const AgentRescheduleRequestScreen({super.key, this.pickupId});
 
   @override
-  ConsumerState<AgentRescheduleRequestScreen> createState() => _AgentRescheduleRequestScreenState();
+  ConsumerState<AgentRescheduleRequestScreen> createState() =>
+      _AgentRescheduleRequestScreenState();
 }
 
-class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRequestScreen> {
+class _AgentRescheduleRequestScreenState
+    extends ConsumerState<AgentRescheduleRequestScreen> {
   String? _selectedReason;
   final TextEditingController _detailsController = TextEditingController();
 
@@ -54,7 +56,7 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
   Widget build(BuildContext context) {
     final isHindi = context.locale.languageCode == 'hi';
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFB),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -64,7 +66,11 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
         ),
         title: Text(
           isHindi ? 'पुनर्निर्धारण का अनुरोध' : 'Reschedule Pickup',
-          style: const TextStyle(color: Color(0xFF0D2B52), fontWeight: FontWeight.w900, fontSize: 20),
+          style: const TextStyle(
+            color: Color(0xFF0D2B52),
+            fontWeight: FontWeight.w900,
+            fontSize: 20,
+          ),
         ),
         actions: [
           IconButton(
@@ -117,7 +123,11 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
               color: AppTheme.primaryLight,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.location_on, color: AppTheme.primaryColor, size: 28),
+            child: const Icon(
+              Icons.location_on,
+              color: AppTheme.primaryColor,
+              size: 28,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -127,22 +137,51 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
-                      child: const Text('#SC9022', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        '#SC9022',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 6),
-                    const Text('ACTIVE PICKUP', style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 0.5)),
+                    const Text(
+                      'ACTIVE PICKUP',
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 const Text(
                   'Sector 45, Green Park',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF0D2B52)),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF0D2B52),
+                  ),
                 ),
                 const Text(
                   'Gurugram, Haryana',
-                  style: TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -158,11 +197,19 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
       children: [
         Text(
           isHindi ? 'कारण चुनें' : 'Select a Reason',
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Color(0xFF0D2B52)),
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF0D2B52),
+          ),
         ),
         Text(
           isHindi ? 'आप क्यों नहीं पहुंच सकते?' : "Why can't you make it?",
-          style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );
@@ -188,9 +235,12 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
           borderRadius: BorderRadius.circular(30),
           child: Container(
             decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFFF0FDF4) : Colors.white,
+              color: isSelected ? AppTheme.primaryColor : Colors.white,
               borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: isSelected ? AppTheme.primaryColor : Colors.transparent, width: 2),
+              border: Border.all(
+                color: isSelected ? AppTheme.primaryColor : Colors.transparent,
+                width: 2,
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.04),
@@ -206,7 +256,9 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: isSelected ? AppTheme.primaryColor : Colors.grey.shade50,
+                    color: isSelected
+                        ? AppTheme.primaryColor
+                        : Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
@@ -218,7 +270,11 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
                 const SizedBox(height: 12),
                 Text(
                   isHindi ? reason['label_hi']! : reason['label']!,
-                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: Color(0xFF0D2B52)),
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    color: isSelected ? Colors.white : const Color(0xFF0D2B52),
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -249,21 +305,41 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isHindi ? 'अतिरिक्त विवरण (वैकल्पिक)' : 'Additional Details (Optional)',
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Color(0xFF0D2B52)),
+          isHindi
+              ? 'अतिरिक्त विवरण (वैकल्पिक)'
+              : 'Additional Details (Optional)',
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF0D2B52),
+          ),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: _detailsController,
           maxLines: 4,
           decoration: InputDecoration(
-            hintText: isHindi ? 'संक्षेप में स्थिति बताएं...' : 'Briefly explain the situation for the customer...',
+            hintText: isHindi
+                ? 'संक्षेप में स्थिति बताएं...'
+                : 'Briefly explain the situation for the customer...',
             hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
             fillColor: Colors.white,
             filled: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide(color: Colors.grey.shade200)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: BorderSide(color: Colors.grey.shade200)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24), borderSide: const BorderSide(color: AppTheme.primaryColor, width: 2)),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(24),
+              borderSide: BorderSide(color: Colors.grey.shade200),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(24),
+              borderSide: BorderSide(color: Colors.grey.shade200),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(24),
+              borderSide: const BorderSide(
+                color: AppTheme.primaryColor,
+                width: 2,
+              ),
+            ),
           ),
         ),
       ],
@@ -279,14 +355,19 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
             backgroundColor: AppTheme.primaryColor,
             foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 60),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             elevation: 8,
             shadowColor: AppTheme.primaryColor.withValues(alpha: 0.3),
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Send Request to Customer', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+              Text(
+                'Send Request to Customer',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+              ),
               SizedBox(width: 8),
               Icon(Icons.send, size: 20),
             ],
@@ -298,7 +379,9 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
           style: OutlinedButton.styleFrom(
             foregroundColor: const Color(0xFF0D2B52),
             minimumSize: const Size(double.infinity, 60),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             side: BorderSide(color: Colors.grey.shade200, width: 2),
             backgroundColor: Colors.white,
           ),
@@ -307,7 +390,10 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
             children: [
               Icon(Icons.support_agent, color: AppTheme.primaryColor),
               SizedBox(width: 8),
-              Text('Call Support', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+              Text(
+                'Call Support',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+              ),
             ],
           ),
         ),
@@ -324,7 +410,11 @@ class _AgentRescheduleRequestScreenState extends ConsumerState<AgentRescheduleRe
 
     final ok = await ref
         .read(pickupBoyProvider.notifier)
-        .rescheduleRequest(id, reasonCode: reason, additionalNote: notes.isNotEmpty ? notes : null);
+        .rescheduleRequest(
+          id,
+          reasonCode: reason,
+          additionalNote: notes.isNotEmpty ? notes : null,
+        );
 
     if (ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

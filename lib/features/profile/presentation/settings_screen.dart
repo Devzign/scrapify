@@ -85,9 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: isDark
-          ? const Color(0xFF102213)
-          : const Color(0xFFF6F8F6),
+      backgroundColor: isDark ? const Color(0xFF102213) : Colors.white,
       appBar: AppBar(
         backgroundColor: isDark
             ? const Color(0xFF1A2C1E).withValues(alpha: 0.95)
@@ -213,9 +211,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
-                    isDark ? const Color(0xFF102213) : const Color(0xFFF6F8F6),
-                    isDark ? const Color(0xFF102213) : const Color(0xFFF6F8F6),
-                    (isDark ? const Color(0xFF102213) : const Color(0xFFF6F8F6))
+                    isDark ? const Color(0xFF102213) : Colors.white,
+                    isDark ? const Color(0xFF102213) : Colors.white,
+                    (isDark ? const Color(0xFF102213) : Colors.white)
                         .withValues(alpha: 0.0),
                   ],
                 ),

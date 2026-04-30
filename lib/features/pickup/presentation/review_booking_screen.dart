@@ -76,7 +76,8 @@ class ReviewBookingScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
-                          boxShadow: AppTheme.softShadow,
+                          border: AppTheme.cardBorder,
+                          boxShadow: AppTheme.cardShadow,
                         ),
                         child: const Icon(
                           Icons.location_on,
@@ -422,8 +423,8 @@ class ReviewBookingScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: AppTheme.softShadow,
+          borderRadius: AppTheme.cardBorderRadius,
+          boxShadow: AppTheme.cardShadow,
           border: Border.all(
             color:
                 (booking.payoutMethod != null &&
@@ -487,12 +488,11 @@ class ReviewBookingScreen extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(32),
-            topRight: Radius.circular(32),
-          ),
+          borderRadius: AppTheme.cardBorderRadius,
+          border: AppTheme.cardBorder,
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -669,8 +669,9 @@ class ReviewBookingScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Row(
         children: [

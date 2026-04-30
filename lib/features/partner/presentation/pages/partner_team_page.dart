@@ -31,7 +31,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
     final onlineCount = boys.where((b) => b['is_online'] == true).length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -194,9 +194,9 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppTheme.cardBorderRadius,
               border: Border.all(color: Colors.grey.shade100),
-              boxShadow: AppTheme.softShadow,
+              boxShadow: AppTheme.cardShadow,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -322,8 +322,9 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         children: [
@@ -545,8 +546,8 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: AppTheme.softShadow,
+              borderRadius: AppTheme.cardBorderRadius,
+              boxShadow: AppTheme.cardShadow,
               border: Border.all(color: Colors.grey.shade100),
             ),
             child: Column(

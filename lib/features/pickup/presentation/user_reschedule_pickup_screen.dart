@@ -343,7 +343,7 @@ class _UserReschedulePickupScreenState
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: isSelected ? AppTheme.primaryLight : Colors.white,
+                color: isSelected ? AppTheme.primaryColor : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
@@ -359,13 +359,13 @@ class _UserReschedulePickupScreenState
                     height: 40,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? AppTheme.primaryColor.withValues(alpha: 0.2)
+                          ? Colors.white.withValues(alpha: 0.18)
                           : Colors.grey.shade50,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       slot['icon'],
-                      color: isSelected ? AppTheme.primaryColor : Colors.grey,
+                      color: isSelected ? Colors.white : Colors.grey,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -378,7 +378,7 @@ class _UserReschedulePickupScreenState
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
                             color: isSelected
-                                ? AppTheme.primaryDark
+                                ? Colors.white
                                 : AppTheme.textPrimary,
                           ),
                         ),
@@ -387,7 +387,7 @@ class _UserReschedulePickupScreenState
                           style: TextStyle(
                             fontSize: 12,
                             color: isSelected
-                                ? AppTheme.primaryDark.withValues(alpha: 0.7)
+                                ? Colors.white.withValues(alpha: 0.78)
                                 : Colors.grey,
                             fontWeight: FontWeight.w600,
                           ),
@@ -396,7 +396,7 @@ class _UserReschedulePickupScreenState
                     ),
                   ),
                   if (isSelected)
-                    const Icon(Icons.check_circle, color: AppTheme.primaryColor)
+                    const Icon(Icons.check_circle, color: Colors.white)
                   else
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -468,11 +468,11 @@ class _UserReschedulePickupScreenState
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: isSelected ? AppTheme.primaryLight : Colors.white,
+              color: isSelected ? AppTheme.primaryColor : Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: isSelected
-                    ? AppTheme.primaryColor.withValues(alpha: 0.2)
+                    ? AppTheme.primaryColor
                     : Colors.grey.shade100,
               ),
             ),
@@ -481,9 +481,7 @@ class _UserReschedulePickupScreenState
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                color: isSelected
-                    ? AppTheme.primaryDark
-                    : AppTheme.textSecondary,
+                color: isSelected ? Colors.white : AppTheme.textSecondary,
               ),
             ),
           ),

@@ -16,7 +16,9 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(warehouseProvider.notifier).loadPickupBoys());
+    Future.microtask(
+      () => ref.read(warehouseProvider.notifier).loadPickupBoys(),
+    );
   }
 
   @override
@@ -25,8 +27,10 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
     final boys = state.pickupBoys;
     final d = state.dashboard;
 
-    final totalActive = d?.activePickupBoys ?? boys.where((b) => b.isOnline).length;
-    final totalAvail = d?.availablePickupBoys ?? boys.where((b) => b.isAvailable).length;
+    final totalActive =
+        d?.activePickupBoys ?? boys.where((b) => b.isOnline).length;
+    final totalAvail =
+        d?.availablePickupBoys ?? boys.where((b) => b.isAvailable).length;
     final totalBoys = d?.totalPickupBoys ?? boys.length;
     final onRoute = boys.where((b) => b.isOnline && !b.isAvailable).length;
     final dailyComp = boys.fold<int>(0, (sum, b) => sum + b.completedCount);
@@ -35,7 +39,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
     final isHindi = context.locale.languageCode == 'hi';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
@@ -59,11 +63,17 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                                 decoration: BoxDecoration(
                                   color: Colors.orange.shade50,
                                   borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.orange.shade200),
+                                  border: Border.all(
+                                    color: Colors.orange.shade200,
+                                  ),
                                 ),
-                                child: Text(state.error!,
-                                    style: TextStyle(
-                                        color: Colors.orange.shade800, fontSize: 13)),
+                                child: Text(
+                                  state.error!,
+                                  style: TextStyle(
+                                    color: Colors.orange.shade800,
+                                    fontSize: 13,
+                                  ),
+                                ),
                               ),
                             _buildHeader(isHindi),
                             _buildStatusBento(
@@ -104,7 +114,11 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.warehouse_rounded, color: AppTheme.primaryColor, size: 24),
+              Icon(
+                Icons.warehouse_rounded,
+                color: AppTheme.primaryColor,
+                size: 24,
+              ),
               const SizedBox(width: 10),
               Text(
                 warehouseName ?? (isHindi ? 'गोदाम' : 'Warehouse'),
@@ -123,8 +137,11 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
               color: Colors.grey.shade50,
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.notifications_none_rounded,
-                color: Colors.grey.shade500, size: 22),
+            child: Icon(
+              Icons.notifications_none_rounded,
+              color: Colors.grey.shade500,
+              size: 22,
+            ),
           ),
         ],
       ),
@@ -159,8 +176,9 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: AppTheme.softShadow,
+              borderRadius: AppTheme.cardBorderRadius,
+              border: AppTheme.cardBorder,
+              boxShadow: AppTheme.cardShadow,
             ),
             child: TextField(
               decoration: InputDecoration(
@@ -203,11 +221,16 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Icon(Icons.engineering_rounded,
-                        color: AppTheme.primaryColor, size: 36),
+                    Icon(
+                      Icons.engineering_rounded,
+                      color: AppTheme.primaryColor,
+                      size: 36,
+                    ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppTheme.primaryColor.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -253,8 +276,9 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: AppTheme.softShadow,
+                    borderRadius: AppTheme.cardBorderRadius,
+                    border: AppTheme.cardBorder,
+                    boxShadow: AppTheme.cardShadow,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,8 +293,11 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                               color: const Color(0xFFF1F5F9),
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.route_rounded,
-                                color: Colors.grey.shade600, size: 22),
+                            child: Icon(
+                              Icons.route_rounded,
+                              color: Colors.grey.shade600,
+                              size: 22,
+                            ),
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -306,7 +333,10 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                       ),
                       Text(
                         isHindi ? 'रास्ते में' : 'En-route',
-                        style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
@@ -337,8 +367,11 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                           color: Colors.white.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.task_alt_rounded,
-                            color: Colors.white, size: 22),
+                        child: const Icon(
+                          Icons.task_alt_rounded,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -398,26 +431,26 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
     final statusLabel = isOffline
         ? (isHindi ? 'ऑफलाइन' : 'OFFLINE')
         : isAvailable
-            ? (isHindi ? 'उपलब्ध' : 'AVAILABLE')
-            : (isHindi ? 'रास्ते में' : 'ON ROUTE');
+        ? (isHindi ? 'उपलब्ध' : 'AVAILABLE')
+        : (isHindi ? 'रास्ते में' : 'ON ROUTE');
 
     final statusColor = isOffline
         ? Colors.grey.shade400
         : isAvailable
-            ? AppTheme.primaryColor
-            : const Color(0xFFEA580C);
+        ? AppTheme.primaryColor
+        : const Color(0xFFEA580C);
 
     final dotColor = isOffline
         ? Colors.grey.shade300
         : isAvailable
-            ? const Color(0xFF22C55E)
-            : const Color(0xFFFB923C);
+        ? const Color(0xFF22C55E)
+        : const Color(0xFFFB923C);
 
     final borderColor = isAvailable && isOnline
         ? AppTheme.primaryColor
         : isOffline
-            ? Colors.grey.shade100
-            : Colors.grey.shade200;
+        ? Colors.grey.shade100
+        : Colors.grey.shade200;
 
     final initial = boy.name.isNotEmpty ? boy.name[0].toUpperCase() : '?';
 
@@ -425,8 +458,8 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        boxShadow: AppTheme.cardShadow,
         border: Border(left: BorderSide(color: borderColor, width: 4)),
       ),
       child: Opacity(
@@ -492,7 +525,9 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                             const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF1F5F9),
                                 borderRadius: BorderRadius.circular(4),
@@ -553,9 +588,12 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                           ? Colors.white
                           : Colors.grey.shade400,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       elevation: 0,
                     ),
                     child: Text(
@@ -563,7 +601,9 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                           ? (isHindi ? 'असाइन करें' : 'Assign')
                           : (isHindi ? 'व्यस्त' : 'Busy'),
                       style: const TextStyle(
-                          fontWeight: FontWeight.w700, fontSize: 13),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ],

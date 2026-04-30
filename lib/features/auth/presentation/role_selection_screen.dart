@@ -27,7 +27,7 @@ class RoleSelectionScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: Colors.white,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         child: CustomButton(
@@ -46,11 +46,11 @@ class RoleSelectionScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(height: 48.h),
+                SizedBox(height: 16.h),
                 Center(
                   child: Container(
-                    height: 80.w,
-                    width: 80.w,
+                    height: 72.w,
+                    width: 72.w,
                     decoration: const BoxDecoration(
                       color: AppTheme.primaryLight,
                       shape: BoxShape.circle,
@@ -64,7 +64,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 32.h),
+                SizedBox(height: 24.h),
                 Text(
                   'role.title'.tr(),
                   style: Theme.of(
@@ -72,7 +72,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   ).textTheme.titleLarge?.copyWith(fontSize: 24),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 16.h),
+                SizedBox(height: 12.h),
                 Text(
                   'role.subtitle'.tr(),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -81,7 +81,7 @@ class RoleSelectionScreen extends ConsumerWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 32.h),
+                SizedBox(height: 24.h),
                 Expanded(
                   child: ListView.separated(
                     padding: EdgeInsets.only(bottom: 16.h),

@@ -30,14 +30,42 @@ class AppTheme {
   static const Color textPrimary = AppColor.textPrimary;
   static const Color textSecondary = AppColor.textSecondary;
 
-  // Box Shadows
-  static List<BoxShadow> get softShadow => [
+  static const double cardRadius = 16;
+  static const double cardBorderWidth = 1;
+  static const Color cardBorderColor = AppColor.cardBorder;
+
+  static BorderRadius get cardBorderRadius => BorderRadius.circular(cardRadius);
+
+  static Border get cardBorder =>
+      Border.all(color: cardBorderColor, width: cardBorderWidth);
+
+  static List<BoxShadow> get cardShadow => [
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.04),
-      blurRadius: 10,
-      offset: const Offset(0, 4),
+      color: AppColor.deepNavy.withValues(alpha: 0.08),
+      blurRadius: 18,
+      offset: const Offset(0, 8),
     ),
   ];
+
+  static BoxDecoration get cardDecoration => BoxDecoration(
+    color: surfaceColor,
+    borderRadius: cardBorderRadius,
+    border: cardBorder,
+    boxShadow: cardShadow,
+  );
+
+  static BoxDecoration whiteCardDecoration({
+    BorderRadius? borderRadius,
+    Border? border,
+    List<BoxShadow>? boxShadow,
+  }) => BoxDecoration(
+    color: Colors.white,
+    borderRadius: borderRadius ?? cardBorderRadius,
+    border: border ?? cardBorder,
+    boxShadow: boxShadow ?? cardShadow,
+  );
+
+  static List<BoxShadow> get softShadow => cardShadow;
 
   static ThemeData get lightTheme {
     final baseTextTheme = const TextTheme(
@@ -97,6 +125,20 @@ class AppTheme {
           ),
       textTheme: textTheme,
       primaryTextTheme: textTheme,
+      cardTheme: CardThemeData(
+        color: surfaceColor,
+        elevation: 3,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: cardBorderRadius,
+          side: const BorderSide(
+            color: cardBorderColor,
+            width: cardBorderWidth,
+          ),
+        ),
+        shadowColor: AppColor.deepNavy.withValues(alpha: 0.12),
+        surfaceTintColor: Colors.transparent,
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryColor,

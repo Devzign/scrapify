@@ -244,8 +244,12 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                                 quantity: _quantities[item.id] ?? 0,
                                 onIncrement: () => _changeQuantity(item.id, 1),
                                 onDecrement: () => _changeQuantity(item.id, -1),
-                                showQuantityControls: !_requiresHouseholdCategoryDetails(category),
-                                onTap: _requiresHouseholdCategoryDetails(category)
+                                showQuantityControls:
+                                    !_requiresHouseholdCategoryDetails(
+                                      category,
+                                    ),
+                                onTap:
+                                    _requiresHouseholdCategoryDetails(category)
                                     ? () => context.push(
                                         AppRoutes.householdItemDetails,
                                         extra: {
@@ -333,8 +337,9 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Text(
         message,

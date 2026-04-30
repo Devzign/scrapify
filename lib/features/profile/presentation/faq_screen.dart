@@ -40,7 +40,7 @@ class _FaqScreenState extends State<FaqScreen> {
 
     // Define Colors from the HTML
     final primaryColor = const Color(0xFF0a0ac2);
-    final bgLightColor = const Color(0xFFf5f5f8);
+    final bgLightColor = Colors.white;
     final bgDarkColor = const Color(0xFF101022);
 
     return Scaffold(
@@ -57,10 +57,14 @@ class _FaqScreenState extends State<FaqScreen> {
                   primaryColor: primaryColor,
                   searchController: _searchController,
                   categories: _getCategories(context),
-                  selectedCategory: _getCategories(context)[_selectedCategoryIndex],
+                  selectedCategory: _getCategories(
+                    context,
+                  )[_selectedCategoryIndex],
                   onCategorySelected: (category) {
                     setState(() {
-                      _selectedCategoryIndex = _getCategories(context).indexOf(category);
+                      _selectedCategoryIndex = _getCategories(
+                        context,
+                      ).indexOf(category);
                     });
                   },
                   onPop: () => context.pop(),

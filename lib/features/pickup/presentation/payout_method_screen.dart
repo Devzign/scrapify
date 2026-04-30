@@ -116,8 +116,8 @@ class PayoutMethodScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: AppTheme.softShadow,
+                    borderRadius: AppTheme.cardBorderRadius,
+                    boxShadow: AppTheme.cardShadow,
                     border: Border.all(
                       color: isSelected
                           ? AppTheme.primaryColor

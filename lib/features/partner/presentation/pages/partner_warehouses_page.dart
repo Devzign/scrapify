@@ -28,7 +28,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
     final user = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F7),
+      backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         backgroundColor: AppTheme.primaryColor,
@@ -292,8 +292,9 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -471,8 +472,8 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        boxShadow: AppTheme.cardShadow,
         border: !isActive ? Border.all(color: const Color(0xFFFEE2E2)) : null,
       ),
       child: Column(
@@ -661,8 +662,9 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.softShadow,
+        borderRadius: AppTheme.cardBorderRadius,
+        border: AppTheme.cardBorder,
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         children: [
