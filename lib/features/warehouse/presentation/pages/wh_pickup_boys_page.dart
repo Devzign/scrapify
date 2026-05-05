@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/models/warehouse_pickup_boy.dart';
 import '../../providers/warehouse_provider.dart';
+import 'wh_pickup_boy_detail_page.dart';
 
 class WhPickupBoysPage extends ConsumerStatefulWidget {
   const WhPickupBoysPage({super.key});
@@ -16,9 +17,14 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => ref.read(warehouseProvider.notifier).loadPickupBoys(),
-    );
+    Future.microtask(() {
+      final notifier = ref.read(warehouseProvider.notifier);
+      notifier.loadPickupBoys();
+      // Also load dashboard if not already loaded (for warehouse name & metrics)
+      if (ref.read(warehouseProvider).dashboard == null) {
+        notifier.loadDashboard();
+      }
+    });
   }
 
   @override
@@ -27,12 +33,16 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
     final boys = state.pickupBoys;
     final d = state.dashboard;
 
-    final totalActive =
-        d?.activePickupBoys ?? boys.where((b) => b.isOnline).length;
+    // Count boys with active assignments (more meaningful than just "online")
+    final boysWithAssignments =
+        boys.where((b) => b.currentAssignmentCount > 0).length;
+    final totalActive = boysWithAssignments > 0
+        ? boysWithAssignments
+        : (d?.activePickupBoys ?? boys.where((b) => b.isOnline).length);
     final totalAvail =
         d?.availablePickupBoys ?? boys.where((b) => b.isAvailable).length;
     final totalBoys = d?.totalPickupBoys ?? boys.length;
-    final onRoute = boys.where((b) => b.isOnline && !b.isAvailable).length;
+    final onRoute = boys.where((b) => b.currentAssignmentCount > 0).length;
     final dailyComp = boys.fold<int>(0, (sum, b) => sum + b.completedCount);
     final availPct = totalBoys > 0 ? (totalAvail / totalBoys * 100).round() : 0;
 
@@ -50,42 +60,39 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                   : RefreshIndicator(
                       onRefresh: () =>
                           ref.read(warehouseProvider.notifier).loadPickupBoys(),
-                      child: SingleChildScrollView(
+                      child: ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         padding: const EdgeInsets.only(bottom: 80),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (state.error != null)
-                              Container(
-                                margin: const EdgeInsets.all(16),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.orange.shade50,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.orange.shade200,
-                                  ),
-                                ),
-                                child: Text(
-                                  state.error!,
-                                  style: TextStyle(
-                                    color: Colors.orange.shade800,
-                                    fontSize: 13,
-                                  ),
+                        children: [
+                          if (state.error != null)
+                            Container(
+                              margin: const EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade50,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: Colors.orange.shade200,
                                 ),
                               ),
-                            _buildHeader(isHindi),
-                            _buildStatusBento(
-                              totalActive: totalActive,
-                              onRoute: onRoute,
-                              dailyComp: dailyComp,
-                              availPct: availPct,
-                              isHindi: isHindi,
+                              child: Text(
+                                state.error!,
+                                style: TextStyle(
+                                  color: Colors.orange.shade800,
+                                  fontSize: 13,
+                                ),
+                              ),
                             ),
-                            _buildAgentCards(boys, isHindi),
-                          ],
-                        ),
+                          _buildHeader(isHindi),
+                          _buildStatusBento(
+                            totalActive: totalActive,
+                            onRoute: onRoute,
+                            dailyComp: dailyComp,
+                            availPct: availPct,
+                            isHindi: isHindi,
+                          ),
+                          _buildAgentCards(boys, isHindi),
+                        ],
                       ),
                     ),
             ),
@@ -152,6 +159,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
@@ -207,6 +215,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: double.infinity,
@@ -216,6 +225,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
@@ -281,6 +291,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                     boxShadow: AppTheme.cardShadow,
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -300,6 +311,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                             ),
                           ),
                           Column(
+                            mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
@@ -358,6 +370,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                     ],
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
@@ -418,6 +431,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: boys.map((b) => _buildAgentCard(b, isHindi)).toList(),
       ),
     );
@@ -454,7 +468,16 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
 
     final initial = boy.name.isNotEmpty ? boy.name[0].toUpperCase() : '?';
 
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => WhPickupBoyDetailPage(boy: boy),
+          ),
+        );
+      },
+      child: Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -467,6 +490,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Row(
                 children: [
@@ -578,31 +602,34 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  ElevatedButton(
-                    onPressed: isAvailable ? () {} : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isAvailable
-                          ? const Color(0xFF0F172A)
-                          : const Color(0xFFF1F5F9),
-                      foregroundColor: isAvailable
-                          ? Colors.white
-                          : Colors.grey.shade400,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
+                  Flexible(
+                    fit: FlexFit.loose,
+                    child: ElevatedButton(
+                      onPressed: isAvailable ? () {} : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isAvailable
+                            ? const Color(0xFF0F172A)
+                            : const Color(0xFFF1F5F9),
+                        foregroundColor: isAvailable
+                            ? Colors.white
+                            : Colors.grey.shade400,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      isAvailable
-                          ? (isHindi ? 'असाइन करें' : 'Assign')
-                          : (isHindi ? 'व्यस्त' : 'Busy'),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
+                      child: Text(
+                        isAvailable
+                            ? (isHindi ? 'असाइन करें' : 'Assign')
+                            : (isHindi ? 'व्यस्त' : 'Busy'),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
                   ),
@@ -612,6 +639,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
           ),
         ),
       ),
+    ),
     );
   }
 

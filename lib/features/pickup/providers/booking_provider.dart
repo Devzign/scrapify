@@ -5,6 +5,7 @@ import '../../profile/domain/models/payment_method_model.dart';
 import '../domain/models/pickup_request_model.dart';
 import '../domain/repositories/pickup_repository.dart';
 import '../../../core/utils/app_logger.dart';
+import '../../referral/data/models/validate_coupon_response_model.dart';
 import 'donation_provider.dart';
 
 class BookingState {
@@ -15,6 +16,8 @@ class BookingState {
   final String? selectedTimeSlot;
   final String? payoutMethod;
   final PaymentMethodModel? selectedPaymentDetail;
+  final String? appliedCouponCode;
+  final ValidateCouponResponseModel? appliedCoupon;
   // categoryImages: categoryId → list of photos for that category
   final Map<int, List<XFile>> categoryImages;
   final bool isSubmitting;
@@ -28,6 +31,8 @@ class BookingState {
     this.selectedTimeSlot,
     this.payoutMethod,
     this.selectedPaymentDetail,
+    this.appliedCouponCode,
+    this.appliedCoupon,
     this.categoryImages = const {},
     this.isSubmitting = false,
     this.error,
@@ -45,9 +50,12 @@ class BookingState {
     String? selectedTimeSlot,
     String? payoutMethod,
     PaymentMethodModel? selectedPaymentDetail,
+    String? appliedCouponCode,
+    ValidateCouponResponseModel? appliedCoupon,
     Map<int, List<XFile>>? categoryImages,
     bool? isSubmitting,
     String? error,
+    bool clearCoupon = false,
   }) {
     return BookingState(
       requestType: requestType ?? this.requestType,
@@ -58,6 +66,10 @@ class BookingState {
       payoutMethod: payoutMethod ?? this.payoutMethod,
       selectedPaymentDetail:
           selectedPaymentDetail ?? this.selectedPaymentDetail,
+      appliedCouponCode: clearCoupon
+          ? null
+          : (appliedCouponCode ?? this.appliedCouponCode),
+      appliedCoupon: clearCoupon ? null : (appliedCoupon ?? this.appliedCoupon),
       categoryImages: categoryImages ?? this.categoryImages,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       error: error,
@@ -81,6 +93,8 @@ class BookingNotifier extends Notifier<BookingState> {
     state = BookingState(
       requestType: 'scrap',
       selectedAddress: state.selectedAddress,
+      appliedCouponCode: null,
+      appliedCoupon: null,
       categoryImages: const {},
     );
   }
@@ -90,6 +104,8 @@ class BookingNotifier extends Notifier<BookingState> {
       requestType: 'donation',
       donationCategory: donationCategory,
       selectedAddress: state.selectedAddress,
+      appliedCouponCode: null,
+      appliedCoupon: null,
       categoryImages: const {},
     );
   }
@@ -110,6 +126,8 @@ class BookingNotifier extends Notifier<BookingState> {
       selectedDate: state.selectedDate,
       payoutMethod: state.payoutMethod,
       selectedPaymentDetail: state.selectedPaymentDetail,
+      appliedCouponCode: state.appliedCouponCode,
+      appliedCoupon: state.appliedCoupon,
       isSubmitting: state.isSubmitting,
       error: state.error,
     );
@@ -121,6 +139,17 @@ class BookingNotifier extends Notifier<BookingState> {
 
   void setSelectedPaymentDetail(PaymentMethodModel? payment) {
     state = state.copyWith(selectedPaymentDetail: payment);
+  }
+
+  void setAppliedCoupon(ValidateCouponResponseModel coupon) {
+    state = state.copyWith(
+      appliedCouponCode: coupon.couponCode,
+      appliedCoupon: coupon,
+    );
+  }
+
+  void clearAppliedCoupon() {
+    state = state.copyWith(clearCoupon: true);
   }
 
   void addCategoryImage(int categoryId, XFile image) {
@@ -201,6 +230,7 @@ class BookingNotifier extends Notifier<BookingState> {
         'scheduled_at': scheduledAt,
         'payout_method': state.payoutMethod,
         'payment_detail_id': state.selectedPaymentDetail?.id,
+        'coupon_code': state.appliedCouponCode,
         'items': itemsList,
         'images': state.images,
       };
@@ -266,6 +296,10 @@ class BookingNotifier extends Notifier<BookingState> {
           .where((item) => item.image != null)
           .map((item) => item.image!)
           .toList();
+      final donationCategoryPayload = _buildDonationCategoryPayload(
+        donationItems,
+        fallback: state.donationCategory,
+      );
 
       final data = {
         'address':
@@ -276,9 +310,9 @@ class BookingNotifier extends Notifier<BookingState> {
         'latitude': state.selectedAddress!.latitude ?? 28.6139,
         'longitude': state.selectedAddress!.longitude ?? 77.2090,
         'scheduled_at': scheduledAt,
-        'donation_category': state.donationCategory ?? 'mixed',
-        'notes': donationData.notes.isNotEmpty 
-            ? donationData.notes 
+        'donation_category': donationCategoryPayload,
+        'notes': donationData.notes.isNotEmpty
+            ? donationData.notes
             : 'Donation pickup request from mobile app',
         'items': itemsList,
         'images': [...state.images, ...itemImages],
@@ -313,6 +347,45 @@ class BookingNotifier extends Notifier<BookingState> {
 final bookingProvider = NotifierProvider<BookingNotifier, BookingState>(() {
   return BookingNotifier();
 });
+
+String _buildDonationCategoryPayload(
+  List<dynamic> donationItems, {
+  String? fallback,
+}) {
+  final categories = <String>{};
+
+  for (final item in donationItems) {
+    final rawSlug = item.category.slug.toString().trim().toLowerCase();
+    if (rawSlug.isEmpty) {
+      continue;
+    }
+    categories.add(_normalizeDonationSlug(rawSlug));
+  }
+
+  if (categories.isNotEmpty) {
+    return categories.join(',');
+  }
+
+  final normalizedFallback = (fallback ?? '').trim().toLowerCase();
+  if (normalizedFallback.isNotEmpty) {
+    return _normalizeDonationSlug(normalizedFallback);
+  }
+
+  return 'mixed';
+}
+
+String _normalizeDonationSlug(String slug) {
+  switch (slug) {
+    case 'furniture':
+      return 'old_furniture';
+    case 'old-clothes':
+      return 'clothes';
+    case 'reusable-goods':
+      return 'reusable_goods';
+    default:
+      return slug;
+  }
+}
 
 String _formatDate(DateTime date) {
   final month = date.month.toString().padLeft(2, '0');

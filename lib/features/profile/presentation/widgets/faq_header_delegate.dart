@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 
 class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
   final bool isDark;
@@ -55,7 +56,7 @@ class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
                     icon: Icon(
                       Icons.arrow_back,
                       size: 28,
-                      color: isDark ? Colors.white : const Color(0xFF1E293B),
+                      color: isDark ? Colors.white : AppTheme.textPrimary,
                     ),
                     onPressed: onPop,
                   ),
@@ -70,7 +71,7 @@ class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
                             fontWeight: FontWeight.bold,
                             color: isDark
                                 ? Colors.white
-                                : const Color(0xFF0F172A),
+                                : AppTheme.textPrimary,
                           ),
                         ),
                       ),
@@ -98,10 +99,10 @@ class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
                     border: InputBorder.none,
                     prefixIcon: const Icon(
                       Icons.search,
-                      color: Color(0xFF94A3B8),
+                      color: AppTheme.textSecondary,
                     ),
                     hintText: 'faq.search_hint'.tr(),
-                    hintStyle: const TextStyle(color: Color(0xFF64748B)),
+                    hintStyle: const TextStyle(color: AppTheme.textSecondary),
                     contentPadding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                 ),
@@ -156,7 +157,7 @@ class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
                                 ? Colors.white
                                 : (isDark
                                       ? const Color(0xFFE2E8F0)
-                                      : const Color(0xFF334155)),
+                                      : AppTheme.textPrimary),
                             fontSize: 14,
                             fontWeight: isSelected
                                 ? FontWeight.w600

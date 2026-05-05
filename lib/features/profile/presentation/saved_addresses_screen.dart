@@ -14,11 +14,13 @@ class SavedAddressesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = context.locale;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final addressState = ref.watch(addressProvider);
 
     return Scaffold(
+      key: ValueKey('saved_addresses_${locale.languageCode}'),
       backgroundColor: isDark ? const Color(0xFF102213) : Colors.white,
       appBar: AppBar(
         backgroundColor: isDark

@@ -29,10 +29,14 @@ class PickupRequest {
   final int id;
   final String? orderCode;
   final String status;
+  final String? requestType; // normal | donation | corporate
   final String address;
   final String scheduledAt;
   final double? estimatedAmount;
   final double? finalAmount;
+  final DateTime? priceLockedAt;
+  final String? couponCode;
+  final double? couponDiscountValue;
   final List<PickupRequestItem> items;
   final String? customerName;
   final String? customerPhone;
@@ -41,25 +45,41 @@ class PickupRequest {
     required this.id,
     this.orderCode,
     required this.status,
+    this.requestType,
     required this.address,
     required this.scheduledAt,
     this.estimatedAmount,
     this.finalAmount,
+    this.priceLockedAt,
+    this.couponCode,
+    this.couponDiscountValue,
     required this.items,
     this.customerName,
     this.customerPhone,
   });
 
+  bool get isPriceLocked => priceLockedAt != null;
+  bool get hasCoupon => couponCode != null && couponCode!.isNotEmpty;
+  bool get hasFinalAmount => finalAmount != null && finalAmount! > 0;
+
   factory PickupRequest.fromJson(Map<String, dynamic> json) {
     final itemsJson = json['items'] as List<dynamic>? ?? [];
     return PickupRequest(
       id: json['id'] ?? 0,
-      orderCode: json['order_code']?.toString() ?? json['pickup_code']?.toString(),
+      orderCode:
+          json['order_code']?.toString() ?? json['pickup_code']?.toString(),
       status: json['status']?.toString() ?? 'pending',
+      requestType: json['request_type']?.toString(),
       address: json['address']?.toString() ?? '',
       scheduledAt: json['scheduled_at']?.toString() ?? '',
       estimatedAmount: (json['estimated_amount'] as num?)?.toDouble(),
       finalAmount: (json['final_amount'] as num?)?.toDouble(),
+      priceLockedAt: json['price_locked_at'] != null
+          ? DateTime.tryParse(json['price_locked_at'].toString())
+          : null,
+      couponCode: json['coupon_code']?.toString(),
+      couponDiscountValue:
+          (json['coupon_discount_value'] as num?)?.toDouble(),
       items: itemsJson
           .whereType<Map<String, dynamic>>()
           .map((e) => PickupRequestItem.fromJson(e))

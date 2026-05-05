@@ -24,11 +24,19 @@ class ApiEndpoints {
   static const String homeApplianceDetails = '/home-appliances/details';
   static const String categoryTypes = '/category-types';
 
-  static const String pickupRequest = '/pickup-request';
+  static const String pickupRequest = '/pickup-requests';
   static const String pickupRequests = '/pickup-requests';
   static const String donationRequest = '/donation-request';
   static const String donationRequests = '/donation-requests';
   static const String corporateBookings = '/corporate-bookings';
+  static const String helpSupport = '/help-support';
+  static const String referralValidateCode = '/referral/validate-code';
+  static const String referralMyCode = '/referral/my-code';
+  static const String referralMyRewards = '/referral/my-rewards';
+  static const String referralValidateCoupon = '/referral/validate-coupon';
+  static const String adminReferralSettings = '/admin/referral-settings';
+  static const String adminReferrals = '/admin/referrals';
+  static const String adminReferralCoupons = '/admin/referral-coupons';
   static const String pickupRequestStats = '/pickup-requests/stats';
   static const String pickupImagesUpload = '/pickup-images/upload';
   static const String pickupSlots = '/pickup-slots';
@@ -51,6 +59,31 @@ class ApiEndpoints {
   static const String notificationsFcmToken = '/notifications/fcm-token';
 
   static const String warehouse = '/warehouse';
+
+  // Warehouse App (admin/warehouse/channel_partner)
+  static const String warehouseAppProfile = '/warehouse/app/profile';
+  static const String warehouseAppOrders = '/warehouse/app/orders';
+  static const String warehouseAppAvailablePickupBoys =
+      '/warehouse/app/available-pickup-boys';
+  static const String warehouseAppAssignPickupBoy =
+      '/warehouse/app/assign-pickup-boy';
+
+  static String warehouseAppReassign(int pickupId) {
+    return '/warehouse/app/pickups/$pickupId/reassign';
+  }
+
+  // Pickup Boy — new endpoints
+  static String pickupBoyUpdateAssignmentStatus(int id) {
+    return '${pickupBoyPickupById(id)}/update-status';
+  }
+
+  static String pickupBoyUpdateFinalPrice(int id) {
+    return '${pickupBoyPickupById(id)}/update-final-price';
+  }
+
+  static String pickupBoyAddItem(int id) {
+    return '${pickupBoyPickupById(id)}/add-item';
+  }
 
   static String authProfileAddressById(int id) {
     return '$authProfileAddresses/$id';
@@ -146,5 +179,13 @@ class ApiEndpoints {
 
   static String warehouseInventorySummary(int id) {
     return '${warehouseById(id)}/inventory/summary';
+  }
+
+  static String adminReferralSettingsById(int id) {
+    return '$adminReferralSettings/$id';
+  }
+
+  static String adminReferralCouponCancel(int id) {
+    return '$adminReferralCoupons/$id/cancel';
   }
 }

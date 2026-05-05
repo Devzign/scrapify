@@ -18,12 +18,30 @@ class PickupItem {
   });
 
   factory PickupItem.fromJson(Map<String, dynamic> json) {
+    double? toDouble(dynamic v) {
+      if (v == null) return null;
+      if (v is double) return v;
+      if (v is num) return v.toDouble();
+      if (v is String) return double.tryParse(v.trim());
+      return null;
+    }
+
+    // category_name can be a Map {"en": "...", "hi": "..."} or a String
+    String itemName;
+    final rawCat = json['category_name'];
+    if (rawCat is Map) {
+      itemName = rawCat['en']?.toString() ?? rawCat.values.first?.toString() ?? '';
+    } else if (rawCat is String) {
+      itemName = rawCat;
+    } else {
+      itemName = json['item_name']?.toString() ?? json['name']?.toString() ?? '';
+    }
+
     return PickupItem(
       id: json['id'] ?? json['pickup_item_id'],
       itemId: json['item_id'],
-      itemName: json['item_name']?.toString() ?? json['name']?.toString() ?? '',
-      weight: (json['weight'] as num?)?.toDouble() ??
-          (json['weight_kg'] as num?)?.toDouble(),
+      itemName: itemName,
+      weight: toDouble(json['weight']) ?? toDouble(json['weight_kg']),
       quantity: json['quantity'],
       condition: json['condition']?.toString(),
       action: json['action']?.toString() ?? 'updated',
@@ -32,12 +50,12 @@ class PickupItem {
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{
-      'item_id': itemId,
       'item_name': itemName,
       'action': action,
     };
-    if (id != null) map['id'] = id;
-    if (weight != null) map['weight'] = weight;
+    if (id != null) map['pickup_item_id'] = id;
+    if (itemId != null) map['item_id'] = itemId;
+    if (weight != null) map['weight_kg'] = weight;
     if (quantity != null) map['quantity'] = quantity;
     if (condition != null) map['condition'] = condition;
     return map;

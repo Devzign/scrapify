@@ -46,9 +46,15 @@ class WarehouseRequest {
       return null;
     }
 
+    // Support both flat 'assigned_pickup_boy' and nested 'assignment.pickup_boy'
+    final assignment = json['assignment'] is Map
+        ? (json['assignment'] as Map).cast<String, dynamic>()
+        : null;
     final assignedBoy = json['assigned_pickup_boy'] is Map
         ? (json['assigned_pickup_boy'] as Map).cast<String, dynamic>()
-        : null;
+        : assignment?['pickup_boy'] is Map
+            ? (assignment!['pickup_boy'] as Map).cast<String, dynamic>()
+            : null;
 
     return WarehouseRequest(
       id: asInt(json['id']) ?? asInt(json['pickup_id']) ?? 0,
@@ -72,7 +78,9 @@ class WarehouseRequest {
           assignedBoy?['name']?.toString() ??
           json['pickup_boy_name']?.toString(),
       assignedPickupBoyId:
-          asInt(assignedBoy?['id']) ?? asInt(json['pickup_boy_id']),
+          asInt(assignedBoy?['id']) ??
+          asInt(json['pickup_boy_id']) ??
+          asInt(assignment?['pickup_boy_id']),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter/services.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 import '../../../../core/utils/role_route_resolver.dart';
@@ -18,6 +19,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
   final Ref _ref;
   late final TextEditingController phoneController;
   late final TextEditingController otpController;
+  late final TextEditingController referralController;
   late final FocusNode phoneFocusNode;
   late final FocusNode otpFocusNode;
   final String? _selectedRole;
@@ -28,6 +30,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     : super(const LoginOtpViewState()) {
     phoneController = TextEditingController();
     otpController = TextEditingController();
+    referralController = TextEditingController();
     phoneFocusNode = FocusNode();
     otpFocusNode = FocusNode();
 
@@ -37,6 +40,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
       _timer?.cancel();
       phoneController.dispose();
       otpController.dispose();
+      referralController.dispose();
       phoneFocusNode.dispose();
       otpFocusNode.removeListener(_handleOtpFocusChanged);
       otpFocusNode.dispose();
@@ -46,6 +50,16 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
   String get selectedRole {
     return _selectedRole ?? 'customer';
   }
+
+  bool get isCustomerRole => selectedRole == 'customer';
+
+  List<TextInputFormatter> get referralInputFormatters => [
+    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+    LengthLimitingTextInputFormatter(6),
+    TextInputFormatter.withFunction((oldValue, newValue) {
+      return newValue.copyWith(text: newValue.text.toUpperCase());
+    }),
+  ];
 
   KeyboardActionsConfig buildKeyboardConfig() {
     return KeyboardActionsConfig(
@@ -80,6 +94,21 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     }
   }
 
+  void toggleReferralInput() {
+    state = state.copyWith(showReferralInput: !state.showReferralInput);
+  }
+
+  void onReferralChanged(String value) {
+    if (state.referralError == null) {
+      return;
+    }
+    final error = _validateReferral(value);
+    state = state.copyWith(
+      referralError: error,
+      clearReferralError: error == null,
+    );
+  }
+
   Future<void> sendOtp() async {
     final phone = phoneController.text.trim();
     final error = _validatePhone(phone);
@@ -91,14 +120,38 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
 
     state = state.copyWith(
       clearPhoneError: true,
+      clearReferralError: true,
       isLoading: true,
       otpError: false,
     );
 
+    final referralCode = referralController.text.trim();
+    final referralError = _validateReferral(referralCode);
+    if (referralError != null) {
+      state = state.copyWith(isLoading: false, referralError: referralError);
+      return;
+    }
+
     final authRepository = _ref.read(authRepositoryProvider);
+
+    // Pre-validate referral code (customer only) — fail fast before sending OTP.
+    if (isCustomerRole && referralCode.isNotEmpty) {
+      final preCheck = await authRepository.validateReferralCode(referralCode);
+      if (!preCheck.isSuccess) {
+        state = state.copyWith(
+          isLoading: false,
+          referralError: preCheck.errorMessage ?? 'Invalid referral code',
+        );
+        return;
+      }
+    }
+
     final response = await authRepository.sendOtp(
       phone: phone,
       role: selectedRole,
+      referralCode: isCustomerRole && referralCode.isNotEmpty
+          ? referralCode
+          : null,
     );
 
     state = state.copyWith(isLoading: false);
@@ -155,7 +208,15 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
 
     state = state.copyWith(isLoading: true);
     final authNotifier = _ref.read(authProvider.notifier);
-    final isSuccess = await authNotifier.login(phone, otp);
+    final referralCode = referralController.text.trim();
+    final isSuccess = await authNotifier.login(
+      phone,
+      otp,
+      role: selectedRole,
+      referralCode: isCustomerRole && referralCode.isNotEmpty
+          ? referralCode
+          : null,
+    );
 
     state = state.copyWith(isLoading: false);
 
@@ -165,8 +226,13 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
           ? loggedInUser!.roles.first
           : selectedRole;
 
+      final referralApplied =
+          _ref.read(authRepositoryProvider).lastReferralApplied;
+
       state = state.copyWith(
         nextRoute: RoleRouteResolver.resolve(resolvedRole),
+        snackBarMessage: referralApplied ? 'Referral applied 🎉' : null,
+        isSuccessMessage: referralApplied ? true : null,
       );
       return;
     }
@@ -199,6 +265,19 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     }
     if (!RegExp(r'^[6-9]\d{9}$').hasMatch(value)) {
       return 'Please enter a valid Indian mobile number.';
+    }
+    return null;
+  }
+
+  String? _validateReferral(String value) {
+    if (value.trim().isEmpty) {
+      return null;
+    }
+    if (value.length > 6) {
+      return 'Referral code must be at most 6 characters.';
+    }
+    if (!RegExp(r'^[A-Z0-9]+$').hasMatch(value)) {
+      return 'Use only letters and numbers.';
     }
     return null;
   }

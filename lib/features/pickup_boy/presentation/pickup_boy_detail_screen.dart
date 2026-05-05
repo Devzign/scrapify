@@ -131,20 +131,36 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
               const SizedBox(height: 16),
 
               // Items
-              if (_detail?['items'] != null) ...[
+              if (_detail?['items'] != null &&
+                  (_detail!['items'] as List).isNotEmpty) ...[
                 _InfoCard(
                   title: 'Expected Items',
                   icon: FontAwesomeIcons.box,
                   children: [
                     ...(_detail!['items'] as List<dynamic>)
                         .whereType<Map<String, dynamic>>()
-                        .map(
-                          (item) => _InfoRow(
-                            label: item['item_name']?.toString() ?? 'Item',
-                            value:
-                                'Qty: ${item['quantity'] ?? '-'} | Wt: ${item['expected_weight'] ?? '-'} kg',
-                          ),
-                        ),
+                        .map((item) {
+                      // category_name can be a Map {"en": "...", "hi": "..."} or a String
+                      final rawCat = item['category_name'];
+                      String catName;
+                      if (rawCat is Map) {
+                        catName = rawCat['en']?.toString() ??
+                            rawCat.values.first?.toString() ??
+                            'Item';
+                      } else {
+                        catName = rawCat?.toString() ??
+                            item['item_name']?.toString() ??
+                            'Item';
+                      }
+                      final weightKg = item['weight_kg']?.toString() ??
+                          item['expected_weight']?.toString() ??
+                          '-';
+                      final qty = item['quantity']?.toString() ?? '-';
+                      return _InfoRow(
+                        label: catName,
+                        value: 'Qty: $qty | Wt: $weightKg kg',
+                      );
+                    }),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -339,14 +355,16 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
   }
 
   Future<void> _acceptPickup(BuildContext context) async {
-    final ok = await ref
-        .read(pickupBoyProvider.notifier)
-        .acceptPickup(widget.pickupId);
-    if (!context.mounted) {
-      return;
-    }
+    final notifier = ref.read(pickupBoyProvider.notifier);
+    final ok = await notifier.acceptPickup(widget.pickupId);
+    if (!context.mounted) return;
     if (ok) {
-      setState(() => _detail?['status'] = 'accepted');
+      // Reload the detail from API so all fields are fresh
+      await _loadDetail();
+      // Reload assignments so dashboard reflects the change
+      notifier.loadAssignments();
+      notifier.loadDashboard();
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Pickup accepted!'),
@@ -359,7 +377,7 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(error), backgroundColor: Colors.red),
         );
-        ref.read(pickupBoyProvider.notifier).clearError();
+        notifier.clearError();
       }
     }
   }
@@ -376,21 +394,32 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
     }
   }
 
-  Future<void> _updateStatus(BuildContext context, String status) async {
-    final ok = await ref
-        .read(pickupBoyProvider.notifier)
-        .updateStatus(widget.pickupId, status);
-    if (!context.mounted) {
-      return;
-    }
+  Future<void> _updateStatus(BuildContext context, String newStatus) async {
+    final notifier = ref.read(pickupBoyProvider.notifier);
+    final ok = await notifier.updateStatus(widget.pickupId, newStatus);
+    if (!context.mounted) return;
     if (ok) {
-      setState(() => _detail?['status'] = status);
+      // Reload the detail from API so all fields are fresh
+      await _loadDetail();
+      // Reload assignments and dashboard so they reflect the new status
+      notifier.loadAssignments();
+      notifier.loadDashboard();
+      if (!context.mounted) return;
+      final label = newStatus.replaceAll('_', ' ');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Status updated to $status'),
+          content: Text('Status updated to $label'),
           backgroundColor: Colors.green,
         ),
       );
+    } else {
+      final error = ref.read(pickupBoyProvider).error;
+      if (error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error), backgroundColor: Colors.red),
+        );
+        notifier.clearError();
+      }
     }
   }
 

@@ -16,14 +16,40 @@ class AuthRepository {
 
   AuthRepository(this._apiClient, this._preferences);
 
+  /// Pre-validate referral code (no auth required, public endpoint).
+  /// Returns success with optional referrer name on data.
+  Future<ApiResponse<String?>> validateReferralCode(String code) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.referralValidateCode,
+      data: {'referral_code': code.trim().toUpperCase()},
+    );
+    if (response.isSuccess) {
+      final referrerName =
+          response.data?['data']?['referrer_name']?.toString();
+      return ApiResponse.success(referrerName);
+    }
+    return ApiResponse.error(response.errorMessage ?? 'Invalid referral code');
+  }
+
   /// Send OTP to a provided mobile number and role
   Future<ApiResponse<String>> sendOtp({
     required String phone,
     required String role,
+    String? referralCode,
   }) async {
+    final body = <String, dynamic>{
+      'phone': phone,
+      'role': ApiRoleMapper.toApiRole(role),
+    };
+    if (role == 'customer' &&
+        referralCode != null &&
+        referralCode.trim().isNotEmpty) {
+      body['referral_code'] = referralCode.trim().toUpperCase();
+    }
+
     final response = await _apiClient.post(
       ApiEndpoints.authSendOtp,
-      data: {'phone': phone, 'role': ApiRoleMapper.toApiRole(role)},
+      data: body,
     );
 
     if (response.isSuccess) {
@@ -67,14 +93,24 @@ class AuthRepository {
   Future<ApiResponse<User>> verifyOtp({
     required String phone,
     required String otp,
+    String? role,
+    String? referralCode,
   }) async {
+    final body = <String, dynamic>{
+      'phone': phone,
+      'otp': otp,
+      'device_name': kIsWeb ? 'Web' : Platform.operatingSystem,
+      if (role != null && role.trim().isNotEmpty)
+        'role': ApiRoleMapper.toApiRole(role),
+      if (role == 'customer' &&
+          referralCode != null &&
+          referralCode.trim().isNotEmpty)
+        'referral_code': referralCode.trim().toUpperCase(),
+    };
+
     final response = await _apiClient.post(
       ApiEndpoints.authVerifyOtp,
-      data: {
-        'phone': phone,
-        'otp': otp,
-        'device_name': kIsWeb ? 'Web' : Platform.operatingSystem,
-      },
+      data: body,
     );
 
     if (response.isSuccess) {
@@ -82,6 +118,7 @@ class AuthRepository {
         final data = response.data['data'];
         final token = data['token'] as String;
         final user = User.fromJson(data['user']);
+        _lastReferralApplied = data['referral_applied'] == true;
 
         await _saveSession(token, user);
         await _preferences.setHasSeenOnboarding(true);
@@ -94,6 +131,11 @@ class AuthRepository {
       return ApiResponse.error(response.errorMessage ?? 'Invalid OTP');
     }
   }
+
+  /// True if last verifyOtp call applied a referral.
+  /// Reset to false on next verifyOtp call.
+  bool get lastReferralApplied => _lastReferralApplied;
+  bool _lastReferralApplied = false;
 
   /// Fetch user profile
   Future<ApiResponse<User>> fetchProfile() async {

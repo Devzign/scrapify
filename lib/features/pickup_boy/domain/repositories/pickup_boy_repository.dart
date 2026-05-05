@@ -33,8 +33,17 @@ class PickupBoyRepository {
     );
     if (response.isSuccess) {
       try {
-        final data = response.data['data'] ?? response.data;
-        final list = (data as List<dynamic>)
+        final rawData = response.data['data'] ?? response.data;
+        // API returns { "items": [...], "pagination": {...} } or a flat list
+        final List<dynamic> items;
+        if (rawData is Map<String, dynamic>) {
+          items = rawData['items'] as List<dynamic>? ?? [];
+        } else if (rawData is List<dynamic>) {
+          items = rawData;
+        } else {
+          items = [];
+        }
+        final list = items
             .whereType<Map<String, dynamic>>()
             .map((e) => PickupAssignment.fromJson(e))
             .toList();
@@ -91,7 +100,7 @@ class PickupBoyRepository {
       final item = items[i].toJson();
       item.forEach((key, value) {
         if (value != null) {
-          formData.fields.add(MapEntry('items[$i][$key]', value.toString()));
+          formData.fields.add(MapEntry('verified_items[$i][$key]', value.toString()));
         }
       });
     }

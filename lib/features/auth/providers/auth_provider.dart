@@ -53,8 +53,18 @@ class AuthNotifier extends StateNotifier<User?> {
   }
 
   /// Verify OTP and update user state
-  Future<bool> login(String phone, String otp) async {
-    final response = await _authRepository.verifyOtp(phone: phone, otp: otp);
+  Future<bool> login(
+    String phone,
+    String otp, {
+    String? role,
+    String? referralCode,
+  }) async {
+    final response = await _authRepository.verifyOtp(
+      phone: phone,
+      otp: otp,
+      role: role,
+      referralCode: referralCode,
+    );
     if (response.isSuccess) {
       state = response.data;
       return true;

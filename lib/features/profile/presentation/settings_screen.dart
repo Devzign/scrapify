@@ -51,21 +51,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _saveSettings() async {
-    final localization = EasyLocalization.of(context);
-    final previousLanguageCode =
-        localization?.currentLocale?.languageCode ??
-        context.locale.languageCode;
+    final previousLanguageCode = context.locale.languageCode;
     setState(() => _isSaving = true);
     await _preferences.setSelectedLanguage(_selectedLanguage);
     await _preferences.setNotificationsEnabled(_notificationsEnabled);
 
-    if (!context.mounted) {
+    if (!mounted) {
       return;
     }
 
     final nextLocale = Locale(_selectedLanguage);
     if (previousLanguageCode != _selectedLanguage) {
-      await localization?.setLocale(nextLocale);
+      await context.setLocale(nextLocale);
     }
 
     if (!mounted) {
@@ -73,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     setState(() => _isSaving = false);
-    if (!context.mounted) {
+    if (!mounted) {
       return;
     }
     context.pop();

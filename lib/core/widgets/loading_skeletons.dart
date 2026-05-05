@@ -214,13 +214,7 @@ class AddressListLoadingSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppShimmer(
-      child: ListView(
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: 100,
-        ),
+      child: Column(
         children: [
           ...List.generate(
             3,

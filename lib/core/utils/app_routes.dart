@@ -46,6 +46,8 @@ import '../../features/pickup/presentation/user_reschedule_pickup_screen.dart';
 import '../../features/pickup/presentation/corporate_category_screen.dart';
 import '../../features/pickup/presentation/corporate_schedule_screen.dart';
 import '../../features/pickup/presentation/corporate_review_screen.dart';
+import '../../features/referral/presentation/screens/refer_and_earn_screen.dart';
+import '../../features/help_support/presentation/help_support_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -90,6 +92,8 @@ class AppRoutes {
   static const String corporateCategory = '/corporate/category';
   static const String corporateSchedule = '/corporate/schedule';
   static const String corporateReview = '/corporate/review';
+  static const String referAndEarn = '/refer-and-earn';
+  static const String helpSupport = '/help-support';
 
   static late final GoRouter router;
   static bool _isRouterInitialized = false;
@@ -262,6 +266,18 @@ class AppRoutes {
         GoRoute(
           path: profile,
           builder: (context, state) => const UserProfileScreen(),
+        ),
+        GoRoute(
+          path: helpSupport,
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final orderId = extra?['orderId'] as int?;
+            return HelpSupportScreen(orderId: orderId);
+          },
+        ),
+        GoRoute(
+          path: referAndEarn,
+          builder: (context, state) => const ReferAndEarnScreen(),
         ),
         GoRoute(
           path: savedAddresses,

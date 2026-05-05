@@ -8,7 +8,7 @@ class LoginIntroPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Image.asset(
-        'assets/images/Scrapify-logo-main.jpg',
+        'assets/images/Scrapify-logo-main.png',
         width: 280.w,
         fit: BoxFit.contain,
       ),

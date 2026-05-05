@@ -32,7 +32,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
               children: [
                 SizedBox(height: 20.h),
                 Image.asset(
-                  'assets/images/Scrapify-logo-main.jpg',
+                  'assets/images/Scrapify-logo-main.png',
                   width: 260.w,
                   fit: BoxFit.contain,
                 ),

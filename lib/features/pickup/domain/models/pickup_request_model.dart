@@ -10,6 +10,10 @@ class PickupRequestModel {
   final String requestType;
   final String payoutMethod;
   final double? estimatedAmount;
+  final double? finalAmount;
+  final DateTime? priceLockedAt;
+  final String? couponCode;
+  final double? couponDiscountValue;
   final String? customerName;
   final String? customerPhone;
   final List<PickupItemModel> items;
@@ -28,12 +32,21 @@ class PickupRequestModel {
     required this.requestType,
     required this.payoutMethod,
     this.estimatedAmount,
+    this.finalAmount,
+    this.priceLockedAt,
+    this.couponCode,
+    this.couponDiscountValue,
     this.customerName,
     this.customerPhone,
     required this.items,
     required this.images,
     this.createdAt,
   });
+
+  bool get isPriceLocked => priceLockedAt != null;
+  bool get hasCoupon => couponCode != null && couponCode!.isNotEmpty;
+  bool get isDonation => requestType == 'donation';
+  bool get isCorporate => requestType == 'corporate';
 
   factory PickupRequestModel.fromJson(Map<String, dynamic> json) {
     final inferredRequestType = _resolveRequestType(
@@ -72,6 +85,10 @@ class PickupRequestModel {
           _parseDouble(json['estimated_amount']) ??
           _parseDouble(json['quote_amount']) ??
           _parseDouble(json['amount']),
+      finalAmount: _parseDouble(json['final_amount']),
+      priceLockedAt: _parseDateTime(json['price_locked_at']),
+      couponCode: json['coupon_code']?.toString(),
+      couponDiscountValue: _parseDouble(json['coupon_discount_value']),
       customerName: json['customer_name']?.toString(),
       customerPhone: json['customer_phone']?.toString(),
       items:

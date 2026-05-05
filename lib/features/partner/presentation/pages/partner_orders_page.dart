@@ -298,8 +298,15 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: isSelected ? AppTheme.primaryColor : Colors.white,
+                color: isSelected
+                    ? AppTheme.primaryColor
+                    : AppTheme.primaryLight.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: isSelected
+                      ? AppTheme.primaryColor
+                      : const Color(0xFFE2E8F0),
+                ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
@@ -315,7 +322,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? Colors.white : Colors.grey.shade600,
+                  color: isSelected ? Colors.white : AppTheme.textSecondary,
                 ),
               ),
             ),

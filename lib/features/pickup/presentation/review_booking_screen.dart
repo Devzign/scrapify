@@ -9,24 +9,52 @@ import 'package:go_router/go_router.dart';
 import '../../../core/network/api_endpoints.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/utils/user_role_helper.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../providers/basket_provider.dart';
 import '../providers/booking_provider.dart';
 import '../providers/donation_provider.dart';
+import '../../referral/providers/referral_provider.dart';
 import 'widgets/add_payment_popup.dart';
 import 'widgets/payment_selection_sheet.dart';
 
-class ReviewBookingScreen extends ConsumerWidget {
+class ReviewBookingScreen extends ConsumerStatefulWidget {
   const ReviewBookingScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ReviewBookingScreen> createState() =>
+      _ReviewBookingScreenState();
+}
+
+class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
+  late final TextEditingController _couponController;
+  String? _couponError;
+
+  @override
+  void initState() {
+    super.initState();
+    _couponController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _couponController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final basketItems = ref.watch(basketProvider);
     final donationState = ref.watch(donationProvider);
     final booking = ref.watch(bookingProvider);
     final isDonationFlow = booking.isDonationFlow;
     final items = isDonationFlow ? donationState.items : basketItems;
     final totalEstimate = ref.read(basketProvider.notifier).totalEstimate;
+    final authUser = ref.watch(authProvider);
+    final isCustomer = isCustomerUser(authUser);
+    final isCouponValidating = ref.watch(referralProvider).isCouponValidating;
+    final appliedCoupon = booking.appliedCoupon;
 
     final lat = booking.selectedAddress?.latitude ?? 28.6139;
     final lng = booking.selectedAddress?.longitude ?? 77.2090;
@@ -165,6 +193,18 @@ class ReviewBookingScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 16),
                           _buildPayoutSelectionCard(context, ref, booking),
+                          if (isCustomer) ...[
+                            const SizedBox(height: 24),
+                            _buildCouponSection(
+                              ref: ref,
+                              booking: booking,
+                              isValidating: isCouponValidating,
+                              totalEstimate: totalEstimate,
+                              appliedCouponCode: booking.appliedCouponCode,
+                              appliedCouponExtraValue:
+                                  appliedCoupon?.finalExtraValue,
+                            ),
+                          ],
                         ],
                         const SizedBox(height: 32),
                         Text(
@@ -296,29 +336,55 @@ class ReviewBookingScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            const Text(
-                              'NET PAYOUT',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.primaryColor,
-                                letterSpacing: 1.2,
+                        Builder(builder: (_) {
+                          final extra = appliedCoupon?.finalExtraValue ?? 0;
+                          final hasCoupon = extra > 0;
+                          final net = totalEstimate + extra;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              const Text(
+                                'NET PAYOUT',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppTheme.primaryColor,
+                                  letterSpacing: 1.2,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '₹${totalEstimate.toStringAsFixed(0)}',
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w900,
-                                color: AppTheme.primaryColor,
+                              const SizedBox(height: 4),
+                              if (hasCoupon)
+                                Text(
+                                  '₹${totalEstimate.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF94A3B8),
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                              if (hasCoupon)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    '+ ₹${extra.toStringAsFixed(0)} coupon',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF16A34A),
+                                    ),
+                                  ),
+                                ),
+                              Text(
+                                '₹${net.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppTheme.primaryColor,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          );
+                        }),
                       ],
                     ),
                   const SizedBox(height: 20),
@@ -389,6 +455,229 @@ class ReviewBookingScreen extends ConsumerWidget {
               (isDonationFlow ? 'Donation failed' : 'Booking failed'),
         ),
         backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  Widget _buildCouponSection({
+    required WidgetRef ref,
+    required BookingState booking,
+    required bool isValidating,
+    required double totalEstimate,
+    required String? appliedCouponCode,
+    required double? appliedCouponExtraValue,
+  }) {
+    final hasAppliedCoupon =
+        appliedCouponCode != null && appliedCouponCode.trim().isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'COUPON',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: AppTheme.primaryColor,
+            letterSpacing: 1.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: SizedBox(
+                height: 48,
+                child: TextField(
+                  controller: _couponController,
+                  textCapitalization: TextCapitalization.characters,
+                  maxLength: 20,
+                  onChanged: (_) {
+                    if (_couponError != null) {
+                      setState(() => _couponError = null);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Enter coupon code',
+                    counterText: '',
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: AppTheme.primaryColor,
+                        width: 1.5,
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Colors.red,
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Colors.red,
+                        width: 1.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 104,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: isValidating
+                    ? null
+                    : () => _applyCoupon(
+                        ref: ref,
+                        booking: booking,
+                        totalEstimate: totalEstimate,
+                      ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryColor,
+                  minimumSize: const Size(104, 48),
+                  maximumSize: const Size(104, 48),
+                  padding: EdgeInsets.zero,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: isValidating
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Apply',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+        if (_couponError != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            _couponError!,
+            style: const TextStyle(color: Colors.red, fontSize: 12),
+          ),
+        ],
+        if (hasAppliedCoupon) ...[
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppTheme.primaryLight.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.primaryColor),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Applied: $appliedCouponCode (+₹${(appliedCouponExtraValue ?? 0).toStringAsFixed(0)} extra value)',
+                    style: const TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    ref.read(bookingProvider.notifier).clearAppliedCoupon();
+                    _couponController.clear();
+                    setState(() => _couponError = null);
+                  },
+                  child: const Text(
+                    'Remove',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Future<void> _applyCoupon({
+    required WidgetRef ref,
+    required BookingState booking,
+    required double totalEstimate,
+  }) async {
+    final rawCode = _couponController.text.trim().toUpperCase();
+    _couponController.value = _couponController.value.copyWith(
+      text: rawCode,
+      selection: TextSelection.collapsed(offset: rawCode.length),
+    );
+
+    if (rawCode.isEmpty) {
+      setState(() => _couponError = 'Please enter coupon code');
+      return;
+    }
+    if (rawCode.length > 20) {
+      setState(
+        () => _couponError = 'Coupon code must be at most 20 characters',
+      );
+      return;
+    }
+    if (!RegExp(r'^[A-Z0-9]+$').hasMatch(rawCode)) {
+      setState(() => _couponError = 'Use only letters and numbers');
+      return;
+    }
+
+    setState(() => _couponError = null);
+    final result = await ref
+        .read(referralProvider.notifier)
+        .validateCoupon(couponCode: rawCode, bookingAmount: totalEstimate);
+
+    if (!mounted) return;
+
+    if (result == null) {
+      final msg =
+          ref.read(referralProvider).error ?? 'Failed to validate coupon';
+      setState(() => _couponError = msg);
+      return;
+    }
+
+    ref.read(bookingProvider.notifier).setAppliedCoupon(result);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Coupon applied: +₹${result.finalExtraValue.toStringAsFixed(0)}',
+        ),
       ),
     );
   }

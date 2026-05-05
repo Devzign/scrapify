@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/utils/user_role_helper.dart';
 import '../../auth/providers/auth_provider.dart';
 
 class UserProfileScreen extends ConsumerWidget {
@@ -13,9 +14,12 @@ class UserProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final locale = context.locale;
     final user = ref.watch(authProvider);
+    final isCustomer = isCustomerUser(user);
 
     return Scaffold(
+      key: ValueKey('profile_${locale.languageCode}'),
       backgroundColor: AppTheme.backgroundLight,
       appBar: showAppBar
           ? AppBar(
@@ -44,7 +48,12 @@ class UserProfileScreen extends ConsumerWidget {
             // Header Section
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(top: 12, bottom: 32, left: 24, right: 24),
+              padding: const EdgeInsets.only(
+                top: 12,
+                bottom: 32,
+                left: 24,
+                right: 24,
+              ),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
@@ -52,7 +61,11 @@ class UserProfileScreen extends ConsumerWidget {
                   bottomRight: Radius.circular(40),
                 ),
                 boxShadow: [
-                  BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    offset: Offset(0, 4),
+                  ),
                 ],
               ),
               child: Stack(
@@ -90,10 +103,16 @@ class UserProfileScreen extends ConsumerWidget {
                               color: Colors.grey.shade200,
                               border: Border.all(color: Colors.white, width: 4),
                               boxShadow: const [
-                                BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 4)),
+                                BoxShadow(
+                                  color: Colors.black12,
+                                  blurRadius: 10,
+                                  offset: Offset(0, 4),
+                                ),
                               ],
                               image: const DecorationImage(
-                                image: NetworkImage('https://i.pravatar.cc/150?img=11'),
+                                image: NetworkImage(
+                                  'https://i.pravatar.cc/150?img=11',
+                                ),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -101,10 +120,17 @@ class UserProfileScreen extends ConsumerWidget {
                           Container(
                             margin: const EdgeInsets.only(bottom: 4, right: 4),
                             padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(color: AppTheme.primaryColor, shape: BoxShape.circle),
+                            decoration: const BoxDecoration(
+                              color: AppTheme.primaryColor,
+                              shape: BoxShape.circle,
+                            ),
                             child: InkWell(
                               onTap: () => context.push(AppRoutes.editProfile),
-                              child: const Icon(Icons.edit, color: Colors.white, size: 18),
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 18,
+                              ),
                             ),
                           ),
                         ],
@@ -112,16 +138,27 @@ class UserProfileScreen extends ConsumerWidget {
                       const SizedBox(height: 16),
                       Text(
                         user?.name ?? 'Loading...',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: AppTheme.textPrimary),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         user?.phone ?? '+91 ...',
-                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.textSecondary),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.textSecondary,
+                        ),
                       ),
                       const SizedBox(height: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: AppTheme.primaryLight.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(20),
@@ -129,11 +166,19 @@ class UserProfileScreen extends ConsumerWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.verified, color: AppTheme.primaryColor, size: 16),
+                            const Icon(
+                              Icons.verified,
+                              color: AppTheme.primaryColor,
+                              size: 16,
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               'profile.verified_user'.tr(),
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: AppTheme.primaryColor),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w900,
+                                color: AppTheme.primaryColor,
+                              ),
                             ),
                           ],
                         ),
@@ -173,6 +218,15 @@ class UserProfileScreen extends ConsumerWidget {
                     subtitle: 'profile.language_desc'.tr(),
                     onTap: () => context.push(AppRoutes.settings),
                   ),
+                  if (isCustomer) ...[
+                    const SizedBox(height: 12),
+                    _buildSettingsTile(
+                      icon: Icons.card_giftcard,
+                      title: 'Refer & Earn',
+                      subtitle: 'Invite friends and earn reward coupons',
+                      onTap: () => context.push(AppRoutes.referAndEarn),
+                    ),
+                  ],
 
                   const SizedBox(height: 24),
                   _buildSectionHeader('profile.support_other'.tr()),
@@ -181,6 +235,13 @@ class UserProfileScreen extends ConsumerWidget {
                     title: 'profile.help_support'.tr(),
                     subtitle: 'profile.faq_desc'.tr(),
                     onTap: () => context.push(AppRoutes.faq),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildSettingsTile(
+                    icon: Icons.contact_support_outlined,
+                    title: 'Still need help?',
+                    subtitle: 'Raise a support request for quick assistance',
+                    onTap: () => context.push(AppRoutes.helpSupport),
                   ),
                   const SizedBox(height: 24),
 
@@ -202,13 +263,24 @@ class UserProfileScreen extends ConsumerWidget {
                         children: [
                           Container(
                             padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(color: Colors.red.shade100, borderRadius: BorderRadius.circular(12)),
-                            child: const Icon(Icons.logout, color: Colors.red, size: 24),
+                            decoration: BoxDecoration(
+                              color: Colors.red.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(
+                              Icons.logout,
+                              color: Colors.red,
+                              size: 24,
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Text(
                             'profile.logout'.tr(),
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.red),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.red,
+                            ),
                           ),
                         ],
                       ),
@@ -219,7 +291,11 @@ class UserProfileScreen extends ConsumerWidget {
                   Center(
                     child: Text(
                       '${'profile.app_version'.tr()} 1.0.2',
-                      style: TextStyle(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -263,7 +339,11 @@ class UserProfileScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2)),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
           ],
         ),
         child: Row(
@@ -283,12 +363,20 @@ class UserProfileScreen extends ConsumerWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: AppTheme.textPrimary),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: AppTheme.textPrimary,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary, fontWeight: FontWeight.w500),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppTheme.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
@@ -300,4 +388,3 @@ class UserProfileScreen extends ConsumerWidget {
     );
   }
 }
-

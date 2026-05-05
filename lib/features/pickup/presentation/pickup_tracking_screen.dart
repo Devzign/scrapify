@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../domain/models/tracking_timeline_model.dart';
 import '../providers/pickup_provider.dart';
+import 'widgets/pickup_price_summary.dart';
 
 class PickupTrackingScreen extends ConsumerStatefulWidget {
   final int pickupId;
@@ -240,39 +241,63 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                     }
                   }),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
+
+                  // Price summary (estimated / coupon / final + lock badge)
+                  Consumer(
+                    builder: (context, ref, _) {
+                      final detailAsync =
+                          ref.watch(pickupDetailProvider(widget.pickupId));
+                      return detailAsync.maybeWhen(
+                        data: (pickup) => Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: PickupPriceSummary(pickup: pickup),
+                        ),
+                        orElse: () => const SizedBox.shrink(),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 8),
 
                   // Need help button
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
-                      borderRadius: BorderRadius.circular(16),
+                  InkWell(
+                    onTap: () => context.push(
+                      AppRoutes.helpSupport,
+                      extra: {'orderId': widget.pickupId},
                     ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.help_outline,
-                          color: AppTheme.textSecondary,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            'Need help with this order?',
-                            style: TextStyle(
-                              color: Color(0xFF475569),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.help_outline,
+                            color: AppTheme.textSecondary,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Text(
+                              'Need help with this order?',
+                              style: TextStyle(
+                                color: Color(0xFF475569),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
                             ),
                           ),
-                        ),
-                        const Icon(
-                          Icons.chevron_right,
-                          color: Color(0xFF94A3B8),
-                          size: 20,
-                        ),
-                      ],
+                          const Icon(
+                            Icons.chevron_right,
+                            color: Color(0xFF94A3B8),
+                            size: 20,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 

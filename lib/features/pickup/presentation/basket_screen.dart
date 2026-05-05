@@ -51,17 +51,20 @@ class BasketScreen extends ConsumerWidget {
                     style: TextStyle(fontSize: 18, color: Colors.grey),
                   ),
                   const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () => context.go(AppRoutes.categorySelection),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: ElevatedButton(
+                      onPressed: () => context.go(AppRoutes.categorySelection),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'ADD ITEMS',
-                      style: TextStyle(color: Colors.white),
+                      child: const Text(
+                        'ADD ITEMS',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                 ],

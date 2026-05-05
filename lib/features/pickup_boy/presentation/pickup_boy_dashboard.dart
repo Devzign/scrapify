@@ -22,7 +22,8 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> {
     super.initState();
     Future.microtask(() {
       ref.read(pickupBoyProvider.notifier).loadDashboard();
-      ref.read(pickupBoyProvider.notifier).loadAssignments(status: 'pending');
+      // Load all assignments (no status filter) so both tabs can display
+      ref.read(pickupBoyProvider.notifier).loadAssignments();
     });
   }
 
@@ -75,11 +76,8 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> {
             indicatorColor: AppTheme.primaryColor,
             indicatorWeight: 3,
             onTap: (index) {
-              if (index == 0) {
-                ref.read(pickupBoyProvider.notifier).loadAssignments(status: 'pending');
-              } else {
-                ref.read(pickupBoyProvider.notifier).loadAssignments(status: 'completed');
-              }
+              // Reload all assignments on tab switch
+              ref.read(pickupBoyProvider.notifier).loadAssignments();
             },
             tabs: [
               Tab(
@@ -111,10 +109,16 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> {
               }
             });
           }
+          final pendingAssignments = state.assignments
+              .where((a) => a.status != 'completed')
+              .toList();
+          final completedAssignments = state.assignments
+              .where((a) => a.status == 'completed')
+              .toList();
           return TabBarView(
             children: [
-              _buildAssignmentList(context, state.assignments),
-              _buildAssignmentList(context, state.assignments),
+              _buildAssignmentList(context, pendingAssignments, isEmpty: 'No pending pickups yet.'),
+              _buildAssignmentList(context, completedAssignments, isEmpty: 'No completed pickups yet.'),
             ],
           );
         }),
@@ -122,7 +126,11 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> {
     );
   }
 
-  Widget _buildAssignmentList(BuildContext context, List<PickupAssignment> assignments) {
+  Widget _buildAssignmentList(
+    BuildContext context,
+    List<PickupAssignment> assignments, {
+    String isEmpty = 'No pickups yet.',
+  }) {
     final state = ref.watch(pickupBoyProvider);
 
     if (state.isLoading) {
@@ -137,7 +145,7 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> {
             const FaIcon(FontAwesomeIcons.clipboardList, size: 48, color: Colors.grey),
             const SizedBox(height: 16),
             Text(
-              'pickup_dashboard.no_completed'.tr(),
+              isEmpty,
               style: const TextStyle(color: Colors.grey, fontSize: 16),
             ),
           ],
@@ -287,7 +295,102 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> {
                 ),
               ],
             ),
-            if (assignment.itemsSummary != null) ...[
+            if (assignment.expectedItems.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'EXPECTED ITEMS',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.grey.shade500,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...assignment.expectedItems.map((item) {
+                      final langCode = context.locale.languageCode;
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                item.localizedName(langCode),
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
+                            ),
+                            if (item.quantity > 1)
+                              Text(
+                                'x${item.quantity}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            const SizedBox(width: 8),
+                            if (item.weightKg != null)
+                              Text(
+                                '${item.weightKg!.toStringAsFixed(1)} kg',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade500,
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    }),
+                    if (assignment.estimatedWeightKg != null) ...[
+                      const Divider(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total Est. Weight',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                          Text(
+                            '~ ${assignment.estimatedWeightKg!.toStringAsFixed(1)} kg',
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ] else if (assignment.itemsSummary != null && assignment.itemsSummary!.isNotEmpty) ...[
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(12),
@@ -302,8 +405,8 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('pickup_dashboard.items'.tr(),
-                            style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                        const Text('Items',
+                            style: TextStyle(fontSize: 12, color: Colors.grey)),
                         Text(
                           assignment.itemsSummary!,
                           style: const TextStyle(
@@ -315,8 +418,8 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('pickup_dashboard.est_weight'.tr(),
-                              style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                          const Text('Est. Weight',
+                              style: TextStyle(fontSize: 12, color: Colors.grey)),
                           Text(
                             '~ ${assignment.estimatedWeightKg!.toStringAsFixed(1)} kg',
                             style: const TextStyle(

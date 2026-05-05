@@ -74,6 +74,7 @@ class _UserReschedulePickupScreenState
   Widget build(BuildContext context) {
     final pickupState = ref.watch(pickupProvider);
     final isHindi = context.locale.languageCode == 'hi';
+    final bottomInset = MediaQuery.of(context).padding.bottom;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -106,28 +107,27 @@ class _UserReschedulePickupScreenState
               left: 24,
               right: 24,
               top: 24,
-              bottom: 120,
-            ),
+            ).copyWith(bottom: 190 + bottomInset),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildCurrentSlotCard(),
                 const SizedBox(height: 32),
-                _buildDateSelectionHeader(),
+                _buildDateSelectionHeader(isHindi),
                 const SizedBox(height: 16),
                 _buildDateList(),
                 const SizedBox(height: 32),
-                _buildTimeSlotHeader(),
+                _buildTimeSlotHeader(isHindi),
                 const SizedBox(height: 16),
-                _buildTimeSlotList(),
+                _buildTimeSlotList(isHindi),
                 const SizedBox(height: 32),
-                _buildReasonHeader(),
+                _buildReasonHeader(isHindi),
                 const SizedBox(height: 16),
-                _buildReasonChips(),
+                _buildReasonChips(isHindi),
               ],
             ),
           ),
-          _buildBottomAction(pickupState.isActionLoading),
+          _buildBottomAction(pickupState.isActionLoading, isHindi),
         ],
       ),
     );
@@ -215,24 +215,16 @@ class _UserReschedulePickupScreenState
     );
   }
 
-  Widget _buildDateSelectionHeader() {
-    return const Row(
+  Widget _buildDateSelectionHeader(bool isHindi) {
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Select Date',
-          style: TextStyle(
+          isHindi ? 'तारीख चुनें' : 'Select Date',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
             color: AppTheme.textPrimary,
-          ),
-        ),
-        Text(
-          'तारीख चुनें',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryColor,
           ),
         ),
       ],
@@ -258,6 +250,12 @@ class _UserReschedulePickupScreenState
               decoration: BoxDecoration(
                 color: isSelected ? AppTheme.primaryColor : Colors.white,
                 borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isSelected
+                      ? AppTheme.primaryColor
+                      : Colors.grey.shade200,
+                  width: 1.2,
+                ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
@@ -266,8 +264,13 @@ class _UserReschedulePickupScreenState
                           offset: const Offset(0, 5),
                         ),
                       ]
-                    : [],
-                border: Border.all(color: Colors.transparent, width: 2),
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -307,31 +310,23 @@ class _UserReschedulePickupScreenState
     );
   }
 
-  Widget _buildTimeSlotHeader() {
-    return const Row(
+  Widget _buildTimeSlotHeader(bool isHindi) {
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Select Time Slot',
-          style: TextStyle(
+          isHindi ? 'समय स्लॉट चुनें' : 'Select Time Slot',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
             color: AppTheme.textPrimary,
-          ),
-        ),
-        Text(
-          'समय स्लॉट चुनें',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: AppTheme.primaryColor,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildTimeSlotList() {
+  Widget _buildTimeSlotList(bool isHindi) {
     return Column(
       children: _timeSlots.map((slot) {
         final isSelected = _selectedTimeSlot == slot['id'];
@@ -348,9 +343,18 @@ class _UserReschedulePickupScreenState
                 border: Border.all(
                   color: isSelected
                       ? AppTheme.primaryColor
-                      : Colors.transparent,
-                  width: 2,
+                      : Colors.grey.shade200,
+                  width: 1.2,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isSelected
+                        ? AppTheme.primaryColor.withValues(alpha: 0.15)
+                        : Colors.black.withValues(alpha: 0.04),
+                    blurRadius: isSelected ? 12 : 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
@@ -410,7 +414,7 @@ class _UserReschedulePickupScreenState
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        slot['status'],
+                        _slotStatusLabel(slot['status'] as String, isHindi),
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w900,
@@ -429,21 +433,21 @@ class _UserReschedulePickupScreenState
     );
   }
 
-  Widget _buildReasonHeader() {
-    return const Row(
+  Widget _buildReasonHeader(bool isHindi) {
+    return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Reason for Rescheduling',
-          style: TextStyle(
+          isHindi ? 'पुनर्निर्धारण का कारण' : 'Reason for Rescheduling',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
             color: AppTheme.textPrimary,
           ),
         ),
         Text(
-          'Optional',
-          style: TextStyle(
+          isHindi ? 'वैकल्पिक' : 'Optional',
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: AppTheme.primaryColor,
@@ -454,7 +458,7 @@ class _UserReschedulePickupScreenState
     );
   }
 
-  Widget _buildReasonChips() {
+  Widget _buildReasonChips(bool isHindi) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -477,7 +481,7 @@ class _UserReschedulePickupScreenState
               ),
             ),
             child: Text(
-              label,
+              _reasonLabel(code, label, isHindi),
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
@@ -490,13 +494,18 @@ class _UserReschedulePickupScreenState
     );
   }
 
-  Widget _buildBottomAction(bool isActionLoading) {
+  Widget _buildBottomAction(bool isActionLoading, bool isHindi) {
     return Positioned(
       bottom: 0,
       left: 0,
       right: 0,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        padding: EdgeInsets.fromLTRB(
+          24,
+          16,
+          24,
+          16 + MediaQuery.of(context).padding.bottom,
+        ),
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.9),
           boxShadow: [
@@ -532,11 +541,11 @@ class _UserReschedulePickupScreenState
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Row(
+                  : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Confirm New Slot',
+                          isHindi ? 'नया स्लॉट सुनिश्चित करें' : 'Confirm New Slot',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w900,
@@ -549,7 +558,8 @@ class _UserReschedulePickupScreenState
             ),
             const SizedBox(height: 8),
             Text(
-              'नया स्लॉट सुनिश्चित करें'.toUpperCase(),
+              (isHindi ? 'नया स्लॉट सुनिश्चित करें' : 'Confirm New Slot')
+                  .toUpperCase(),
               style: const TextStyle(
                 fontSize: 9,
                 fontWeight: FontWeight.w900,
@@ -561,6 +571,36 @@ class _UserReschedulePickupScreenState
         ),
       ),
     );
+  }
+
+  String _slotStatusLabel(String status, bool isHindi) {
+    if (!isHindi) return status;
+    switch (status) {
+      case 'AVAILABLE':
+        return 'उपलब्ध';
+      case 'ACTIVE':
+        return 'सक्रिय';
+      case 'FEW SLOTS':
+        return 'कम स्लॉट';
+      default:
+        return status;
+    }
+  }
+
+  String _reasonLabel(String code, String fallback, bool isHindi) {
+    if (!isHindi) return fallback;
+    switch (code) {
+      case 'i_am_busy':
+        return 'मैं व्यस्त हूँ';
+      case 'out_of_town':
+        return 'शहर से बाहर';
+      case 'need_more_time':
+        return 'और समय चाहिए';
+      case 'emergency':
+        return 'आपातकाल';
+      default:
+        return fallback;
+    }
   }
 
   Future<void> _submitReschedule() async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/models/warehouse_pickup_boy.dart';
@@ -19,6 +20,15 @@ class WhRequestDetailPage extends ConsumerStatefulWidget {
 class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
   int? _selectedBoyId;
 
+  String _formatScheduledAt(String raw) {
+    try {
+      final dt = DateTime.parse(raw).toLocal();
+      return DateFormat('dd MMM yyyy, hh:mm a').format(dt);
+    } catch (_) {
+      return raw;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final r = widget.request;
@@ -37,7 +47,6 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildTicketHeader(r),
                     _buildBentoContent(r),
                     _buildAgentAssignment(r, state),
                   ],
@@ -106,72 +115,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
     );
   }
 
-  Widget _buildTicketHeader(WarehouseRequest r) {
-    final (statusBg, statusText, statusLabel) = _statusStyle(r.status);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'REQUEST ID',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.primaryColor,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                r.orderCode,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: statusBg,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: statusText,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  statusLabel.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: statusText,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  (Color, Color, String) _statusStyle(String status) {
+(Color, Color, String) _statusStyle(String status) {
     switch (status.toLowerCase()) {
       case 'completed':
         return (const Color(0xFFEDE9FE), const Color(0xFF7C3AED), 'Completed');
@@ -194,13 +138,52 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
   }
 
   Widget _buildBentoContent(WarehouseRequest r) {
+    final (statusBg, statusText, statusLabel) = _statusStyle(r.status);
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
+          // REQUEST ID - Full width at top
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: AppTheme.cardBorderRadius,
+              border: AppTheme.cardBorder,
+              boxShadow: AppTheme.cardShadow,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'REQUEST ID',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: AppTheme.primaryColor,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  r.orderCode,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          // CUSTOMER DETAILS (left) + STATUS & ITEM SUMMARY (right stacked)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Left: CUSTOMER DETAILS
               Expanded(
                 flex: 2,
                 child: Container(
@@ -217,29 +200,34 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'CUSTOMER DETAILS / ग्राहक विवरण',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.primaryColor,
-                                  letterSpacing: 0.5,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'CUSTOMER DETAILS / ग्राहक विवरण',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTheme.primaryColor,
+                                    letterSpacing: 0.5,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                r.customerName,
-                                style: const TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w800,
-                                  color: Color(0xFF0F172A),
+                                const SizedBox(height: 4),
+                                Text(
+                                  r.customerName,
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF0F172A),
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
+                          const SizedBox(width: 12),
                           if (r.customerPhone.isNotEmpty)
                             GestureDetector(
                               onTap: () async {
@@ -281,7 +269,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                       const SizedBox(height: 14),
                       _buildInfoRow(
                         icon: Icons.access_time_rounded,
-                        value: r.scheduledAt,
+                        value: _formatScheduledAt(r.scheduledAt),
                         subLabel: 'Scheduled Slot / निर्धारित समय',
                         isBold: true,
                       ),
@@ -355,87 +343,129 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 ),
               ),
               const SizedBox(width: 12),
+              // Right: STATUS BADGE & ITEM SUMMARY (stacked)
               Expanded(
                 flex: 1,
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
+                child: Column(
+                  children: [
+                    // Status Badge
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ITEM SUMMARY / वस्तुओं का विवरण',
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white.withValues(alpha: 0.8),
-                          letterSpacing: 0.5,
-                        ),
+                      decoration: BoxDecoration(
+                        color: statusBg,
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      const SizedBox(height: 18),
-                      if (r.itemSummary != null && r.itemSummary!.isNotEmpty)
-                        Text(
-                          r.itemSummary!,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.white,
-                            height: 1.4,
-                          ),
-                        )
-                      else
-                        Text(
-                          'No item details.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      const SizedBox(height: 20),
-                      if (r.estimatedWeight != null)
-                        Container(
-                          padding: const EdgeInsets.only(top: 16),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              top: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.1),
-                              ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: statusText,
+                              shape: BoxShape.circle,
                             ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'EST. WEIGHT',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${r.estimatedWeight} kg',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
+                          const SizedBox(width: 6),
+                          Text(
+                            statusLabel.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              color: statusText,
+                            ),
                           ),
-                        ),
-                    ],
-                  ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Item Summary
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primaryColor,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ITEM SUMMARY / वस्तुओं का विवरण',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white.withValues(alpha: 0.8),
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          if (r.itemSummary != null && r.itemSummary!.isNotEmpty)
+                            Text(
+                              r.itemSummary!,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white,
+                                height: 1.4,
+                              ),
+                            )
+                          else
+                            Text(
+                              'No item details.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withValues(alpha: 0.6),
+                              ),
+                            ),
+                          const SizedBox(height: 20),
+                          if (r.estimatedWeight != null)
+                            Container(
+                              padding: const EdgeInsets.only(top: 16),
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  top: BorderSide(
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                  ),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'EST. WEIGHT',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      color: Colors.white.withValues(alpha: 0.7),
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${r.estimatedWeight} kg',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

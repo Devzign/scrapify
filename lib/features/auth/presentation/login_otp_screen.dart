@@ -138,6 +138,58 @@ class LoginOtpScreen extends ConsumerWidget {
                   errorText: state.phoneError,
                   onChanged: viewModel.onPhoneChanged,
                 ),
+                if (!state.otpSent && viewModel.isCustomerRole) ...[
+                  const SizedBox(height: 14),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: GestureDetector(
+                      onTap: viewModel.toggleReferralInput,
+                      child: Text(
+                        state.showReferralInput
+                            ? 'Hide referral code'
+                            : 'Have a referral code?',
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (state.showReferralInput) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: state.referralError != null
+                              ? Colors.red
+                              : Colors.grey.shade300,
+                          width: state.referralError != null ? 1.5 : 1,
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                        color: Colors.white,
+                      ),
+                      child: TextField(
+                        controller: viewModel.referralController,
+                        textCapitalization: TextCapitalization.characters,
+                        enabled: !state.otpSent,
+                        inputFormatters: viewModel.referralInputFormatters,
+                        onChanged: viewModel.onReferralChanged,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter referral code (optional)',
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          counterText: '',
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 15,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
                 if (state.phoneError != null) ...[
                   const SizedBox(height: 6),
                   Padding(
@@ -152,6 +204,29 @@ class LoginOtpScreen extends ConsumerWidget {
                         const SizedBox(width: 4),
                         Text(
                           state.phoneError!,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                if (state.referralError != null) ...[
+                  const SizedBox(height: 6),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          color: Colors.red,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          state.referralError!,
                           style: const TextStyle(
                             color: Colors.red,
                             fontSize: 12,

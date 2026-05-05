@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'widgets/faq_header_delegate.dart';
+import '../../../core/utils/app_routes.dart';
+import '../../../core/theme/app_theme.dart';
 
 class FaqScreen extends StatefulWidget {
   const FaqScreen({super.key});
@@ -37,14 +39,10 @@ class _FaqScreenState extends State<FaqScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-
-    // Define Colors from the HTML
-    final primaryColor = const Color(0xFF0a0ac2);
-    final bgLightColor = Colors.white;
-    final bgDarkColor = const Color(0xFF101022);
+    const primaryColor = AppTheme.primaryColor;
 
     return Scaffold(
-      backgroundColor: isDark ? bgDarkColor : bgLightColor,
+      backgroundColor: AppTheme.backgroundLight,
       body: Stack(
         children: [
           CustomScrollView(
@@ -122,15 +120,14 @@ class _FaqScreenState extends State<FaqScreen> {
             ],
           ),
 
-          // Sticky Floating Support Button
           Positioned(
             bottom:
-                32, // Adjusted to not hit bottom navigation if present globally, though this screen hides it anyway
+                32,
             left: 16,
             right: 16,
             child: ElevatedButton(
               onPressed: () {
-                // Action for chatting
+                context.push(AppRoutes.helpSupport);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryColor,
@@ -178,12 +175,12 @@ class _FaqScreenState extends State<FaqScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : Colors.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark
               ? const Color(0xFF334155)
-              : const Color(0xFFF1F5F9), // slate-700 / slate-100
+              : const Color(0xFFE2E8F0),
         ),
         boxShadow: isDark
             ? []
@@ -191,7 +188,7 @@ class _FaqScreenState extends State<FaqScreen> {
                 const BoxShadow(
                   color: Color(
                     0x0A000000,
-                  ), // shadow-[0_2px_8px_rgba(0,0,0,0.04)]
+                  ),
                   blurRadius: 8,
                   offset: Offset(0, 2),
                 ),
@@ -199,7 +196,7 @@ class _FaqScreenState extends State<FaqScreen> {
       ),
       child: Theme(
         data: Theme.of(context).copyWith(
-          dividerColor: Colors.transparent, // Remove default divider
+          dividerColor: Colors.transparent,
         ),
         child: ExpansionTile(
           initiallyExpanded: initiallyExpanded,
@@ -209,9 +206,8 @@ class _FaqScreenState extends State<FaqScreen> {
             right: 20,
             bottom: 20,
           ),
-          collapsedIconColor: const Color(0xFF475569), // slate-600
+          collapsedIconColor: AppTheme.textSecondary,
           iconColor: primaryColor,
-          // Custom expanding chevron to match design
           trailing: Container(
             width: 32,
             height: 32,
@@ -227,7 +223,7 @@ class _FaqScreenState extends State<FaqScreen> {
               Text(
                 questionKey.tr(),
                 style: TextStyle(
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      color: AppTheme.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   height: 1.2,
@@ -236,13 +232,13 @@ class _FaqScreenState extends State<FaqScreen> {
               if (!isEnglish) ...[
                 const SizedBox(height: 4),
                 Text(
-                  questionKey.tr(), // Removed invalid locale parameter
+                  questionKey.tr(),
                   style: TextStyle(
                     color: isDark
                         ? const Color(0xFF93C5FD)
                         : primaryColor.withValues(
                             alpha: 0.9,
-                          ), // primary-300 approx
+                          ),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -254,9 +250,7 @@ class _FaqScreenState extends State<FaqScreen> {
             Text(
               answerKey.tr(),
               style: TextStyle(
-                color: isDark
-                    ? const Color(0xFFCBD5E1)
-                    : const Color(0xFF475569),
+                    color: AppTheme.textSecondary,
                 fontSize: 15,
                 height: 1.5,
               ),
@@ -275,11 +269,11 @@ class _FaqScreenState extends State<FaqScreen> {
                   ),
                 ),
                 child: Text(
-                  answerKey.tr(), // Removed invalid locale parameter
+                  answerKey.tr(),
                   style: TextStyle(
                     color: isDark
                         ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B),
+                        : AppTheme.textSecondary,
                     fontSize: 15,
                     height: 1.5,
                   ),
