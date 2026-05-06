@@ -141,6 +141,7 @@ class _SubCategorySelectionScreenState
                                     context,
                                   ),
                                   'applianceCategoryId': sub.id,
+                                  'parentCategoryId': parentCategory.id,
                                 },
                               );
                               return;

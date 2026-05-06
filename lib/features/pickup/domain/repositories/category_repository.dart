@@ -18,7 +18,18 @@ class CategoryRepository {
     return _dioClient.get<List<Category>>(
       ApiEndpoints.categories,
       parser: (data) {
-        final List<dynamic> list = data['data'] as List<dynamic>;
+        final dynamic payload = data['data'];
+        final List<dynamic> list;
+        if (payload is List<dynamic>) {
+          list = payload;
+        } else if (payload is Map<String, dynamic>) {
+          list =
+              payload['data'] as List<dynamic>? ??
+              payload['items'] as List<dynamic>? ??
+              const <dynamic>[];
+        } else {
+          list = const <dynamic>[];
+        }
         return list
             .map((json) => Category.fromJson(json as Map<String, dynamic>))
             .toList();
@@ -94,6 +105,24 @@ class CategoryRepository {
       queryParameters: {'category_id': categoryId},
       parser: (data) =>
           HomeApplianceDetails.fromJson(data['data'] as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiResponse<double>> estimateHomeAppliancePrice({
+    required int categoryId,
+    required List<Map<String, dynamic>> attributes,
+  }) async {
+    return _dioClient.post<double>(
+      ApiEndpoints.homeApplianceEstimate,
+      data: {'category_id': categoryId, 'attributes': attributes},
+      parser: (data) {
+        final payload = (data['data'] as Map<String, dynamic>?) ?? {};
+        final price = payload['estimated_price'] ?? payload['price'] ?? 0;
+        if (price is num) {
+          return price.toDouble();
+        }
+        return double.tryParse(price.toString()) ?? 0;
+      },
     );
   }
 }

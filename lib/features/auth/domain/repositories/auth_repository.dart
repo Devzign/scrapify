@@ -159,6 +159,8 @@ class AuthRepository {
   Future<void> logout() async {
     // Attempt remote logout, ignore errors if token already expired
     await _apiClient.post(ApiEndpoints.authLogout);
+    await _preferences.clearBasketItems();
+    await _preferences.clearBasketItemsForUser(userId: null);
     await _clearSession();
   }
 

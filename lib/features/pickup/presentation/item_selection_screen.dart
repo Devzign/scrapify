@@ -178,6 +178,7 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                                 ),
                                 'parentCategoryName': category.getName(context),
                                 'applianceCategoryId': child.id,
+                                'parentCategoryId': category.id,
                               },
                             );
                             return;
@@ -258,6 +259,7 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                                               .getName(context),
                                           'applianceCategoryId':
                                               widget.categoryId,
+                                          'parentCategoryId': category.id,
                                         },
                                       )
                                     : null,

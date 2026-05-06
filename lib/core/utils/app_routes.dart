@@ -1,4 +1,6 @@
 import 'package:go_router/go_router.dart';
+import '../storage/app_preferences.dart';
+import '../network/api_role_mapper.dart';
 import '../../features/onboarding/presentation/splash_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/auth/presentation/language_selection_screen.dart';
@@ -97,6 +99,13 @@ class AppRoutes {
 
   static late final GoRouter router;
   static bool _isRouterInitialized = false;
+  static const Set<String> _publicRoutes = {
+    splash,
+    onboarding,
+    language,
+    role,
+    login,
+  };
 
   static void initializeRouter({required String initialLocation}) {
     if (_isRouterInitialized) {
@@ -105,6 +114,32 @@ class AppRoutes {
 
     router = GoRouter(
       initialLocation: initialLocation,
+      redirect: (context, state) async {
+        final prefs = AppPreferences();
+        final token = await prefs.getAuthToken();
+        final path = state.fullPath ?? state.uri.path;
+        final isPublic = _publicRoutes.contains(path);
+
+        if (token == null || token.isEmpty) {
+          if (isPublic) {
+            return null;
+          }
+          return role;
+        }
+
+        final roleValue = ApiRoleMapper.toAppRole(
+          await prefs.getPrimaryUserRole(),
+        );
+        if (_isBlockedForRole(path, roleValue)) {
+          return _homeForRole(roleValue);
+        }
+
+        if (isPublic) {
+          return _homeForRole(roleValue);
+        }
+
+        return null;
+      },
       routes: [
         GoRoute(
           path: splash,
@@ -229,6 +264,7 @@ class AppRoutes {
               item: extra['item'] as PickupCatalogItem,
               parentCategoryName: extra['parentCategoryName'] as String,
               applianceCategoryId: extra['applianceCategoryId'] as int,
+              parentCategoryId: extra['parentCategoryId'] as int?,
             );
           },
         ),
@@ -343,5 +379,39 @@ class AppRoutes {
     );
 
     _isRouterInitialized = true;
+  }
+
+  static String _homeForRole(String role) {
+    switch (role) {
+      case 'pickup_partner':
+        return pickupDashboard;
+      case 'warehouse':
+        return warehouseDashboard;
+      case 'dealer':
+        return partnerDashboard;
+      default:
+        return customerDashboard;
+    }
+  }
+
+  static bool _isBlockedForRole(String path, String role) {
+    if (path.startsWith('/dashboard/warehouse') ||
+        path.startsWith('/warehouse')) {
+      return role != 'warehouse';
+    }
+    if (path.startsWith('/dashboard/pickup') ||
+        path.startsWith('/pickup-boy')) {
+      return role != 'pickup_partner';
+    }
+    if (path.startsWith('/dashboard/partner') ||
+        path.startsWith('/channel-partner')) {
+      return role != 'dealer';
+    }
+    if (path.startsWith('/pickup') ||
+        path.startsWith('/donation') ||
+        path.startsWith('/corporate')) {
+      return role != 'customer';
+    }
+    return false;
   }
 }

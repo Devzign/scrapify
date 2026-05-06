@@ -7,6 +7,7 @@ import '../../../core/utils/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../profile/providers/address_provider.dart';
+import '../domain/repositories/pickup_repository.dart';
 import '../providers/booking_provider.dart';
 import '../providers/basket_provider.dart';
 import '../providers/donation_provider.dart';
@@ -21,15 +22,18 @@ class SelectAddressTimeScreen extends ConsumerStatefulWidget {
 
 class _SelectAddressTimeScreenState
     extends ConsumerState<SelectAddressTimeScreen> {
-  final List<String> _timeSlots = [
+  final List<String> _fallbackTimeSlots = [
     '10:00 AM - 01:00 PM',
     '02:00 PM - 05:00 PM',
   ];
+  List<String> _apiTimeSlots = const [];
+  String? _lastSlotsKey;
+  bool _isSlotsLoading = false;
+  bool _hasSlotApiError = false;
 
   @override
   void initState() {
     super.initState();
-    // Default date if not set
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final booking = ref.read(bookingProvider);
       if (booking.selectedDate == null) {
@@ -37,6 +41,7 @@ class _SelectAddressTimeScreenState
             .read(bookingProvider.notifier)
             .setSelectedDate(DateTime.now().add(const Duration(days: 1)));
       }
+      _syncSlotsIfNeeded(ref.read(bookingProvider));
     });
   }
 
@@ -48,6 +53,7 @@ class _SelectAddressTimeScreenState
     final booking = ref.watch(bookingProvider);
     final isDonationFlow = booking.isDonationFlow;
     final addressesAsync = ref.watch(addressProvider);
+    _syncSlotsIfNeeded(booking);
     final availableTimeSlots = _getAvailableTimeSlots(booking.selectedDate);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -319,6 +325,24 @@ class _SelectAddressTimeScreenState
                       ),
                     ),
                     const SizedBox(height: 16),
+                    if (_isSlotsLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 12),
+                        child: LinearProgressIndicator(
+                          color: AppTheme.primaryColor,
+                        ),
+                      ),
+                    if (_hasSlotApiError)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          'Live slots unavailable, showing fallback slots.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTheme.textSecondary,
+                          ),
+                        ),
+                      ),
                     if (availableTimeSlots.isEmpty)
                       Container(
                         width: double.infinity,
@@ -517,8 +541,9 @@ class _SelectAddressTimeScreenState
   }
 
   List<String> _getAvailableTimeSlots(DateTime? selectedDate) {
+    final slots = _apiTimeSlots.isNotEmpty ? _apiTimeSlots : _fallbackTimeSlots;
     if (selectedDate == null) {
-      return _timeSlots;
+      return slots;
     }
 
     final now = DateTime.now();
@@ -528,14 +553,64 @@ class _SelectAddressTimeScreenState
         selectedDate.day == now.day;
 
     if (!isToday) {
-      return _timeSlots;
+      return slots;
     }
 
-    return _timeSlots.where((slot) {
+    return slots.where((slot) {
       final endTimeText = slot.split(' - ').last.trim();
       final slotEnd = _parseSlotTime(selectedDate, endTimeText);
       return slotEnd.isAfter(now);
     }).toList();
+  }
+
+  void _syncSlotsIfNeeded(BookingState booking) {
+    final date = booking.selectedDate;
+    final address = booking.selectedAddress;
+    if (date == null || address == null) {
+      return;
+    }
+
+    final key = '${DateFormat('yyyy-MM-dd').format(date)}_${address.cityId}_${address.pincode}';
+    if (_lastSlotsKey == key || _isSlotsLoading) {
+      return;
+    }
+    _lastSlotsKey = key;
+    Future.microtask(() => _loadSlots(date: date, cityId: address.cityId, pincode: address.pincode));
+  }
+
+  Future<void> _loadSlots({
+    required DateTime date,
+    required int cityId,
+    required String pincode,
+  }) async {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isSlotsLoading = true;
+      _hasSlotApiError = false;
+    });
+
+    final response = await ref.read(pickupRepositoryProvider).getPickupSlots(
+      date: DateFormat('yyyy-MM-dd').format(date),
+      cityId: cityId,
+      pincode: pincode,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isSlotsLoading = false;
+      if (response.isSuccess) {
+        _apiTimeSlots = response.data ?? const [];
+        _hasSlotApiError = false;
+      } else {
+        _apiTimeSlots = const [];
+        _hasSlotApiError = true;
+      }
+    });
   }
 
   DateTime _parseSlotTime(DateTime date, String timeText) {

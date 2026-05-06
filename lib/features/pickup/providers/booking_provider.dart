@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../profile/domain/models/address_model.dart';
 import '../../profile/domain/models/payment_method_model.dart';
+import '../domain/models/basket_item.dart';
 import '../domain/models/pickup_request_model.dart';
 import '../domain/repositories/pickup_repository.dart';
 import '../../../core/utils/app_logger.dart';
@@ -182,7 +183,9 @@ class BookingNotifier extends Notifier<BookingState> {
     state = state.copyWith(categoryImages: updated);
   }
 
-  Future<PickupRequestModel?> submitBooking(List<dynamic> basketItems) async {
+  Future<PickupRequestModel?> submitBooking(
+    List<BasketItem> basketItems,
+  ) async {
     if (state.selectedAddress == null) {
       state = state.copyWith(error: 'Please select an address');
       return null;
@@ -213,6 +216,7 @@ class BookingNotifier extends Notifier<BookingState> {
               'weight': item.quantity,
               'quantity': 1,
               'attributes': item.selectedAttributes
+                  .where((attr) => attr.id > 0)
                   .map((attr) => {'attribute_id': attr.id, 'value': attr.value})
                   .toList(),
             },
@@ -257,7 +261,7 @@ class BookingNotifier extends Notifier<BookingState> {
   }
 
   Future<PickupRequestModel?> submitDonation(
-    List<dynamic> donationItems,
+    List<BasketItem> donationItems,
   ) async {
     if (state.selectedAddress == null) {
       state = state.copyWith(error: 'Please select an address');
@@ -349,7 +353,7 @@ final bookingProvider = NotifierProvider<BookingNotifier, BookingState>(() {
 });
 
 String _buildDonationCategoryPayload(
-  List<dynamic> donationItems, {
+  List<BasketItem> donationItems, {
   String? fallback,
 }) {
   final categories = <String>{};

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,6 +13,7 @@ import '../domain/models/basket_item.dart';
 import '../domain/models/category.dart';
 import '../domain/models/home_appliance_details.dart';
 import '../domain/models/pickup_catalog_item.dart';
+import '../domain/repositories/category_repository.dart';
 import '../providers/basket_provider.dart';
 import '../providers/category_provider.dart';
 
@@ -18,12 +21,14 @@ class HouseholdItemDetailsScreen extends ConsumerStatefulWidget {
   final PickupCatalogItem item;
   final String parentCategoryName;
   final int applianceCategoryId;
+  final int? parentCategoryId;
 
   const HouseholdItemDetailsScreen({
     super.key,
     required this.item,
     required this.parentCategoryName,
     required this.applianceCategoryId,
+    this.parentCategoryId,
   });
 
   @override
@@ -36,6 +41,10 @@ class _HouseholdItemDetailsScreenState
   final Map<String, HomeApplianceOption> _selectedOptions =
       <String, HomeApplianceOption>{};
   bool _initializedSelections = false;
+  double? _liveEstimatedPrice;
+  bool _isEstimating = false;
+  Timer? _estimateDebounce;
+  int _estimateRequestId = 0;
 
   PickupCatalogItem get _item => widget.item;
 
@@ -58,6 +67,16 @@ class _HouseholdItemDetailsScreenState
   bool get _isWashingMachine =>
       _item.name.toLowerCase().contains('washing machine');
 
+  double _displayEstimate(HomeApplianceDetails details) {
+    return _liveEstimatedPrice ?? details.estimatedPrice;
+  }
+
+  @override
+  void dispose() {
+    _estimateDebounce?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final detailsAsync = ref.watch(
@@ -65,7 +84,7 @@ class _HouseholdItemDetailsScreenState
     );
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: const Color(0xFFF1EFEC),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -79,19 +98,13 @@ class _HouseholdItemDetailsScreenState
           onPressed: () => context.pop(),
         ),
         title: Text(
-          _isHindi ? 'आइटम विवरण' : 'Item Details',
+          _isHindi ? 'वस्तु बेचें' : 'Sell Items',
           style: const TextStyle(
             color: AppTheme.textPrimary,
-            fontSize: 20,
+            fontSize: 16,
             fontWeight: FontWeight.w800,
           ),
         ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: Icon(Icons.notifications_none_rounded),
-          ),
-        ],
       ),
       body: detailsAsync.when(
         loading: _buildLoading,
@@ -101,19 +114,18 @@ class _HouseholdItemDetailsScreenState
           return Column(
             children: [
               Expanded(
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeroCard(details),
-                        const SizedBox(height: 20),
-                        ..._buildSections(details),
-                        const SizedBox(height: 18),
-                        _buildInfoCard(),
-                      ],
-                    ),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(14, 16, 14, 0),
+                        child: _buildHeroCard(details),
+                      ),
+                      const SizedBox(height: 12),
+                      ..._buildSectionCards(details),
+                      const SizedBox(height: 12),
+                    ],
                   ),
                 ),
               ),
@@ -159,65 +171,77 @@ class _HouseholdItemDetailsScreenState
   }
 
   Widget _buildHeroCard(HomeApplianceDetails details) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        children: [
-          AspectRatio(
-            aspectRatio: 1.55,
-            child: Container(
+    return _sectionShell(
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFFDDE6E1),
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 92,
+              height: 92,
               decoration: BoxDecoration(
-                color: const Color(0xFFF7FAF8),
-                borderRadius: BorderRadius.circular(20),
+                color: Colors.white.withValues(alpha: 0.88),
+                borderRadius: BorderRadius.circular(22),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: _item.imageUrl.trim().isEmpty
-                  ? Icon(_heroIcon, color: AppTheme.primaryColor, size: 64)
-                  : Image.network(
-                      _item.imageUrl,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => Icon(
-                        _heroIcon,
-                        color: AppTheme.primaryColor,
-                        size: 64,
+              child: Center(
+                child: _item.imageUrl.trim().isEmpty
+                    ? Icon(_heroIcon, color: const Color(0xFF4A8E62), size: 42)
+                    : Image.network(
+                        _item.imageUrl,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => Icon(
+                          _heroIcon,
+                          color: const Color(0xFF4A8E62),
+                          size: 42,
+                        ),
                       ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    details.name.isEmpty ? _item.name : details.name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF19372B),
                     ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _isHindi ? 'एयर कंडीशनर' : _item.name,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF5D7368),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Base ₹${_displayEstimate(details).toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF458A5C),
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            details.name.isEmpty ? _item.name : details.name,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.w900,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            _isHindi
-                ? widget.parentCategoryName
-                : '${widget.parentCategoryName} • ${_item.materialType}',
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppTheme.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  List<Widget> _buildSections(HomeApplianceDetails details) {
+  List<Widget> _buildSectionCards(HomeApplianceDetails details) {
     final widgets = <Widget>[];
 
     for (final section in details.sections) {
@@ -226,371 +250,347 @@ class _HouseholdItemDetailsScreenState
         continue;
       }
 
-      if (widgets.isNotEmpty) {
-        widgets.add(const SizedBox(height: 22));
-      }
-
       widgets.add(
-        _buildSectionTitle(_displayTitle(section.title, section.slug)),
-      );
-      widgets.add(const SizedBox(height: 12));
-
-      if (_isConditionSection(section)) {
-        widgets.add(_buildConditionSelector(section, selected));
-        continue;
-      }
-
-      if (_isBodySection(section)) {
-        widgets.add(
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: AppTheme.cardBorderRadius,
-              border: AppTheme.cardBorder,
-              boxShadow: AppTheme.cardShadow,
-            ),
-            child: Column(
-              children: section.options
-                  .map(
-                    (option) => _buildRadioTile(
-                      label: option.value,
-                      isSelected: selected.id == option.id,
-                      onTap: () => _updateSelection(section.slug, option),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-        );
-        continue;
-      }
-
-      if (_isTypeSection(section)) {
-        widgets.add(
-          Row(
-            children: section.options
-                .asMap()
-                .entries
-                .map(
-                  (entry) => Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        right: entry.key == section.options.length - 1 ? 0 : 10,
-                      ),
-                      child: _buildTypeCard(
-                        label: entry.value.value,
-                        isSelected: selected.id == entry.value.id,
-                        onTap: () =>
-                            _updateSelection(section.slug, entry.value),
-                      ),
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        );
-        continue;
-      }
-
-      widgets.add(
-        Wrap(
-          spacing: 10,
-          runSpacing: 10,
-          children: section.options
-              .map(
-                (option) => _buildChip(
-                  label: option.value,
-                  isSelected: selected.id == option.id,
-                  onTap: () => _updateSelection(section.slug, option),
-                ),
-              )
-              .toList(),
-        ),
-      );
-    }
-
-    return widgets;
-  }
-
-  Widget _buildBottomBar(HomeApplianceDetails details) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 18,
-            offset: const Offset(0, -8),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+          child: _sectionShell(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _isHindi ? 'अनुमानित मूल्य' : 'ESTIMATED PRICE',
+                        _displayTitle(section.title, section.slug),
                         style: const TextStyle(
-                          fontSize: 11,
-                          color: AppTheme.textSecondary,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF1E3A2F),
                         ),
                       ),
-                      const SizedBox(height: 4),
                       Text(
-                        '₹ ${details.estimatedPrice.toStringAsFixed(0)}',
+                        _hindiSubtitle(section),
                         style: const TextStyle(
-                          fontSize: 32,
-                          color: AppTheme.textPrimary,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF5D7368),
                         ),
                       ),
                     ],
                   ),
+                  const SizedBox(height: 14),
+                  _buildSectionOptions(section, selected),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    widgets.add(
+      Padding(
+        padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+        child: _sectionShell(
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.info_outline_rounded,
+                  color: Color(0xFF4A8E62),
+                  size: 18,
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEAF8EC),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
+                const SizedBox(width: 10),
+                Expanded(
                   child: Text(
-                    _isHindi ? 'बेस्ट वैल्यू' : 'Best Value',
+                    _infoText,
                     style: const TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 12,
+                      color: Color(0xFF5D7368),
+                      fontSize: 10,
+                      height: 1.45,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: CustomButton(
-                onPressed: () => _addToBasket(details),
-                text: _isHindi ? 'बास्केट में जोड़ें' : 'Add to Basket',
-                leading: const FaIcon(
-                  FontAwesomeIcons.basketShopping,
-                  size: 16,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5FBF6),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFD9EEDF)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(
-            Icons.info_outline_rounded,
-            color: AppTheme.primaryColor,
-            size: 18,
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              _infoText,
-              style: const TextStyle(
-                color: AppTheme.textSecondary,
-                fontSize: 12,
-                height: 1.45,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.w900,
-        color: AppTheme.textPrimary,
-      ),
-    );
-  }
-
-  Widget _buildChip({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: isSelected ? AppTheme.primaryColor : const Color(0xFFE6ECF1),
-          ),
-          boxShadow: isSelected ? null : AppTheme.softShadow,
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppTheme.textPrimary,
-            fontWeight: FontWeight.w800,
-            fontSize: 13,
           ),
         ),
       ),
     );
+
+    return widgets;
   }
 
-  Widget _buildTypeCard({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 18),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isSelected ? AppTheme.primaryColor : const Color(0xFFE6ECF1),
-            width: isSelected ? 2 : 1,
-          ),
-          boxShadow: isSelected ? null : AppTheme.softShadow,
-        ),
-        child: Column(
-          children: [
-            Icon(
-              _typeIcon(label),
-              color: isSelected ? Colors.white : AppTheme.textSecondary,
-              size: 22,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: isSelected ? Colors.white : AppTheme.textPrimary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildRadioTile({
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? AppTheme.primaryColor : Colors.white,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: isSelected ? Colors.white : AppTheme.textPrimary,
-                ),
-              ),
-            ),
-            Icon(
-              isSelected
-                  ? Icons.radio_button_checked_rounded
-                  : Icons.radio_button_off_rounded,
-              color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildConditionSelector(
+  Widget _buildSectionOptions(
     HomeApplianceSection section,
     HomeApplianceOption selected,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Row(
-        children: section.options
+    final visibleOptions = _visibleOptionsForSection(section);
+    if (visibleOptions.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    if (_isConditionSection(section)) {
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: visibleOptions
             .map(
-              (option) => Expanded(
-                child: GestureDetector(
+              (option) => _outlinedOption(
+                label: _localizedCondition(option.value),
+                isSelected: selected.id == option.id,
+                onTap: () => _updateSelection(section.slug, option),
+                fullWidth: false,
+              ),
+            )
+            .toList(),
+      );
+    }
+
+    if (_isBodySection(section)) {
+      return Column(
+        children: visibleOptions
+            .map(
+              (option) => Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _outlinedOption(
+                  label: option.value,
+                  isSelected: selected.id == option.id,
                   onTap: () => _updateSelection(section.slug, option),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    decoration: BoxDecoration(
-                      color: selected.id == option.id
-                          ? AppTheme.primaryColor
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Text(
-                      _localizedCondition(option.value),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: selected.id == option.id
-                            ? Colors.white
-                            : AppTheme.textSecondary,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
+                  fullWidth: true,
                 ),
               ),
             )
             .toList(),
+      );
+    }
+
+    final isCapacity = '${section.slug} ${section.title}'
+        .toLowerCase()
+        .contains('capacity');
+
+    if (isCapacity) {
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+          childAspectRatio: 2.25,
+        ),
+        itemCount: visibleOptions.length,
+        itemBuilder: (context, index) {
+          final option = visibleOptions[index];
+          return _outlinedOption(
+            label: option.value,
+            isSelected: selected.id == option.id,
+            onTap: () => _updateSelection(section.slug, option),
+            fullWidth: true,
+          );
+        },
+      );
+    }
+
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: visibleOptions
+          .map(
+            (option) => _outlinedOption(
+              label: option.value,
+              isSelected: selected.id == option.id,
+              onTap: () => _updateSelection(section.slug, option),
+              fullWidth: false,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _outlinedOption({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool fullWidth,
+  }) {
+    final child = InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(22),
+      child: Container(
+        width: fullWidth ? double.infinity : null,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFFD5E3DA) : const Color(0xFFF7FAF8),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFF4A8E62)
+                : const Color(0xFFC9D6CF),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: isSelected
+                      ? const Color(0xFF4A8E62)
+                      : const Color(0xFF1E3A2F),
+                ),
+              ),
+            ),
+            if (fullWidth)
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: Icon(
+                  isSelected
+                      ? Icons.check_circle_rounded
+                      : Icons.radio_button_unchecked_rounded,
+                  color: isSelected
+                      ? const Color(0xFF4A8E62)
+                      : const Color(0xFFC9D6CF),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+
+    if (fullWidth) {
+      return child;
+    }
+
+    return IntrinsicWidth(child: child);
+  }
+
+  Widget _sectionShell({required Widget child}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F8F8),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildBottomBar(HomeApplianceDetails details) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+      color: const Color(0xFFF1EFEC),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9FBF9),
+            borderRadius: BorderRadius.circular(30),
+            border: Border.all(color: const Color(0xFFC9D6CF)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _isHindi ? 'अनुमानित मूल्य' : 'ESTIMATED',
+                          style: const TextStyle(
+                            fontSize: 9,
+                            color: Color(0xFF5D7368),
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '₹${_displayEstimate(details).toStringAsFixed(0)}',
+                          style: const TextStyle(
+                            fontSize: 40,
+                            height: 0.95,
+                            color: Color(0xFF458A5C),
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 180),
+                    child: _isEstimating
+                        ? Container(
+                            key: const ValueKey('estimating'),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDDEEE3),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Color(0xFF458A5C),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            key: const ValueKey('best_value'),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFDDEEE3),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: const Text(
+                              '✓ BEST VALUE',
+                              style: TextStyle(
+                                color: Color(0xFF458A5C),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 8,
+                                letterSpacing: 0.6,
+                              ),
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: CustomButton(
+                  onPressed: () => _addToBasket(details),
+                  text: _isHindi ? 'बास्केट में जोड़ें' : 'Add to Basket',
+                  leading: const FaIcon(
+                    FontAwesomeIcons.basketShopping,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -626,12 +626,68 @@ class _HouseholdItemDetailsScreenState
     }
 
     _initializedSelections = true;
+    _debouncedEstimatePrice();
   }
 
   void _updateSelection(String slug, HomeApplianceOption option) {
     setState(() {
       _selectedOptions[slug] = option;
     });
+    _debouncedEstimatePrice();
+  }
+
+  void _debouncedEstimatePrice() {
+    _estimateDebounce?.cancel();
+    _estimateDebounce = Timer(
+      const Duration(milliseconds: 280),
+      _recalculateEstimatedPrice,
+    );
+  }
+
+  Future<void> _recalculateEstimatedPrice() async {
+    final requestId = ++_estimateRequestId;
+    setState(() => _isEstimating = true);
+
+    final repository = ref.read(categoryRepositoryProvider);
+    final response = await repository.estimateHomeAppliancePrice(
+      categoryId: widget.applianceCategoryId,
+      attributes: _buildEstimatePayload(),
+    );
+
+    if (!mounted || requestId != _estimateRequestId) {
+      return;
+    }
+
+    setState(() {
+      _isEstimating = false;
+      if (response.isSuccess && response.data != null && response.data! > 0) {
+        _liveEstimatedPrice = response.data;
+      }
+    });
+  }
+
+  List<Map<String, dynamic>> _buildEstimatePayload() {
+    final details = ref.read(
+      homeApplianceDetailsProvider(widget.applianceCategoryId),
+    );
+
+    return details.maybeWhen(
+      data: (value) {
+        return value.sections
+            .where((section) => _selectedOptions[section.slug] != null)
+            .map((section) {
+              final selected = _selectedOptions[section.slug]!;
+              return <String, dynamic>{
+                'attribute_id': section.id > 0 ? section.id : null,
+                'attribute_name': section.title,
+                'option_id': selected.id,
+                'value': selected.value,
+              };
+            })
+            .toList();
+      },
+      orElse: () => const <Map<String, dynamic>>[],
+    );
   }
 
   bool _isConditionSection(HomeApplianceSection section) {
@@ -647,16 +703,24 @@ class _HouseholdItemDetailsScreenState
     return key.contains('body') || key.contains('mount');
   }
 
-  bool _isTypeSection(HomeApplianceSection section) {
+  List<HomeApplianceOption> _visibleOptionsForSection(
+    HomeApplianceSection section,
+  ) {
     final key = '${section.slug} ${section.title}'.toLowerCase();
-    return key.contains('type') ||
-        key.contains('door') ||
-        key.contains('display') ||
-        key.contains('machine');
+    if (key.contains('material')) {
+      return section.options.where((option) {
+        final value = option.value.toLowerCase();
+        return value != 'paper' && value != 'glass';
+      }).toList();
+    }
+    return section.options;
   }
 
   String _displayTitle(String title, String slug) {
     if (!_isHindi) {
+      if ('${slug.toLowerCase()} ${title.toLowerCase()}'.contains('brand')) {
+        return 'Select Brand';
+      }
       return title;
     }
 
@@ -677,10 +741,10 @@ class _HouseholdItemDetailsScreenState
       return 'क्षमता (टन)';
     }
     if (key.contains('condition')) {
-      return 'वर्तमान स्थिति';
+      return 'स्थिति';
     }
     if (key.contains('body')) {
-      return 'बॉडी का प्रकार';
+      return 'Body Type';
     }
     if (key.contains('mount')) {
       return 'फिटिंग का प्रकार';
@@ -698,6 +762,26 @@ class _HouseholdItemDetailsScreenState
       return 'प्रकार';
     }
     return title;
+  }
+
+  String _hindiSubtitle(HomeApplianceSection section) {
+    if (!_isHindi) {
+      return '';
+    }
+    final key = '${section.slug} ${section.title}'.toLowerCase();
+    if (key.contains('brand')) {
+      return 'ब्रांड चुनें';
+    }
+    if (key.contains('capacity')) {
+      return 'क्षमता';
+    }
+    if (key.contains('body')) {
+      return 'बॉडी का प्रकार';
+    }
+    if (key.contains('condition')) {
+      return 'स्थिति';
+    }
+    return '';
   }
 
   String _localizedCondition(String value) {
@@ -747,33 +831,8 @@ class _HouseholdItemDetailsScreenState
     return Icons.local_laundry_service_rounded;
   }
 
-  IconData _typeIcon(String label) {
-    final normalized = label.toLowerCase();
-    if (normalized.contains('double') || normalized.contains('side')) {
-      return Icons.view_week_rounded;
-    }
-    if (normalized.contains('single')) {
-      return Icons.crop_portrait_rounded;
-    }
-    if (normalized.contains('front')) {
-      return Icons.local_laundry_service_rounded;
-    }
-    if (normalized.contains('semi')) {
-      return Icons.tune_rounded;
-    }
-    if (normalized.contains('led') || normalized.contains('lcd')) {
-      return Icons.tv_rounded;
-    }
-    if (normalized.contains('smart')) {
-      return Icons.smart_display_rounded;
-    }
-    if (normalized.contains('grill') || normalized.contains('convection')) {
-      return Icons.microwave_rounded;
-    }
-    return Icons.vertical_align_top_rounded;
-  }
-
   void _addToBasket(HomeApplianceDetails details) {
+    final estimate = _displayEstimate(details);
     ref
         .read(basketProvider.notifier)
         .setItem(
@@ -788,7 +847,7 @@ class _HouseholdItemDetailsScreenState
                   .toLowerCase()
                   .replaceAll(' ', '-'),
               pricingType: _item.priceType,
-              basePrice: details.estimatedPrice,
+              basePrice: estimate,
               imageUrl: _item.imageUrl,
               attributes: const [],
               children: const [],
@@ -796,7 +855,7 @@ class _HouseholdItemDetailsScreenState
             subCategoryName: widget.parentCategoryName,
             quantity: 1,
             unit: 'piece',
-            pricePerUnit: details.estimatedPrice,
+            pricePerUnit: estimate,
             selectedAttributes: details.sections
                 .where((section) => _selectedOptions[section.slug] != null)
                 .map(

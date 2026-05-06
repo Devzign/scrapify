@@ -201,7 +201,10 @@ class PayoutMethodScreen extends ConsumerWidget {
                         ref.read(bookingProvider.notifier).reset();
                         context.go(
                           AppRoutes.successConfirmation,
-                          extra: createdPickup,
+                          extra: {
+                            'pickup': createdPickup,
+                            'isDonation': false,
+                          },
                         );
                         return;
                       }

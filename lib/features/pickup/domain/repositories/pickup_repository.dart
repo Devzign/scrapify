@@ -70,6 +70,7 @@ class PickupRepository {
       'payment_detail_id',
       payload['payment_detail_id'],
     );
+    _addFieldIfPresent(formData, 'coupon_code', payload['coupon_code']);
     _addFieldIfPresent(
       formData,
       'donation_category',
@@ -265,6 +266,58 @@ class PickupRepository {
     return _dioClient.get<Map<String, dynamic>>(
       ApiEndpoints.pickupRequestStats,
       parser: (json) => (json['data'] as Map<String, dynamic>?) ?? {},
+    );
+  }
+
+  Future<ApiResponse<List<String>>> getPickupSlots({
+    required String date,
+    int? cityId,
+    String? pincode,
+  }) async {
+    return _dioClient.get<List<String>>(
+      ApiEndpoints.pickupSlots,
+      queryParameters: {
+        'date': date,
+        if (cityId != null) 'city_id': cityId,
+        if (pincode != null && pincode.trim().isNotEmpty) 'pincode': pincode,
+      },
+      parser: (json) {
+        final data = json['data'];
+        final dynamic slotsRaw = data is Map<String, dynamic>
+            ? (data['slots'] ?? data['items'] ?? data['data'])
+            : data;
+        if (slotsRaw is! List) {
+          return const <String>[];
+        }
+
+        final slots = <String>[];
+        for (final slot in slotsRaw) {
+          if (slot is String) {
+            slots.add(slot);
+            continue;
+          }
+          if (slot is Map) {
+            final map = Map<String, dynamic>.from(slot);
+            final available = map['available'];
+            final isAvailable = available is bool
+                ? available
+                : (available?.toString().toLowerCase() != 'false' &&
+                    available?.toString() != '0');
+            if (!isAvailable) {
+              continue;
+            }
+            final label =
+                map['label']?.toString() ??
+                map['time_slot']?.toString() ??
+                map['slot']?.toString() ??
+                '';
+            if (label.isNotEmpty) {
+              slots.add(label);
+            }
+          }
+        }
+        return slots;
+      },
     );
   }
 

@@ -109,13 +109,26 @@ class AppPreferences {
   }
 
   Future<void> saveBasketItems(List<Map<String, dynamic>> items) async {
+    final userId = await getCurrentUserId();
+    await saveBasketItemsForUser(items, userId: userId);
+  }
+
+  Future<void> saveBasketItemsForUser(
+    List<Map<String, dynamic>> items, {
+    int? userId,
+  }) async {
     final prefs = await _prefs;
-    await prefs.setString(basketItemsKey, jsonEncode(items));
+    await prefs.setString(_basketKeyForUser(userId), jsonEncode(items));
   }
 
   Future<List<Map<String, dynamic>>> getBasketItems() async {
+    final userId = await getCurrentUserId();
+    return getBasketItemsForUser(userId: userId);
+  }
+
+  Future<List<Map<String, dynamic>>> getBasketItemsForUser({int? userId}) async {
     final prefs = await _prefs;
-    final rawData = prefs.getString(basketItemsKey);
+    final rawData = prefs.getString(_basketKeyForUser(userId));
 
     if (rawData == null || rawData.isEmpty) {
       return [];
@@ -132,13 +145,37 @@ class AppPreferences {
         error: error,
         stackTrace: stackTrace,
       );
-      await prefs.remove(basketItemsKey);
+      await prefs.remove(_basketKeyForUser(userId));
       return [];
     }
   }
 
   Future<void> clearBasketItems() async {
+    final userId = await getCurrentUserId();
+    await clearBasketItemsForUser(userId: userId);
+  }
+
+  Future<void> clearBasketItemsForUser({int? userId}) async {
     final prefs = await _prefs;
-    await prefs.remove(basketItemsKey);
+    await prefs.remove(_basketKeyForUser(userId));
+  }
+
+  Future<int?> getCurrentUserId() async {
+    final userData = await getSavedUserData();
+    final id = userData?['id'];
+    if (id is int) {
+      return id;
+    }
+    if (id == null) {
+      return null;
+    }
+    return int.tryParse(id.toString());
+  }
+
+  String _basketKeyForUser(int? userId) {
+    if (userId == null) {
+      return basketItemsKey;
+    }
+    return '${basketItemsKey}_$userId';
   }
 }

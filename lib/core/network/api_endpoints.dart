@@ -22,6 +22,7 @@ class ApiEndpoints {
   static const String subcategories = '/subcategories';
   static const String items = '/items';
   static const String homeApplianceDetails = '/home-appliances/details';
+  static const String homeApplianceEstimate = '/home-appliances/estimate';
   static const String categoryTypes = '/category-types';
 
   static const String pickupRequest = '/pickup-requests';
