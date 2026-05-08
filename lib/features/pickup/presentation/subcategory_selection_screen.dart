@@ -122,19 +122,19 @@ class _SubCategorySelectionScreenState
                           iconData: _getIconForCategory(sub.slug, sub.name.en),
                           imageUrl: sub.imageUrl,
                           onTap: () {
-                            if (_requiresHouseholdDetails(sub)) {
+                            if (sub.requiresDetails) {
                               context.push(
                                 AppRoutes.householdItemDetails,
                                 extra: {
                                   'item': PickupCatalogItem(
                                     id: sub.id,
                                     name: sub.name.en,
-                                    price: sub.basePrice ?? 65,
-                                    unit: 'per_piece',
-                                    materialType: 'E-Waste',
-                                    pickupSize: 'Medium',
-                                    priceType: 'per_piece',
-                                    condition: 'Working',
+                                    price: sub.basePrice ?? 0,
+                                    unit: _unitFromPricingType(sub.pricingType),
+                                    materialType: '',
+                                    pickupSize: '',
+                                    priceType: sub.pricingType ?? 'per_piece',
+                                    condition: '',
                                     imageUrl: sub.imageUrl,
                                   ),
                                   'parentCategoryName': parentCategory.getName(
@@ -261,16 +261,12 @@ class _SubCategorySelectionScreenState
         : 'Select a sub-category to view rates';
   }
 
-  bool _requiresHouseholdDetails(Category category) {
-    if (category.hasAttributes) return true;
-    final name = category.name.en.toLowerCase();
-    return name.contains('air conditioner') ||
-        name.contains('refrigerator') ||
-        name.contains('washing machine') ||
-        name.contains('television') ||
-        name.contains('microwave') ||
-        category.id == 3 ||
-        category.id == 4;
+  String _unitFromPricingType(String? pricingType) {
+    return switch ((pricingType ?? '').toLowerCase()) {
+      'per_kg' => 'per_kg',
+      'per_capacity' => 'per_capacity',
+      _ => 'per_piece',
+    };
   }
 
   IconData _getIconForCategory(String slug, String title) {

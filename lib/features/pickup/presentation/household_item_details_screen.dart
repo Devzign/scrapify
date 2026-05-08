@@ -42,6 +42,7 @@ class _HouseholdItemDetailsScreenState
       <String, HomeApplianceOption>{};
   bool _initializedSelections = false;
   double? _liveEstimatedPrice;
+  double _selectedWeightKg = 1.0;
   bool _isEstimating = false;
   Timer? _estimateDebounce;
   int _estimateRequestId = 0;
@@ -67,8 +68,27 @@ class _HouseholdItemDetailsScreenState
   bool get _isWashingMachine =>
       _item.name.toLowerCase().contains('washing machine');
 
-  double _displayEstimate(HomeApplianceDetails details) {
+  bool get _isMobilePhone => _item.name.toLowerCase().contains('mobile phone');
+
+  bool get _isLaptop => _item.name.toLowerCase().contains('laptop');
+
+  bool get _isCablesAndWires {
+    final name = _item.name.toLowerCase();
+    return name.contains('cables') || name.contains('wires');
+  }
+
+  bool get _isCpuCabinet => _item.name.toLowerCase().contains('cpu cabinet');
+
+  double _unitEstimate(HomeApplianceDetails details) {
     return _liveEstimatedPrice ?? details.estimatedPrice;
+  }
+
+  double _displayEstimate(HomeApplianceDetails details) {
+    final unit = _unitEstimate(details);
+    if (details.pricingType.toLowerCase() == 'per_kg') {
+      return unit * _selectedWeightKg;
+    }
+    return unit;
   }
 
   @override
@@ -225,7 +245,7 @@ class _HouseholdItemDetailsScreenState
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Base ₹${_displayEstimate(details).toStringAsFixed(0)}',
+                    'Base ₹${_unitEstimate(details).toStringAsFixed(0)}${_pricingSuffix(details.pricingType)}',
                     style: const TextStyle(
                       fontSize: 11,
                       color: Color(0xFF458A5C),
@@ -245,6 +265,9 @@ class _HouseholdItemDetailsScreenState
     final widgets = <Widget>[];
 
     for (final section in details.sections) {
+      if (!_shouldRenderSection(section)) {
+        continue;
+      }
       final selected = _selectedOptions[section.slug];
       if (section.options.isEmpty || selected == null) {
         continue;
@@ -282,6 +305,87 @@ class _HouseholdItemDetailsScreenState
                   ),
                   const SizedBox(height: 14),
                   _buildSectionOptions(section, selected),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (details.pricingType.toLowerCase() == 'per_kg') {
+      widgets.add(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(14, 0, 14, 12),
+          child: _sectionShell(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _isHindi ? 'वजन चुनें' : 'Select Weight',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF1E3A2F),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _isHindi
+                        ? '100g से 100kg (100g स्टेप)'
+                        : '100g to 100kg (100g step)',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF5D7368),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _weightControlButton(
+                        icon: Icons.remove,
+                        onTap: _selectedWeightKg > 0.1
+                            ? () => setState(() {
+                                _selectedWeightKg = (_selectedWeightKg - 0.1)
+                                    .clamp(0.1, 100.0);
+                              })
+                            : null,
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: Text(
+                            '${_selectedWeightKg.toStringAsFixed(1)} kg',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF163A2C),
+                            ),
+                          ),
+                        ),
+                      ),
+                      _weightControlButton(
+                        icon: Icons.add,
+                        onTap: _selectedWeightKg < 100
+                            ? () => setState(() {
+                                _selectedWeightKg = (_selectedWeightKg + 0.1)
+                                    .clamp(0.1, 100.0);
+                              })
+                            : null,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '₹${(_unitEstimate(details) / 10).toStringAsFixed(0)} per 100g',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF458A5C),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -486,6 +590,28 @@ class _HouseholdItemDetailsScreenState
     );
   }
 
+  Widget _weightControlButton({
+    required IconData icon,
+    required VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        width: 42,
+        height: 42,
+        decoration: BoxDecoration(
+          color: onTap == null
+              ? const Color(0xFFE8EEEA)
+              : const Color(0xFFD5E3DA),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: const Color(0xFFBFD0C7)),
+        ),
+        child: Icon(icon, color: const Color(0xFF2E6A46), size: 20),
+      ),
+    );
+  }
+
   Widget _buildBottomBar(HomeApplianceDetails details) {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
@@ -674,7 +800,11 @@ class _HouseholdItemDetailsScreenState
     return details.maybeWhen(
       data: (value) {
         return value.sections
-            .where((section) => _selectedOptions[section.slug] != null)
+            .where(
+              (section) =>
+                  _selectedOptions[section.slug] != null &&
+                  _shouldRenderSection(section),
+            )
             .map((section) {
               final selected = _selectedOptions[section.slug]!;
               return <String, dynamic>{
@@ -690,12 +820,44 @@ class _HouseholdItemDetailsScreenState
     );
   }
 
+  bool _shouldRenderSection(HomeApplianceSection section) {
+    final key = '${section.slug} ${section.title}'.toLowerCase();
+    final isUsageAgeSection = key.contains('usage') && key.contains('age');
+    if (!isUsageAgeSection) {
+      return true;
+    }
+
+    HomeApplianceOption? workingSelector;
+    for (final entry in _selectedOptions.entries) {
+      final selectorKey = entry.key.toLowerCase();
+      if (selectorKey.contains('working-condition') ||
+          selectorKey.contains('functional-status')) {
+        workingSelector = entry.value;
+        break;
+      }
+    }
+
+    if (workingSelector == null) {
+      return false;
+    }
+
+    final value = workingSelector.value.toLowerCase();
+    return value.contains('working') &&
+        !value.contains('non-working') &&
+        !value.contains('not working');
+  }
+
   bool _isConditionSection(HomeApplianceSection section) {
     final key = '${section.slug} ${section.title}'.toLowerCase();
     return key.contains('condition') ||
-        section.options.any(
-          (option) => option.value.toLowerCase() == 'working',
-        );
+        key.contains('status') ||
+        section.options.any((option) {
+          final value = option.value.toLowerCase();
+          return value == 'working' ||
+              value == 'fully working' ||
+              value == 'partially working' ||
+              value == 'not working';
+        });
   }
 
   bool _isBodySection(HomeApplianceSection section) {
@@ -793,6 +955,15 @@ class _HouseholdItemDetailsScreenState
     if (normalized == 'working') {
       return 'वर्किंग';
     }
+    if (normalized == 'fully working') {
+      return 'पूरी तरह वर्किंग';
+    }
+    if (normalized == 'partially working') {
+      return 'आंशिक रूप से वर्किंग';
+    }
+    if (normalized == 'not working') {
+      return 'वर्किंग नहीं';
+    }
     if (normalized == 'non-working') {
       return 'नॉन-वर्किंग';
     }
@@ -812,6 +983,18 @@ class _HouseholdItemDetailsScreenState
     if (_isMicrowave) {
       return 'Final price depends on magnetron health, cavity condition, control panel status, and overall age.';
     }
+    if (_isMobilePhone) {
+      return 'Final price varies by storage variant, device age, screen condition, and working status.';
+    }
+    if (_isLaptop) {
+      return 'Final price varies by RAM/storage configuration, battery health, and working condition.';
+    }
+    if (_isCablesAndWires) {
+      return 'Final price depends on copper content, stripping quality, and insulation condition.';
+    }
+    if (_isCpuCabinet) {
+      return 'Final price varies by component completeness, configuration level, and working condition.';
+    }
     return 'Final price can vary based on motor condition, drum material, and working status.';
   }
 
@@ -828,11 +1011,25 @@ class _HouseholdItemDetailsScreenState
     if (_isMicrowave) {
       return Icons.microwave_rounded;
     }
+    if (_isMobilePhone) {
+      return Icons.smartphone_rounded;
+    }
+    if (_isLaptop) {
+      return Icons.laptop_mac_rounded;
+    }
+    if (_isCablesAndWires) {
+      return Icons.cable_rounded;
+    }
+    if (_isCpuCabinet) {
+      return Icons.computer_rounded;
+    }
     return Icons.local_laundry_service_rounded;
   }
 
   void _addToBasket(HomeApplianceDetails details) {
-    final estimate = _displayEstimate(details);
+    final totalEstimate = _displayEstimate(details);
+    final unitEstimate = _unitEstimate(details);
+    final isPerKg = details.pricingType.toLowerCase() == 'per_kg';
     ref
         .read(basketProvider.notifier)
         .setItem(
@@ -846,16 +1043,16 @@ class _HouseholdItemDetailsScreenState
               slug: (details.name.isEmpty ? _item.name : details.name)
                   .toLowerCase()
                   .replaceAll(' ', '-'),
-              pricingType: _item.priceType,
-              basePrice: estimate,
+              pricingType: details.pricingType,
+              basePrice: totalEstimate,
               imageUrl: _item.imageUrl,
               attributes: const [],
               children: const [],
             ),
             subCategoryName: widget.parentCategoryName,
-            quantity: 1,
-            unit: 'piece',
-            pricePerUnit: estimate,
+            quantity: isPerKg ? _selectedWeightKg : 1,
+            unit: _basketUnitFromPricingType(details.pricingType),
+            pricePerUnit: unitEstimate,
             selectedAttributes: details.sections
                 .where((section) => _selectedOptions[section.slug] != null)
                 .map(
@@ -870,5 +1067,21 @@ class _HouseholdItemDetailsScreenState
         );
 
     context.push(AppRoutes.basket);
+  }
+
+  String _basketUnitFromPricingType(String pricingType) {
+    return switch (pricingType.toLowerCase()) {
+      'per_kg' => 'kg',
+      'per_capacity' => 'capacity',
+      _ => 'piece',
+    };
+  }
+
+  String _pricingSuffix(String pricingType) {
+    return switch (pricingType.toLowerCase()) {
+      'per_kg' => '/kg',
+      'per_capacity' => '/capacity',
+      _ => '/piece',
+    };
   }
 }

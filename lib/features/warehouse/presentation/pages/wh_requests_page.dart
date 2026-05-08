@@ -264,6 +264,12 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
               decoration: BoxDecoration(
                 color: isSelected ? AppTheme.primaryColor : Colors.white,
                 borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isSelected
+                      ? AppTheme.primaryColor
+                      : const Color(0xFFD8E2DC),
+                  width: 1.2,
+                ),
                 boxShadow: isSelected
                     ? [
                         BoxShadow(

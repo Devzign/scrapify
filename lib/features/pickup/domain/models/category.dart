@@ -9,6 +9,7 @@ class Category {
   final int? parentId;
   final String? pricingType;
   final double? basePrice;
+  final bool requiresDetails;
   final String imageUrl;
   final List<CategoryAttribute> attributes;
   final List<Category> children;
@@ -21,6 +22,7 @@ class Category {
     this.parentId,
     this.pricingType,
     this.basePrice,
+    this.requiresDetails = false,
     required this.imageUrl,
     required this.attributes,
     required this.children,
@@ -35,6 +37,8 @@ class Category {
       parentId: _parseInt(json['parent_id']),
       pricingType: json['pricing_type'] as String?,
       basePrice: (json['base_price'] as num?)?.toDouble(),
+      requiresDetails:
+          json['requires_details'] == true || json['requires_details'] == 1,
       imageUrl:
           json['image_url']?.toString() ?? json['image']?.toString() ?? '',
       attributes:
@@ -60,7 +64,7 @@ class Category {
     return context.locale.languageCode == 'hi' ? name.hi : name.en;
   }
 
-  bool get hasAttributes => attributes.isNotEmpty;
+  bool get hasAttributes => attributes.isNotEmpty || requiresDetails;
 }
 
 class LocalizedName {

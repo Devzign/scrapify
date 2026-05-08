@@ -2,12 +2,14 @@ class HomeApplianceDetails {
   final int id;
   final String name;
   final double estimatedPrice;
+  final String pricingType;
   final List<HomeApplianceSection> sections;
 
   const HomeApplianceDetails({
     required this.id,
     required this.name,
     required this.estimatedPrice,
+    required this.pricingType,
     required this.sections,
   });
 
@@ -16,6 +18,7 @@ class HomeApplianceDetails {
       id: (json['id'] as num?)?.toInt() ?? 0,
       name: json['name'] as String? ?? '',
       estimatedPrice: (json['estimated_price'] as num?)?.toDouble() ?? 0,
+      pricingType: json['pricing_type']?.toString() ?? 'per_piece',
       sections: (json['sections'] as List<dynamic>? ?? const <dynamic>[])
           .whereType<Map<String, dynamic>>()
           .map(HomeApplianceSection.fromJson)

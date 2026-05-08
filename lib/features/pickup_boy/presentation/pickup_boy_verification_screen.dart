@@ -83,8 +83,9 @@ class _PickupBoyVerificationScreenState
     if (_images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Please add at least one verification photo'),
-            backgroundColor: Colors.orange),
+          content: Text('Please add at least one verification photo'),
+          backgroundColor: Colors.orange,
+        ),
       );
       return;
     }
@@ -108,7 +109,9 @@ class _PickupBoyVerificationScreenState
                 Text(
                   'Final Amount: ₹$finalPayout',
                   style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.bold),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ],
@@ -144,9 +147,13 @@ class _PickupBoyVerificationScreenState
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
-        title: const Text('Verify Items',
-            style: TextStyle(
-                color: AppTheme.textPrimary, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Verify Items',
+          style: TextStyle(
+            color: AppTheme.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -166,9 +173,10 @@ class _PickupBoyVerificationScreenState
                       const Text(
                         'Items',
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
                       TextButton.icon(
                         onPressed: _addItem,
@@ -198,9 +206,10 @@ class _PickupBoyVerificationScreenState
                       const Text(
                         'Verification Photos',
                         style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
+                        ),
                       ),
                       TextButton.icon(
                         onPressed: _pickImages,
@@ -239,8 +248,11 @@ class _PickupBoyVerificationScreenState
                                 child: const CircleAvatar(
                                   radius: 12,
                                   backgroundColor: Colors.red,
-                                  child: Icon(Icons.close,
-                                      size: 14, color: Colors.white),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -258,17 +270,23 @@ class _PickupBoyVerificationScreenState
                           color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: Colors.grey.shade300,
-                              style: BorderStyle.solid),
+                            color: Colors.grey.shade300,
+                            style: BorderStyle.solid,
+                          ),
                         ),
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            FaIcon(FontAwesomeIcons.camera,
-                                color: Colors.grey, size: 24),
+                            FaIcon(
+                              FontAwesomeIcons.camera,
+                              color: Colors.grey,
+                              size: 24,
+                            ),
                             SizedBox(height: 8),
-                            Text('Tap to add photos',
-                                style: TextStyle(color: Colors.grey)),
+                            Text(
+                              'Tap to add photos',
+                              style: TextStyle(color: Colors.grey),
+                            ),
                           ],
                         ),
                       ),
@@ -287,14 +305,16 @@ class _PickupBoyVerificationScreenState
                   backgroundColor: AppTheme.primaryColor,
                   minimumSize: const Size(double.infinity, 52),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: const Text(
                   'Submit Verification',
                   style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
       ),
@@ -307,8 +327,11 @@ class _ItemCard extends StatefulWidget {
   final ValueChanged<PickupItem> onUpdate;
   final VoidCallback onRemove;
 
-  const _ItemCard(
-      {required this.item, required this.onUpdate, required this.onRemove});
+  const _ItemCard({
+    required this.item,
+    required this.onUpdate,
+    required this.onRemove,
+  });
 
   @override
   State<_ItemCard> createState() => _ItemCardState();
@@ -317,20 +340,31 @@ class _ItemCard extends StatefulWidget {
 class _ItemCardState extends State<_ItemCard> {
   late TextEditingController _weightCtrl;
   late TextEditingController _qtyCtrl;
+  late TextEditingController _rateCtrl;
+  String _condition = 'working';
 
   @override
   void initState() {
     super.initState();
-    _weightCtrl =
-        TextEditingController(text: widget.item.weight?.toString() ?? '');
-    _qtyCtrl =
-        TextEditingController(text: widget.item.quantity?.toString() ?? '');
+    _weightCtrl = TextEditingController(
+      text: widget.item.weight?.toString() ?? '',
+    );
+    _qtyCtrl = TextEditingController(
+      text: widget.item.quantity?.toString() ?? '',
+    );
+    _rateCtrl = TextEditingController(
+      text: widget.item.ratePerKg?.toString() ?? '',
+    );
+    _condition = (widget.item.condition?.trim().isNotEmpty ?? false)
+        ? widget.item.condition!.trim().toLowerCase()
+        : 'working';
   }
 
   @override
   void dispose() {
     _weightCtrl.dispose();
     _qtyCtrl.dispose();
+    _rateCtrl.dispose();
     super.dispose();
   }
 
@@ -343,10 +377,7 @@ class _ItemCardState extends State<_ItemCard> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 6,
-          )
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6),
         ],
       ),
       child: Column(
@@ -358,9 +389,10 @@ class _ItemCardState extends State<_ItemCard> {
               Text(
                 widget.item.itemName,
                 style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: AppTheme.textPrimary),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: AppTheme.textPrimary,
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
@@ -376,14 +408,17 @@ class _ItemCardState extends State<_ItemCard> {
               Expanded(
                 child: TextField(
                   controller: _weightCtrl,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: const InputDecoration(
                     labelText: 'Weight (kg)',
                     isDense: true,
                     border: OutlineInputBorder(),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
                   ),
                   onChanged: (v) => widget.onUpdate(
                     widget.item.copyWith(weight: double.tryParse(v)),
@@ -399,11 +434,67 @@ class _ItemCardState extends State<_ItemCard> {
                     labelText: 'Quantity',
                     isDense: true,
                     border: OutlineInputBorder(),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
                   ),
                   onChanged: (v) => widget.onUpdate(
                     widget.item.copyWith(quantity: int.tryParse(v)),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  initialValue: _condition,
+                  items: const [
+                    DropdownMenuItem(value: 'working', child: Text('Working')),
+                    DropdownMenuItem(
+                      value: 'refurbished',
+                      child: Text('Refurbished'),
+                    ),
+                    DropdownMenuItem(value: 'damaged', child: Text('Damaged')),
+                    DropdownMenuItem(value: 'scrap', child: Text('Scrap')),
+                  ],
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => _condition = value);
+                    widget.onUpdate(widget.item.copyWith(condition: value));
+                  },
+                  decoration: const InputDecoration(
+                    labelText: 'Condition',
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _rateCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Rate (per kg)',
+                    isDense: true,
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 8,
+                    ),
+                  ),
+                  onChanged: (v) => widget.onUpdate(
+                    widget.item.copyWith(ratePerKg: double.tryParse(v)),
                   ),
                 ),
               ),
@@ -427,6 +518,8 @@ class _AddItemDialogState extends State<_AddItemDialog> {
   final _nameCtrl = TextEditingController();
   final _weightCtrl = TextEditingController();
   final _qtyCtrl = TextEditingController();
+  final _rateCtrl = TextEditingController();
+  String _condition = 'working';
 
   @override
   Widget build(BuildContext context) {
@@ -442,8 +535,7 @@ class _AddItemDialogState extends State<_AddItemDialog> {
           const SizedBox(height: 12),
           TextField(
             controller: _weightCtrl,
-            keyboardType:
-                const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: const InputDecoration(labelText: 'Weight (kg)'),
           ),
           const SizedBox(height: 12),
@@ -452,21 +544,49 @@ class _AddItemDialogState extends State<_AddItemDialog> {
             keyboardType: TextInputType.number,
             decoration: const InputDecoration(labelText: 'Quantity'),
           ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            initialValue: _condition,
+            items: const [
+              DropdownMenuItem(value: 'working', child: Text('Working')),
+              DropdownMenuItem(
+                value: 'refurbished',
+                child: Text('Refurbished'),
+              ),
+              DropdownMenuItem(value: 'damaged', child: Text('Damaged')),
+              DropdownMenuItem(value: 'scrap', child: Text('Scrap')),
+            ],
+            onChanged: (value) {
+              if (value != null) setState(() => _condition = value);
+            },
+            decoration: const InputDecoration(labelText: 'Condition'),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _rateCtrl,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(labelText: 'Rate (per kg)'),
+          ),
         ],
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel')),
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
         ElevatedButton(
           onPressed: () {
             if (_nameCtrl.text.trim().isEmpty) return;
-            widget.onAdd(PickupItem(
-              itemName: _nameCtrl.text.trim(),
-              weight: double.tryParse(_weightCtrl.text),
-              quantity: int.tryParse(_qtyCtrl.text),
-              action: 'added',
-            ));
+            widget.onAdd(
+              PickupItem(
+                itemName: _nameCtrl.text.trim(),
+                weight: double.tryParse(_weightCtrl.text),
+                quantity: int.tryParse(_qtyCtrl.text),
+                condition: _condition,
+                ratePerKg: double.tryParse(_rateCtrl.text),
+                action: 'added',
+              ),
+            );
             Navigator.pop(context);
           },
           child: const Text('Add'),

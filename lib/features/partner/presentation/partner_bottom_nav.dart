@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../channel_partner/providers/channel_partner_provider.dart';
 import 'partner_locale.dart';
 import 'pages/partner_dashboard_page.dart';
 import 'pages/partner_orders_page.dart';
@@ -7,14 +9,14 @@ import 'pages/partner_team_page.dart';
 import 'pages/partner_warehouses_page.dart';
 import 'pages/partner_profile_page.dart';
 
-class PartnerBottomNav extends StatefulWidget {
+class PartnerBottomNav extends ConsumerStatefulWidget {
   const PartnerBottomNav({super.key});
 
   @override
-  State<PartnerBottomNav> createState() => _PartnerBottomNavState();
+  ConsumerState<PartnerBottomNav> createState() => _PartnerBottomNavState();
 }
 
-class _PartnerBottomNavState extends State<PartnerBottomNav> {
+class _PartnerBottomNavState extends ConsumerState<PartnerBottomNav> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
@@ -80,10 +82,31 @@ class _PartnerBottomNavState extends State<PartnerBottomNav> {
     );
   }
 
+  Future<void> _onTabChanged(int index) async {
+    setState(() => _currentIndex = index);
+    final notifier = ref.read(channelPartnerProvider.notifier);
+
+    if (index == 0) {
+      await notifier.loadDashboard();
+      return;
+    }
+    if (index == 1) {
+      await notifier.loadOrders();
+      return;
+    }
+    if (index == 2) {
+      await notifier.loadPickupBoys();
+      return;
+    }
+    if (index == 3) {
+      await notifier.loadWarehouses();
+    }
+  }
+
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isSelected = _currentIndex == index;
     return InkWell(
-      onTap: () => setState(() => _currentIndex = index),
+      onTap: () => _onTabChanged(index),
       borderRadius: BorderRadius.circular(12),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),

@@ -14,6 +14,7 @@ import '../../../core/widgets/loading_skeletons.dart';
 import '../../settings/domain/models/app_settings_model.dart';
 import '../../settings/providers/settings_provider.dart';
 import 'widgets/customer_dashboard_bottom_bar.dart';
+import '../../../core/services/fcm_service.dart';
 import '../../../core/services/location_service.dart';
 
 class CustomerDashboard extends ConsumerStatefulWidget {
@@ -46,11 +47,20 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initAppSettings();
+      _reloadHomeData();
     });
+  }
+
+  Future<void> _reloadHomeData() async {
+    ref.invalidate(pickupsProvider);
+    await ref.read(settingsProvider.notifier).syncSettings();
   }
 
   Future<void> _initAppSettings() async {
     try {
+      await FcmService.instance.ensurePermission();
+      final fcmToken = await FcmService.instance.getToken();
+
       // 1. Get location
       final locationService = LocationService();
       final position = await locationService.getCurrentPosition();
@@ -69,6 +79,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
             latitude: position?.latitude,
             longitude: position?.longitude,
             locationName: locationName,
+            fcmToken: fcmToken,
           );
 
       // 3. Check for language restoration
@@ -169,7 +180,10 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
               scrapPickupEnabled: appSettings.features.scrapPickupEnabled,
               isServiceable: appSettings.serviceAvailability.isServiceable,
               serviceMessage: appSettings.serviceAvailability.message,
-              onDashboardTap: () => setState(() => _currentIndex = 0),
+              onDashboardTap: () {
+                setState(() => _currentIndex = 0);
+                _reloadHomeData();
+              },
               onOrdersTap: () {
                 setState(() => _currentIndex = 1);
                 ref.invalidate(pickupsProvider);
@@ -447,7 +461,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                                   subtitle: category.pricingType ?? '',
                                   imageUrl: category.imageUrl,
                                   iconData: _getIconForCategory(category.slug),
-                                  isDark: true,
+                                  isDark: false,
                                   onTap: () => _guardedTap(
                                     () => context.push(
                                       '${AppRoutes.subCategorySelection}/${category.id}',
@@ -1514,15 +1528,20 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
       child: Container(
         width: 140,
         decoration: BoxDecoration(
-          color: Colors.black87,
+          color: isDark ? Colors.black87 : Colors.white,
           image: imageUrl != null
               ? DecorationImage(
                   image: NetworkImage(imageUrl),
                   fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    Colors.black.withValues(alpha: 0.4),
-                    BlendMode.darken,
-                  ),
+                  colorFilter: isDark
+                      ? ColorFilter.mode(
+                          Colors.black.withValues(alpha: 0.4),
+                          BlendMode.darken,
+                        )
+                      : ColorFilter.mode(
+                          Colors.white.withValues(alpha: 0.12),
+                          BlendMode.lighten,
+                        ),
                 )
               : null,
           borderRadius: BorderRadius.circular(20),
@@ -1542,16 +1561,22 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : AppTheme.primaryColor.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: FaIcon(iconData, color: Colors.white, size: 20),
+              child: FaIcon(
+                iconData,
+                color: isDark ? Colors.white : AppTheme.primaryColor,
+                size: 20,
+              ),
             ),
             const Spacer(),
             Text(
               title,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: isDark ? Colors.white : AppTheme.textPrimary,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -1560,7 +1585,9 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
               Text(
                 subtitle,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.8),
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.8)
+                      : AppTheme.textSecondary,
                   fontSize: 12,
                 ),
               ),

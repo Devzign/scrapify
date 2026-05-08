@@ -1,8 +1,16 @@
+import 'dart:io';
+
 class ApiEndpoints {
   const ApiEndpoints._();
 
-  static const String googleMapsApiKey =
-      'AIzaSyBxn1MmF7oFUFI4fgTYxhm1M9GB4YPQZwY';
+  static String get googleMapsApiKey {
+    if (Platform.isAndroid) {
+      return 'AIzaSyB6IppFgrZofxP-PAUIkhnGB63N8xc0CHM';
+    } else if (Platform.isIOS) {
+      return 'AIzaSyAYp0o5_bsiJdEGmMLIrlIDnJAI63rPtvk';
+    }
+    return '';
+  }
 
   static const String authSendOtp = '/auth/send-otp';
   static const String authVerifyOtp = '/auth/verify-otp';
@@ -20,7 +28,6 @@ class ApiEndpoints {
   static const String cities = '/cities';
   static const String categories = '/categories';
   static const String subcategories = '/subcategories';
-  static const String items = '/items';
   static const String homeApplianceDetails = '/home-appliances/details';
   static const String homeApplianceEstimate = '/home-appliances/estimate';
   static const String categoryTypes = '/category-types';

@@ -26,6 +26,7 @@ class AppSettingsNotifier extends Notifier<AppSettingsModel> {
     double? latitude,
     double? longitude,
     String? locationName,
+    String? fcmToken,
   }) async {
     state = state.copyWith(isLoading: true);
     try {
@@ -34,6 +35,7 @@ class AppSettingsNotifier extends Notifier<AppSettingsModel> {
         latitude: latitude,
         longitude: longitude,
         locationName: locationName,
+        fcmToken: fcmToken,
       );
 
       if (response.isSuccess && response.data != null) {

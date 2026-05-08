@@ -168,11 +168,11 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                                 'item': PickupCatalogItem(
                                   id: child.id,
                                   name: child.name.en,
-                                  price: 65,
-                                  unit: 'per_piece',
+                                  price: child.basePrice ?? 0,
+                                  unit: _unitFromPricingType(child.pricingType),
                                   materialType: 'E-Waste',
                                   pickupSize: 'Medium',
-                                  priceType: 'per_piece',
+                                  priceType: child.pricingType ?? 'per_piece',
                                   condition: 'Working',
                                   imageUrl: child.imageUrl,
                                 ),
@@ -194,103 +194,95 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
               ],
             );
           }
+          final items = <PickupCatalogItem>[
+            PickupCatalogItem(
+              id: category.id,
+              name: category.name.en,
+              price: category.basePrice ?? 0,
+              unit: _unitFromPricingType(category.pricingType),
+              materialType: 'Mixed',
+              pickupSize: 'Medium',
+              priceType: category.pricingType ?? 'per_piece',
+              condition: 'Working',
+              imageUrl: category.imageUrl,
+            ),
+          ];
 
-          final itemsAsync = ref.watch(itemsProvider(widget.categoryId));
-          return itemsAsync.when(
-            data: (items) {
-              _syncQuantitiesFromBasket(items, basketItems);
-              final filteredItems = _filterItems(items, _searchQuery);
-              final selectedCount = _selectedUnits;
-              final totalEstimate = _totalEstimate(items);
+          _syncQuantitiesFromBasket(items, basketItems);
+          final filteredItems = _filterItems(items, _searchQuery);
+          final selectedCount = _selectedUnits;
+          final totalEstimate = _totalEstimate(items);
 
-              return Column(
-                children: [
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
-                      children: [
-                        Text(
-                          category.getName(context),
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w900,
-                            color: AppTheme.textPrimary,
-                            height: 1.15,
+          return Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(18, 8, 18, 24),
+                  children: [
+                    Text(
+                      category.getName(context),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.textPrimary,
+                        height: 1.15,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      context.locale.languageCode == 'hi'
+                          ? 'रीसायक्लिंग के लिए आइटम चुनें'
+                          : 'Select items for recycling',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppTheme.textSecondary,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    _buildSearchField(category),
+                    const SizedBox(height: 18),
+                    if (filteredItems.isEmpty)
+                      _buildEmptyState(message: 'No items match your search.')
+                    else
+                      ...filteredItems.map(
+                        (item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: PickupItemCard(
+                            item: item,
+                            quantity: _quantities[item.id] ?? 0,
+                            onIncrement: () => _changeQuantity(item.id, 1),
+                            onDecrement: () => _changeQuantity(item.id, -1),
+                            showQuantityControls:
+                                !_requiresHouseholdCategoryDetails(category),
+                            onTap: _requiresHouseholdCategoryDetails(category)
+                                ? () => context.push(
+                                    AppRoutes.householdItemDetails,
+                                    extra: {
+                                      'item': item,
+                                      'parentCategoryName': category.getName(
+                                        context,
+                                      ),
+                                      'applianceCategoryId': widget.categoryId,
+                                      'parentCategoryId': category.id,
+                                    },
+                                  )
+                                : null,
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          context.locale.languageCode == 'hi'
-                              ? 'रीसायक्लिंग के लिए आइटम चुनें'
-                              : 'Select items for recycling',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppTheme.textSecondary,
-                            height: 1.35,
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-                        _buildSearchField(category),
-                        const SizedBox(height: 18),
-                        if (filteredItems.isEmpty)
-                          _buildEmptyState(
-                            message: 'No items match your search.',
-                          )
-                        else
-                          ...filteredItems.map(
-                            (item) => Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: PickupItemCard(
-                                item: item,
-                                quantity: _quantities[item.id] ?? 0,
-                                onIncrement: () => _changeQuantity(item.id, 1),
-                                onDecrement: () => _changeQuantity(item.id, -1),
-                                showQuantityControls:
-                                    !_requiresHouseholdCategoryDetails(
-                                      category,
-                                    ),
-                                onTap:
-                                    _requiresHouseholdCategoryDetails(category)
-                                    ? () => context.push(
-                                        AppRoutes.householdItemDetails,
-                                        extra: {
-                                          'item': item,
-                                          'parentCategoryName': category
-                                              .getName(context),
-                                          'applianceCategoryId':
-                                              widget.categoryId,
-                                          'parentCategoryId': category.id,
-                                        },
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          ),
-                        const SizedBox(height: 16),
-                      ],
-                    ),
-                  ),
-                  if (selectedCount > 0)
-                    _buildBottomBar(
-                      selectedCount: selectedCount,
-                      totalEstimate: totalEstimate,
-                      items: items,
-                      parentCategory: category,
-                    ),
-                ],
-              );
-            },
-            loading: () => const ItemListLoadingSkeleton(),
-            error: (error, stack) => Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(
-                  'Error loading items: $error',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.red.shade700),
+                      ),
+                    const SizedBox(height: 16),
+                  ],
                 ),
               ),
-            ),
+              if (selectedCount > 0)
+                _buildBottomBar(
+                  selectedCount: selectedCount,
+                  totalEstimate: totalEstimate,
+                  items: items,
+                  parentCategory: category,
+                ),
+            ],
           );
         },
         loading: () => const ItemListLoadingSkeleton(),
@@ -591,14 +583,26 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
     };
   }
 
+  String _unitFromPricingType(String? pricingType) {
+    return switch ((pricingType ?? '').toLowerCase()) {
+      'per_kg' => 'per_kg',
+      'per_capacity' => 'per_capacity',
+      _ => 'per_piece',
+    };
+  }
+
   bool _requiresHouseholdCategoryDetails(Category category) {
-    if (category.hasAttributes) return true;
+    if (category.requiresDetails || category.hasAttributes) return true;
     final name = category.name.en.toLowerCase();
     return name.contains('air conditioner') ||
         name.contains('refrigerator') ||
         name.contains('washing machine') ||
         name.contains('television') ||
         name.contains('microwave') ||
+        name.contains('mobile phone') ||
+        name.contains('laptop') ||
+        name.contains('cables & wires') ||
+        name.contains('cpu cabinet') ||
         category.id == 3 ||
         category.id == 4;
   }

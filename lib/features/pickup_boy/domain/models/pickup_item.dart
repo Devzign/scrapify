@@ -1,10 +1,11 @@
 class PickupItem {
-  final int? id;       // pickup_item_id (null for new items)
+  final int? id; // pickup_item_id (null for new items)
   final int? itemId;
   final String itemName;
   final double? weight;
   final int? quantity;
   final String? condition;
+  final double? ratePerKg;
   final String action; // 'updated' | 'added' | 'removed'
 
   const PickupItem({
@@ -14,6 +15,7 @@ class PickupItem {
     this.weight,
     this.quantity,
     this.condition,
+    this.ratePerKg,
     required this.action,
   });
 
@@ -30,11 +32,13 @@ class PickupItem {
     String itemName;
     final rawCat = json['category_name'];
     if (rawCat is Map) {
-      itemName = rawCat['en']?.toString() ?? rawCat.values.first?.toString() ?? '';
+      itemName =
+          rawCat['en']?.toString() ?? rawCat.values.first?.toString() ?? '';
     } else if (rawCat is String) {
       itemName = rawCat;
     } else {
-      itemName = json['item_name']?.toString() ?? json['name']?.toString() ?? '';
+      itemName =
+          json['item_name']?.toString() ?? json['name']?.toString() ?? '';
     }
 
     return PickupItem(
@@ -44,20 +48,20 @@ class PickupItem {
       weight: toDouble(json['weight']) ?? toDouble(json['weight_kg']),
       quantity: json['quantity'],
       condition: json['condition']?.toString(),
+      ratePerKg:
+          toDouble(json['rate_per_kg']) ?? toDouble(json['price_per_unit']),
       action: json['action']?.toString() ?? 'updated',
     );
   }
 
   Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{
-      'item_name': itemName,
-      'action': action,
-    };
+    final map = <String, dynamic>{'item_name': itemName, 'action': action};
     if (id != null) map['pickup_item_id'] = id;
     if (itemId != null) map['item_id'] = itemId;
     if (weight != null) map['weight_kg'] = weight;
     if (quantity != null) map['quantity'] = quantity;
     if (condition != null) map['condition'] = condition;
+    if (ratePerKg != null) map['rate_per_kg'] = ratePerKg;
     return map;
   }
 
@@ -68,6 +72,7 @@ class PickupItem {
     double? weight,
     int? quantity,
     String? condition,
+    double? ratePerKg,
     String? action,
   }) {
     return PickupItem(
@@ -77,6 +82,7 @@ class PickupItem {
       weight: weight ?? this.weight,
       quantity: quantity ?? this.quantity,
       condition: condition ?? this.condition,
+      ratePerKg: ratePerKg ?? this.ratePerKg,
       action: action ?? this.action,
     );
   }

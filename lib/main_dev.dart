@@ -4,9 +4,10 @@ import 'core/config/app_config.dart';
 import 'main.dart' as app;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // must be first
+  WidgetsFlutterBinding.ensureInitialized();
   AppConfig.initialize(AppFlavor.dev);
   await EasyLocalization.ensureInitialized();
+  await app.initializeAppServices();
   final initialLocation = await app.resolveInitialLocation();
   app.runMain(initialLocation: initialLocation);
 }

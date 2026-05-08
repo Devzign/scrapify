@@ -23,8 +23,8 @@ class PickupBoyInfo {
       name: json['name']?.toString() ?? '',
       phone: json['phone']?.toString() ?? '',
       profilePhoto: json['profile_photo']?.toString(),
-      isOnline: json['is_online'] == true,
-      isAvailable: json['is_available'] == true,
+      isOnline: _asBool(json['is_online']),
+      isAvailable: _asBool(json['is_available']),
     );
   }
 }
@@ -71,15 +71,34 @@ class PickupBoyDashboard {
     final upcomingRouteJson = data['upcoming_route'] as List<dynamic>? ?? [];
 
     return PickupBoyDashboard(
-      pickupBoy: pickupBoyJson != null ? PickupBoyInfo.fromJson(pickupBoyJson) : null,
+      pickupBoy: pickupBoyJson != null
+          ? PickupBoyInfo.fromJson(pickupBoyJson)
+          : null,
       pendingCount: summary?['pending_count'] ?? data['pending_count'] ?? 0,
-      completedCount: summary?['completed_count'] ?? data['completed_count'] ?? 0,
-      isOnline: pickupBoyJson?['is_online'] == true,
-      currentTask: currentTaskJson != null ? PickupAssignment.fromJson(currentTaskJson) : null,
+      completedCount:
+          summary?['completed_count'] ?? data['completed_count'] ?? 0,
+      isOnline:
+          _asBool(pickupBoyJson?['is_online']) ||
+          _asBool(data['is_online']) ||
+          _asBool(data['online_status']),
+      currentTask: currentTaskJson != null
+          ? PickupAssignment.fromJson(currentTaskJson)
+          : null,
       upcomingRoute: upcomingRouteJson
           .whereType<Map<String, dynamic>>()
           .map((e) => PickupAssignment.fromJson(e))
           .toList(),
     );
   }
+}
+
+bool _asBool(dynamic value) {
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  final normalized = value?.toString().trim().toLowerCase() ?? '';
+  return normalized == 'true' ||
+      normalized == '1' ||
+      normalized == 'online' ||
+      normalized == 'available' ||
+      normalized == 'yes';
 }

@@ -22,16 +22,24 @@ class PickupCatalogItem {
   });
 
   factory PickupCatalogItem.fromJson(Map<String, dynamic> json) {
+    final resolvedPrice =
+        _parseDouble(json['price']) ?? _parseDouble(json['base_price']) ?? 0;
+    final resolvedPriceType =
+        json['price_type']?.toString() ??
+        json['pricing_type']?.toString() ??
+        '';
+
     return PickupCatalogItem(
       id: _parseInt(json['id']) ?? 0,
       name: json['name']?.toString() ?? '',
-      price: _parseDouble(json['price']) ?? 0,
-      unit: json['unit']?.toString() ?? '',
+      price: resolvedPrice,
+      unit: json['unit']?.toString() ?? resolvedPriceType,
       materialType: json['material_type']?.toString() ?? '',
       pickupSize: json['pickup_size']?.toString() ?? '',
-      priceType: json['price_type']?.toString() ?? '',
+      priceType: resolvedPriceType,
       condition: json['condition']?.toString() ?? '',
-      imageUrl: json['image']?.toString() ?? '',
+      imageUrl:
+          json['image_url']?.toString() ?? json['image']?.toString() ?? '',
     );
   }
 }

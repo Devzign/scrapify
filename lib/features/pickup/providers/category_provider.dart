@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/models/category.dart';
 import '../domain/models/home_appliance_details.dart';
-import '../domain/models/pickup_catalog_item.dart';
 import '../domain/repositories/category_repository.dart';
 
 final categoriesProvider = FutureProvider<List<Category>>((ref) async {
@@ -50,20 +49,6 @@ final categoryDetailProvider = FutureProvider.family<Category, int>((
     throw Exception(
       response.errorMessage ?? 'Failed to fetch category details',
     );
-  }
-});
-
-final itemsProvider = FutureProvider.family<List<PickupCatalogItem>, int>((
-  ref,
-  subcategoryId,
-) async {
-  final repository = ref.watch(categoryRepositoryProvider);
-  final response = await repository.fetchItems(subcategoryId);
-
-  if (response.isSuccess) {
-    return response.data ?? [];
-  } else {
-    throw Exception(response.errorMessage ?? 'Failed to fetch items');
   }
 });
 

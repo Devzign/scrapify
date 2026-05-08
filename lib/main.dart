@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/app_routes.dart';
 import 'core/storage/app_preferences.dart';
 import 'core/utils/role_route_resolver.dart';
 import 'core/config/app_config.dart';
+import 'core/utils/app_logger.dart';
+import 'firebase_options.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 /// Called directly only in development/fallback scenarios.
@@ -19,8 +22,21 @@ void main() async {
     AppConfig.initialize(AppFlavor.dev);
   }
   await EasyLocalization.ensureInitialized();
+  await initializeAppServices();
   final initialLocation = await resolveInitialLocation();
   runMain(initialLocation: initialLocation);
+}
+
+Future<void> initializeAppServices() async {
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    AppLogger.info('Firebase initialized successfully');
+  } catch (e) {
+    // Keep app running even when Firebase is not configured yet.
+    AppLogger.error('Firebase initialization skipped/failed', error: e);
+  }
 }
 
 /// Shared bootstrap called by each flavor's entry point.

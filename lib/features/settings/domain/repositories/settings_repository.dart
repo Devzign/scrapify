@@ -17,6 +17,7 @@ class SettingsRepository {
     double? latitude,
     double? longitude,
     String? locationName,
+    String? fcmToken,
   }) async {
     return _dioClient.post<AppSettingsModel>(
       ApiEndpoints.appSettings,
@@ -24,6 +25,7 @@ class SettingsRepository {
         if (latitude != null) 'latitude': latitude,
         if (longitude != null) 'longitude': longitude,
         if (locationName != null) 'location_name': locationName,
+        if (fcmToken != null && fcmToken.isNotEmpty) 'fcm_token': fcmToken,
       },
       parser: (json) =>
           AppSettingsModel.fromJson(json['data'] as Map<String, dynamic>),

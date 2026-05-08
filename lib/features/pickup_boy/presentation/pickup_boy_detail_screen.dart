@@ -38,7 +38,7 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
       setState(() {
         _loading = false;
         if (result.isSuccess) {
-          _detail = result.data;
+          _detail = _normalizeDetail(result.data!);
         } else {
           _error = result.errorMessage;
         }
@@ -90,145 +90,149 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
   }
 
   Widget _buildContent(BuildContext context, PickupBoyState state) {
-    final status = _detail?['status']?.toString() ?? 'assigned';
+    final status = _resolvedStatus(_detail);
 
-    return Stack(
+    return Column(
       children: [
-        SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Status Badge
-              _StatusBadge(status: status),
-              const SizedBox(height: 16),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Status Badge
+                _StatusBadge(status: status),
+                const SizedBox(height: 16),
 
-              // Customer Info
-              _InfoCard(
-                title: 'Customer Details',
-                icon: FontAwesomeIcons.user,
-                children: [
-                  _InfoRow(
-                    label: 'Name',
-                    value: _detail?['customer_name']?.toString() ?? '-',
-                  ),
-                  _InfoRow(
-                    label: 'Phone',
-                    value: _detail?['customer_phone']?.toString() ?? '-',
-                  ),
-                  _InfoRow(
-                    label: 'Address',
-                    value: _detail?['address']?.toString() ?? '-',
-                  ),
-                  _InfoRow(
-                    label: 'Scheduled',
-                    value: _formatDate(
-                      _detail?['scheduled_at']?.toString() ?? '',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Items
-              if (_detail?['items'] != null &&
-                  (_detail!['items'] as List).isNotEmpty) ...[
+                // Customer Info
                 _InfoCard(
-                  title: 'Expected Items',
-                  icon: FontAwesomeIcons.box,
+                  title: 'Customer Details',
+                  icon: FontAwesomeIcons.user,
                   children: [
-                    ...(_detail!['items'] as List<dynamic>)
-                        .whereType<Map<String, dynamic>>()
-                        .map((item) {
-                      // category_name can be a Map {"en": "...", "hi": "..."} or a String
-                      final rawCat = item['category_name'];
-                      String catName;
-                      if (rawCat is Map) {
-                        catName = rawCat['en']?.toString() ??
-                            rawCat.values.first?.toString() ??
-                            'Item';
-                      } else {
-                        catName = rawCat?.toString() ??
-                            item['item_name']?.toString() ??
-                            'Item';
-                      }
-                      final weightKg = item['weight_kg']?.toString() ??
-                          item['expected_weight']?.toString() ??
-                          '-';
-                      final qty = item['quantity']?.toString() ?? '-';
-                      return _InfoRow(
-                        label: catName,
-                        value: 'Qty: $qty | Wt: $weightKg kg',
-                      );
-                    }),
+                    _InfoRow(
+                      label: 'Name',
+                      value: _detail?['customer_name']?.toString() ?? '-',
+                    ),
+                    _InfoRow(
+                      label: 'Phone',
+                      value: _detail?['customer_phone']?.toString() ?? '-',
+                    ),
+                    _InfoRow(
+                      label: 'Address',
+                      value: _detail?['address']?.toString() ?? '-',
+                    ),
+                    _InfoRow(
+                      label: 'Scheduled',
+                      value: _formatDate(
+                        _detail?['scheduled_at']?.toString() ?? '',
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
-              ],
 
-              // Quick Actions (Call / Map)
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final phone = _detail?['customer_phone']?.toString();
-                        if (phone != null && phone.isNotEmpty) {
-                          final uri = Uri.parse('tel:$phone');
-                          if (await canLaunchUrl(uri)) launchUrl(uri);
-                        }
-                      },
-                      icon: const FaIcon(FontAwesomeIcons.phone, size: 14),
-                      label: const Text('Call Customer'),
-                    ),
+                // Items
+                if (_detail?['items'] != null &&
+                    (_detail!['items'] as List).isNotEmpty) ...[
+                  _InfoCard(
+                    title: 'Expected Items',
+                    icon: FontAwesomeIcons.box,
+                    children: [
+                      ...(_detail!['items'] as List<dynamic>)
+                          .whereType<Map<String, dynamic>>()
+                          .map((item) {
+                            // category_name can be a Map {"en": "...", "hi": "..."} or a String
+                            final rawCat = item['category_name'];
+                            String catName;
+                            if (rawCat is Map) {
+                              catName =
+                                  rawCat['en']?.toString() ??
+                                  rawCat.values.first?.toString() ??
+                                  'Item';
+                            } else {
+                              catName =
+                                  rawCat?.toString() ??
+                                  item['item_name']?.toString() ??
+                                  'Item';
+                            }
+                            final weightKg =
+                                item['weight_kg']?.toString() ??
+                                item['expected_weight']?.toString() ??
+                                '-';
+                            final qty = item['quantity']?.toString() ?? '-';
+                            return _InfoRow(
+                              label: catName,
+                              value: 'Qty: $qty | Wt: $weightKg kg',
+                            );
+                          }),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final lat = _detail?['latitude']?.toString();
-                        final lng = _detail?['longitude']?.toString();
-                        final addr = _detail?['address']?.toString() ?? '';
-                        Uri uri;
-                        if (lat != null && lng != null) {
-                          uri = Uri.parse(
-                            'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng',
-                          );
-                        } else if (addr.isNotEmpty) {
-                          uri = Uri.parse(
-                            'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(addr)}',
-                          );
-                        } else {
-                          return;
-                        }
-                        if (await canLaunchUrl(uri)) {
-                          launchUrl(uri, mode: LaunchMode.externalApplication);
-                        }
-                      },
-                      icon: const FaIcon(
-                        FontAwesomeIcons.mapLocationDot,
-                        size: 14,
-                      ),
-                      label: const Text('Navigate'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                      ),
-                    ),
-                  ),
+                  const SizedBox(height: 16),
                 ],
-              ),
-            ],
+
+                // Quick Actions (Call / Map)
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final phone = _detail?['customer_phone']?.toString();
+                          if (phone != null && phone.isNotEmpty) {
+                            final uri = Uri.parse('tel:$phone');
+                            if (await canLaunchUrl(uri)) launchUrl(uri);
+                          }
+                        },
+                        icon: const FaIcon(FontAwesomeIcons.phone, size: 14),
+                        label: const Text('Call Customer'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final lat = _detail?['latitude']?.toString();
+                          final lng = _detail?['longitude']?.toString();
+                          final addr = _detail?['address']?.toString() ?? '';
+                          Uri uri;
+                          if (lat != null && lng != null) {
+                            uri = Uri.parse(
+                              'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng',
+                            );
+                          } else if (addr.isNotEmpty) {
+                            uri = Uri.parse(
+                              'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(addr)}',
+                            );
+                          } else {
+                            return;
+                          }
+                          if (await canLaunchUrl(uri)) {
+                            launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                        },
+                        icon: const FaIcon(
+                          FontAwesomeIcons.mapLocationDot,
+                          size: 14,
+                        ),
+                        label: const Text('Navigate'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-
-        // Bottom action buttons
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.white,
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+          color: Colors.white,
+          child: SafeArea(
+            top: false,
             child: state.isActionLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _buildActionButtons(context, status),
@@ -329,8 +333,14 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
 
       case 'arrived':
         return ElevatedButton(
-          onPressed: () =>
-              context.push('/pickup-boy/pickups/${widget.pickupId}/verify'),
+          onPressed: () async {
+            await context.push('/pickup-boy/pickups/${widget.pickupId}/verify');
+            if (!mounted) return;
+            await _loadDetail();
+            final notifier = ref.read(pickupBoyProvider.notifier);
+            notifier.loadAssignments();
+            notifier.loadDashboard();
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppTheme.primaryColor,
             minimumSize: const Size(double.infinity, 48),
@@ -359,6 +369,18 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
     final ok = await notifier.acceptPickup(widget.pickupId);
     if (!context.mounted) return;
     if (ok) {
+      if (mounted && _detail != null) {
+        setState(() {
+          _detail = Map<String, dynamic>.from(_detail!)
+            ..['status'] = 'accepted'
+            ..['pickup_status'] = 'accepted';
+          if (_detail!['pickup_request'] is Map<String, dynamic>) {
+            _detail!['pickup_request'] = Map<String, dynamic>.from(
+              _detail!['pickup_request'] as Map<String, dynamic>,
+            )..['status'] = 'accepted';
+          }
+        });
+      }
       // Reload the detail from API so all fields are fresh
       await _loadDetail();
       // Reload assignments so dashboard reflects the change
@@ -399,6 +421,23 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
     final ok = await notifier.updateStatus(widget.pickupId, newStatus);
     if (!context.mounted) return;
     if (ok) {
+      if (mounted && _detail != null) {
+        setState(() {
+          _detail = Map<String, dynamic>.from(_detail!)
+            ..['status'] = newStatus
+            ..['pickup_status'] = newStatus;
+          if (_detail!['assignment'] is Map<String, dynamic>) {
+            _detail!['assignment'] = Map<String, dynamic>.from(
+              _detail!['assignment'] as Map<String, dynamic>,
+            )..['status'] = newStatus;
+          }
+          if (_detail!['pickup_request'] is Map<String, dynamic>) {
+            _detail!['pickup_request'] = Map<String, dynamic>.from(
+              _detail!['pickup_request'] as Map<String, dynamic>,
+            )..['status'] = newStatus;
+          }
+        });
+      }
       // Reload the detail from API so all fields are fresh
       await _loadDetail();
       // Reload assignments and dashboard so they reflect the new status
@@ -430,6 +469,68 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
     } catch (_) {
       return dt;
     }
+  }
+
+  String _resolvedStatus(Map<String, dynamic>? detail) {
+    if (detail == null) {
+      return 'assigned';
+    }
+
+    final candidates = <String>[];
+    final direct = detail['status']?.toString().toLowerCase();
+    if (direct != null && direct.isNotEmpty) candidates.add(direct);
+    final pickupStatus = detail['pickup_status']?.toString().toLowerCase();
+    if (pickupStatus != null && pickupStatus.isNotEmpty) {
+      candidates.add(pickupStatus);
+    }
+    final assignment = detail['assignment'];
+    if (assignment is Map<String, dynamic>) {
+      final assignmentStatus = assignment['status']?.toString().toLowerCase();
+      if (assignmentStatus != null && assignmentStatus.isNotEmpty) {
+        candidates.add(assignmentStatus);
+      }
+    }
+
+    final pickupRequest = detail['pickup_request'];
+    if (pickupRequest is Map<String, dynamic>) {
+      final requestStatus = pickupRequest['status']?.toString().toLowerCase();
+      if (requestStatus != null && requestStatus.isNotEmpty) {
+        candidates.add(requestStatus);
+      }
+    }
+
+    const order = <String, int>{
+      'assigned': 1,
+      'accepted': 2,
+      'on_the_way': 3,
+      'arrived': 4,
+      'verifying': 5,
+      'completed': 6,
+      'rejected': 0,
+      'cancelled': 0,
+    };
+    if (candidates.isNotEmpty) {
+      candidates.sort((a, b) => (order[a] ?? -1).compareTo(order[b] ?? -1));
+      return candidates.last;
+    }
+
+    return 'assigned';
+  }
+
+  Map<String, dynamic> _normalizeDetail(Map<String, dynamic> raw) {
+    if (raw['pickup'] is Map<String, dynamic>) {
+      final pickup = Map<String, dynamic>.from(
+        raw['pickup'] as Map<String, dynamic>,
+      );
+      if (raw['final_payout_amount'] != null) {
+        pickup['final_payout_amount'] = raw['final_payout_amount'];
+      }
+      if (raw['verified_items'] != null) {
+        pickup['verified_items'] = raw['verified_items'];
+      }
+      return pickup;
+    }
+    return Map<String, dynamic>.from(raw);
   }
 }
 

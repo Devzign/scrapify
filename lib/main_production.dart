@@ -7,6 +7,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // must be first
   AppConfig.initialize(AppFlavor.production);
   await EasyLocalization.ensureInitialized();
+  await app.initializeAppServices();
   final initialLocation = await app.resolveInitialLocation();
   app.runMain(initialLocation: initialLocation);
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "244904088237",
+    "project_id": "scrapify-f852d",
+    "storage_bucket": "scrapify-f852d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:244904088237:android:b33878cfb6102c419d6c24",
+        "android_client_info": {
+          "package_name": "com.abhyuthanam.scrapify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARb67itoescAHTSyUBSMt50aWZQ73CvJM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

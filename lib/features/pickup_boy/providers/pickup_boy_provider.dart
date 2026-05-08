@@ -135,13 +135,26 @@ class PickupBoyNotifier extends StateNotifier<PickupBoyState> {
   }
 
   Future<bool> toggleOnline(bool isOnline) async {
+    final current = state.dashboard?.isOnline;
+    if (current != null && current == isOnline) {
+      return true;
+    }
+
     state = state.copyWith(isActionLoading: true, clearError: true);
     final result = await _repository.toggleOnlineStatus(isOnline);
     state = state.copyWith(isActionLoading: false);
     if (result.isSuccess && state.dashboard != null) {
-      // Optimistically update the dashboard online state
       final updated = PickupBoyDashboard(
-        pickupBoy: state.dashboard!.pickupBoy,
+        pickupBoy: state.dashboard!.pickupBoy == null
+            ? null
+            : PickupBoyInfo(
+                id: state.dashboard!.pickupBoy!.id,
+                name: state.dashboard!.pickupBoy!.name,
+                phone: state.dashboard!.pickupBoy!.phone,
+                profilePhoto: state.dashboard!.pickupBoy!.profilePhoto,
+                isOnline: isOnline,
+                isAvailable: state.dashboard!.pickupBoy!.isAvailable,
+              ),
         pendingCount: state.dashboard!.pendingCount,
         completedCount: state.dashboard!.completedCount,
         isOnline: isOnline,
@@ -161,6 +174,6 @@ class PickupBoyNotifier extends StateNotifier<PickupBoyState> {
 // Provider
 final pickupBoyProvider =
     StateNotifierProvider<PickupBoyNotifier, PickupBoyState>((ref) {
-  final repo = ref.watch(pickupBoyRepositoryProvider);
-  return PickupBoyNotifier(repo);
-});
+      final repo = ref.watch(pickupBoyRepositoryProvider);
+      return PickupBoyNotifier(repo);
+    });
