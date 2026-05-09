@@ -100,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(
           'settings.title'.tr(),
           style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF0F172A), // slate-900
+            color: isDark ? Colors.white : AppTheme.textPrimary, // slate-900
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -126,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     'settings.language_title'.tr(),
                     style: TextStyle(
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      color: isDark ? Colors.white : AppTheme.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -170,7 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Text(
                     'settings.preferences'.tr(),
                     style: TextStyle(
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      color: isDark ? Colors.white : AppTheme.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -421,7 +421,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               if (states.contains(WidgetState.selected)) {
                 return Colors.transparent;
               }
-              return isDark ? const Color(0xFF4B5563) : const Color(0xFFD1D5DB);
+              return isDark ? const Color(0xFF4B5563) : AppTheme.outline;
             }),
           ),
         ],

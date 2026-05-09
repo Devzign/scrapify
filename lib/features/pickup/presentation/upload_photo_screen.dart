@@ -78,12 +78,12 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                 leading: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F4FF),
+                    color: AppTheme.alertBlue,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(
                     Icons.photo_library_rounded,
-                    color: Color(0xFF3B82F6),
+                    color: AppTheme.infoColor,
                   ),
                 ),
                 title: Text(
@@ -185,7 +185,7 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                 children: [
                   const FaIcon(
                     FontAwesomeIcons.circleExclamation,
-                    color: Color(0xFFC2410C),
+                    color: AppTheme.warningColor,
                     size: 18,
                   ),
                   const SizedBox(width: 12),
@@ -196,7 +196,7 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                           : 'At least 1 photo required per category for accurate pricing.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: const Color(0xFFC2410C).withValues(alpha: 0.85),
+                        color: AppTheme.warningColor.withValues(alpha: 0.85),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -371,7 +371,7 @@ class _CategoryPhotoCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF6EE),
+                  color: AppTheme.primarySurface,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(
@@ -417,8 +417,8 @@ class _CategoryPhotoCard extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: hasPhoto
-                      ? const Color(0xFFDCFCE7)
-                      : const Color(0xFFFEF3C7),
+                      ? AppTheme.successColor
+                      : AppTheme.hintPeach,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -429,8 +429,8 @@ class _CategoryPhotoCard extends StatelessWidget {
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     color: hasPhoto
-                        ? const Color(0xFF14532D)
-                        : const Color(0xFF92400E),
+                        ? AppTheme.primaryDark
+                        : AppTheme.warningColor,
                   ),
                 ),
               ),
@@ -455,7 +455,7 @@ class _CategoryPhotoCard extends StatelessWidget {
                         width: 110,
                         height: 110,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
+                          color: AppTheme.backgroundCream,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: AppTheme.primaryColor.withValues(alpha: 0.3),
@@ -531,7 +531,7 @@ class _CategoryPhotoCard extends StatelessWidget {
                 width: double.infinity,
                 height: 130,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: AppTheme.backgroundCream,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: Colors.grey.shade300,

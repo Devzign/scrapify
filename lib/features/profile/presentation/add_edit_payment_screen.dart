@@ -191,7 +191,7 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : AppTheme.textPrimary,
           ),
           onPressed: () => context.pop(),
         ),
@@ -200,7 +200,7 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
               ? 'payment.add.title'.tr()
               : 'payment.add.edit_title'.tr(),
           style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : AppTheme.textPrimary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -343,7 +343,7 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+        color: isDark ? AppTheme.textPrimary : AppTheme.hairline,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -399,8 +399,8 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
           label,
           style: TextStyle(
             color: isSelected
-                ? (isDark ? Colors.black : const Color(0xFF0F172A))
-                : const Color(0xFF94A3B8),
+                ? (isDark ? Colors.black : AppTheme.textPrimary)
+                : AppTheme.textMuted,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -412,12 +412,12 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF102213) : const Color(0xFFF8FAFC),
+        color: isDark ? const Color(0xFF102213) : AppTheme.backgroundCream,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isDark
               ? Colors.white.withValues(alpha: 0.08)
-              : const Color(0xFFE2E8F0),
+              : AppTheme.outline,
         ),
       ),
       child: Row(
@@ -429,7 +429,7 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
                 Text(
                   'Set as Default',
                   style: TextStyle(
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    color: isDark ? Colors.white : AppTheme.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
@@ -439,8 +439,8 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
                   'Use this payment method for future payouts',
                   style: TextStyle(
                     color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B),
+                        ? AppTheme.textMuted
+                        : AppTheme.textSecondary,
                     fontSize: 13,
                   ),
                 ),
@@ -490,11 +490,11 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
             hintStyle: TextStyle(
               color: isDark
                   ? Colors.white.withValues(alpha: 0.35)
-                  : const Color(0xFF94A3B8),
+                  : AppTheme.textMuted,
             ),
             filled: true,
             fillColor: isDark
-                ? const Color(0xFF1E293B)
+                ? AppTheme.textPrimary
                 : const Color(0xFFFCFDFD),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -505,7 +505,7 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
               borderSide: BorderSide(
                 color: isDark
                     ? const Color(0xFF334155)
-                    : const Color(0xFFE2E8F0),
+                    : AppTheme.outline,
               ),
             ),
             enabledBorder: OutlineInputBorder(
@@ -513,7 +513,7 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
               borderSide: BorderSide(
                 color: isDark
                     ? const Color(0xFF334155)
-                    : const Color(0xFFE2E8F0),
+                    : AppTheme.outline,
               ),
             ),
             focusedBorder: OutlineInputBorder(

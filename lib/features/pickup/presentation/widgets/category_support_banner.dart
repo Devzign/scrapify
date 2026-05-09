@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_color.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class CategorySupportBanner extends StatelessWidget {
@@ -18,21 +19,17 @@ class CategorySupportBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFF1FBF2), Color(0xFFE4F6E7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFD8EFDC)),
+        color: AppColor.primarySurface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+        border: Border.all(color: AppColor.primaryLight),
       ),
       child: Row(
         children: [
           Container(
-            width: 44,
-            height: 44,
+            width: 46,
+            height: 46,
             decoration: const BoxDecoration(
-              color: AppTheme.primaryColor,
+              color: AppColor.primary,
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -51,7 +48,7 @@ class CategorySupportBanner extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.textPrimary,
+                    color: AppColor.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -59,7 +56,7 @@ class CategorySupportBanner extends StatelessWidget {
                   description,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: AppTheme.textSecondary,
+                    color: AppColor.textSecondary,
                     height: 1.4,
                   ),
                 ),

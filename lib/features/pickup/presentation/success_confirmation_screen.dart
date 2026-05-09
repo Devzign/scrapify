@@ -45,9 +45,9 @@ class SuccessConfirmationScreen extends ConsumerWidget {
         "Flat 402, Green Valley Apartments, HSR Layout, Bangalore";
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.backgroundLight,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -63,8 +63,8 @@ class SuccessConfirmationScreen extends ConsumerWidget {
               : (isDonation ? 'Donation Confirmed' : 'Booking Confirmed'),
           style: const TextStyle(
             color: AppTheme.textPrimary,
-            fontWeight: FontWeight.w900,
-            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            fontSize: 20,
           ),
         ),
         actions: [
@@ -78,9 +78,9 @@ class SuccessConfirmationScreen extends ConsumerWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
             _buildHeroSection(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Text(
               isHindi
                   ? (isDonation ? 'दान सफल!' : 'बुकिंग सफल!')
@@ -88,17 +88,17 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                         ? 'Donation Successful!'
                         : 'Booking Successful!'),
               style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF0F172A),
-                letterSpacing: -0.5,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.textPrimary,
+                letterSpacing: -0.2,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 10),
             _buildBookingIdChip(bookingId, isHindi),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
             _buildIllustrationCard(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             _buildPickupSummary(
               dateStr: dateStr,
               itemsSummary: itemsSummary,
@@ -106,14 +106,14 @@ class SuccessConfirmationScreen extends ConsumerWidget {
               isHindi: isHindi,
             ),
             if (pickup != null && pickup!.images.isNotEmpty) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               _buildItemImagesRow(pickup!.images, isHindi),
             ],
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
             _buildActionButtons(context, ref, isHindi),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
             _buildBottomBanner(isHindi, address),
-            const SizedBox(height: 32),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -130,7 +130,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             height: 140,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF639A70).withValues(alpha: 0.1),
+              color: AppTheme.primaryColor.withValues(alpha: 0.1),
             ),
           ),
           Container(
@@ -138,7 +138,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             height: 110,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF639A70).withValues(alpha: 0.2),
+              color: AppTheme.primaryColor.withValues(alpha: 0.2),
             ),
           ),
           Container(
@@ -146,7 +146,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             height: 75,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Color(0xFF639A70),
+              color: AppTheme.primaryColor,
             ),
             child: const Icon(Icons.check, color: Colors.white, size: 40),
           ),
@@ -159,7 +159,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFE2E8F0).withValues(alpha: 0.5),
+        color: AppTheme.outline.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -170,7 +170,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF64748B),
+              color: AppTheme.textSecondary,
               letterSpacing: 0.5,
             ),
           ),
@@ -179,7 +179,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
         ],
@@ -191,9 +191,9 @@ class SuccessConfirmationScreen extends ConsumerWidget {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 24),
-      height: 160,
+      height: 148,
       decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
+        color: AppTheme.primarySurface,
         borderRadius: BorderRadius.circular(28),
       ),
       child: Stack(
@@ -204,7 +204,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             child: Icon(
               Icons.recycling,
               size: 100,
-              color: const Color(0xFF639A70).withValues(alpha: 0.15),
+              color: AppTheme.primaryColor.withValues(alpha: 0.15),
             ),
           ),
           Center(
@@ -216,7 +216,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                 return const FaIcon(
                   FontAwesomeIcons.trashCan,
                   size: 80,
-                  color: Color(0xFF639A70),
+                  color: AppTheme.primaryColor,
                 );
               },
             ),
@@ -234,11 +234,11 @@ class SuccessConfirmationScreen extends ConsumerWidget {
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppTheme.hairline),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -254,7 +254,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             children: [
               const Icon(
                 Icons.receipt_long_outlined,
-                color: Color(0xFF639A70),
+                color: AppTheme.primaryColor,
                 size: 22,
               ),
               const SizedBox(width: 12),
@@ -263,24 +263,24 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           _buildSummaryItem(
             icon: Icons.calendar_today_outlined,
             label: isHindi ? 'समय-सारणी' : 'SCHEDULED FOR',
             value: dateStr,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           _buildSummaryItem(
             icon: Icons.inventory_2_outlined,
             label: isHindi ? 'आइटम' : 'ITEMS',
             value: itemsSummary,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 14),
           _buildSummaryItem(
             icon: Icons.location_on_outlined,
             label: isHindi ? 'पिकअप पता' : 'PICKUP ADDRESS',
@@ -304,10 +304,10 @@ class SuccessConfirmationScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFFF8FAFC),
+            color: AppTheme.backgroundCream,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: const Color(0xFF475569), size: 20),
+          child: Icon(icon, color: AppTheme.textSecondary, size: 20),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -319,7 +319,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF94A3B8),
+                  color: AppTheme.textMuted,
                   letterSpacing: 1.1,
                 ),
               ),
@@ -329,7 +329,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                   height: 1.3,
                 ),
               ),
@@ -343,11 +343,11 @@ class SuccessConfirmationScreen extends ConsumerWidget {
   Widget _buildItemImagesRow(List<PickupImageModel> images, bool isHindi) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppTheme.hairline),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -363,7 +363,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             children: [
               const Icon(
                 Icons.photo_library_outlined,
-                color: Color(0xFF639A70),
+                color: AppTheme.primaryColor,
                 size: 20,
               ),
               const SizedBox(width: 10),
@@ -374,12 +374,12 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           SizedBox(
             height: 72,
             child: ListView.separated(
@@ -400,20 +400,20 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                           errorBuilder: (_, __, ___) => Container(
                             width: 72,
                             height: 72,
-                            color: const Color(0xFFF0FDF4),
+                            color: AppTheme.primarySurface,
                             child: const Icon(
                               Icons.image_not_supported,
-                              color: Color(0xFF639A70),
+                              color: AppTheme.primaryColor,
                             ),
                           ),
                         )
                       : Container(
                           width: 72,
                           height: 72,
-                          color: const Color(0xFFF0FDF4),
+                          color: AppTheme.primarySurface,
                           child: const Icon(
                             Icons.image,
-                            color: Color(0xFF639A70),
+                            color: AppTheme.primaryColor,
                           ),
                         ),
                 );
@@ -439,9 +439,10 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                 ? null
                 : () => context.go('${AppRoutes.pickupTracking}/${pickup!.id}'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF639A70),
+              backgroundColor: AppTheme.primaryColor,
               foregroundColor: Colors.white,
               minimumSize: const Size(double.infinity, 64),
+              padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -451,19 +452,20 @@ class SuccessConfirmationScreen extends ConsumerWidget {
               isHindi
                   ? (isDonation ? 'दान ट्रैक करें' : 'पिकअप ट्रैक करें')
                   : (isDonation ? 'TRACK DONATION' : 'TRACK PICKUP'),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           ElevatedButton(
             onPressed: () {
               ref.invalidate(pickupsProvider);
               context.go(AppRoutes.customerDashboard);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFF1F5F9),
-              foregroundColor: const Color(0xFF0F172A),
+              backgroundColor: AppTheme.hairline,
+              foregroundColor: AppTheme.textPrimary,
               minimumSize: const Size(double.infinity, 64),
+              padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
@@ -471,7 +473,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
             ),
             child: Text(
               isHindi ? 'होम पर जाएं' : 'Back to Home',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
             ),
           ),
         ],
@@ -485,7 +487,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
       height: 140,
       margin: const EdgeInsets.symmetric(horizontal: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFEEE7),
+        color: AppTheme.hintPeach,
         borderRadius: BorderRadius.circular(24),
         image: const DecorationImage(
           image: AssetImage('assets/images/map_banner.png'),
@@ -510,7 +512,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                 height: 10,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF639A70),
+                  color: AppTheme.primaryColor,
                 ),
               ),
               const SizedBox(width: 10),
@@ -519,7 +521,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../providers/warehouse_provider.dart';
 
 class WarehouseRequestDetailScreen extends ConsumerStatefulWidget {
@@ -73,7 +74,7 @@ class _WarehouseRequestDetailScreenState
     final hasAssignment =
         _detail?['pickup_boy_id'] != null || _detail?['assigned_pickup_boy'] != null;
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         title: Text(

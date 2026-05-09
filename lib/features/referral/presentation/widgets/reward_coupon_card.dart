@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../data/models/referral_reward_model.dart';
 
 class RewardCouponCard extends StatelessWidget {
@@ -17,15 +18,9 @@ class RewardCouponCard extends StatelessWidget {
         ? AppTheme.primaryColor
         : (status == 'used' ? Colors.orange : Colors.redAccent);
 
-    return Container(
-      width: double.infinity,
+    final textTheme = Theme.of(context).textTheme;
+    return AppCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -34,11 +29,7 @@ class RewardCouponCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   reward.couponCode,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.textPrimary,
-                  ),
+                  style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               Container(
@@ -64,26 +55,17 @@ class RewardCouponCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Reward: ${_rewardLabel()}',
-            style: const TextStyle(
-              fontSize: 14,
-              color: AppTheme.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
+            style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 4),
           Text(
             'Expiry: ${_formatDate(reward.expiryDate)}',
-            style: const TextStyle(
-              fontSize: 13,
-              color: AppTheme.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
+            style: textTheme.bodySmall,
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Use this coupon during scrap booking to get extra value.',
-            style: TextStyle(
-              fontSize: 12,
+            style: textTheme.labelMedium?.copyWith(
               color: AppTheme.primaryColor,
               fontWeight: FontWeight.w600,
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../../core/theme/app_color.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class CategoryListTile extends StatelessWidget {
@@ -22,25 +23,25 @@ class CategoryListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(24),
+      color: AppColor.surface,
+      borderRadius: BorderRadius.circular(AppTheme.radiusXl),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         child: Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            borderRadius: AppTheme.cardBorderRadius,
-            border: AppTheme.cardBorder,
-            boxShadow: AppTheme.cardShadow,
+            borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+            border: Border.all(color: AppColor.cardBorder),
+            boxShadow: AppTheme.e1,
           ),
           child: Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 56,
+                height: 56,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFF1FBF2),
+                  color: AppColor.primarySurface,
                   shape: BoxShape.circle,
                 ),
                 clipBehavior: Clip.antiAlias,
@@ -56,9 +57,9 @@ class CategoryListTile extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: AppTheme.textPrimary,
+                        color: AppColor.textPrimary,
                       ),
                     ),
                     if (subtitle.trim().isNotEmpty) ...[
@@ -69,8 +70,8 @@ class CategoryListTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: AppTheme.textSecondary,
-                          height: 1.35,
+                          color: AppColor.textSecondary,
+                          height: 1.4,
                         ),
                       ),
                     ],
@@ -78,10 +79,18 @@ class CategoryListTile extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Icon(
-                Icons.chevron_right_rounded,
-                size: 24,
-                color: Color(0xFFD0D5DD),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: const BoxDecoration(
+                  color: AppColor.primarySurface,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: AppColor.primary,
+                ),
               ),
             ],
           ),
@@ -94,16 +103,16 @@ class CategoryListTile extends StatelessWidget {
     final normalizedImageUrl = imageUrl?.trim() ?? '';
     if (normalizedImageUrl.isEmpty) {
       return Center(
-        child: FaIcon(iconData, size: 18, color: AppTheme.primaryColor),
+        child: FaIcon(iconData, size: 22, color: AppColor.primary),
       );
     }
 
     return Image.network(
       normalizedImageUrl,
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) {
+      errorBuilder: (_, _, _) {
         return Center(
-          child: FaIcon(iconData, size: 18, color: AppTheme.primaryColor),
+          child: FaIcon(iconData, size: 22, color: AppColor.primary),
         );
       },
       loadingBuilder: (context, child, loadingProgress) {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_scaffold.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../channel_partner/providers/channel_partner_provider.dart';
 import '../partner_locale.dart';
@@ -57,19 +59,19 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
         ? user!.name.trim()[0].toUpperCase()
         : 'P';
 
-    return Scaffold(
-      backgroundColor: Colors.white,
+    return AppScaffold(
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+                color: AppTheme.surfaceColor,
+                border: const Border(bottom: BorderSide(color: AppTheme.hairline)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
+                    color: AppTheme.textPrimary.withValues(alpha: 0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -97,11 +99,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                         'Approval Requests',
                         'अनुमोदन अनुरोध',
                       ),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF0F172A),
-                      ),
+                      style: Theme.of(context).textTheme.headlineMedium,
                     ),
                   ),
                 ],
@@ -122,28 +120,23 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                               'Track and manage approval updates from your network.',
                               'अपने नेटवर्क के अनुमोदन अपडेट ट्रैक और प्रबंधित करें।',
                             ),
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade600,
-                            ),
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 16),
                           if (state.error != null)
-                            Container(
+                            AppCard(
                               margin: const EdgeInsets.only(bottom: 16),
                               padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.orange.shade50,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.orange.shade200,
-                                ),
+                              color: AppTheme.hintPeach,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: AppTheme.warningColor.withValues(alpha: 0.35),
                               ),
+                              boxShadow: null,
                               child: Text(
                                 state.error!,
                                 style: TextStyle(
-                                  color: Colors.orange.shade800,
+                                  color: AppTheme.warningColor,
                                   fontSize: 13,
                                 ),
                               ),
@@ -158,7 +151,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                                   ),
                                   value: '$pending',
                                   color: const Color(0xFFD97706),
-                                  background: const Color(0xFFFEF3C7),
+                                  background: AppTheme.hintPeach,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -170,7 +163,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                                   ),
                                   value: '$approved',
                                   color: AppTheme.primaryColor,
-                                  background: const Color(0xFFDCFCE7),
+                                  background: AppTheme.primarySurface,
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -191,24 +184,15 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                           _buildStatusFilters(),
                           const SizedBox(height: 16),
                           if (approvals.isEmpty)
-                            Container(
+                            AppCard(
                               padding: const EdgeInsets.all(28),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: AppTheme.cardBorderRadius,
-                                border: AppTheme.cardBorder,
-                                boxShadow: AppTheme.cardShadow,
-                              ),
                               child: Text(
                                 context.partnerText(
                                   'No approval requests found.',
                                   'कोई अनुमोदन अनुरोध नहीं मिला।',
                                 ),
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade500,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium,
                               ),
                             )
                           else
@@ -229,14 +213,8 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
     required Color color,
     required Color background,
   }) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -261,7 +239,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
         ],
@@ -363,7 +341,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF0F172A),
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                     if (id.isNotEmpty)
@@ -524,11 +502,11 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
   (Color, Color) _statusStyle(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+        return (AppTheme.primarySurface, AppTheme.primaryDark);
       case 'rejected':
         return (const Color(0xFFFEE2E2), const Color(0xFFEF4444));
       default:
-        return (const Color(0xFFFEF3C7), const Color(0xFF92400E));
+        return (AppTheme.hintPeach, const Color(0xFF92400E));
     }
   }
 }

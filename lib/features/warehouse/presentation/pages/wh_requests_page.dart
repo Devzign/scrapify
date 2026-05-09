@@ -168,7 +168,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -216,7 +216,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -342,7 +342,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF0F172A),
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                       ],
@@ -353,7 +353,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                       style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF0F172A),
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                   ],
@@ -516,12 +516,12 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
       case 'pending':
         return (const Color(0xFFFEE2E2), const Color(0xFF991B1B));
       case 'assigned':
-        return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+        return (AppTheme.primarySurface, AppTheme.primaryDark);
       case 'active':
       case 'in_progress':
       case 'on_the_way':
       case 'arrived':
-        return (const Color(0xFFFEF3C7), const Color(0xFF92400E));
+        return (AppTheme.hintPeach, const Color(0xFF92400E));
       case 'completed':
         return (const Color(0xFFE0E7FF), const Color(0xFF3730A3));
       case 'rescheduled':
@@ -634,7 +634,7 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF0F172A),
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                     Text(
@@ -776,7 +776,7 @@ class _ReassignSheetState extends ConsumerState<_ReassignSheet> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF0F172A),
+                        color: AppTheme.textPrimary,
                       ),
                     ),
                     Text(
@@ -937,7 +937,7 @@ class _PickupBoyTile extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
-                      color: Color(0xFF0F172A),
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                   if (boy.phone.isNotEmpty)

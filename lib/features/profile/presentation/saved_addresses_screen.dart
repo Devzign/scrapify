@@ -31,7 +31,7 @@ class SavedAddressesScreen extends ConsumerWidget {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
-            color: isDark ? Colors.white : const Color(0xFF0F172A), // slate-900
+            color: isDark ? Colors.white : AppTheme.textPrimary, // slate-900
             size: 24,
           ),
           onPressed: () => context.pop(),
@@ -39,7 +39,7 @@ class SavedAddressesScreen extends ConsumerWidget {
         title: Text(
           'address_book.title'.tr(),
           style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF0F172A), // slate-900
+            color: isDark ? Colors.white : AppTheme.textPrimary, // slate-900
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -131,7 +131,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                             'address_book.info'.tr(),
                             style: TextStyle(
                               color: isDark
-                                  ? const Color(0xFFCBD5E1)
+                                  ? AppTheme.outline
                                   : const Color(0xFF334155),
                               fontSize: 14,
                             ),
@@ -195,13 +195,13 @@ class SavedAddressesScreen extends ConsumerWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: isDark
-            ? const Color(0xFF0F172A)
+            ? AppTheme.textPrimary
             : Colors.white, // slate-900 or white
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isDark
-              ? const Color(0xFF1E293B)
-              : const Color(0xFFF1F5F9), // slate-800 or slate-100
+              ? AppTheme.textPrimary
+              : AppTheme.hairline, // slate-800 or slate-100
         ),
         boxShadow: const [
           BoxShadow(
@@ -244,8 +244,8 @@ class SavedAddressesScreen extends ConsumerWidget {
                                           alpha: 0.2,
                                         ))
                                 : (isDark
-                                      ? const Color(0xFF1E293B)
-                                      : const Color(0xFFF1F5F9)),
+                                      ? AppTheme.textPrimary
+                                      : AppTheme.hairline),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -255,8 +255,8 @@ class SavedAddressesScreen extends ConsumerWidget {
                                       ? AppTheme.primaryColor
                                       : const Color(0xFF0FB825))
                                 : (isDark
-                                      ? const Color(0xFF94A3B8)
-                                      : const Color(0xFF475569)),
+                                      ? AppTheme.textMuted
+                                      : AppTheme.textSecondary),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -273,7 +273,7 @@ class SavedAddressesScreen extends ConsumerWidget {
                                       style: TextStyle(
                                         color: isDark
                                             ? Colors.white
-                                            : const Color(0xFF0F172A),
+                                            : AppTheme.textPrimary,
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -312,8 +312,8 @@ class SavedAddressesScreen extends ConsumerWidget {
                                 address,
                                 style: TextStyle(
                                   color: isDark
-                                      ? const Color(0xFF94A3B8)
-                                      : const Color(0xFF475569),
+                                      ? AppTheme.textMuted
+                                      : AppTheme.textSecondary,
                                   fontSize: 14,
                                   height: 1.5,
                                 ),
@@ -331,8 +331,8 @@ class SavedAddressesScreen extends ConsumerWidget {
                         border: Border(
                           top: BorderSide(
                             color: isDark
-                                ? const Color(0xFF1E293B)
-                                : const Color(0xFFF1F5F9),
+                                ? AppTheme.textPrimary
+                                : AppTheme.hairline,
                           ),
                         ),
                       ),
@@ -343,13 +343,13 @@ class SavedAddressesScreen extends ConsumerWidget {
                               text: 'address_book.edit'.tr(),
                               icon: Icons.edit_outlined,
                               backgroundColor: isDark
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFF8FAFC),
+                                  ? AppTheme.textPrimary
+                                  : AppTheme.backgroundCream,
                               hoverColor: isDark
                                   ? const Color(0xFF334155)
-                                  : const Color(0xFFF1F5F9),
+                                  : AppTheme.hairline,
                               textColor: isDark
-                                  ? const Color(0xFFE2E8F0)
+                                  ? AppTheme.outline
                                   : const Color(0xFF334155),
                               onTap: () {},
                             ),

@@ -118,7 +118,7 @@ class _PartnerBottomNavState extends ConsumerState<PartnerBottomNav> {
               icon,
               color: isSelected
                   ? AppTheme.primaryColor
-                  : const Color(0xFF94A3B8),
+                  : AppTheme.textMuted,
               size: 24,
             ),
             const SizedBox(height: 4),
@@ -129,7 +129,7 @@ class _PartnerBottomNavState extends ConsumerState<PartnerBottomNav> {
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                 color: isSelected
                     ? AppTheme.primaryColor
-                    : const Color(0xFF94A3B8),
+                    : AppTheme.textMuted,
               ),
             ),
           ],

@@ -7,6 +7,7 @@ class LoginOtpViewState {
   final bool isOtpFieldFocused;
   final bool showReferralInput;
   final String otpValue;
+  final String? userNameError;
   final String? phoneError;
   final String? referralError;
   final String? snackBarMessage;
@@ -23,6 +24,7 @@ class LoginOtpViewState {
     this.isOtpFieldFocused = false,
     this.showReferralInput = false,
     this.otpValue = '',
+    this.userNameError,
     this.phoneError,
     this.referralError,
     this.snackBarMessage,
@@ -40,12 +42,14 @@ class LoginOtpViewState {
     bool? isOtpFieldFocused,
     bool? showReferralInput,
     String? otpValue,
+    String? userNameError,
     String? phoneError,
     String? referralError,
     String? snackBarMessage,
     bool? isSuccessMessage,
     String? nextRoute,
     int? secondsRemaining,
+    bool clearUserNameError = false,
     bool clearPhoneError = false,
     bool clearReferralError = false,
     bool clearSnackBarMessage = false,
@@ -60,6 +64,9 @@ class LoginOtpViewState {
       isOtpFieldFocused: isOtpFieldFocused ?? this.isOtpFieldFocused,
       showReferralInput: showReferralInput ?? this.showReferralInput,
       otpValue: otpValue ?? this.otpValue,
+      userNameError: clearUserNameError
+          ? null
+          : userNameError ?? this.userNameError,
       phoneError: clearPhoneError ? null : phoneError ?? this.phoneError,
       referralError: clearReferralError
           ? null

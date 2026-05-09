@@ -95,12 +95,12 @@ class _PartnerDashboardState extends ConsumerState<PartnerDashboard> {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E2A5E),
+                        color: AppTheme.brandNavy,
                         borderRadius: BorderRadius.circular(24),
                         boxShadow: [
                           BoxShadow(
                             color:
-                                const Color(0xFF1E2A5E).withValues(alpha: 0.3),
+                                AppTheme.brandNavy.withValues(alpha: 0.3),
                             blurRadius: 15,
                             offset: const Offset(0, 8),
                           ),

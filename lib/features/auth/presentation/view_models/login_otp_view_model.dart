@@ -17,6 +17,7 @@ final loginOtpViewModelProvider = StateNotifierProvider.autoDispose
 
 class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
   final Ref _ref;
+  late final TextEditingController userNameController;
   late final TextEditingController phoneController;
   late final TextEditingController otpController;
   late final TextEditingController referralController;
@@ -28,6 +29,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
 
   LoginOtpViewModel(this._ref, this._selectedRole)
     : super(const LoginOtpViewState()) {
+    userNameController = TextEditingController();
     phoneController = TextEditingController();
     otpController = TextEditingController();
     referralController = TextEditingController();
@@ -38,6 +40,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
 
     _ref.onDispose(() {
       _timer?.cancel();
+      userNameController.dispose();
       phoneController.dispose();
       otpController.dispose();
       referralController.dispose();
@@ -85,6 +88,17 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     state = state.copyWith(phoneError: error, clearPhoneError: error == null);
   }
 
+  void onUserNameChanged(String value) {
+    if (state.userNameError == null) {
+      return;
+    }
+    final error = _validateUserName(value.trim());
+    state = state.copyWith(
+      userNameError: error,
+      clearUserNameError: error == null,
+    );
+  }
+
   void onOtpChanged(String value) {
     state = state.copyWith(otpValue: value, otpError: false);
 
@@ -110,7 +124,16 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
   }
 
   Future<void> sendOtp() async {
+    final userName = userNameController.text.trim();
     final phone = phoneController.text.trim();
+    if (isCustomerRole) {
+      final userNameError = _validateUserName(userName);
+      if (userNameError != null) {
+        state = state.copyWith(userNameError: userNameError);
+        return;
+      }
+    }
+
     final error = _validatePhone(phone);
 
     if (error != null) {
@@ -119,6 +142,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     }
 
     state = state.copyWith(
+      clearUserNameError: true,
       clearPhoneError: true,
       clearReferralError: true,
       isLoading: true,
@@ -147,6 +171,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     }
 
     final response = await authRepository.sendOtp(
+      name: isCustomerRole ? userName : null,
       phone: phone,
       role: selectedRole,
       referralCode: isCustomerRole && referralCode.isNotEmpty
@@ -265,6 +290,16 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     }
     if (!RegExp(r'^[6-9]\d{9}$').hasMatch(value)) {
       return 'Please enter a valid Indian mobile number.';
+    }
+    return null;
+  }
+
+  String? _validateUserName(String value) {
+    if (value.isEmpty) {
+      return 'Please enter your user name.';
+    }
+    if (value.length < 2) {
+      return 'User name must be at least 2 characters.';
     }
     return null;
   }

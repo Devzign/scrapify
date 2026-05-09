@@ -35,11 +35,14 @@ class AuthRepository {
   Future<ApiResponse<String>> sendOtp({
     required String phone,
     required String role,
+    String? name,
     String? referralCode,
   }) async {
     final body = <String, dynamic>{
       'phone': phone,
       'role': ApiRoleMapper.toApiRole(role),
+      if (role == 'customer' && name != null && name.trim().isNotEmpty)
+        'name': name.trim(),
     };
     if (role == 'customer' &&
         referralCode != null &&

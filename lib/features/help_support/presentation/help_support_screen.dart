@@ -235,7 +235,7 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
             Text(
               _formatMeta(ticket.orderId, ticket.createdAt),
               style: const TextStyle(
-                color: Color(0xFF64748B),
+                color: AppTheme.textSecondary,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),

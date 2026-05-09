@@ -132,7 +132,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF639A70).withValues(alpha: 0.85),
+                      color: AppTheme.primaryColor.withValues(alpha: 0.85),
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
@@ -270,7 +270,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: AppTheme.backgroundCream,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -285,7 +285,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                             child: Text(
                               'Need help with this order?',
                               style: TextStyle(
-                                color: Color(0xFF475569),
+                                color: AppTheme.textSecondary,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
                               ),
@@ -293,7 +293,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                           ),
                           const Icon(
                             Icons.chevron_right,
-                            color: Color(0xFF94A3B8),
+                            color: AppTheme.textMuted,
                             size: 20,
                           ),
                         ],
@@ -312,7 +312,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                           ? () => _makePhoneCall(tracking.agent!.phone!)
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2D3E50),
+                        backgroundColor: AppTheme.brandNavy,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -398,15 +398,15 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                 height: 32,
                 decoration: BoxDecoration(
                   color: isCompleted
-                      ? const Color(0xFF639A70)
-                      : (isActive ? const Color(0xFF3B82F6) : Colors.white),
+                      ? AppTheme.primaryColor
+                      : (isActive ? AppTheme.infoColor : Colors.white),
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: isCompleted
-                        ? const Color(0xFF639A70)
+                        ? AppTheme.primaryColor
                         : (isActive
-                              ? const Color(0xFF3B82F6)
-                              : const Color(0xFFE2E8F0)),
+                              ? AppTheme.infoColor
+                              : AppTheme.outline),
                     width: 2,
                   ),
                 ),
@@ -422,7 +422,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
               ),
               if (!isLast)
                 Expanded(
-                  child: Container(width: 2, color: const Color(0xFFE2E8F0)),
+                  child: Container(width: 2, color: AppTheme.outline),
                 ),
             ],
           ),
@@ -439,7 +439,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
                       color: isActive
-                          ? const Color(0xFF3B82F6)
+                          ? AppTheme.infoColor
                           : AppTheme.textPrimary,
                     ),
                   ),
@@ -465,9 +465,9 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppTheme.backgroundCream,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
+        border: Border.all(color: AppTheme.hairline),
       ),
       child: Row(
         children: [
@@ -504,7 +504,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFACC15),
+                    color: AppTheme.warningColor,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: Colors.white, width: 2),
                   ),

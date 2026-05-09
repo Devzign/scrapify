@@ -79,15 +79,15 @@ class PayoutMethodScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
+                color: AppTheme.primarySurface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFDCFCE7)),
+                border: Border.all(color: AppTheme.successColor),
               ),
               child: const Row(
                 children: [
                   FaIcon(
                     FontAwesomeIcons.shieldHalved,
-                    color: Color(0xFF16A34A),
+                    color: AppTheme.successColor,
                     size: 18,
                   ),
                   SizedBox(width: 12),
@@ -96,7 +96,7 @@ class PayoutMethodScreen extends ConsumerWidget {
                       'Safe & Secure Payments guaranteed by Scrapify.',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF16A34A),
+                        color: AppTheme.successColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -135,7 +135,7 @@ class PayoutMethodScreen extends ConsumerWidget {
                           border: Border.all(
                             color: isSelected
                                 ? AppTheme.primaryColor
-                                : const Color(0xFFE2E8F0),
+                                : AppTheme.outline,
                             width: isSelected ? 7 : 2,
                           ),
                         ),
@@ -145,7 +145,7 @@ class PayoutMethodScreen extends ConsumerWidget {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF8FAFC),
+                          color: AppTheme.backgroundCream,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Center(
@@ -153,7 +153,7 @@ class PayoutMethodScreen extends ConsumerWidget {
                             method['icon'] as IconData,
                             color: isSelected
                                 ? AppTheme.primaryColor
-                                : const Color(0xFF94A3B8),
+                                : AppTheme.textMuted,
                             size: 20,
                           ),
                         ),

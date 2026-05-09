@@ -117,7 +117,7 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                 Text(
                   category.getName(context),
                   style: const TextStyle(
-                    fontSize: 28,
+                    fontSize: 24,
                     fontWeight: FontWeight.w900,
                     color: AppTheme.textPrimary,
                     height: 1.15,
@@ -222,7 +222,7 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                     Text(
                       category.getName(context),
                       style: const TextStyle(
-                        fontSize: 28,
+                        fontSize: 24,
                         fontWeight: FontWeight.w900,
                         color: AppTheme.textPrimary,
                         height: 1.15,
@@ -379,7 +379,7 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF6FBF7),
+                      color: AppTheme.primarySurface,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
@@ -400,7 +400,7 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                               Text(
                                 '₹${totalEstimate.toStringAsFixed(2)}',
                                 style: const TextStyle(
-                                  fontSize: 26,
+                                  fontSize: 22,
                                   fontWeight: FontWeight.w900,
                                   color: AppTheme.textPrimary,
                                 ),
@@ -414,7 +414,7 @@ class _ItemSelectionScreenState extends ConsumerState<ItemSelectionScreen> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEAF8EC),
+                            color: AppTheme.primarySurface,
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: const Text(

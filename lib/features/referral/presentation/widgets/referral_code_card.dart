@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_card.dart';
 
 class ReferralCodeCard extends StatelessWidget {
   final String referralCode;
@@ -16,22 +17,15 @@ class ReferralCodeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
+    final textTheme = Theme.of(context).textTheme;
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Your Referral Code',
-            style: TextStyle(
-              fontSize: 13,
+            style: textTheme.labelMedium?.copyWith(
               color: AppTheme.textSecondary,
               fontWeight: FontWeight.w600,
             ),
@@ -39,11 +33,10 @@ class ReferralCodeCard extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             referralCode,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
+            style: textTheme.displaySmall?.copyWith(
+              fontWeight: FontWeight.w800,
               color: AppTheme.primaryColor,
-              letterSpacing: 1,
+              letterSpacing: 0.8,
             ),
           ),
           const SizedBox(height: 16),

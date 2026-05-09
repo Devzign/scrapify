@@ -130,7 +130,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -165,7 +165,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -269,7 +269,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
   (Color, Color) _whStatusStyle(Map<String, dynamic> wh) {
     final isActive = wh['is_active'] == true || wh['status'] == 'active';
     if (isActive) {
-      return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+      return (AppTheme.primarySurface, AppTheme.primaryDark);
     }
     return (const Color(0xFFFEE2E2), const Color(0xFFEF4444));
   }
@@ -340,7 +340,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
           if (region.isNotEmpty)
@@ -359,7 +359,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: AppTheme.hairline,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -391,7 +391,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                 child: Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: AppTheme.hairline,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -411,7 +411,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF0F172A),
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                     ],
@@ -426,7 +426,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0F172A),
+                backgroundColor: AppTheme.textPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -530,7 +530,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                   fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: isActive
-                      ? const Color(0xFF0F172A)
+                      ? AppTheme.textPrimary
                       : Colors.grey.shade400,
                 ),
                 maxLines: 2,
@@ -614,7 +614,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -624,7 +624,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                 child: _buildQuickActionCard(
                   icon: Icons.add_business_rounded,
                   label: context.partnerText('Add Hub', 'हब जोड़ें'),
-                  color: const Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
               const SizedBox(width: 12),

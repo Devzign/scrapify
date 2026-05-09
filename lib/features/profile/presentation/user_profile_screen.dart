@@ -2,26 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/utils/user_role_helper.dart';
 import '../../auth/providers/auth_provider.dart';
 
-class UserProfileScreen extends ConsumerWidget {
+class UserProfileScreen extends ConsumerStatefulWidget {
   final bool showAppBar;
 
   const UserProfileScreen({super.key, this.showAppBar = true});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<UserProfileScreen> createState() => _UserProfileScreenState();
+}
+
+class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(authProvider.notifier).fetchProfile());
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final locale = context.locale;
     final user = ref.watch(authProvider);
     final isCustomer = isCustomerUser(user);
+    final profilePhoto = user?.profilePhoto?.trim();
+    final hasRemotePhoto = profilePhoto != null && profilePhoto.isNotEmpty;
+    final remotePhotoUrl = hasRemotePhoto
+        ? (profilePhoto.startsWith('http')
+              ? profilePhoto
+              : '${AppConfig.instance.baseUrl.replaceAll('/api', '')}/$profilePhoto')
+        : null;
 
-    return Scaffold(
+    return AppScaffold(
       key: ValueKey('profile_${locale.languageCode}'),
       backgroundColor: AppTheme.backgroundLight,
-      appBar: showAppBar
+      appBar: widget.showAppBar
           ? AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
@@ -31,12 +52,7 @@ class UserProfileScreen extends ConsumerWidget {
               ),
               title: Text(
                 'profile.title'.tr(),
-                style: const TextStyle(
-                  color: AppTheme.textPrimary,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 20,
-                  letterSpacing: -0.5,
-                ),
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               centerTitle: true,
             )
@@ -109,10 +125,12 @@ class UserProfileScreen extends ConsumerWidget {
                                   offset: Offset(0, 4),
                                 ),
                               ],
-                              image: const DecorationImage(
-                                image: NetworkImage(
-                                  'https://i.pravatar.cc/150?img=11',
-                                ),
+                              image: DecorationImage(
+                                image: remotePhotoUrl != null
+                                    ? NetworkImage(remotePhotoUrl)
+                                    : const AssetImage(
+                                        'assets/images/user-profile.png',
+                                      ) as ImageProvider,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -332,20 +350,11 @@ class UserProfileScreen extends ConsumerWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
-      child: Container(
+      child: AppCard(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade100),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: null,
         child: Row(
           children: [
             Container(

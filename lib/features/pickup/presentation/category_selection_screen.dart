@@ -82,7 +82,7 @@ class _CategorySelectionScreenState
                   const Text(
                     'Scrapify',
                     style: TextStyle(
-                      fontSize: 30,
+                      fontSize: 24,
                       fontWeight: FontWeight.w900,
                       color: AppTheme.textPrimary,
                     ),

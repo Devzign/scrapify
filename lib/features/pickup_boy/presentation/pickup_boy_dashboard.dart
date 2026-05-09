@@ -338,7 +338,7 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> {
                                 style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFF0F172A),
+                                  color: AppTheme.textPrimary,
                                 ),
                               ),
                             ),

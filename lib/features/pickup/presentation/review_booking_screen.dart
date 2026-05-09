@@ -92,7 +92,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                     height: 180,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
+                      color: AppTheme.outline,
                       image: DecorationImage(
                         image: NetworkImage(mapUrl),
                         fit: BoxFit.cover,
@@ -116,7 +116,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -130,28 +130,28 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                               letterSpacing: 1.5,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 10),
                           SizedBox(
-                            height: 100,
+                            height: 92,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: booking.images.length,
                               separatorBuilder: (context, index) =>
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 8),
                               itemBuilder: (context, index) {
                                 return ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.file(
                                     File(booking.images[index].path),
-                                    width: 100,
-                                    height: 100,
+                                    width: 92,
+                                    height: 92,
                                     fit: BoxFit.cover,
                                   ),
                                 );
                               },
                             ),
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 18),
                         ],
                         Text(
                           isDonationFlow
@@ -164,13 +164,13 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                             letterSpacing: 1.5,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 10),
                         _buildDetailCard(
                           icon: FontAwesomeIcons.locationDot,
                           title: booking.selectedAddress?.title ?? 'No Address',
                           subtitle: booking.selectedAddress?.addressLine1 ?? '',
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         _buildDetailCard(
                           icon: FontAwesomeIcons.calendarDay,
                           title: booking.selectedDate != null
@@ -181,7 +181,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                           subtitle: booking.selectedTimeSlot ?? 'No Time Slot',
                         ),
                         if (!isDonationFlow) ...[
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 18),
                           const Text(
                             'PAYOUT METHOD',
                             style: TextStyle(
@@ -191,10 +191,10 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                               letterSpacing: 1.5,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 10),
                           _buildPayoutSelectionCard(context, ref, booking),
                           if (isCustomer) ...[
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 16),
                             _buildCouponSection(
                               ref: ref,
                               booking: booking,
@@ -206,7 +206,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                             ),
                           ],
                         ],
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 18),
                         Text(
                           isDonationFlow ? 'DONATION ITEMS' : 'SCRAP ITEMS',
                           style: const TextStyle(
@@ -216,9 +216,41 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                             letterSpacing: 1.5,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              context.push(
+                                isDonationFlow
+                                    ? AppRoutes.donationCategorySelection
+                                    : AppRoutes.categorySelection,
+                              );
+                            },
+                            icon: const Icon(Icons.add, size: 18),
+                            label: Text(
+                              isDonationFlow
+                                  ? 'Add More Donation Items'
+                                  : 'Add More Product',
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppTheme.primaryColor,
+                              side: const BorderSide(
+                                color: AppTheme.primaryColor,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 10,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         ...items.map(_buildItemSummaryRow),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 16),
                         _buildTrustBadge(
                           isDonationFlow
                               ? 'Donation pickup scheduled with verified collection partner'
@@ -242,7 +274,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
@@ -269,7 +301,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF94A3B8),
+                                color: AppTheme.textMuted,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -321,7 +353,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF94A3B8),
+                                color: AppTheme.textMuted,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -358,7 +390,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                                   '₹${totalEstimate.toStringAsFixed(0)}',
                                   style: const TextStyle(
                                     fontSize: 14,
-                                    color: Color(0xFF94A3B8),
+                                    color: AppTheme.textMuted,
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
@@ -370,7 +402,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                                     style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF16A34A),
+                                      color: AppTheme.successColor,
                                     ),
                                   ),
                                 ),
@@ -387,7 +419,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                         }),
                       ],
                     ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
                   CustomButton(
                     onPressed: _canSubmit(booking, isDonationFlow)
                         ? () => _submit(context, ref, isDonationFlow)
@@ -396,7 +428,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                     text: isDonationFlow
                         ? 'CONFIRM DONATION'
                         : 'CONFIRM BOOKING',
-                    minHeight: 60,
+                    minHeight: 54,
                     borderRadius: 20,
                   ),
                 ],
@@ -448,14 +480,62 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
     }
 
     final updatedBooking = ref.read(bookingProvider);
+    final errorMessage =
+        updatedBooking.error ??
+        (isDonationFlow ? 'Donation failed' : 'Booking failed');
+    final isMinimumValueError =
+        !isDonationFlow &&
+        (errorMessage.toLowerCase().contains('minimum order value') ||
+            errorMessage.contains('pickup.minimum_value_not_met'));
+
+    if (isMinimumValueError) {
+      _showMinimumValuePopup(context, errorMessage);
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          updatedBooking.error ??
-              (isDonationFlow ? 'Donation failed' : 'Booking failed'),
-        ),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+    );
+  }
+
+  Future<void> _showMinimumValuePopup(
+    BuildContext context,
+    String message,
+  ) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: const Text(
+            'Minimum Value Required',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          content: Text(
+            message,
+            style: const TextStyle(color: AppTheme.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Close'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                context.push(AppRoutes.categorySelection);
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Add More Product'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -709,7 +789,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
       onTap: () => _showPayoutTypeSheet(context, ref),
       borderRadius: BorderRadius.circular(24),
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: AppTheme.cardBorderRadius,
@@ -729,14 +809,14 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
               width: 44,
               height: 44,
               decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFC),
+                color: AppTheme.backgroundCream,
                 shape: BoxShape.circle,
               ),
               child: Center(
                 child: FaIcon(icon, color: AppTheme.primaryColor, size: 18),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -764,7 +844,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFFCBD5E1)),
+            const Icon(Icons.chevron_right_rounded, color: AppTheme.outline),
           ],
         ),
       ),
@@ -839,7 +919,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppTheme.outline),
         ),
         child: Row(
           children: [
@@ -901,13 +981,13 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppTheme.hairline,
               borderRadius: BorderRadius.circular(10),
             ),
             child: FaIcon(
               _getIconForCategory(item.category.slug),
               size: 14,
-              color: const Color(0xFF64748B),
+              color: AppTheme.textSecondary,
             ),
           ),
           const SizedBox(width: 12),
@@ -968,7 +1048,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
             width: 44,
             height: 44,
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
+              color: AppTheme.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -1010,7 +1090,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          const Icon(Icons.check_circle, color: Color(0xFF22C55E), size: 18),
+          const Icon(Icons.check_circle, color: AppTheme.successColor, size: 18),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

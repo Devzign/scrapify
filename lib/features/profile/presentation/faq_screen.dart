@@ -180,7 +180,7 @@ class _FaqScreenState extends State<FaqScreen> {
         border: Border.all(
           color: isDark
               ? const Color(0xFF334155)
-              : const Color(0xFFE2E8F0),
+              : AppTheme.outline,
         ),
         boxShadow: isDark
             ? []
@@ -212,7 +212,7 @@ class _FaqScreenState extends State<FaqScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9),
+              color: isDark ? const Color(0xFF334155) : AppTheme.hairline,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.expand_more, size: 20),
@@ -264,7 +264,7 @@ class _FaqScreenState extends State<FaqScreen> {
                     top: BorderSide(
                       color: isDark
                           ? const Color(0xFF334155)
-                          : const Color(0xFFF1F5F9),
+                          : AppTheme.hairline,
                     ),
                   ),
                 ),
@@ -272,7 +272,7 @@ class _FaqScreenState extends State<FaqScreen> {
                   answerKey.tr(),
                   style: TextStyle(
                     color: isDark
-                        ? const Color(0xFF94A3B8)
+                        ? AppTheme.textMuted
                         : AppTheme.textSecondary,
                     fontSize: 15,
                     height: 1.5,

@@ -47,6 +47,24 @@ class DioClient {
             );
             AppLogger.info('Headers: ${options.headers}');
             if (options.data != null) {
+              if (options.data is FormData) {
+                final formData = options.data as FormData;
+                final formFields = <String, dynamic>{
+                  for (final field in formData.fields) field.key: field.value,
+                };
+                final formFiles = formData.files
+                    .map(
+                      (entry) => {
+                        'key': entry.key,
+                        'filename': entry.value.filename,
+                        'contentType': entry.value.contentType?.toString(),
+                        'length': entry.value.length,
+                      },
+                    )
+                    .toList();
+                AppLogger.info('Request Form Fields: $formFields');
+                AppLogger.info('Request Form Files: $formFiles');
+              }
               try {
                 final prettyJson = const JsonEncoder.withIndent(
                   '  ',

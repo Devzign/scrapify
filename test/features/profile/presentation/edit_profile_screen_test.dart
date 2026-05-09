@@ -12,14 +12,14 @@ import 'package:scrapify/features/auth/domain/repositories/auth_repository.dart'
 
 class FakeProfileRepository implements ProfileRepository {
   @override
-  Future<ApiResponse<User>> updateProfile({
+  Future<ApiResponse<void>> updateProfile({
     String? name,
     String? email,
-    String? gender,
     int? cityId,
-    dynamic profilePhoto,
+    File? profilePhoto,
+    bool removePhoto = false,
   }) async {
-    return ApiResponse(statusCode: 200, data: null);
+    return ApiResponse.success(null, statusCode: 200);
   }
 }
 

@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../domain/models/pickup_item.dart';
 import '../providers/pickup_boy_provider.dart';
 
@@ -144,7 +145,7 @@ class _PickupBoyVerificationScreenState
     final state = ref.watch(pickupBoyProvider);
     final activeItems = _items.where((i) => i.action != 'removed').toList();
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         title: const Text(
@@ -294,7 +295,7 @@ class _PickupBoyVerificationScreenState
                 ],
               ),
             ),
-      bottomNavigationBar: Container(
+      bottomBar: Container(
         padding: const EdgeInsets.all(16),
         color: Colors.white,
         child: state.isActionLoading

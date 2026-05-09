@@ -25,6 +25,7 @@ class ProfileNotifier extends StateNotifier<AsyncValue<void>> {
     String? email,
     int? cityId,
     File? profilePhoto,
+    bool removePhoto = false,
   }) async {
     state = const AsyncValue.loading();
     final response = await _repository.updateProfile(
@@ -32,14 +33,11 @@ class ProfileNotifier extends StateNotifier<AsyncValue<void>> {
       email: email,
       cityId: cityId,
       profilePhoto: profilePhoto,
+      removePhoto: removePhoto,
     );
     
-    if (response.isSuccess) {
-      if (response.data != null) {
-        // Here we could update the auth provider's user instance if needed.
-        // For now, trigger a refresh of the profile in the auth provider.
-        await _ref.read(authProvider.notifier).fetchProfile();
-      }
+    if (!response.isError) {
+      await _ref.read(authProvider.notifier).fetchProfile();
       state = const AsyncValue.data(null);
     } else {
       state = AsyncValue.error(response.errorMessage ?? 'Failed to update profile', StackTrace.current);

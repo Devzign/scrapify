@@ -125,7 +125,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -166,7 +166,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF0F172A),
+                          color: AppTheme.textPrimary,
                           letterSpacing: -0.5,
                         ),
                       ),
@@ -229,14 +229,14 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                     ),
                     RichText(
                       text: TextSpan(
-                        style: const TextStyle(fontFamily: 'Inter'),
+                        style: const TextStyle(),
                         children: [
                           TextSpan(
                             text: '$onlineCount ',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w900,
-                              color: Color(0xFF0F172A),
+                              color: AppTheme.textPrimary,
                             ),
                           ),
                           TextSpan(
@@ -306,14 +306,14 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
     final statusBg = isInactive
         ? const Color(0xFFFEE2E2)
         : !isOnline
-        ? const Color(0xFFF1F5F9)
+        ? AppTheme.hairline
         : isAvailable
-        ? const Color(0xFFDCFCE7)
+        ? AppTheme.primarySurface
         : const Color(0xFFFEF9C3);
     final statusFg = isInactive
         ? const Color(0xFFEF4444)
         : !isOnline
-        ? const Color(0xFF64748B)
+        ? AppTheme.textSecondary
         : isAvailable
         ? AppTheme.primaryColor
         : const Color(0xFFD97706);
@@ -394,7 +394,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                     fontWeight: FontWeight.w700,
                     color: isInactive
                         ? Colors.grey.shade400
-                        : const Color(0xFF0F172A),
+                        : AppTheme.textPrimary,
                   ),
                 ),
                 Text(
@@ -503,7 +503,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppTheme.backgroundCream,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -526,7 +526,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: valueColor ?? const Color(0xFF0F172A),
+                  color: valueColor ?? AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -558,7 +558,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0F172A),
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -704,7 +704,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppTheme.backgroundCream,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(

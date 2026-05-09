@@ -69,7 +69,7 @@ class PickupDetailsScreen extends StatelessWidget {
                     child: Container(
                       width: 6,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF1E2A5E),
+                        color: AppTheme.brandNavy,
                         borderRadius: BorderRadius.horizontal(
                           right: Radius.circular(6),
                         ),
@@ -87,7 +87,7 @@ class PickupDetailsScreen extends StatelessWidget {
                         child: const FaIcon(
                           FontAwesomeIcons.truckFast,
                           size: 24,
-                          color: Color(0xFF1E2A5E),
+                          color: AppTheme.brandNavy,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -106,7 +106,7 @@ class PickupDetailsScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E2A5E),
+                          color: AppTheme.brandNavy,
                         ),
                       ),
                       const Text(
@@ -114,7 +114,7 @@ class PickupDetailsScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E2A5E),
+                          color: AppTheme.brandNavy,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -435,7 +435,7 @@ class PickupDetailsScreen extends StatelessWidget {
             _buildTimelineStep(
               enText: 'Assigned / असाइन किया गया',
               subText: '11:15 AM, Today',
-              dotColor: const Color(0xFF1E2A5E),
+              dotColor: AppTheme.brandNavy,
             ),
             _buildTimelineStep(
               enText: 'Picked Up / उठाया गया',

@@ -89,17 +89,31 @@ class ScrapifyApp extends StatelessWidget {
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           builder: (context, child) {
+            final appSurface = DecoratedBox(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFFEFF6F1),
+                    Color(0xFFF7FBF8),
+                    Color(0xFFEAF3ED),
+                  ],
+                ),
+              ),
+              child: child ?? const SizedBox.shrink(),
+            );
             if (kIsWeb && MediaQuery.of(context).size.width > 800) {
               final double padding = MediaQuery.of(context).size.width * 0.20;
               return Container(
                 color: Colors.grey.shade100,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding),
-                  child: ClipRect(child: child ?? const SizedBox.shrink()),
+                  child: ClipRect(child: appSurface),
                 ),
               );
             }
-            return child ?? const SizedBox.shrink();
+            return appSurface;
           },
         );
       },

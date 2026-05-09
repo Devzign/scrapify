@@ -18,15 +18,16 @@ class OnboardingPageCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _IllustrationPanel(page: page),
-          SizedBox(height: 42.h),
+          SizedBox(height: 36.h),
           Text(
             page.titleEn,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 30.sp,
               fontWeight: FontWeight.w800,
-              letterSpacing: -0.7,
+              letterSpacing: -0.6,
               color: AppColor.deepNavy,
+              height: 1.15,
             ),
           ),
           SizedBox(height: 6.h),
@@ -36,17 +37,21 @@ class OnboardingPageCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 22.sp,
               fontWeight: FontWeight.w700,
-              color: AppColor.deepNavy.withValues(alpha: 0.82),
+              color: AppColor.primary,
             ),
           ),
-          SizedBox(height: 16.h),
-          Text(
-            page.description,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 15.sp,
-              color: AppTheme.textSecondary,
-              height: 1.45,
+          SizedBox(height: 14.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            child: Text(
+              page.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColor.textSecondary,
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -63,53 +68,49 @@ class _IllustrationPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 330.h,
+      height: 340.h,
       width: double.infinity,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.center,
         children: [
+          // Soft sage halo behind the card.
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppColor.emeraldMoss.withValues(alpha: 0.2),
-                    AppColor.emeraldMoss.withValues(alpha: 0.06),
+                    AppColor.primary.withValues(alpha: 0.16),
+                    AppColor.primary.withValues(alpha: 0.04),
                     Colors.transparent,
                   ],
                 ),
               ),
             ),
           ),
+          // Solid white card — no more transparency wash.
           Container(
             width: double.infinity,
-            height: 300.h,
-            padding: EdgeInsets.all(20.w),
+            height: 310.h,
+            padding: EdgeInsets.all(18.w),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.92),
-              borderRadius: BorderRadius.circular(32.r),
-              border: Border.all(color: Colors.white, width: 1.4),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColor.deepNavy.withValues(alpha: 0.09),
-                  blurRadius: 32,
-                  offset: const Offset(0, 18),
-                ),
-              ],
+              color: AppColor.surface,
+              borderRadius: BorderRadius.circular(28.r),
+              border: Border.all(color: AppColor.cardBorder),
+              boxShadow: AppTheme.e2,
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(26.r),
+              borderRadius: BorderRadius.circular(22.r),
               child: ColoredBox(
-                color: AppColor.onboardingBackground,
+                color: AppColor.backgroundCream,
                 child: Image.asset(page.imageAsset, fit: BoxFit.contain),
               ),
             ),
           ),
           Positioned(
-            right: 12.w,
-            bottom: 14.h,
+            right: 14.w,
+            bottom: 16.h,
             child: _FloatingBadge(page: page),
           ),
         ],
@@ -127,16 +128,10 @@ class _FloatingBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18.r),
-        border: Border.all(color: AppColor.emeraldMoss.withValues(alpha: 0.18)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.deepNavy.withValues(alpha: 0.12),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: AppColor.surface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(color: AppColor.primaryLight, width: 1.2),
+        boxShadow: AppTheme.e2,
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
@@ -144,15 +139,15 @@ class _FloatingBadge extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: 34.r,
-              width: 34.r,
+              height: 36.r,
+              width: 36.r,
               decoration: BoxDecoration(
-                color: AppColor.emeraldMoss.withValues(alpha: 0.16),
+                color: AppColor.primarySurface,
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 page.badgeIcon,
-                color: AppColor.emeraldMoss,
+                color: AppColor.primary,
                 size: 20.r,
               ),
             ),
@@ -164,10 +159,10 @@ class _FloatingBadge extends StatelessWidget {
                 Text(
                   page.badgeLabel,
                   style: TextStyle(
-                    color: AppTheme.textSecondary,
+                    color: AppColor.textMuted,
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
+                    letterSpacing: 0.5,
                   ),
                 ),
                 Text(

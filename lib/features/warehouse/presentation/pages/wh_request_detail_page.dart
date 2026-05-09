@@ -92,7 +92,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -120,10 +120,10 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
       case 'completed':
         return (const Color(0xFFEDE9FE), const Color(0xFF7C3AED), 'Completed');
       case 'assigned':
-        return (const Color(0xFFDCFCE7), const Color(0xFF16A34A), 'Assigned');
+        return (AppTheme.primarySurface, AppTheme.successColor, 'Assigned');
       case 'active':
       case 'in_progress':
-        return (const Color(0xFFFEF3C7), const Color(0xFFD97706), 'Active');
+        return (AppTheme.hintPeach, const Color(0xFFD97706), 'Active');
       case 'rescheduled':
         return (
           const Color(0xFFFCE7F3),
@@ -172,7 +172,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0F172A),
+                    color: AppTheme.textPrimary,
                   ),
                 ),
               ],
@@ -219,7 +219,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.w800,
-                                    color: Color(0xFF0F172A),
+                                    color: AppTheme.textPrimary,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
@@ -301,7 +301,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                           height: 110,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF1F5F9),
+                            color: AppTheme.hairline,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Center(
@@ -329,7 +329,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFF0F172A),
+                                      color: AppTheme.textPrimary,
                                     ),
                                   ),
                                 ],
@@ -475,7 +475,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
+              color: AppTheme.hairline,
               borderRadius: AppTheme.cardBorderRadius,
               border: AppTheme.cardBorder,
               boxShadow: AppTheme.cardShadow,
@@ -519,7 +519,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                             'Assigned Agent',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF64748B),
+                              color: AppTheme.textSecondary,
                             ),
                           ),
                           Text(
@@ -527,7 +527,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                             style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF0F172A),
+                              color: AppTheme.textPrimary,
                             ),
                           ),
                         ],
@@ -570,7 +570,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
-                  color: const Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                   height: 1.3,
                 ),
               ),
@@ -621,7 +621,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF0F172A),
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                       Text(
@@ -712,13 +712,13 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
   Widget _buildAgentOption(WarehousePickupBoy boy, WarehouseRequest r) {
     final isSelected = _selectedBoyId == boy.id;
     final dotColor = boy.isOnline && boy.isAvailable
-        ? const Color(0xFF22C55E)
+        ? AppTheme.successColor
         : const Color(0xFFF59E0B);
     final workloadColor = boy.currentAssignmentCount > 2
         ? (const Color(0xFFFEE2E2), const Color(0xFFB91C1C))
         : boy.currentAssignmentCount > 0
-        ? (const Color(0xFFFEF3C7), const Color(0xFFB45309))
-        : (const Color(0xFFDCFCE7), const Color(0xFF15803D));
+        ? (AppTheme.hintPeach, const Color(0xFFB45309))
+        : (AppTheme.primarySurface, const Color(0xFF15803D));
 
     return GestureDetector(
       onTap: () => setState(() => _selectedBoyId = boy.id),
@@ -728,7 +728,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppTheme.primaryColor.withValues(alpha: 0.08)
-              : const Color(0xFFF8FAFC),
+              : AppTheme.backgroundCream,
           borderRadius: BorderRadius.circular(14),
           border: isSelected
               ? Border.all(color: AppTheme.primaryColor)
@@ -740,13 +740,13 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
               children: [
                 CircleAvatar(
                   radius: 22,
-                  backgroundColor: const Color(0xFFE2E8F0),
+                  backgroundColor: AppTheme.outline,
                   child: Text(
                     boy.name.isNotEmpty ? boy.name[0].toUpperCase() : 'A',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF475569),
+                      color: AppTheme.textSecondary,
                     ),
                   ),
                 ),
@@ -775,7 +775,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF0F172A),
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),

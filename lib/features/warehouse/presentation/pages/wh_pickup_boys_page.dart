@@ -132,7 +132,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -167,7 +167,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
@@ -221,7 +221,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFFDCFCE7),
+              color: AppTheme.primarySurface,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
@@ -250,7 +250,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF14532D),
+                          color: AppTheme.primaryDark,
                         ),
                       ),
                     ),
@@ -262,7 +262,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                   style: const TextStyle(
                     fontSize: 38,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF14532D),
+                    color: AppTheme.primaryDark,
                     height: 1,
                   ),
                 ),
@@ -272,7 +272,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF14532D).withValues(alpha: 0.8),
+                    color: AppTheme.primaryDark.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -301,7 +301,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                             width: 44,
                             height: 44,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
+                              color: AppTheme.hairline,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -340,7 +340,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF0F172A),
+                          color: AppTheme.textPrimary,
                         ),
                       ),
                       Text(
@@ -359,11 +359,11 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A),
+                    color: AppTheme.textPrimary,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF0F172A).withValues(alpha: 0.3),
+                        color: AppTheme.textPrimary.withValues(alpha: 0.3),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -452,12 +452,12 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
         ? Colors.grey.shade400
         : isAvailable
         ? AppTheme.primaryColor
-        : const Color(0xFFEA580C);
+        : AppTheme.warningColor;
 
     final dotColor = isOffline
         ? Colors.grey.shade300
         : isAvailable
-        ? const Color(0xFF22C55E)
+        ? AppTheme.successColor
         : const Color(0xFFFB923C);
 
     final borderColor = isAvailable && isOnline
@@ -540,7 +540,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFF0F172A),
+                                  color: AppTheme.textPrimary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -553,7 +553,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFF1F5F9),
+                                color: AppTheme.hairline,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -608,8 +608,8 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                       onPressed: isAvailable ? () {} : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isAvailable
-                            ? const Color(0xFF0F172A)
-                            : const Color(0xFFF1F5F9),
+                            ? AppTheme.textPrimary
+                            : AppTheme.hairline,
                         foregroundColor: isAvailable
                             ? Colors.white
                             : Colors.grey.shade400,
@@ -651,7 +651,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w900,
-            color: valueColor ?? const Color(0xFF0F172A),
+            color: valueColor ?? AppTheme.textPrimary,
           ),
         ),
         Text(

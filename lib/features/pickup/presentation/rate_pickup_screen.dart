@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/custom_button.dart';
 
 class RatePickupScreen extends StatefulWidget {
@@ -17,8 +20,8 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
+    return AppScaffold(
+      backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
           icon: const FaIcon(
@@ -36,7 +39,7 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
             fontSize: 16,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: AppTheme.backgroundLight,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -76,22 +79,9 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
             ),
             const SizedBox(height: 32),
 
-            const Text(
-              'How was your pickup?',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'पिकअप कैसा रहा?',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textSecondary,
-              ),
+            const AppSectionHeader(
+              title: 'How was your pickup?',
+              subtitle: 'पिकअप कैसा रहा?',
             ),
             const SizedBox(height: 16),
             const Text(
@@ -172,11 +162,8 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
             const SizedBox(height: 24),
 
             // Comment Box
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(16),
-              ),
+            AppCard(
+              padding: EdgeInsets.zero,
               child: const TextField(
                 maxLines: 4,
                 decoration: InputDecoration(

@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/utils/app_routes.dart';
 
 class DynamicQuestionFormScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
@@ -167,7 +168,7 @@ class _DynamicQuestionFormScreenState extends State<DynamicQuestionFormScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
+      bottomBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: ElevatedButton(

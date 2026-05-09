@@ -5,18 +5,17 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
-import '../../../auth/domain/models/user.dart';
-
 class ProfileRepository {
   final DioClient _apiClient;
 
   ProfileRepository(this._apiClient);
 
-  Future<ApiResponse<User>> updateProfile({
+  Future<ApiResponse<void>> updateProfile({
     String? name,
     String? email,
     int? cityId,
     File? profilePhoto,
+    bool removePhoto = false,
   }) async {
     try {
       final formData = FormData.fromMap({
@@ -25,18 +24,16 @@ class ProfileRepository {
         if (cityId != null) 'city_id': cityId,
         if (profilePhoto != null)
           'profile_photo': await MultipartFile.fromFile(profilePhoto.path),
+        if (removePhoto) 'remove_photo': 'true',
       });
 
-      final response = await _apiClient.post(
+      final response = await _apiClient.post<dynamic>(
         ApiEndpoints.authProfileUpdate,
         data: formData,
       );
 
       if (response.isSuccess) {
-        // We typically get a raw response or user data back.
-        // As per the swagger doc, it might not return the full user,
-        // but we assume it might inside 'data'. If not, we trigger a fetch in the provider.
-        return ApiResponse.success(User.fromJson(response.data['data'] ?? {}));
+        return ApiResponse.success(null);
       }
       return ApiResponse.error(
         response.errorMessage ?? 'Failed to update profile',

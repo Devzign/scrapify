@@ -34,16 +34,16 @@ class WhPickupBoyDetailPage extends StatelessWidget {
         ? Colors.grey.shade400
         : isAvailable
             ? AppTheme.primaryColor
-            : const Color(0xFFEA580C);
+            : AppTheme.warningColor;
     final statusBg = isOffline
         ? Colors.grey.shade100
         : isAvailable
-            ? const Color(0xFFDCFCE7)
-            : const Color(0xFFFEF3C7);
+            ? AppTheme.primarySurface
+            : AppTheme.hintPeach;
     final dotColor = isOffline
         ? Colors.grey.shade300
         : isAvailable
-            ? const Color(0xFF22C55E)
+            ? AppTheme.successColor
             : const Color(0xFFFB923C);
 
     final initial = boy.name.isNotEmpty ? boy.name[0].toUpperCase() : '?';
@@ -111,7 +111,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
-                              color: Color(0xFF0F172A),
+                              color: AppTheme.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -121,7 +121,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                               vertical: 2,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF1F5F9),
+                              color: AppTheme.hairline,
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
@@ -219,8 +219,8 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                             'Active',
                             Icons.assignment_rounded,
                             boy.currentAssignmentCount > 0
-                                ? const Color(0xFFFEF3C7)
-                                : const Color(0xFFF1F5F9),
+                                ? AppTheme.hintPeach
+                                : AppTheme.hairline,
                             boy.currentAssignmentCount > 0
                                 ? const Color(0xFFD97706)
                                 : Colors.grey.shade600,
@@ -232,7 +232,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                             '${boy.completedCount}',
                             'Completed',
                             Icons.check_circle_rounded,
-                            const Color(0xFFDCFCE7),
+                            AppTheme.primarySurface,
                             const Color(0xFF15803D),
                           ),
                         ),
@@ -355,7 +355,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
               letterSpacing: -0.5,
             ),
           ),
@@ -397,7 +397,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
           Text(
@@ -463,7 +463,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF0F172A),
+                    color: AppTheme.textPrimary,
                     height: 1.3,
                   ),
                 ),

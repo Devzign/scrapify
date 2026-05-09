@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/theme/app_color.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/custom_button.dart';
 import 'view_models/onboarding_view_model.dart';
 import 'view_models/onboarding_view_state.dart';
@@ -18,11 +19,7 @@ class OnboardingScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen<OnboardingViewState>(onboardingViewModelProvider, (_, next) {
       final nextRoute = next.nextRoute;
-
-      if (nextRoute == null) {
-        return;
-      }
-
+      if (nextRoute == null) return;
       ref.read(onboardingViewModelProvider.notifier).clearNavigation();
       context.go(nextRoute);
     });
@@ -35,92 +32,119 @@ class OnboardingScreen extends ConsumerWidget {
       backgroundColor: AppColor.onboardingBackground,
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(24.w, 12.h, 16.w, 0),
-                child: Row(
-                  children: [
-                    Container(
-                      height: 40.r,
-                      width: 40.r,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColor.deepNavy.withValues(alpha: 0.06),
-                            blurRadius: 14,
-                            offset: const Offset(0, 6),
+        child: Stack(
+          children: [
+            // Subtle sage glow at top — eco "breath" behind the illustration.
+            Positioned(
+              top: -120,
+              left: -60,
+              right: -60,
+              child: IgnorePointer(
+                child: Container(
+                  height: 380,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColor.primary.withValues(alpha: 0.18),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SafeArea(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(24.w, 12.h, 16.w, 0),
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 44.r,
+                          width: 44.r,
+                          decoration: BoxDecoration(
+                            color: AppColor.surface,
+                            borderRadius: BorderRadius.circular(14.r),
+                            border:
+                                Border.all(color: AppColor.cardBorder),
+                            boxShadow: AppTheme.e1,
                           ),
-                        ],
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Image.asset(
-                        'assets/images/Scrapify-app-icon.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: viewModel.skip,
-                      child: const Text(
-                        'Skip',
-                        style: TextStyle(
-                          color: Color(0xFF64748B),
-                          fontWeight: FontWeight.w800,
+                          clipBehavior: Clip.antiAlias,
+                          child: Padding(
+                            padding: EdgeInsets.all(6.r),
+                            child: Image.asset(
+                              'assets/images/Scrapify-app-icon.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: PageView.builder(
-                  controller: viewModel.pageController,
-                  itemCount: viewModel.pages.length,
-                  onPageChanged: viewModel.onPageChanged,
-                  itemBuilder: (context, index) {
-                    return OnboardingPageCard(page: viewModel.pages[index]);
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 32,
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        viewModel.pages.length,
-                        (index) => OnboardingPageIndicator(
-                          isSelected: state.currentPage == index,
+                        const Spacer(),
+                        TextButton(
+                          onPressed: viewModel.skip,
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColor.textSecondary,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 10,
+                            ),
+                          ),
+                          child: const Text(
+                            'Skip',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                    SizedBox(height: 24.h),
-                    SizedBox(
-                      width: double.infinity,
-                      child: CustomButton(
-                        text: isLastPage
-                            ? 'Get Started  |  शुरू करें  →'
-                            : 'Next  →',
-                        onPressed: viewModel.handlePrimaryAction,
-                        backgroundColor: AppColor.emeraldMoss,
-                        textColor: Colors.white,
-                        borderRadius: 16,
-                        fontWeight: FontWeight.w900,
-                      ),
+                  ),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: viewModel.pageController,
+                      itemCount: viewModel.pages.length,
+                      onPageChanged: viewModel.onPageChanged,
+                      itemBuilder: (context, index) {
+                        return OnboardingPageCard(
+                          page: viewModel.pages[index],
+                        );
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 28,
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(
+                            viewModel.pages.length,
+                            (index) => OnboardingPageIndicator(
+                              isSelected: state.currentPage == index,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 22.h),
+                        CustomButton(
+                          text: isLastPage
+                              ? 'Get Started  |  शुरू करें  →'
+                              : 'Next  →',
+                          onPressed: viewModel.handlePrimaryAction,
+                          variant: AppButtonVariant.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

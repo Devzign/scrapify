@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/app_routes.dart';
+import '../../../../core/widgets/app_card.dart';
 
 class CustomerDashboardBottomBar extends StatelessWidget {
   final int currentIndex;
@@ -56,19 +57,11 @@ class CustomerDashboardBottomBar extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     top: 12,
-                    child: Container(
+                    child: AppCard(
                       padding: const EdgeInsets.fromLTRB(22, 18, 22, 14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(32),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 18,
-                            offset: const Offset(0, -4),
-                          ),
-                        ],
-                      ),
+                      color: AppTheme.surfaceColor,
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: AppTheme.e2,
                       child: Row(
                         children: [
                           Expanded(
@@ -207,20 +200,13 @@ class _BasketFloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 58,
-      decoration: BoxDecoration(
-        color: Colors.white,
+      child: AppCard(
+        color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: FloatingActionButton.extended(
+        boxShadow: AppTheme.e2,
+        child: FloatingActionButton.extended(
         heroTag: 'dashboard_basket_fab',
         onPressed: () => context.push(AppRoutes.basket),
         backgroundColor: Colors.white,
@@ -265,6 +251,7 @@ class _BasketFloatingButton extends StatelessWidget {
           ),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
       ),
     );
   }

@@ -118,7 +118,7 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: const Color(0xFFD1D5DB).o(0.4),
+                          color: AppTheme.outline.o(0.4),
                           style: BorderStyle.solid,
                           width: 1.5,
                         ),
@@ -143,7 +143,7 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                                 ? 'अन्य वस्तुएं'
                                 : 'Other Items',
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.w700,
                               color: AppTheme.textPrimary,
                             ),
@@ -172,7 +172,7 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                                 ? 'टिप्पणियां (वैकल्पिक)'
                                 : 'Notes (optional)',
                             style: const TextStyle(
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w800,
                               color: AppTheme.textPrimary,
                             ),
@@ -189,7 +189,7 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
                                 fontSize: 14,
                               ),
                               filled: true,
-                              fillColor: const Color(0xFFF8FAFC),
+                              fillColor: AppTheme.backgroundCream,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide.none,
@@ -263,7 +263,7 @@ class _DonationItemUploadCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEAF6EE),
+                  color: AppTheme.primarySurface,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
@@ -296,7 +296,7 @@ class _DonationItemUploadCard extends StatelessWidget {
                 ),
                 style: TextButton.styleFrom(
                   foregroundColor: AppTheme.primaryColor,
-                  backgroundColor: const Color(0xFFEAF6EE),
+                  backgroundColor: AppTheme.primarySurface,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 8,
@@ -324,10 +324,10 @@ class _DonationItemUploadCard extends StatelessWidget {
                       width: double.infinity,
                       height: 180,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF8FAFC),
+                        color: AppTheme.backgroundCream,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: const Color(0xFFE2E8F0),
+                          color: AppTheme.outline,
                           style: BorderStyle.solid,
                           width: 1.5,
                         ),

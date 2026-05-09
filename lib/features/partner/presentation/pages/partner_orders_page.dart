@@ -169,7 +169,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -204,7 +204,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -305,7 +305,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                 border: Border.all(
                   color: isSelected
                       ? AppTheme.primaryColor
-                      : const Color(0xFFE2E8F0),
+                      : AppTheme.outline,
                 ),
                 boxShadow: isSelected
                     ? [
@@ -389,7 +389,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF0F172A),
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                         Text(
@@ -520,7 +520,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                     ? null
                     : () => _showOrderDetail(o),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F172A),
+                  backgroundColor: AppTheme.textPrimary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
@@ -646,7 +646,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -735,13 +735,13 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: background ?? const Color(0xFFF8FAFC),
+        color: background ?? AppTheme.backgroundCream,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: accent ?? const Color(0xFF475569)),
+          Icon(icon, size: 14, color: accent ?? AppTheme.textSecondary),
           const SizedBox(width: 8),
           Text(
             label,
@@ -763,7 +763,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppTheme.backgroundCream,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Column(
@@ -774,7 +774,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -830,7 +830,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: bgColor ?? const Color(0xFFF8FAFC),
+            color: bgColor ?? AppTheme.backgroundCream,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: iconColor, size: 18),
@@ -870,20 +870,20 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
       case 'completed':
       case 'delivered':
       case 'paid':
-        return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+        return (AppTheme.primarySurface, AppTheme.primaryDark);
       case 'assigned':
       case 'in_transit':
       case 'on_the_way':
-        return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+        return (AppTheme.primarySurface, AppTheme.primaryDark);
       case 'active':
       case 'pending':
-        return (const Color(0xFFFEF3C7), const Color(0xFF92400E));
+        return (AppTheme.hintPeach, const Color(0xFF92400E));
       case 'cancelled':
         return (const Color(0xFFFEE2E2), const Color(0xFF991B1B));
       case 'rescheduled':
         return (const Color(0xFFFFD9DF), const Color(0xFF6F3443));
       default:
-        return (const Color(0xFFF1F5F9), const Color(0xFF64748B));
+        return (AppTheme.hairline, AppTheme.textSecondary);
     }
   }
 

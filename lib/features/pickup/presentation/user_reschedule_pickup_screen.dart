@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../providers/pickup_provider.dart';
 
 class UserReschedulePickupScreen extends ConsumerStatefulWidget {
@@ -76,7 +77,7 @@ class _UserReschedulePickupScreenState
     final isHindi = context.locale.languageCode == 'hi';
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         backgroundColor: Colors.white,

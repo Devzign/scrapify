@@ -138,7 +138,7 @@ class BasketScreen extends ConsumerWidget {
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
-                                    color: Color(0xFF94A3B8),
+                                    color: AppTheme.textMuted,
                                     letterSpacing: 1.2,
                                   ),
                                 ),
@@ -203,7 +203,7 @@ class BasketScreen extends ConsumerWidget {
             width: 48,
             height: 48,
             decoration: const BoxDecoration(
-              color: Color(0xFFF0FDF4),
+              color: AppTheme.primarySurface,
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -256,7 +256,7 @@ class BasketScreen extends ConsumerWidget {
                     ref.read(basketProvider.notifier).removeItem(index),
                 child: const FaIcon(
                   FontAwesomeIcons.trashCan,
-                  color: Color(0xFFFCA5A5),
+                  color: AppTheme.errorColor,
                   size: 14,
                 ),
               ),
@@ -272,7 +272,7 @@ class BasketScreen extends ConsumerWidget {
       margin: const EdgeInsets.all(24),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
+        color: AppTheme.primarySurface,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.1)),
       ),

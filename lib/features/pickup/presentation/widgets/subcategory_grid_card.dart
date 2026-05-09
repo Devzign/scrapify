@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../../../../core/theme/app_color.dart';
 import '../../../../core/theme/app_theme.dart';
 
 class SubCategoryGridCard extends StatelessWidget {
@@ -48,7 +49,7 @@ class SubCategoryGridCard extends StatelessWidget {
                     width: double.infinity,
                     height: imageHeight,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF7FAF8),
+                      color: AppColor.backgroundCream,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     clipBehavior: Clip.antiAlias,

@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/utils/app_routes.dart';
 import '../providers/pickup_boy_provider.dart';
 
@@ -50,7 +51,7 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(pickupBoyProvider);
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         title: Text(

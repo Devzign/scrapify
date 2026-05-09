@@ -211,17 +211,17 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
     final isSaving = addressState is AsyncLoading;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF102213) : Colors.white,
+      backgroundColor: isDark ? const Color(0xFF102213) : AppTheme.hairline,
       appBar: AppBar(
         backgroundColor: isDark
             ? const Color(0xFF1A331F).withValues(alpha: 0.95)
-            : Colors.white.withValues(alpha: 0.95),
+            : AppTheme.hairline.withValues(alpha: 0.95),
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDark ? Colors.white : const Color(0xFF0F172A), // slate-900
+            color: isDark ? Colors.white : AppTheme.textPrimary, // slate-900
             size: 28,
           ),
           onPressed: () => context.pop(),
@@ -229,7 +229,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
         title: Text(
           'address_book.add.title'.tr(),
           style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : AppTheme.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -260,12 +260,12 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                           height: 200,
                           decoration: BoxDecoration(
                             color: isDark
-                                ? const Color(0xFF1E293B)
-                                : const Color(0xFFF1F5F9),
+                                ? AppTheme.textPrimary
+                                : AppTheme.surfaceColor,
                             border: Border.all(
                               color: isDark
-                                  ? const Color(0xFF1E293B)
-                                  : const Color(0xFFE2E8F0),
+                                  ? AppTheme.textPrimary
+                                  : AppTheme.outline,
                             ),
                           ),
                           child: Stack(
@@ -323,7 +323,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                                 child: Material(
                                   color: isDark
                                       ? const Color(0xFF1A331F)
-                                      : Colors.white,
+                                      : AppTheme.surfaceColor,
                                   shape: const CircleBorder(),
                                   elevation: 2,
                                   child: InkWell(
@@ -358,11 +358,10 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF64748B),
+                              ? AppTheme.textMuted
+                              : AppTheme.textSecondary,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          fontFamily: 'Inter',
                         ),
                       ),
                     ],
@@ -429,7 +428,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                             style: TextStyle(
                               color: isDark
                                   ? Colors.white
-                                  : const Color(0xFF0F172A),
+                                  : AppTheme.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -480,12 +479,12 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                   MediaQuery.of(context).padding.bottom + 16,
                 ),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1A331F) : Colors.white,
+                  color: isDark ? const Color(0xFF1A331F) : AppTheme.hairline,
                   border: Border(
                     top: BorderSide(
                       color: isDark
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFFF1F5F9),
+                          ? AppTheme.textPrimary
+                          : AppTheme.hairline,
                     ),
                   ),
                 ),
@@ -525,7 +524,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
             Text(
               label,
               style: TextStyle(
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                color: isDark ? Colors.white : AppTheme.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -536,7 +535,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                 child: Text(
                   'address_book.add.optional'.tr(),
                   style: TextStyle(
-                    color: const Color(0xFF94A3B8),
+                    color: AppTheme.textMuted,
                     fontSize: 14,
                   ),
                 ),
@@ -549,20 +548,20 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
           style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : AppTheme.textPrimary,
             fontSize: 18,
           ),
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: TextStyle(
               color: isDark
-                  ? const Color(0xFF94A3B8)
-                  : const Color(0xFF94A3B8), // slate-400
+                  ? AppTheme.textMuted
+                  : AppTheme.textMuted, // slate-400
             ),
             filled: true,
             fillColor: isDark
-                ? const Color(0xFF1E293B).withValues(alpha: 0.8)
-                : const Color(0xFFF1F5F9), // slate-800/80 or slate-100
+                ? AppTheme.textPrimary.withValues(alpha: 0.8)
+                : AppTheme.surfaceColor, // swapped for light mode
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
@@ -576,7 +575,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
               borderSide: BorderSide(
                 color: isDark
                     ? const Color(0xFF334155)
-                    : const Color(0xFFE2E8F0), // ring slate-700/200
+                    : AppTheme.outline, // ring slate-700/200
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -623,7 +622,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                       .primaryColor // primary
                 : (isDark
                       ? const Color(0xFF334155)
-                      : const Color(0xFFE2E8F0)), // slate-700 or slate-200
+                      : AppTheme.outline), // slate-700 or slate-200
           ),
         ),
         child: Row(
@@ -635,8 +634,8 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
               color: isSelected
                   ? const Color(0xFF0EB524) // primary-dark
                   : (isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B)), // slate-400/500
+                        ? AppTheme.textMuted
+                        : AppTheme.textSecondary), // slate-400/500
             ),
             const SizedBox(width: 8),
             Text(
@@ -645,10 +644,10 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                 color: isSelected
                     ? (isDark
                           ? Colors.white
-                          : const Color(0xFF0F172A)) // text primary active
+                          : AppTheme.textPrimary) // text primary active
                     : (isDark
-                          ? const Color(0xFFE2E8F0)
-                          : const Color(0xFF475569)), // slate-200/600 default
+                          ? AppTheme.outline
+                          : AppTheme.textSecondary), // slate-200/600 default
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),

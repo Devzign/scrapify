@@ -67,7 +67,7 @@ class _AgentRescheduleRequestScreenState
         title: Text(
           isHindi ? 'पुनर्निर्धारण का अनुरोध' : 'Reschedule Pickup',
           style: const TextStyle(
-            color: Color(0xFF0D2B52),
+            color: AppTheme.textPrimary,
             fontWeight: FontWeight.w900,
             fontSize: 20,
           ),
@@ -172,7 +172,7 @@ class _AgentRescheduleRequestScreenState
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0D2B52),
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 const Text(
@@ -200,7 +200,7 @@ class _AgentRescheduleRequestScreenState
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF0D2B52),
+            color: AppTheme.textPrimary,
           ),
         ),
         Text(
@@ -273,7 +273,7 @@ class _AgentRescheduleRequestScreenState
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w900,
-                    color: isSelected ? Colors.white : const Color(0xFF0D2B52),
+                    color: isSelected ? Colors.white : AppTheme.textPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -311,7 +311,7 @@ class _AgentRescheduleRequestScreenState
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w900,
-            color: Color(0xFF0D2B52),
+            color: AppTheme.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -377,7 +377,7 @@ class _AgentRescheduleRequestScreenState
         OutlinedButton(
           onPressed: () {},
           style: OutlinedButton.styleFrom(
-            foregroundColor: const Color(0xFF0D2B52),
+            foregroundColor: AppTheme.textPrimary,
             minimumSize: const Size(double.infinity, 60),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),

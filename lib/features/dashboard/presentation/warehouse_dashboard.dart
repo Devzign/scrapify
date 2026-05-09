@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../warehouse/providers/warehouse_provider.dart';
 
 class WarehouseDashboard extends ConsumerStatefulWidget {
@@ -28,7 +30,8 @@ class _WarehouseDashboardState extends ConsumerState<WarehouseDashboard> {
     final state = ref.watch(warehouseProvider);
     final dashboard = state.dashboard;
 
-    return Scaffold(
+    final textTheme = Theme.of(context).textTheme;
+    return AppScaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         title: Row(
@@ -48,15 +51,11 @@ class _WarehouseDashboardState extends ConsumerState<WarehouseDashboard> {
               children: [
                 Text(
                   dashboard?.warehouse?.name ?? 'Warehouse',
-                  style: const TextStyle(
-                      fontSize: 12, color: AppTheme.textSecondary),
+                  style: textTheme.bodySmall,
                 ),
-                const Text(
+                Text(
                   'Warehouse Dashboard',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary),
+                  style: textTheme.titleMedium,
                 ),
               ],
             ),
@@ -78,14 +77,15 @@ class _WarehouseDashboardState extends ConsumerState<WarehouseDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (state.error != null)
-                    Container(
+                    AppCard(
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(bottom: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.shade200),
+                      color: AppTheme.errorColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: AppTheme.errorColor.withValues(alpha: 0.3),
                       ),
+                      boxShadow: null,
                       child: Row(
                         children: [
                           const Icon(Icons.error_outline, color: Colors.red),
@@ -179,7 +179,7 @@ class _WarehouseDashboardState extends ConsumerState<WarehouseDashboard> {
                 ],
               ),
             ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(() => _selectedIndex = index);
@@ -197,7 +197,7 @@ class _WarehouseDashboardState extends ConsumerState<WarehouseDashboard> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppTheme.primaryColor,
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: AppTheme.textSecondary,
         items: const [
           BottomNavigationBarItem(
               icon: FaIcon(FontAwesomeIcons.house), label: 'Home'),
@@ -221,11 +221,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       title,
-      style: const TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.bold,
-        color: AppTheme.textPrimary,
-      ),
+      style: Theme.of(context).textTheme.titleMedium,
     );
   }
 }
@@ -256,19 +252,9 @@ class _MetricsGrid extends StatelessWidget {
       mainAxisSpacing: 12,
       childAspectRatio: 2.0,
       children: items
-          .map((item) => Container(
+          .map((item) => AppCard(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
+                borderRadius: BorderRadius.circular(12),
                 child: Row(
                   children: [
                     Container(

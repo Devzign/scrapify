@@ -90,7 +90,7 @@ class _SelectAddressTimeScreenState
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -101,7 +101,7 @@ class _SelectAddressTimeScreenState
                         const Text(
                           'Select Address',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.textPrimary,
                           ),
@@ -112,7 +112,7 @@ class _SelectAddressTimeScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     addressesAsync.when(
                       data: (addresses) {
                         if (addresses.isEmpty) {
@@ -129,8 +129,8 @@ class _SelectAddressTimeScreenState
                                   .read(bookingProvider.notifier)
                                   .setSelectedAddress(addr),
                               child: Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(20),
+                                margin: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: AppTheme.cardBorderRadius,
@@ -152,12 +152,12 @@ class _SelectAddressTimeScreenState
                                         border: Border.all(
                                           color: isSelected
                                               ? AppTheme.primaryColor
-                                              : const Color(0xFFE2E8F0),
+                                              : AppTheme.outline,
                                           width: isSelected ? 7 : 2,
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 20),
+                                    const SizedBox(width: 14),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -193,13 +193,13 @@ class _SelectAddressTimeScreenState
                                     ),
                                     const FaIcon(
                                       FontAwesomeIcons.pen,
-                                      color: Color(0xFF94A3B8),
+                                      color: AppTheme.textMuted,
                                       size: 14,
                                     ),
                                     const SizedBox(width: 16),
                                     const FaIcon(
                                       FontAwesomeIcons.trashCan,
-                                      color: Color(0xFFFCA5A5),
+                                      color: AppTheme.errorColor,
                                       size: 14,
                                     ),
                                   ],
@@ -215,20 +215,20 @@ class _SelectAddressTimeScreenState
                           Text('Error loading addresses: $err'),
                     ),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 22),
 
                     // --- Date Selection ---
                     Text(
                       'date_time.select_date'.tr(),
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
                     SizedBox(
-                      height: 100,
+                      height: 92,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: 7,
@@ -246,8 +246,8 @@ class _SelectAddressTimeScreenState
                                 .read(bookingProvider.notifier)
                                 .setSelectedDate(date),
                             child: Container(
-                              width: 75,
-                              margin: const EdgeInsets.only(right: 12),
+                              width: 70,
+                              margin: const EdgeInsets.only(right: 10),
                               decoration: BoxDecoration(
                                 gradient: isSelected
                                     ? AppTheme.primaryGradient
@@ -260,7 +260,7 @@ class _SelectAddressTimeScreenState
                                 border: Border.all(
                                   color: isSelected
                                       ? Colors.transparent
-                                      : const Color(0xFFF1F5F9),
+                                      : AppTheme.hairline,
                                   width: 1.5,
                                 ),
                               ),
@@ -313,7 +313,7 @@ class _SelectAddressTimeScreenState
                       ),
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 22),
 
                     // --- Time Selection ---
                     Text(
@@ -324,7 +324,7 @@ class _SelectAddressTimeScreenState
                         color: AppTheme.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
                     if (_isSlotsLoading)
                       const Padding(
                         padding: EdgeInsets.only(bottom: 12),
@@ -372,10 +372,10 @@ class _SelectAddressTimeScreenState
                                 .read(bookingProvider.notifier)
                                 .setSelectedTimeSlot(time),
                             child: Container(
-                              margin: const EdgeInsets.only(bottom: 12),
+                              margin: const EdgeInsets.only(bottom: 10),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 20,
+                                horizontal: 16,
+                                vertical: 14,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -396,7 +396,7 @@ class _SelectAddressTimeScreenState
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? AppTheme.primaryColor
-                                          : const Color(0xFFF8FAFC),
+                                          : AppTheme.backgroundCream,
                                       shape: BoxShape.circle,
                                     ),
                                     child: Center(
@@ -404,12 +404,12 @@ class _SelectAddressTimeScreenState
                                         FontAwesomeIcons.clock,
                                         color: isSelected
                                             ? Colors.white
-                                            : const Color(0xFF94A3B8),
+                                            : AppTheme.textMuted,
                                         size: 18,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 20),
+                                  const SizedBox(width: 14),
                                   Expanded(
                                     child: Text(
                                       time,
@@ -441,7 +441,7 @@ class _SelectAddressTimeScreenState
 
             // --- Bottom Button ---
             Container(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -469,7 +469,7 @@ class _SelectAddressTimeScreenState
                               style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF94A3B8),
+                                color: AppTheme.textMuted,
                                 letterSpacing: 1.2,
                               ),
                             ),
@@ -513,7 +513,7 @@ class _SelectAddressTimeScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
                     CustomButton(
                       onPressed:
                           booking.selectedAddress != null &&
@@ -527,7 +527,7 @@ class _SelectAddressTimeScreenState
                       text: isDonationFlow
                           ? 'REVIEW DONATION'
                           : 'REVIEW BOOKING',
-                      minHeight: 60,
+                      minHeight: 54,
                       borderRadius: 20,
                     ),
                   ],
@@ -570,12 +570,19 @@ class _SelectAddressTimeScreenState
       return;
     }
 
-    final key = '${DateFormat('yyyy-MM-dd').format(date)}_${address.cityId}_${address.pincode}';
+    final key =
+        '${DateFormat('yyyy-MM-dd').format(date)}_${address.cityId}_${address.pincode}';
     if (_lastSlotsKey == key || _isSlotsLoading) {
       return;
     }
     _lastSlotsKey = key;
-    Future.microtask(() => _loadSlots(date: date, cityId: address.cityId, pincode: address.pincode));
+    Future.microtask(
+      () => _loadSlots(
+        date: date,
+        cityId: address.cityId,
+        pincode: address.pincode,
+      ),
+    );
   }
 
   Future<void> _loadSlots({
@@ -591,11 +598,13 @@ class _SelectAddressTimeScreenState
       _hasSlotApiError = false;
     });
 
-    final response = await ref.read(pickupRepositoryProvider).getPickupSlots(
-      date: DateFormat('yyyy-MM-dd').format(date),
-      cityId: cityId,
-      pincode: pincode,
-    );
+    final response = await ref
+        .read(pickupRepositoryProvider)
+        .getPickupSlots(
+          date: DateFormat('yyyy-MM-dd').format(date),
+          cityId: cityId,
+          pincode: pincode,
+        );
 
     if (!mounted) {
       return;

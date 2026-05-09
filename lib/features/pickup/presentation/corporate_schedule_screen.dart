@@ -151,7 +151,7 @@ class _CorporateScheduleScreenState
                                           border: Border.all(
                                             color: sel
                                                 ? AppTheme.primaryColor
-                                                : const Color(0xFFE2E8F0),
+                                                : AppTheme.outline,
                                             width: sel ? 7 : 2,
                                           ),
                                         ),
@@ -232,7 +232,7 @@ class _CorporateScheduleScreenState
                               border: Border.all(
                                 color: sel
                                     ? Colors.transparent
-                                    : const Color(0xFFF1F5F9),
+                                    : AppTheme.hairline,
                               ),
                             ),
                             child: Column(
@@ -313,7 +313,7 @@ class _CorporateScheduleScreenState
                               FontAwesomeIcons.clock,
                               color: sel
                                   ? AppTheme.primaryColor
-                                  : const Color(0xFF94A3B8),
+                                  : AppTheme.textMuted,
                               size: 18,
                             ),
                             const SizedBox(width: 16),
@@ -365,7 +365,7 @@ class _CorporateScheduleScreenState
                             ? 'जैसे: 200 कंप्यूटर, टूटे फर्नीचर, आदि'
                             : 'e.g. 200 computers, broken furniture, etc.',
                         hintStyle: const TextStyle(
-                          color: Color(0xFF94A3B8),
+                          color: AppTheme.textMuted,
                           fontSize: 13,
                         ),
                         border: OutlineInputBorder(
@@ -492,7 +492,7 @@ class _CorporateScheduleScreenState
                         errorBuilder: (_, __, ___) => Container(
                           width: 90,
                           height: 90,
-                          color: const Color(0xFFF0FDF4),
+                          color: AppTheme.primarySurface,
                           child: const Icon(
                             Icons.image,
                             color: AppTheme.primaryColor,
@@ -535,7 +535,7 @@ class _CorporateScheduleScreenState
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: AppTheme.cardBorderRadius,
-                border: Border.all(color: const Color(0xFFE2E8F0), width: 2),
+                border: Border.all(color: AppTheme.outline, width: 2),
                 boxShadow: AppTheme.cardShadow,
               ),
               child: Column(
@@ -543,7 +543,7 @@ class _CorporateScheduleScreenState
                 children: [
                   const FaIcon(
                     FontAwesomeIcons.camera,
-                    color: Color(0xFF94A3B8),
+                    color: AppTheme.textMuted,
                     size: 24,
                   ),
                   const SizedBox(height: 8),
@@ -551,7 +551,7 @@ class _CorporateScheduleScreenState
                     isHindi ? 'फ़ोटो जोड़ें' : 'Add Photos',
                     style: const TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF94A3B8),
+                      color: AppTheme.textMuted,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -647,14 +647,14 @@ class _AddPhotoTile extends StatelessWidget {
         width: 90,
         height: 90,
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
+          color: AppTheme.backgroundCream,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0), width: 2),
+          border: Border.all(color: AppTheme.outline, width: 2),
         ),
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FaIcon(FontAwesomeIcons.plus, color: Color(0xFF94A3B8), size: 18),
+            FaIcon(FontAwesomeIcons.plus, color: AppTheme.textMuted, size: 18),
           ],
         ),
       ),

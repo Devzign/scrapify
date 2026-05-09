@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 
 class LoginOtpInput extends StatelessWidget {
   final TextEditingController controller;
@@ -89,34 +89,34 @@ Widget _buildOtpDigitBox({
 }) {
   final isFilled = digit.isNotEmpty;
   final borderColor = hasError
-      ? Colors.red
+      ? AppColor.error
       : isCurrent
-      ? AppTheme.primaryColor
-      : isFilled
-      ? AppTheme.primaryColor.withValues(alpha: 0.5)
-      : Colors.grey.shade300;
+          ? AppColor.primary
+          : isFilled
+              ? AppColor.primary.withValues(alpha: 0.55)
+              : AppColor.outline;
   final backgroundColor = hasError
-      ? Colors.red.withValues(alpha: 0.05)
+      ? AppColor.errorTint
       : isCurrent
-      ? AppTheme.primaryColor.withValues(alpha: 0.05)
-      : Colors.white;
+          ? AppColor.primarySurface
+          : AppColor.surface;
 
   return AnimatedContainer(
     duration: const Duration(milliseconds: 200),
-    width: 45.w,
-    height: 56.h,
+    width: 46.w,
+    height: 58.h,
     alignment: Alignment.center,
     decoration: BoxDecoration(
       color: backgroundColor,
       borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: borderColor, width: 1.5),
+      border: Border.all(color: borderColor, width: 1.6),
     ),
     child: Text(
       digit,
       style: const TextStyle(
         fontSize: 24,
-        fontWeight: FontWeight.w700,
-        color: AppTheme.textPrimary,
+        fontWeight: FontWeight.w800,
+        color: AppColor.textPrimary,
       ),
     ),
   );

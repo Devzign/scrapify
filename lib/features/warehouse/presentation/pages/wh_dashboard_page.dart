@@ -109,7 +109,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -143,7 +143,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
               letterSpacing: -0.5,
             ),
           ),
@@ -191,7 +191,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
+                        color: AppTheme.primarySurface,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -206,7 +206,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
+                        color: AppTheme.primarySurface,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -226,7 +226,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF14532D),
+                              color: AppTheme.primaryDark,
                             ),
                           ),
                         ],
@@ -240,7 +240,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                   style: const TextStyle(
                     fontSize: 42,
                     fontWeight: FontWeight.w900,
-                    color: Color(0xFF0F172A),
+                    color: AppTheme.textPrimary,
                     height: 1,
                   ),
                 ),
@@ -252,7 +252,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF0F172A),
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -350,11 +350,11 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF0F172A).withValues(alpha: 0.3),
+                  color: AppTheme.textPrimary.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -496,7 +496,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
             style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.w900,
-              color: valueColor ?? const Color(0xFF0F172A),
+              color: valueColor ?? AppTheme.textPrimary,
             ),
           ),
           const SizedBox(height: 4),
@@ -505,7 +505,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
             style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
         ],
@@ -538,7 +538,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF0F172A),
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                 ],
@@ -584,15 +584,15 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
       hindi = 'अनिर्दिष्ट';
       label = 'Unassigned';
     } else if (s == 'assigned') {
-      bg = const Color(0xFFDCFCE7);
-      fg = const Color(0xFF14532D);
+      bg = AppTheme.primarySurface;
+      fg = AppTheme.primaryDark;
       hindi = 'सौंपा गया';
       label = 'Assigned';
     } else if (s == 'active' ||
         s == 'in_progress' ||
         s == 'on_the_way' ||
         s == 'arrived') {
-      bg = const Color(0xFFFEF3C7);
+      bg = AppTheme.hintPeach;
       fg = const Color(0xFF92400E);
       hindi = 'सक्रिय';
       label = 'Active';
@@ -602,7 +602,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
       hindi = 'पूरा हुआ';
       label = 'Completed';
     } else if (s == 'rescheduled') {
-      bg = const Color(0xFFFFF7ED);
+      bg = AppTheme.hintPeach;
       fg = const Color(0xFF9A3412);
       hindi = 'पुनर्निर्धारित';
       label = 'Rescheduled';
@@ -641,7 +641,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppTheme.backgroundCream,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -660,7 +660,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF0F172A),
+                    color: AppTheme.textPrimary,
                   ),
                 ),
                 Text(
@@ -711,11 +711,11 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF1E293B), Color(0xFF334155)],
+            colors: [AppTheme.textPrimary, Color(0xFF334155)],
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF1E293B).withValues(alpha: 0.3),
+              color: AppTheme.textPrimary.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),

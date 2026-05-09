@@ -1,38 +1,29 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/app_card.dart';
 
 class HowItWorksCard extends StatelessWidget {
   const HowItWorksCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
+    final textTheme = Theme.of(context).textTheme;
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'How It Works',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.textPrimary,
-            ),
+            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
-          SizedBox(height: 12),
-          _StepText('1. Share your referral code with your friend.'),
-          SizedBox(height: 8),
-          _StepText('2. Your friend signs up using your referral code.'),
-          SizedBox(height: 8),
-          _StepText('3. You get a reward coupon after successful referral.'),
+          const SizedBox(height: 12),
+          const _StepText('1. Share your referral code with your friend.'),
+          const SizedBox(height: 8),
+          const _StepText('2. Your friend signs up using your referral code.'),
+          const SizedBox(height: 8),
+          const _StepText('3. You get a reward coupon after successful referral.'),
         ],
       ),
     );

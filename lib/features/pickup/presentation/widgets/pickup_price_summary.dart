@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../../domain/models/pickup_request_model.dart';
 
-/// Reusable pricing summary card for an order detail / history screen.
-/// Renders:
-///   - Estimated amount (struck through if final differs)
-///   - Coupon line (if applied)
-///   - Final amount (highlighted)
-///   - 🔒 Price-locked badge (after pickup verified)
-///
-/// Drop into customer / pickup-boy / warehouse order detail screens.
 class PickupPriceSummary extends StatelessWidget {
   final PickupRequestModel pickup;
   final EdgeInsets padding;
@@ -31,9 +24,9 @@ class PickupPriceSummary extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppTheme.backgroundCream,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,7 +39,7 @@ class PickupPriceSummary extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF64748B),
+                  color: AppTheme.textSecondary,
                   letterSpacing: 1.1,
                 ),
               ),
@@ -61,7 +54,7 @@ class PickupPriceSummary extends StatelessWidget {
             value: '₹${estimated.toStringAsFixed(0)}',
             valueStyle: TextStyle(
               fontSize: 14,
-              color: differs ? const Color(0xFF94A3B8) : const Color(0xFF1E293B),
+              color: differs ? AppTheme.textMuted : AppTheme.textPrimary,
               decoration: differs ? TextDecoration.lineThrough : null,
               fontWeight: FontWeight.w600,
             ),
@@ -74,13 +67,13 @@ class PickupPriceSummary extends StatelessWidget {
               label: 'Coupon ${pickup.couponCode ?? ''}',
               labelStyle: const TextStyle(
                 fontSize: 13,
-                color: Color(0xFF16A34A),
+                color: AppTheme.successColor,
                 fontWeight: FontWeight.w600,
               ),
               value: '+₹${discount.toStringAsFixed(0)}',
               valueStyle: const TextStyle(
                 fontSize: 14,
-                color: Color(0xFF16A34A),
+                color: AppTheme.successColor,
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -93,13 +86,13 @@ class PickupPriceSummary extends StatelessWidget {
               labelStyle: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
+                color: AppTheme.textPrimary,
               ),
               value: '₹${finalAmt.toStringAsFixed(0)}',
               valueStyle: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w900,
-                color: Color(0xFF059669),
+                color: AppTheme.successColor,
               ),
             ),
           ],
@@ -122,7 +115,7 @@ class PickupPriceSummary extends StatelessWidget {
           style: labelStyle ??
               const TextStyle(
                 fontSize: 13,
-                color: Color(0xFF64748B),
+                color: AppTheme.textSecondary,
                 fontWeight: FontWeight.w500,
               ),
         ),
@@ -141,20 +134,20 @@ class _LockedBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
+        color: AppTheme.hairline,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.lock_outline, size: 12, color: Color(0xFF475569)),
+          const Icon(Icons.lock_outline, size: 12, color: AppTheme.textSecondary),
           const SizedBox(width: 4),
           Text(
             'Locked',
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF475569),
+              color: AppTheme.textSecondary,
             ),
           ),
         ],

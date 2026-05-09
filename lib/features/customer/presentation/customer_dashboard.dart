@@ -9,6 +9,7 @@ import '../../pickup/providers/booking_provider.dart';
 import '../../pickup/providers/pickup_provider.dart';
 import '../../pickup/domain/models/pickup_request_model.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/loading_skeletons.dart';
 import '../../settings/domain/models/app_settings_model.dart';
@@ -53,7 +54,6 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
 
   Future<void> _reloadHomeData() async {
     ref.invalidate(pickupsProvider);
-    await ref.read(settingsProvider.notifier).syncSettings();
   }
 
   Future<void> _initAppSettings() async {
@@ -91,6 +91,51 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
       }
     } catch (e) {
       debugPrint('Error initializing app settings: $e');
+    }
+  }
+
+  Future<void> _checkCoverageAvailability() async {
+    final isHindi = context.locale.languageCode == 'hi';
+    try {
+      final locationService = LocationService();
+      final position = await locationService.getCurrentPosition();
+      String? locationName;
+
+      if (position != null) {
+        locationName = await locationService.getLocationName(
+          position.latitude,
+          position.longitude,
+        );
+      }
+
+      await ref
+          .read(settingsProvider.notifier)
+          .syncSettings(
+            latitude: position?.latitude,
+            longitude: position?.longitude,
+            locationName: locationName,
+          );
+
+      if (!mounted) return;
+      final latest = ref.read(settingsProvider).serviceAvailability;
+      _showServiceUnavailableSnackBar(
+        latest.isServiceable
+            ? (isHindi
+                  ? 'आपके क्षेत्र में सेवा उपलब्ध है।'
+                  : 'Service is available in your area.')
+            : (latest.message.isNotEmpty
+                  ? latest.message
+                  : (isHindi
+                        ? 'सेवा अभी आपके क्षेत्र में उपलब्ध नहीं है।'
+                        : 'Service is not available in your area yet.')),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      _showServiceUnavailableSnackBar(
+        isHindi
+            ? 'कवरेज जांचने में समस्या हुई। कृपया पुनः प्रयास करें।'
+            : 'Unable to check coverage right now. Please try again.',
+      );
     }
   }
 
@@ -302,107 +347,136 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 ),
 
               // Top Banner
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: AppTheme.primaryGradient,
-                  borderRadius: AppTheme.cardBorderRadius,
-                  border: AppTheme.cardBorder,
-                  boxShadow: AppTheme.cardShadow,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Eco-friendly badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: AppTheme.cardBorderRadius,
-                              border: AppTheme.cardBorder,
-                              boxShadow: AppTheme.cardShadow,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const FaIcon(
-                                  FontAwesomeIcons.leaf,
-                                  color: Colors.white,
-                                  size: 12,
+              InkWell(
+                onTap: _handleMoneyTap,
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    gradient: AppTheme.sageHeader,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.primaryColor.withValues(alpha: 0.32),
+                        blurRadius: 30,
+                        offset: const Offset(0, 14),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.36),
+                      width: 1.1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.36),
                                 ),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'dashboard.eco_badge'.tr(),
-                                  style: const TextStyle(
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const FaIcon(
+                                    FontAwesomeIcons.leaf,
                                     color: Colors.white,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                                    size: 10,
                                   ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    'dashboard.eco_badge'.tr(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'dashboard.book_pickup'.tr(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                height: 1.1,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'dashboard.book_pickup_desc'.tr(),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.92),
+                                fontSize: 12,
+                                height: 1.35,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        children: [
+                          Container(
+                            width: 74,
+                            height: 74,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.22),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.35),
+                              ),
+                            ),
+                            child: const Center(
+                              child: FaIcon(
+                                FontAwesomeIcons.truckFast,
+                                size: 30,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            width: 34,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.14),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            'dashboard.book_pickup'.tr(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 26,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          Text(
-                            context.locale.languageCode == 'hi'
-                                ? 'पिकअप बुक करें'
-                                : 'Schedule your pickup',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'dashboard.book_pickup_desc'.tr(),
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontSize: 14,
-                              height: 1.4,
+                            child: const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: AppTheme.primaryColor,
+                              size: 20,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Column(
-                      children: [
-                        const FaIcon(
-                          FontAwesomeIcons.truckFast,
-                          size: 64,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const FaIcon(
-                            FontAwesomeIcons.arrowRight,
-                            color: AppTheme.primaryColor,
-                            size: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -448,7 +522,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                           }
                           final limitedCategories = categories.take(3).toList();
                           return SizedBox(
-                            height: 160,
+                            height: 190,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: limitedCategories.length,
@@ -490,12 +564,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 const SizedBox(height: 16),
               ],
               _buildCorporateCard(context),
-              const SizedBox(height: 32),
-
-              // We can add more dynamic content here if needed
-              const SizedBox(height: 32),
-
-              // Active Request
+              const SizedBox(height: 16),
               Text(
                 'dashboard.active_request'.tr(),
                 style: const TextStyle(
@@ -597,7 +666,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                               width: 26,
                               height: 26,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFFFF1F1),
+                                color: AppColor.errorTint,
                                 borderRadius: BorderRadius.circular(13),
                               ),
                               child: const Icon(
@@ -696,16 +765,14 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
             ),
             const SizedBox(height: 14),
             OutlinedButton(
-              onPressed: () => _showServiceUnavailableSnackBar(
-                appSettings.serviceAvailability.message,
-              ),
+              onPressed: _checkCoverageAvailability,
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 18,
                 ),
                 backgroundColor: Colors.white,
-                side: const BorderSide(color: Color(0xFFE2E8F0)),
+                side: const BorderSide(color: AppColor.outline),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),
@@ -994,7 +1061,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
               ],
             ),
             const SizedBox(height: 16),
-            Divider(color: Colors.grey.shade200),
+            const Divider(color: AppColor.hairline),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1059,7 +1126,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: AppTheme.cardBorderRadius,
-          border: Border.all(color: const Color(0xFFE6EBF2)),
+          border: Border.all(color: AppTheme.cardBorderColor),
           boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
@@ -1068,7 +1135,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFEEF1),
+                color: AppColor.roseTint,
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Row(
@@ -1076,16 +1143,16 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 children: [
                   const Icon(
                     Icons.favorite_rounded,
-                    color: Color(0xFFF43F5E),
+                    color: AppColor.rose,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     isHindi ? 'समुदाय को वापस दें' : 'Give Back to Community',
                     style: const TextStyle(
-                      color: Color(0xFFF43F5E),
+                      color: AppColor.rose,
                       fontWeight: FontWeight.w700,
-                      fontSize: 14,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -1101,7 +1168,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                       Text(
                         isHindi ? 'वस्तुएं दान करें' : 'Donate Items',
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 18,
                           fontWeight: FontWeight.w900,
                           color: AppTheme.textPrimary,
                         ),
@@ -1112,7 +1179,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                             ? 'पुनः उपयोगी वस्तुएं दान करें'
                             : 'Donate reusable goods',
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 12,
                           color: AppTheme.textSecondary,
                         ),
                       ),
@@ -1122,7 +1189,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                             ? 'कपड़े और पुराने फर्नीचर जैसी वस्तुएं दान करके समाज की मदद करें।'
                             : 'Support social causes by donating clothes and old furniture.',
                         style: const TextStyle(
-                          fontSize: 15,
+                          fontSize: 12,
                           height: 1.5,
                           color: AppTheme.textSecondary,
                         ),
@@ -1137,12 +1204,12 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                       width: 68,
                       height: 68,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFFFF2F4),
+                        color: AppColor.roseTint,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.volunteer_activism_rounded,
-                        color: Color(0xFFF43F5E),
+                        color: AppColor.rose,
                         size: 32,
                       ),
                     ),
@@ -1151,7 +1218,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                       width: 42,
                       height: 42,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFF43F5E),
+                        color: AppColor.rose,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -1181,7 +1248,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: AppTheme.cardBorderRadius,
-          border: Border.all(color: const Color(0xFFE6EBF2)),
+          border: Border.all(color: AppTheme.cardBorderColor),
           boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
@@ -1190,7 +1257,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFEBF5FF),
+                color: AppColor.alertBlue,
                 borderRadius: BorderRadius.circular(999),
               ),
               child: Row(
@@ -1198,16 +1265,16 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 children: [
                   const Icon(
                     Icons.business_rounded,
-                    color: Color(0xFF2563EB),
+                    color: AppColor.info,
                     size: 18,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     isHindi ? 'कॉर्पोरेट कोटेशन' : 'Corporate Quotation',
                     style: const TextStyle(
-                      color: Color(0xFF2563EB),
+                      color: AppColor.info,
                       fontWeight: FontWeight.w700,
-                      fontSize: 14,
+                      fontSize: 12,
                     ),
                   ),
                 ],
@@ -1223,7 +1290,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                       Text(
                         isHindi ? 'कॉर्पोरेट पिकअप' : 'Corporate Pickup',
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 18,
                           fontWeight: FontWeight.w900,
                           color: AppTheme.textPrimary,
                         ),
@@ -1234,7 +1301,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                             ? 'कोटेशन के लिए जानकारी भेजें'
                             : 'Share details for quotation',
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 12,
                           color: AppTheme.textSecondary,
                         ),
                       ),
@@ -1244,7 +1311,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                             ? 'थोक स्क्रैप/ऑफिस कचरे के लिए शेड्यूल करें। हमारी टीम निरीक्षण के बाद कोटेशन देगी।'
                             : 'Schedule bulk scrap or office waste pickup. Our team will quote after assessment.',
                         style: const TextStyle(
-                          fontSize: 15,
+                          fontSize: 12,
                           height: 1.5,
                           color: AppTheme.textSecondary,
                         ),
@@ -1259,12 +1326,12 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                       width: 68,
                       height: 68,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFEFF6FF),
+                        color: AppColor.alertBlue,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.apartment_rounded,
-                        color: Color(0xFF2563EB),
+                        color: AppColor.info,
                         size: 32,
                       ),
                     ),
@@ -1273,7 +1340,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                       width: 42,
                       height: 42,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF2563EB),
+                        color: AppColor.info,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -1485,7 +1552,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
       case 'completed':
         return AppTheme.primaryColor;
       case 'assigned':
-        return const Color(0xFF2563EB);
+        return AppTheme.infoColor;
       case 'rescheduled':
         return const Color(0xFF7C3AED);
       case 'cancelled':
@@ -1524,73 +1591,110 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
   }) {
     return InkWell(
       onTap: () => _guardedTap(onTap),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(18),
       child: Container(
-        width: 140,
+        width: 168,
         decoration: BoxDecoration(
-          color: isDark ? Colors.black87 : Colors.white,
-          image: imageUrl != null
-              ? DecorationImage(
-                  image: NetworkImage(imageUrl),
-                  fit: BoxFit.cover,
-                  colorFilter: isDark
-                      ? ColorFilter.mode(
-                          Colors.black.withValues(alpha: 0.4),
-                          BlendMode.darken,
-                        )
-                      : ColorFilter.mode(
-                          Colors.white.withValues(alpha: 0.12),
-                          BlendMode.lighten,
-                        ),
-                )
-              : null,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: Colors.white.withValues(alpha: 0.72),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
+          boxShadow: AppTheme.cardShadow,
         ),
-        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              height: 112,
+              width: double.infinity,
               decoration: BoxDecoration(
-                color: isDark
-                    ? Colors.white.withValues(alpha: 0.2)
-                    : AppTheme.primaryColor.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(18),
+                  topRight: Radius.circular(18),
+                ),
+                color: AppTheme.primaryLight.withValues(alpha: 0.45),
               ),
-              child: FaIcon(
-                iconData,
-                color: isDark ? Colors.white : AppTheme.primaryColor,
-                size: 20,
-              ),
+              child: imageUrl != null
+                  ? ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(18),
+                        topRight: Radius.circular(18),
+                      ),
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.contain,
+                        alignment: Alignment.center,
+                        errorBuilder: (_, __, ___) => Center(
+                          child: FaIcon(
+                            iconData,
+                            color: AppTheme.primaryColor.withValues(
+                              alpha: 0.72,
+                            ),
+                            size: 34,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Center(
+                      child: FaIcon(
+                        iconData,
+                        color: AppTheme.primaryColor.withValues(alpha: 0.72),
+                        size: 34,
+                      ),
+                    ),
             ),
-            const Spacer(),
-            Text(
-              title,
-              style: TextStyle(
-                color: isDark ? Colors.white : AppTheme.textPrimary,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            if (subtitle.isNotEmpty)
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: isDark
-                      ? Colors.white.withValues(alpha: 0.8)
-                      : AppTheme.textSecondary,
-                  fontSize: 12,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppTheme.textPrimary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        height: 1.2,
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryColor.withValues(
+                              alpha: 0.12,
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: FaIcon(
+                            iconData,
+                            color: AppTheme.primaryColor,
+                            size: 11,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            subtitle.isEmpty ? 'Instant quote' : subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppTheme.textSecondary,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
+            ),
           ],
         ),
       ),

@@ -6,6 +6,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../domain/repositories/pickup_repository.dart';
 import '../providers/corporate_provider.dart';
@@ -18,8 +21,7 @@ class CorporateReviewScreen extends ConsumerWidget {
     final isHindi = context.locale.languageCode == 'hi';
     final booking = ref.watch(corporateBookingProvider);
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+    return AppScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -45,6 +47,13 @@ class CorporateReviewScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            AppSectionHeader(
+              title: isHindi ? 'बुकिंग समीक्षा' : 'Review Booking',
+              subtitle: isHindi
+                  ? 'सबमिट करने से पहले अपनी जानकारी जांच लें'
+                  : 'Check your details before submitting',
+            ),
+            const SizedBox(height: 16),
             _row(
               isHindi ? 'चुनी गई श्रेणियां' : 'Selected categories',
               '${booking.items.length}',
@@ -183,14 +192,8 @@ class CorporateReviewScreen extends ConsumerWidget {
   }
 
   Widget _row(String label, String value) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

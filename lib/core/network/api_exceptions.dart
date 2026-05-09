@@ -45,54 +45,35 @@ class ApiErrorHandler {
     final statusCode = error.response?.statusCode;
     final responseData = error.response?.data;
 
-    // Default error message from backend if available
+    // Prefer backend human-readable message_text, then fallback to message key.
     String defaultMessage = 'Something went wrong. Please try again.';
-    if (responseData is Map<String, dynamic> &&
-        responseData.containsKey('message')) {
-      defaultMessage = responseData['message'];
+    if (responseData is Map<String, dynamic>) {
+      final messageText = responseData['message_text']?.toString().trim();
+      final message = responseData['message']?.toString().trim();
+      if (messageText != null && messageText.isNotEmpty) {
+        defaultMessage = messageText;
+      } else if (message != null && message.isNotEmpty) {
+        defaultMessage = message;
+      }
     }
 
     switch (statusCode) {
       case 400:
-        return ApiException(
-          'Bad Request: $defaultMessage',
-          statusCode: statusCode,
-        );
+        return ApiException(defaultMessage, statusCode: statusCode);
       case 401:
-        return ApiException(
-          'Unauthorized: $defaultMessage',
-          statusCode: statusCode,
-        );
+        return ApiException(defaultMessage, statusCode: statusCode);
       case 403:
-        return ApiException(
-          'Forbidden: $defaultMessage',
-          statusCode: statusCode,
-        );
+        return ApiException(defaultMessage, statusCode: statusCode);
       case 404:
-        return ApiException(
-          'Not Found: $defaultMessage',
-          statusCode: statusCode,
-        );
+        return ApiException(defaultMessage, statusCode: statusCode);
       case 500:
-        return ApiException(
-          'Internal Server Error: $defaultMessage',
-          statusCode: statusCode,
-        );
+        return ApiException(defaultMessage, statusCode: statusCode);
       case 502:
-        return ApiException(
-          'Bad Gateway: $defaultMessage',
-          statusCode: statusCode,
-        );
+        return ApiException(defaultMessage, statusCode: statusCode);
       case 503:
-        return ApiException(
-          'Service Unavailable: $defaultMessage',
-          statusCode: statusCode,
-        );
+        return ApiException(defaultMessage, statusCode: statusCode);
       default:
-        return ApiException(
-          'Server Error ($statusCode): $defaultMessage',
-          statusCode: statusCode,
-        );
+        return ApiException(defaultMessage, statusCode: statusCode);
     }
   }
 }

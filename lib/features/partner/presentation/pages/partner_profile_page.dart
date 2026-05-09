@@ -91,7 +91,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF0F172A),
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                         Text(
@@ -146,7 +146,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF0F172A),
+                        color: AppTheme.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -176,7 +176,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
+                        color: AppTheme.primarySurface,
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -187,7 +187,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 12,
-                          color: Color(0xFF14532D),
+                          color: AppTheme.primaryDark,
                         ),
                       ),
                     ),
@@ -332,7 +332,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
         ],
@@ -384,7 +384,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
-                      color: destructive ? Colors.red : const Color(0xFF0F172A),
+                      color: destructive ? Colors.red : AppTheme.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),

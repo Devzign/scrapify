@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../pickup/providers/pickup_provider.dart';
 import '../../pickup/domain/models/pickup_request.dart';
@@ -53,7 +55,8 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     final activePickups = pickupState.requests;
     final stats = pickupState.stats;
 
-    return Scaffold(
+    final textTheme = Theme.of(context).textTheme;
+    return AppScaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
@@ -65,10 +68,8 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
         ),
         title: Text(
           'login.app_name'.tr(),
-          style: const TextStyle(
+          style: textTheme.headlineMedium?.copyWith(
             color: AppTheme.primaryColor,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
           ),
         ),
         actions: [
@@ -101,19 +102,12 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 if (user != null) ...[
                   Text(
                     'Hello, ${user.name.split(' ').first}! 👋',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                    ),
+                    style: textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     user.phone,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppTheme.textSecondary,
-                    ),
+                    style: textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 16),
                 ],
@@ -228,19 +222,13 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                   children: [
                     Text(
                       'dashboard.what_to_sell'.tr(),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
+                      style: textTheme.titleLarge,
                     ),
                     GestureDetector(
                       onTap: () => context.push(AppRoutes.categorySelection),
                       child: Text(
                         'dashboard.view_all'.tr(),
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                        style: textTheme.labelLarge?.copyWith(
                           color: AppTheme.primaryColor,
                         ),
                       ),
@@ -277,19 +265,14 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                   ),
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 16),
 
-                // Active Pickups
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       'dashboard.active_request'.tr(),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary,
-                      ),
+                      style: textTheme.titleLarge,
                     ),
                     if (activePickups.isNotEmpty)
                       Text(
@@ -383,13 +366,12 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
   }
 
   Widget _buildCategoryChip(String name, {IconData? icon}) {
-    return Container(
-      width: 110,
+    return AppCard(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.black87,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      color: AppTheme.textPrimary,
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: AppTheme.textPrimary),
+      boxShadow: null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.end,
@@ -413,20 +395,10 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
 
   Widget _buildPickupCard(BuildContext context, PickupRequest p) {
     final statusColor = _statusColor(p.status);
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      borderRadius: BorderRadius.circular(24),
       child: Column(
         children: [
           Row(
@@ -490,7 +462,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
             ],
           ),
           const SizedBox(height: 16),
-          Divider(color: Colors.grey.shade200),
+          const Divider(color: AppTheme.hairline),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -555,34 +527,24 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
   }
 
   Widget _buildNoActivePickup(BuildContext context) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
       child: Column(
         children: [
           FaIcon(
             FontAwesomeIcons.truckFast,
             size: 48,
-            color: Colors.grey.shade300,
+            color: AppTheme.hairline,
           ),
           const SizedBox(height: 16),
           Text(
             'No active pickups',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade500,
-            ),
+            style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
           Text(
             'Book a pickup to get started',
-            style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(height: 20),
           ElevatedButton(

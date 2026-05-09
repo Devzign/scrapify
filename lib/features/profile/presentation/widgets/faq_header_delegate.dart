@@ -36,11 +36,11 @@ class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
     return Container(
       decoration: BoxDecoration(
         color: isDark
-            ? const Color(0xFF0F172A).withValues(alpha: 0.95)
+            ? AppTheme.textPrimary.withValues(alpha: 0.95)
             : Colors.white.withValues(alpha: 0.95),
         border: Border(
           bottom: BorderSide(
-            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+            color: isDark ? AppTheme.textPrimary : AppTheme.hairline,
           ),
         ),
       ),
@@ -86,14 +86,14 @@ class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
                 height: 52,
                 decoration: BoxDecoration(
                   color: isDark
-                      ? const Color(0xFF1E293B)
-                      : const Color(0xFFF1F5F9),
+                      ? AppTheme.textPrimary
+                      : AppTheme.hairline,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: TextField(
                   controller: searchController,
                   style: TextStyle(
-                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    color: isDark ? Colors.white : AppTheme.textPrimary,
                   ),
                   decoration: InputDecoration(
                     border: InputBorder.none,
@@ -129,7 +129,7 @@ class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
                           color: isSelected
                               ? primaryColor
                               : (isDark
-                                    ? const Color(0xFF1E293B)
+                                    ? AppTheme.textPrimary
                                     : Colors.white),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
@@ -137,7 +137,7 @@ class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
                                 ? Colors.transparent
                                 : (isDark
                                       ? const Color(0xFF334155)
-                                      : const Color(0xFFE2E8F0)),
+                                      : AppTheme.outline),
                           ),
                           boxShadow: isSelected
                               ? [
@@ -156,7 +156,7 @@ class FaqHeaderDelegate extends SliverPersistentHeaderDelegate {
                             color: isSelected
                                 ? Colors.white
                                 : (isDark
-                                      ? const Color(0xFFE2E8F0)
+                                      ? AppTheme.outline
                                       : AppTheme.textPrimary),
                             fontSize: 14,
                             fontWeight: isSelected

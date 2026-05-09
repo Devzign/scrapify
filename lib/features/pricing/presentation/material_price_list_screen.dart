@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../pickup/providers/pickup_provider.dart';
 
@@ -112,7 +114,7 @@ class _MaterialPriceListScreenState
           .toList();
     }
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
@@ -123,13 +125,9 @@ class _MaterialPriceListScreenState
           ),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
+        title: Text(
           'Material Price List',
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         centerTitle: true,
         elevation: 0,
@@ -377,13 +375,11 @@ class _MaterialPriceListScreenState
     required String rate,
     required String unit,
   }) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: Colors.grey.shade200),
+      boxShadow: null,
       child: Row(
         children: [
           Container(

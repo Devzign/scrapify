@@ -43,7 +43,7 @@ class PickupItemCard extends StatelessWidget {
                 width: 54,
                 height: 54,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF2FBF4),
+                  color: AppTheme.primarySurface,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 clipBehavior: Clip.antiAlias,
@@ -106,10 +106,10 @@ class PickupItemCard extends StatelessWidget {
               if (showQuantityControls)
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: AppTheme.hairline,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: const Color(0xFFE2E8F0),
+                      color: AppTheme.outline,
                       width: 1,
                     ),
                   ),
@@ -144,7 +144,7 @@ class PickupItemCard extends StatelessWidget {
               else
                 const Icon(
                   Icons.chevron_right_rounded,
-                  color: Color(0xFFCBD5E1),
+                  color: AppTheme.outline,
                   size: 28,
                 ),
             ],
@@ -178,8 +178,8 @@ class _QtyButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final backgroundColor = isPrimary
-        ? const Color(0xFFD9ECDD)
-        : const Color(0xFFE2E8F0);
+        ? AppTheme.primaryLight
+        : AppTheme.outline;
     final iconColor = isPrimary ? AppTheme.primaryDark : AppTheme.textPrimary;
 
     return InkWell(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/utils/app_routes.dart';
 
 class WeightEntryScreen extends StatefulWidget {
@@ -33,7 +34,7 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
   Widget build(BuildContext context) {
     final estimatedValue = _weight * widget.basePrice;
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(

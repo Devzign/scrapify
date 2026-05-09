@@ -104,7 +104,7 @@ class _HouseholdItemDetailsScreenState
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF1EFEC),
+      backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -195,7 +195,7 @@ class _HouseholdItemDetailsScreenState
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFFDDE6E1),
+          color: AppTheme.cardBorderColor,
           borderRadius: BorderRadius.circular(22),
         ),
         child: Row(
@@ -209,13 +209,13 @@ class _HouseholdItemDetailsScreenState
               ),
               child: Center(
                 child: _item.imageUrl.trim().isEmpty
-                    ? Icon(_heroIcon, color: const Color(0xFF4A8E62), size: 42)
+                    ? Icon(_heroIcon, color: AppTheme.primaryDark, size: 42)
                     : Image.network(
                         _item.imageUrl,
                         fit: BoxFit.contain,
                         errorBuilder: (_, __, ___) => Icon(
                           _heroIcon,
-                          color: const Color(0xFF4A8E62),
+                          color: AppTheme.primaryDark,
                           size: 42,
                         ),
                       ),
@@ -231,7 +231,7 @@ class _HouseholdItemDetailsScreenState
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF19372B),
+                      color: AppTheme.primaryDark,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -239,7 +239,7 @@ class _HouseholdItemDetailsScreenState
                     _isHindi ? 'एयर कंडीशनर' : _item.name,
                     style: const TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF5D7368),
+                      color: AppTheme.textSecondary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -248,7 +248,7 @@ class _HouseholdItemDetailsScreenState
                     'Base ₹${_unitEstimate(details).toStringAsFixed(0)}${_pricingSuffix(details.pricingType)}',
                     style: const TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF458A5C),
+                      color: AppTheme.primaryDark,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -290,7 +290,7 @@ class _HouseholdItemDetailsScreenState
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w900,
-                          color: Color(0xFF1E3A2F),
+                          color: AppTheme.primaryDark,
                         ),
                       ),
                       Text(
@@ -298,7 +298,7 @@ class _HouseholdItemDetailsScreenState
                         style: const TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF5D7368),
+                          color: AppTheme.textSecondary,
                         ),
                       ),
                     ],
@@ -328,7 +328,7 @@ class _HouseholdItemDetailsScreenState
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF1E3A2F),
+                      color: AppTheme.primaryDark,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -339,7 +339,7 @@ class _HouseholdItemDetailsScreenState
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF5D7368),
+                      color: AppTheme.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -361,7 +361,7 @@ class _HouseholdItemDetailsScreenState
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w900,
-                              color: Color(0xFF163A2C),
+                              color: AppTheme.primaryDark,
                             ),
                           ),
                         ),
@@ -383,7 +383,7 @@ class _HouseholdItemDetailsScreenState
                     style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF458A5C),
+                      color: AppTheme.primaryDark,
                     ),
                   ),
                 ],
@@ -405,7 +405,7 @@ class _HouseholdItemDetailsScreenState
               children: [
                 const Icon(
                   Icons.info_outline_rounded,
-                  color: Color(0xFF4A8E62),
+                  color: AppTheme.primaryDark,
                   size: 18,
                 ),
                 const SizedBox(width: 10),
@@ -413,7 +413,7 @@ class _HouseholdItemDetailsScreenState
                   child: Text(
                     _infoText,
                     style: const TextStyle(
-                      color: Color(0xFF5D7368),
+                      color: AppTheme.textSecondary,
                       fontSize: 10,
                       height: 1.45,
                     ),
@@ -529,12 +529,12 @@ class _HouseholdItemDetailsScreenState
         width: fullWidth ? double.infinity : null,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFD5E3DA) : const Color(0xFFF7FAF8),
+          color: isSelected ? AppTheme.primaryLight : AppTheme.backgroundCream,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF4A8E62)
-                : const Color(0xFFC9D6CF),
+                ? AppTheme.primaryDark
+                : AppTheme.cardBorderColor,
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -549,8 +549,8 @@ class _HouseholdItemDetailsScreenState
                   fontSize: 12,
                   fontWeight: FontWeight.w800,
                   color: isSelected
-                      ? const Color(0xFF4A8E62)
-                      : const Color(0xFF1E3A2F),
+                      ? AppTheme.primaryDark
+                      : AppTheme.primaryDark,
                 ),
               ),
             ),
@@ -562,8 +562,8 @@ class _HouseholdItemDetailsScreenState
                       ? Icons.check_circle_rounded
                       : Icons.radio_button_unchecked_rounded,
                   color: isSelected
-                      ? const Color(0xFF4A8E62)
-                      : const Color(0xFFC9D6CF),
+                      ? AppTheme.primaryDark
+                      : AppTheme.cardBorderColor,
                 ),
               ),
           ],
@@ -583,7 +583,7 @@ class _HouseholdItemDetailsScreenState
       width: double.infinity,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F8F8),
+        color: AppTheme.backgroundCream,
         borderRadius: BorderRadius.circular(30),
       ),
       child: child,
@@ -602,12 +602,12 @@ class _HouseholdItemDetailsScreenState
         height: 42,
         decoration: BoxDecoration(
           color: onTap == null
-              ? const Color(0xFFE8EEEA)
-              : const Color(0xFFD5E3DA),
+              ? AppTheme.hairline
+              : AppTheme.primaryLight,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: const Color(0xFFBFD0C7)),
+          border: Border.all(color: AppTheme.cardBorderColor),
         ),
-        child: Icon(icon, color: const Color(0xFF2E6A46), size: 20),
+        child: Icon(icon, color: AppTheme.primaryDark, size: 20),
       ),
     );
   }
@@ -615,15 +615,15 @@ class _HouseholdItemDetailsScreenState
   Widget _buildBottomBar(HomeApplianceDetails details) {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-      color: const Color(0xFFF1EFEC),
+      color: AppTheme.backgroundLight,
       child: SafeArea(
         top: false,
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: const Color(0xFFF9FBF9),
+            color: AppTheme.backgroundCream,
             borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: const Color(0xFFC9D6CF)),
+            border: Border.all(color: AppTheme.cardBorderColor),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -639,7 +639,7 @@ class _HouseholdItemDetailsScreenState
                           _isHindi ? 'अनुमानित मूल्य' : 'ESTIMATED',
                           style: const TextStyle(
                             fontSize: 9,
-                            color: Color(0xFF5D7368),
+                            color: AppTheme.textSecondary,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 1.1,
                           ),
@@ -650,7 +650,7 @@ class _HouseholdItemDetailsScreenState
                           style: const TextStyle(
                             fontSize: 40,
                             height: 0.95,
-                            color: Color(0xFF458A5C),
+                            color: AppTheme.primaryDark,
                             fontWeight: FontWeight.w900,
                           ),
                         ),
@@ -667,7 +667,7 @@ class _HouseholdItemDetailsScreenState
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFDDEEE3),
+                              color: AppTheme.primarySurface,
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: const SizedBox(
@@ -675,7 +675,7 @@ class _HouseholdItemDetailsScreenState
                               height: 14,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                color: Color(0xFF458A5C),
+                                color: AppTheme.primaryDark,
                               ),
                             ),
                           )
@@ -686,13 +686,13 @@ class _HouseholdItemDetailsScreenState
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFDDEEE3),
+                              color: AppTheme.primarySurface,
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: const Text(
                               '✓ BEST VALUE',
                               style: TextStyle(
-                                color: Color(0xFF458A5C),
+                                color: AppTheme.primaryDark,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 8,
                                 letterSpacing: 0.6,

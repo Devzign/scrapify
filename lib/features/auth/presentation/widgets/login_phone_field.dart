@@ -1,8 +1,7 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import '../../../../core/theme/app_color.dart';
+import '../../../../core/theme/app_theme.dart';
 import '../formatters/indian_mobile_formatter.dart';
 
 class LoginPhoneField extends StatelessWidget {
@@ -23,65 +22,83 @@ class LoginPhoneField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: errorText != null ? Colors.red : Colors.grey.shade300,
-          width: errorText != null ? 1.5 : 1,
+    final radius = BorderRadius.circular(AppTheme.radiusLg);
+    final baseBorder = errorText != null ? AppColor.error : AppColor.outline;
+
+    return SizedBox(
+      height: 60,
+      child: TextField(
+        controller: controller,
+        focusNode: focusNode,
+        keyboardType: TextInputType.number,
+        textInputAction: TextInputAction.done,
+        enabled: enabled,
+        maxLength: 10,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: AppColor.textPrimary,
+          letterSpacing: 0.6,
         ),
-        borderRadius: BorderRadius.circular(30),
-        color: enabled ? Colors.white : Colors.grey.shade100,
-      ),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 16, right: 8),
-            child: Row(
-              children: [
-                FaIcon(
-                  FontAwesomeIcons.flag,
-                  color: Colors.green.shade800,
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  '+91',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-          Container(height: 24, width: 1, color: Colors.grey.shade300),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              focusNode: focusNode,
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.done,
-              enabled: enabled,
-              maxLength: 10,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                IndianMobileFormatter(),
-                LengthLimitingTextInputFormatter(10),
-              ],
-              onChanged: onChanged,
-              decoration: InputDecoration(
-                hintText: 'login.phone_hint'.tr(),
-                hintStyle: const TextStyle(fontSize: 14),
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                filled: false,
-                counterText: '',
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-              ),
-            ),
-          ),
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          IndianMobileFormatter(),
+          LengthLimitingTextInputFormatter(10),
         ],
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          hintText: 'Enter mobile number *',
+          hintStyle: const TextStyle(
+            fontSize: 15,
+            color: AppColor.textMuted,
+            fontWeight: FontWeight.w500,
+          ),
+          filled: true,
+          fillColor: enabled ? AppColor.surface : AppColor.backgroundCream,
+          counterText: '',
+          contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+          prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(left: 10, right: 10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(
+                  width: 39,
+                  height: 26,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(2)),
+                    child: Image(
+                      image: AssetImage('assets/images/indian_flag.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(height: 24, width: 1, color: AppColor.hairline),
+              ],
+            ),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: radius,
+            borderSide: BorderSide(color: baseBorder, width: errorText != null ? 1.5 : 1),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: radius,
+            borderSide: BorderSide(color: baseBorder, width: errorText != null ? 1.5 : 1),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: radius,
+            borderSide: BorderSide(
+              color: errorText != null ? AppColor.error : AppColor.primary,
+              width: errorText != null ? 1.5 : 1.4,
+            ),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: radius,
+            borderSide: const BorderSide(color: AppColor.hairline, width: 1),
+          ),
+        ),
       ),
     );
   }

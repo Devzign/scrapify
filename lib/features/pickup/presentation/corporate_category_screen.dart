@@ -97,15 +97,15 @@ class _CorporateCategoryScreenState
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF7ED),
+              color: AppTheme.hintPeach,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFFED7AA), width: 1),
+              border: Border.all(color: AppTheme.warningColor, width: 1),
             ),
             child: Row(
               children: [
                 const FaIcon(
                   FontAwesomeIcons.circleInfo,
-                  color: Color(0xFFEA580C),
+                  color: AppTheme.warningColor,
                   size: 16,
                 ),
                 const SizedBox(width: 10),
@@ -116,7 +116,7 @@ class _CorporateCategoryScreenState
                         : 'Price will be quoted by agent at pickup. No payment now.',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Color(0xFFEA580C),
+                      color: AppTheme.warningColor,
                       height: 1.4,
                     ),
                   ),
@@ -271,14 +271,14 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppTheme.primaryColor.withValues(alpha: 0.1)
-                        : const Color(0xFFF8FAFC),
+                        : AppTheme.backgroundCream,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     _iconFor(widget.category.slug),
                     color: isSelected
                         ? AppTheme.primaryColor
-                        : const Color(0xFF94A3B8),
+                        : AppTheme.textMuted,
                     size: 20,
                   ),
                 ),
@@ -320,11 +320,11 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
                           ? 'मात्रा दर्ज करें'
                           : 'Enter quantity',
                       hintStyle: const TextStyle(
-                        color: Color(0xFF94A3B8),
+                        color: AppTheme.textMuted,
                         fontSize: 13,
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFF8FAFC),
+                      fillColor: AppTheme.backgroundCream,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -345,7 +345,7 @@ class _CategoryQuantityCardState extends State<_CategoryQuantityCard> {
                   flex: 2,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      color: AppTheme.backgroundCream,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -435,7 +435,7 @@ class _UnitChip extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w800,
-              color: selected ? Colors.white : const Color(0xFF94A3B8),
+              color: selected ? Colors.white : AppTheme.textMuted,
             ),
           ),
         ),

@@ -86,7 +86,7 @@ class WhProfilePage extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -134,7 +134,7 @@ class WhProfilePage extends ConsumerWidget {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: const Color(0xFFDCFCE7),
+                    color: AppTheme.primarySurface,
                     border: Border.all(color: Colors.white, width: 3),
                     boxShadow: AppTheme.cardShadow,
                   ),
@@ -180,7 +180,7 @@ class WhProfilePage extends ConsumerWidget {
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF0F172A),
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                   Text(
@@ -243,7 +243,7 @@ class WhProfilePage extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFDCFCE7),
+                    color: AppTheme.primarySurface,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -258,7 +258,7 @@ class WhProfilePage extends ConsumerWidget {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF0F172A),
+                    color: AppTheme.textPrimary,
                   ),
                 ),
               ],
@@ -400,7 +400,7 @@ class WhProfilePage extends ConsumerWidget {
           style: TextStyle(
             fontSize: isLarge ? 16 : 13,
             fontWeight: isLarge ? FontWeight.w700 : FontWeight.w500,
-            color: isLarge ? const Color(0xFF0F172A) : Colors.grey.shade500,
+            color: isLarge ? AppTheme.textPrimary : Colors.grey.shade500,
             height: 1.4,
           ),
         ),
@@ -412,20 +412,20 @@ class WhProfilePage extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFE2E8F0),
+        color: AppTheme.outline,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: const Color(0xFF0F172A)),
+          Icon(icon, size: 14, color: AppTheme.textPrimary),
           const SizedBox(width: 6),
           Text(
             label,
             style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
             ),
           ),
         ],
@@ -483,7 +483,7 @@ class WhProfilePage extends ConsumerWidget {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ),
@@ -530,7 +530,7 @@ class WhProfilePage extends ConsumerWidget {
               width: 40,
               height: 40,
               decoration: const BoxDecoration(
-                color: Color(0xFFF1F5F9),
+                color: AppTheme.hairline,
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: Colors.grey.shade500, size: 20),
@@ -545,7 +545,7 @@ class WhProfilePage extends ConsumerWidget {
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF0F172A),
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                   Text(

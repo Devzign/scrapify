@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_card.dart';
+import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/loading_skeletons.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,18 +16,14 @@ class NotificationsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notificationState = ref.watch(notificationProvider);
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+    final textTheme = Theme.of(context).textTheme;
+    return AppScaffold(
       appBar: AppBar(
         title: Text(
           context.locale.languageCode == 'hi'
               ? 'notifications.title_hi'.tr()
               : 'notifications.title'.tr(),
-          style: const TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
+          style: textTheme.headlineMedium,
         ),
         actions: [
           Padding(
@@ -56,9 +54,8 @@ class NotificationsScreen extends ConsumerWidget {
                       const SizedBox(width: 6),
                       Text(
                         'notifications.mark_all_read'.tr(),
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                        style: textTheme.labelMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -80,7 +77,7 @@ class NotificationsScreen extends ConsumerWidget {
                 context.locale.languageCode == 'hi'
                     ? 'कोई नोटिफिकेशन नहीं मिला।'
                     : 'No notifications found.',
-                style: const TextStyle(color: AppTheme.textSecondary),
+                style: textTheme.bodyMedium,
               ),
             );
           }
@@ -91,6 +88,7 @@ class NotificationsScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final notif = notifications[index];
               return _buildNotificationCard(
+                context: context,
                 icon: FontAwesomeIcons.bell, // Or map based on notif type
                 iconColor: Colors.blue.shade700,
                 iconBg: Colors.blue.shade100,
@@ -117,6 +115,7 @@ class NotificationsScreen extends ConsumerWidget {
   }
 
   Widget _buildNotificationCard({
+    required BuildContext context,
     required IconData icon,
     required Color iconColor,
     required Color iconBg,
@@ -130,21 +129,12 @@ class NotificationsScreen extends ConsumerWidget {
   }) {
     return InkWell(
       onTap: onTap,
-      child: Container(
+      child: AppCard(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(24),
-          border: borderColor != null ? Border.all(color: borderColor) : null,
-          boxShadow: [
-            if (borderColor == null)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-          ],
-        ),
+        color: cardBg,
+        borderRadius: BorderRadius.circular(24),
+        border: borderColor != null ? Border.all(color: borderColor) : null,
+        boxShadow: borderColor == null ? AppTheme.e1 : null,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -163,10 +153,7 @@ class NotificationsScreen extends ConsumerWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       if (isUnread)
                         Container(
@@ -182,11 +169,7 @@ class NotificationsScreen extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Text(
                     desc,
-                    style: const TextStyle(
-                      color: AppTheme.textSecondary,
-                      fontSize: 13,
-                      height: 1.4,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -199,10 +182,8 @@ class NotificationsScreen extends ConsumerWidget {
                       const SizedBox(width: 4),
                       Text(
                         time,
-                        style: const TextStyle(
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
                           color: Colors.grey,
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],

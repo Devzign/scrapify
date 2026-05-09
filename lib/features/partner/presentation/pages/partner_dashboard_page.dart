@@ -121,7 +121,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  color: AppTheme.textPrimary,
                 ),
               ),
             ],
@@ -154,7 +154,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
-              color: Color(0xFF0F172A),
+              color: AppTheme.textPrimary,
               letterSpacing: -0.5,
             ),
           ),
@@ -222,7 +222,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                           style: const TextStyle(
                             fontSize: 36,
                             fontWeight: FontWeight.w900,
-                            color: Color(0xFF0F172A),
+                            color: AppTheme.textPrimary,
                           ),
                         ),
                       ],
@@ -231,7 +231,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFDCFCE7),
+                        color: AppTheme.primarySurface,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -248,7 +248,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
+                          color: AppTheme.hairline,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Column(
@@ -268,7 +268,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF0F172A),
+                                color: AppTheme.textPrimary,
                               ),
                             ),
                           ],
@@ -280,7 +280,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
+                          color: AppTheme.hairline,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Column(
@@ -300,7 +300,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF0F172A),
+                                color: AppTheme.textPrimary,
                               ),
                             ),
                           ],
@@ -408,7 +408,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xFF0F172A),
+                        color: AppTheme.textPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -421,8 +421,8 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                     ),
                     decoration: BoxDecoration(
                       color: item.color == AppTheme.primaryColor
-                          ? const Color(0xFFDCFCE7)
-                          : const Color(0xFFE2E8F0),
+                          ? AppTheme.primarySurface
+                          : AppTheme.outline,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -431,8 +431,8 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
                         color: item.color == AppTheme.primaryColor
-                            ? const Color(0xFF14532D)
-                            : const Color(0xFF475569),
+                            ? AppTheme.primaryDark
+                            : AppTheme.textSecondary,
                       ),
                     ),
                   ),
@@ -677,7 +677,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF0F172A),
+                      color: AppTheme.textPrimary,
                     ),
                   ),
                 ],
@@ -748,7 +748,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
             width: 40,
             height: 40,
             decoration: const BoxDecoration(
-              color: Color(0xFFF8FAFC),
+              color: AppTheme.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -767,7 +767,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF0F172A),
+                    color: AppTheme.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -819,13 +819,13 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
       case 'assigned':
       case 'in_transit':
       case 'on_the_way':
-        return (const Color(0xFFDCFCE7), const Color(0xFF14532D));
+        return (AppTheme.primarySurface, AppTheme.primaryDark);
       case 'cancelled':
         return (const Color(0xFFFEE2E2), const Color(0xFF991B1B));
       case 'rescheduled':
         return (const Color(0xFFFFD9DF), const Color(0xFF6F3443));
       default:
-        return (const Color(0xFFE2E8F0), const Color(0xFF475569));
+        return (AppTheme.outline, AppTheme.textSecondary);
     }
   }
 

@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../../core/config/app_config.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 
@@ -21,6 +25,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   bool _hasSubmitted = false;
+  File? _selectedPhoto;
+  bool _removePhoto = false;
 
   @override
   void initState() {
@@ -59,12 +65,40 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     return null;
   }
 
+  Future<void> _pickProfilePhoto() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (picked == null) return;
+    setState(() {
+      _selectedPhoto = File(picked.path);
+      _removePhoto = false;
+    });
+  }
+
+  void _removeProfilePhoto() {
+    setState(() {
+      _selectedPhoto = null;
+      _removePhoto = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final profileState = ref.watch(profileProvider);
     final isLoading = profileState is AsyncLoading;
+    final user = ref.watch(authProvider);
+    final profilePhoto = user?.profilePhoto?.trim();
+    final hasRemotePhoto = profilePhoto != null && profilePhoto.isNotEmpty;
+    final remotePhotoUrl = hasRemotePhoto
+        ? (profilePhoto.startsWith('http')
+              ? profilePhoto
+              : '${AppConfig.instance.baseUrl.replaceAll('/api', '')}/$profilePhoto')
+        : null;
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF102213) : Colors.white,
@@ -77,7 +111,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : AppTheme.textPrimary,
             size: 28,
           ),
           onPressed: () => context.pop(),
@@ -85,7 +119,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         title: Text(
           'edit_profile.title'.tr(),
           style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : AppTheme.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -120,16 +154,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               color: Colors.grey.shade200,
                               border: Border.all(
                                 color: isDark
-                                    ? const Color(0xFF1E293B)
-                                    : const Color(0xFFF1F5F9),
+                                    ? AppTheme.textPrimary
+                                    : AppTheme.hairline,
                                 width: 4,
                               ),
-                              image: const DecorationImage(
-                                image: NetworkImage(
-                                  'https://lh3.googleusercontent.com/aida-public/AB6AXuCGi7qWJ4OHhnKcOEApWEas0qyL2USsJrKxyNYW3trzZ8TQNeP2Jbl3Cx6rJ17IaSJLwE6GO5aN9zYqD1bNmT34NJ0FHuaUsNzniUMXGsxO168tqqMUZDs5Z2J8TsQB6KmT9jmLDXG2wN4aLY3g8eKfQl9_AGYX8qk8UwF-0UIFsNglhJJZoKqUZEefvXvJ0qpXMzFGgP4FQVwKHibcNjfCL2BmuTrpsXDwAHoK6KyAlwXmU6nJ8y3KUD6LR4edjOG7kg5IebtpGAI',
-                                ),
-                                fit: BoxFit.cover,
-                              ),
+                              image: _selectedPhoto != null
+                                  ? DecorationImage(
+                                      image: FileImage(_selectedPhoto!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : (!_removePhoto && remotePhotoUrl != null
+                                      ? DecorationImage(
+                                          image: NetworkImage(remotePhotoUrl),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null),
                             ),
                           ),
                           Container(
@@ -163,7 +202,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       ),
                       const SizedBox(height: 16),
                       TextButton.icon(
-                        onPressed: () {},
+                        onPressed: _pickProfilePhoto,
                         icon: const Icon(
                           Icons.edit,
                           color: AppTheme.primaryColor,
@@ -186,6 +225,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           ),
                         ),
                       ),
+                      if (_selectedPhoto != null || (!_removePhoto && hasRemotePhoto))
+                        TextButton.icon(
+                          onPressed: _removeProfilePhoto,
+                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                          label: const Text(
+                            'Remove photo',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -228,7 +280,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             style: TextStyle(
                               color: isDark
                                   ? Colors.white
-                                  : const Color(0xFF0F172A),
+                                  : AppTheme.textPrimary,
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                             ),
@@ -291,8 +343,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   border: Border(
                     top: BorderSide(
                       color: isDark
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFFF1F5F9),
+                          ? AppTheme.textPrimary
+                          : AppTheme.hairline,
                     ),
                   ),
                 ),
@@ -312,6 +364,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               .updateProfile(
                                 name: _nameController.text,
                                 email: _emailController.text,
+                                profilePhoto: _selectedPhoto,
+                                removePhoto: _removePhoto,
                               );
                           if (!mounted) {
                             return;
@@ -363,7 +417,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             Text(
               label,
               style: TextStyle(
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                color: isDark ? Colors.white : AppTheme.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -375,18 +429,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           controller: controller,
           keyboardType: keyboardType,
           style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : AppTheme.textPrimary,
             fontSize: 18,
           ),
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: TextStyle(
               color: isDark
-                  ? const Color(0xFF94A3B8)
-                  : const Color(0xFF94A3B8), // slate-400
+                  ? AppTheme.textMuted
+                  : AppTheme.textMuted, // slate-400
             ),
             filled: true,
-            fillColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+            fillColor: isDark ? AppTheme.textPrimary : Colors.white,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 20,
@@ -395,16 +449,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: isDark
-                    ? const Color(0xFF475569)
-                    : const Color(0xFFCBD5E1),
+                    ? AppTheme.textSecondary
+                    : AppTheme.outline,
               ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
                 color: isDark
-                    ? const Color(0xFF475569)
-                    : const Color(0xFFCBD5E1),
+                    ? AppTheme.textSecondary
+                    : AppTheme.outline,
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -432,7 +486,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             Text(
               'edit_profile.phone'.tr(),
               style: TextStyle(
-                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                color: isDark ? Colors.white : AppTheme.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -444,8 +498,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
           decoration: BoxDecoration(
             color: isDark
-                ? const Color(0xFF1E293B).withValues(alpha: 0.5)
-                : const Color(0xFFF1F5F9),
+                ? AppTheme.textPrimary.withValues(alpha: 0.5)
+                : AppTheme.hairline,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -455,8 +509,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   '+91 98765 43210',
                   style: TextStyle(
                     color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B),
+                        ? AppTheme.textMuted
+                        : AppTheme.textSecondary,
                     fontSize: 18,
                   ),
                 ),
@@ -464,8 +518,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               Icon(
                 Icons.lock,
                 color: isDark
-                    ? const Color(0xFF94A3B8)
-                    : const Color(0xFF94A3B8),
+                    ? AppTheme.textMuted
+                    : AppTheme.textMuted,
                 size: 20,
               ),
             ],
@@ -477,7 +531,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           child: Text(
             'edit_profile.phone_locked'.tr(),
             style: TextStyle(
-              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+              color: isDark ? AppTheme.textMuted : AppTheme.textSecondary,
               fontSize: 12,
             ),
           ),
@@ -506,12 +560,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppTheme.primaryColor.withValues(alpha: 0.1)
-              : (isDark ? const Color(0xFF1E293B) : Colors.white),
+              : (isDark ? AppTheme.textPrimary : Colors.white),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
                 ? AppTheme.primaryColor
-                : (isDark ? const Color(0xFF475569) : const Color(0xFFE2E8F0)),
+                : (isDark ? AppTheme.textSecondary : AppTheme.outline),
             width: isSelected ? 2 : 1.5,
           ),
         ),
@@ -524,17 +578,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               color: isSelected
                   ? AppTheme.primaryColor
                   : (isDark
-                        ? const Color(0xFF64748B)
-                        : const Color(0xFF94A3B8)),
+                        ? AppTheme.textSecondary
+                        : AppTheme.textMuted),
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 color: isSelected
-                    ? (isDark ? Colors.white : const Color(0xFF0F172A))
+                    ? (isDark ? Colors.white : AppTheme.textPrimary)
                     : (isDark
-                          ? const Color(0xFFCBD5E1)
+                          ? AppTheme.outline
                           : const Color(0xFF334155)),
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

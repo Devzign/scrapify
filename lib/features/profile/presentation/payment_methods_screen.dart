@@ -28,7 +28,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : AppTheme.textPrimary,
             size: 24,
           ),
           onPressed: () => context.pop(),
@@ -36,7 +36,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
         title: Text(
           'payment.title'.tr(),
           style: TextStyle(
-            color: isDark ? Colors.white : const Color(0xFF0F172A),
+            color: isDark ? Colors.white : AppTheme.textPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -84,15 +84,15 @@ class PaymentMethodsScreen extends ConsumerWidget {
                               decoration: BoxDecoration(
                                 color: isDark
                                     ? Colors.white.withValues(alpha: 0.05)
-                                    : const Color(0xFFF8FAFC),
+                                    : AppTheme.backgroundCream,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
                                 Icons.account_balance_wallet_outlined,
                                 size: 42,
                                 color: isDark
-                                    ? const Color(0xFFCBD5E1)
-                                    : const Color(0xFF94A3B8),
+                                    ? AppTheme.outline
+                                    : AppTheme.textMuted,
                               ),
                             ),
                             const SizedBox(height: 18),
@@ -101,7 +101,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
                               style: TextStyle(
                                 color: isDark
                                     ? Colors.white
-                                    : const Color(0xFF0F172A),
+                                    : AppTheme.textPrimary,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -112,8 +112,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: isDark
-                                    ? const Color(0xFF94A3B8)
-                                    : const Color(0xFF64748B),
+                                    ? AppTheme.textMuted
+                                    : AppTheme.textSecondary,
                                 fontSize: 14,
                               ),
                             ),
@@ -176,7 +176,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
                           'payment.info'.tr(),
                           style: TextStyle(
                             color: isDark
-                                ? const Color(0xFFCBD5E1)
+                                ? AppTheme.outline
                                 : const Color(0xFF334155),
                             fontSize: 14,
                           ),
@@ -242,10 +242,10 @@ class PaymentMethodsScreen extends ConsumerWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        color: isDark ? AppTheme.textPrimary : Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+          color: isDark ? AppTheme.textPrimary : AppTheme.hairline,
         ),
       ),
       child: Column(
@@ -261,8 +261,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
                     color: method.isDefault
                         ? AppTheme.primaryColor.withValues(alpha: 0.1)
                         : (isDark
-                              ? const Color(0xFF1E293B)
-                              : const Color(0xFFF1F5F9)),
+                              ? AppTheme.textPrimary
+                              : AppTheme.hairline),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -272,8 +272,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
                               ? AppTheme.primaryColor
                               : const Color(0xFF0FB825))
                         : (isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF475569)),
+                              ? AppTheme.textMuted
+                              : AppTheme.textSecondary),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -288,7 +288,7 @@ class PaymentMethodsScreen extends ConsumerWidget {
                             style: TextStyle(
                               color: isDark
                                   ? Colors.white
-                                  : const Color(0xFF0F172A),
+                                  : AppTheme.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -323,8 +323,8 @@ class PaymentMethodsScreen extends ConsumerWidget {
                         subtitle,
                         style: TextStyle(
                           color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF475569),
+                              ? AppTheme.textMuted
+                              : AppTheme.textSecondary,
                           fontSize: 14,
                         ),
                       ),

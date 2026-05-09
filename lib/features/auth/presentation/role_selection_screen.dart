@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
@@ -27,94 +28,131 @@ class RoleSelectionScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColor.backgroundLight,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         child: CustomButton(
-          onPressed: () {
-            context.push(AppRoutes.login, extra: {'role': state.selectedRole});
-          },
+          onPressed: state.isLoading
+              ? null
+              : () {
+                  context.push(
+                    AppRoutes.login,
+                    extra: {'role': state.selectedRole},
+                  );
+                },
           text: 'common.continue'.tr(),
-          trailing: const FaIcon(FontAwesomeIcons.arrowRight, size: 20),
+          trailing: const FaIcon(FontAwesomeIcons.arrowRight, size: 18),
         ),
       ),
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: 16.h),
-                Center(
-                  child: Container(
-                    height: 72.w,
-                    width: 72.w,
-                    decoration: const BoxDecoration(
-                      color: AppTheme.primaryLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Center(
-                      child: FaIcon(
-                        FontAwesomeIcons.users,
-                        color: AppTheme.primaryColor,
-                        size: 32,
-                      ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -120,
+              left: -80,
+              right: -80,
+              child: IgnorePointer(
+                child: Container(
+                  height: 360,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        AppColor.primary.withValues(alpha: 0.14),
+                        Colors.transparent,
+                      ],
                     ),
                   ),
                 ),
-                SizedBox(height: 24.h),
-                Text(
-                  'role.title'.tr(),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontSize: 24),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 12.h),
-                Text(
-                  'role.subtitle'.tr(),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textSecondary,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 24.h),
-                Expanded(
-                  child: ListView.separated(
-                    padding: EdgeInsets.only(bottom: 16.h),
-                    itemCount: roles.length,
-                    separatorBuilder: (_, _) => SizedBox(height: 16.h),
-                    itemBuilder: (context, index) {
-                      final role = roles[index];
-                      return RoleOptionCard(
-                        icon: _iconForRole(role.code),
-                        title: _titleForRole(role),
-                        description: _descriptionForRole(role),
-                        isSelected: state.selectedRole == role.code,
-                        onTap: () => viewModel.selectRole(role.code),
-                      );
-                    },
-                  ),
-                ),
-                if (state.error != null && state.roles.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(
-                      state.error!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppTheme.errorColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-              ],
+              ),
             ),
-          ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    SizedBox(height: 8.h),
+                    Center(
+                      child: Container(
+                        height: 76.w,
+                        width: 76.w,
+                        decoration: BoxDecoration(
+                          color: AppColor.primarySurface,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: AppColor.primary.withValues(alpha: 0.18),
+                            width: 1,
+                          ),
+                        ),
+                        child: const Center(
+                          child: FaIcon(
+                            FontAwesomeIcons.users,
+                            color: AppColor.primary,
+                            size: 30,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 22.h),
+                    const Text(
+                      'Select Your Role',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: AppColor.deepNavy,
+                        letterSpacing: -0.4,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Text(
+                      'role.subtitle'.tr(),
+                      style: const TextStyle(
+                        color: AppColor.textSecondary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        height: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 22.h),
+                    Expanded(
+                      child: ListView.separated(
+                        padding: EdgeInsets.only(bottom: 16.h),
+                        itemCount: roles.length,
+                        separatorBuilder: (_, _) => SizedBox(height: 14.h),
+                        itemBuilder: (context, index) {
+                          final role = roles[index];
+                          return RoleOptionCard(
+                            icon: _iconForRole(role.code),
+                            title: _titleForRole(role),
+                            description: _descriptionForRole(role),
+                            isSelected: state.selectedRole == role.code,
+                            onTap: () => viewModel.selectRole(role.code),
+                          );
+                        },
+                      ),
+                    ),
+                    if (state.error != null && state.roles.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(
+                          state.error!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppTheme.errorColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -142,13 +180,6 @@ class RoleSelectionScreen extends ConsumerWidget {
         description: '',
         visible: true,
         sortOrder: 3,
-      ),
-      UserTypeOption(
-        code: 'channel_partner',
-        name: 'Channel Partner',
-        description: '',
-        visible: true,
-        sortOrder: 4,
       ),
     ];
   }

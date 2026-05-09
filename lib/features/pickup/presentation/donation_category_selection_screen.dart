@@ -56,7 +56,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: AppTheme.cardBorderRadius,
-                        border: Border.all(color: const Color(0xFFE8EAF2)),
+                        border: Border.all(color: AppTheme.cardBorderColor),
                         boxShadow: AppTheme.cardShadow,
                       ),
                       child: Column(
@@ -68,7 +68,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFEEF1),
+                              color: AppTheme.hintPeach,
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Row(
@@ -76,7 +76,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                               children: [
                                 const Icon(
                                   Icons.favorite_rounded,
-                                  color: Color(0xFFF43F5E),
+                                  color: AppTheme.errorColor,
                                   size: 18,
                                 ),
                                 const SizedBox(width: 8),
@@ -85,7 +85,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                                       ? 'समुदाय को वापस दें'
                                       : 'Give Back to Community',
                                   style: const TextStyle(
-                                    color: Color(0xFFF43F5E),
+                                    color: AppTheme.errorColor,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 14,
                                   ),
@@ -97,7 +97,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                           Text(
                             isHindi ? 'वस्तुएं दान करें' : 'Donate Items',
                             style: const TextStyle(
-                              fontSize: 32,
+                              fontSize: 24,
                               fontWeight: FontWeight.w900,
                               color: AppTheme.textPrimary,
                             ),
@@ -108,7 +108,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                                 ? 'पुराने कपड़े और फर्नीचर दान करें।'
                                 : 'Support social causes with reusable goods',
                             style: const TextStyle(
-                              fontSize: 17,
+                              fontSize: 14,
                               color: AppTheme.textSecondary,
                               fontWeight: FontWeight.w500,
                             ),
@@ -119,7 +119,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                                 ? 'आज आप क्या दान करना चाहते हैं? हम अभी कपड़े और पुराने फर्नीचर स्वीकार कर रहे हैं।'
                                 : 'Choose what you want to donate today. We are currently accepting clothes and old furniture.',
                             style: const TextStyle(
-                              fontSize: 15,
+                              fontSize: 14,
                               height: 1.5,
                               color: AppTheme.textSecondary,
                             ),
@@ -133,7 +133,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                           ? 'आज क्या दान करना है?'
                           : 'What would you like to donate today?',
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: AppTheme.textPrimary,
                       ),
@@ -190,9 +190,9 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEAF6EE),
+                        color: AppTheme.primarySurface,
                         borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: const Color(0xFFD7ECDD)),
+                        border: Border.all(color: AppTheme.primaryLight),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +203,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFD9EEDC),
+                              color: AppTheme.primarySurface,
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: const Text(
@@ -324,7 +324,7 @@ class _DonationCategoryCard extends StatelessWidget {
         borderRadius: AppTheme.cardBorderRadius,
         boxShadow: AppTheme.cardShadow,
         border: Border.all(
-          color: isSelected ? AppTheme.primaryColor : const Color(0xFFE9EEF5),
+          color: isSelected ? AppTheme.primaryColor : AppTheme.cardBorderColor,
           width: isSelected ? 2 : 1,
         ),
       ),
@@ -335,7 +335,7 @@ class _DonationCategoryCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFFEAF6EE),
+              color: AppTheme.primarySurface,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(icon, color: AppTheme.primaryColor),
@@ -344,7 +344,7 @@ class _DonationCategoryCard extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w800,
               color: AppTheme.textPrimary,
             ),
@@ -363,7 +363,7 @@ class _DonationCategoryCard extends StatelessWidget {
                   child: Text(
                     '$quantity',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.w800,
                       color: isSelected
                           ? AppTheme.primaryColor
@@ -396,17 +396,13 @@ class _QuantityButton extends StatelessWidget {
         width: 34,
         height: 34,
         decoration: BoxDecoration(
-          color: onTap == null
-              ? const Color(0xFFF1F5F9)
-              : const Color(0xFFEAF6EE),
+          color: onTap == null ? AppTheme.hairline : AppTheme.primarySurface,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
           icon,
           size: 18,
-          color: onTap == null
-              ? const Color(0xFFB6C1CD)
-              : AppTheme.primaryColor,
+          color: onTap == null ? AppTheme.outline : AppTheme.primaryColor,
         ),
       ),
     );

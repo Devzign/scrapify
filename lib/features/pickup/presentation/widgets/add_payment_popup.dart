@@ -200,6 +200,16 @@ class _AddPaymentPopupState extends ConsumerState<AddPaymentPopup> {
                     validator: _validateUpiId,
                   ),
                 ],
+                const SizedBox(height: 10),
+                const Text(
+                  'Note: Please add your original ID because we will transfer money to your UPI or bank account.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppTheme.textSecondary,
+                    fontWeight: FontWeight.w500,
+                    height: 1.35,
+                  ),
+                ),
                 const SizedBox(height: 32),
                 CustomButton(
                   onPressed: _isLoading ? null : _handleSave,
@@ -257,18 +267,18 @@ class _AddPaymentPopupState extends ConsumerState<AddPaymentPopup> {
           decoration: InputDecoration(
             hintText: hint,
             filled: true,
-            fillColor: const Color(0xFFF8FAFC),
+            fillColor: AppTheme.backgroundCream,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 16,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              borderSide: const BorderSide(color: AppTheme.outline),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+              borderSide: const BorderSide(color: AppTheme.outline),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),

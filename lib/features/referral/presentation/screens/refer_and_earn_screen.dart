@@ -6,6 +6,8 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/user_role_helper.dart';
+import '../../../../core/widgets/app_scaffold.dart';
+import '../../../../core/widgets/app_section_header.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../providers/referral_provider.dart';
 import '../widgets/how_it_works_card.dart';
@@ -36,7 +38,7 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
     final isCustomer = isCustomerUser(user);
 
     if (!isCustomer) {
-      return Scaffold(
+      return AppScaffold(
         appBar: AppBar(
           title: const Text('Refer & Earn'),
           leading: IconButton(
@@ -50,8 +52,7 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+    return AppScaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -72,13 +73,9 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           children: [
-            const Text(
-              'Invite your friends and earn rewards',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppTheme.textSecondary,
-                fontWeight: FontWeight.w500,
-              ),
+            const AppSectionHeader(
+              title: 'Refer & Earn',
+              subtitle: 'Invite your friends and earn rewards',
             ),
             const SizedBox(height: 16),
             if (referralState.isLoading)
@@ -99,13 +96,11 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
               const SizedBox(height: 16),
               const HowItWorksCard(),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'My Rewards / Coupons',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textPrimary,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 12),
               if (referralState.rewards.isEmpty)

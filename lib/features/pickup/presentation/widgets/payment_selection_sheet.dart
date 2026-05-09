@@ -83,7 +83,7 @@ class PaymentSelectionSheet extends ConsumerWidget {
                           border: Border.all(
                             color: isSelected
                                 ? AppTheme.primaryColor
-                                : const Color(0xFFE2E8F0),
+                                : AppTheme.outline,
                             width: isSelected ? 2 : 1,
                           ),
                         ),
