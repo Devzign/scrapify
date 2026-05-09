@@ -90,7 +90,7 @@ class _SelectAddressTimeScreenState
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+                padding: const EdgeInsets.fromLTRB(24, 14, 24, 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -112,7 +112,7 @@ class _SelectAddressTimeScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     addressesAsync.when(
                       data: (addresses) {
                         if (addresses.isEmpty) {
@@ -129,8 +129,8 @@ class _SelectAddressTimeScreenState
                                   .read(bookingProvider.notifier)
                                   .setSelectedAddress(addr),
                               child: Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                padding: const EdgeInsets.all(16),
+                                margin: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.all(14),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: AppTheme.cardBorderRadius,
@@ -157,7 +157,7 @@ class _SelectAddressTimeScreenState
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 14),
+                                    const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -172,7 +172,7 @@ class _SelectAddressTimeScreenState
                                               letterSpacing: 1.1,
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
+                                          const SizedBox(height: 2),
                                           Text(
                                             addr.addressLine1,
                                             style: const TextStyle(
@@ -215,7 +215,7 @@ class _SelectAddressTimeScreenState
                           Text('Error loading addresses: $err'),
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 18),
 
                     // --- Date Selection ---
                     Text(
@@ -226,9 +226,9 @@ class _SelectAddressTimeScreenState
                         color: AppTheme.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
                     SizedBox(
-                      height: 120,
+                      height: 112,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: 7,
@@ -247,7 +247,7 @@ class _SelectAddressTimeScreenState
                                 .setSelectedDate(date),
                             child: Container(
                               width: 92,
-                              margin: const EdgeInsets.only(right: 12),
+                              margin: const EdgeInsets.only(right: 10),
                               decoration: BoxDecoration(
                                 gradient: isSelected
                                     ? AppTheme.primaryGradient
@@ -280,7 +280,7 @@ class _SelectAddressTimeScreenState
                                       letterSpacing: 1.1,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 6),
                                   Text(
                                     DateFormat('dd').format(date),
                                     style: TextStyle(
@@ -291,7 +291,7 @@ class _SelectAddressTimeScreenState
                                           : AppTheme.textPrimary,
                                     ),
                                   ),
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 4),
                                   Text(
                                     DateFormat(
                                       'EEE',
@@ -313,18 +313,18 @@ class _SelectAddressTimeScreenState
                       ),
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 18),
 
                     // --- Time Selection ---
                     Text(
                       'date_time.select_time'.tr(),
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: AppTheme.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 10),
                     if (_isSlotsLoading)
                       const Padding(
                         padding: EdgeInsets.only(bottom: 12),
@@ -372,10 +372,10 @@ class _SelectAddressTimeScreenState
                                 .read(bookingProvider.notifier)
                                 .setSelectedTimeSlot(time),
                             child: Container(
-                              margin: const EdgeInsets.only(bottom: 12),
+                              margin: const EdgeInsets.only(bottom: 10),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
+                                horizontal: 14,
+                                vertical: 12,
                               ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -391,8 +391,8 @@ class _SelectAddressTimeScreenState
                               child: Row(
                                 children: [
                                   Container(
-                                    width: 44,
-                                    height: 44,
+                                    width: 40,
+                                    height: 40,
                                     decoration: BoxDecoration(
                                       color: isSelected
                                           ? AppTheme.primaryColor
@@ -405,16 +405,16 @@ class _SelectAddressTimeScreenState
                                         color: isSelected
                                             ? Colors.white
                                             : AppTheme.textMuted,
-                                        size: 18,
+                                        size: 16,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 14),
+                                  const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
                                       time,
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.w800,
                                         color: isSelected
                                             ? AppTheme.primaryColor
@@ -426,7 +426,7 @@ class _SelectAddressTimeScreenState
                                     const FaIcon(
                                       FontAwesomeIcons.solidCircleCheck,
                                       color: AppTheme.primaryColor,
-                                      size: 22,
+                                      size: 20,
                                     ),
                                 ],
                               ),
@@ -441,7 +441,7 @@ class _SelectAddressTimeScreenState
 
             // --- Bottom Button ---
             Container(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -473,13 +473,13 @@ class _SelectAddressTimeScreenState
                                 letterSpacing: 1.2,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Text(
                               isDonationFlow
                                   ? 'Schedule donation collection'
                                   : 'Scrap pickup booking',
                               style: const TextStyle(
-                                fontSize: 14,
+                                fontSize: 13,
                                 fontWeight: FontWeight.bold,
                                 color: AppTheme.textPrimary,
                               ),
@@ -498,13 +498,13 @@ class _SelectAddressTimeScreenState
                                 letterSpacing: 1.2,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Text(
                               isDonationFlow
                                   ? '${donationItems.items.fold<int>(0, (sum, item) => sum + item.quantity.round())} item(s)'
                                   : '${basketItems.length} item(s)',
                               style: const TextStyle(
-                                fontSize: 24,
+                                fontSize: 22,
                                 fontWeight: FontWeight.w900,
                                 color: AppTheme.primaryColor,
                               ),
@@ -513,7 +513,7 @@ class _SelectAddressTimeScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                     CustomButton(
                       onPressed:
                           booking.selectedAddress != null &&
@@ -527,7 +527,7 @@ class _SelectAddressTimeScreenState
                       text: isDonationFlow
                           ? 'REVIEW DONATION'
                           : 'REVIEW BOOKING',
-                      minHeight: 54,
+                      minHeight: 52,
                       borderRadius: 20,
                     ),
                   ],
