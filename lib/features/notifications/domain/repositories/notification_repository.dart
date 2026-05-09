@@ -41,20 +41,20 @@ class NotificationRepository {
     );
   }
 
-  Future<ApiResponse<void>> readNotification(String id) async {
+  Future<ApiResponse<bool>> readNotification(String id) async {
     final response = await _apiClient.post(ApiEndpoints.notificationRead(id));
     if (response.isSuccess) {
-      return ApiResponse.success(null);
+      return ApiResponse.success(true);
     }
     return ApiResponse.error(
       response.errorMessage ?? 'Failed to read notification',
     );
   }
 
-  Future<ApiResponse<void>> readAllNotifications() async {
+  Future<ApiResponse<bool>> readAllNotifications() async {
     final response = await _apiClient.post(ApiEndpoints.notificationsReadAll);
     if (response.isSuccess) {
-      return ApiResponse.success(null);
+      return ApiResponse.success(true);
     }
     return ApiResponse.error(
       response.errorMessage ?? 'Failed to read all notifications',

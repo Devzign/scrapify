@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_shimmer.dart';
@@ -77,12 +77,12 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
           onPressed: () => context.pop(),
         ),
         title: const Text(
-          'Help & Support',
+          'help_support.title',
           style: TextStyle(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.w800,
           ),
-        ),
+        ).tr(),
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(helpSupportProvider.notifier).loadTickets(),
@@ -97,18 +97,18 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
                 border: Border.all(color: const Color(0xFFBFD3FF)),
               ),
               child: const Text(
-                'Still need help? Raise a support request and our team will contact you.',
+                'help_support.banner_text',
                 style: TextStyle(
                   color: Color(0xFF0A0AC2),
                   fontWeight: FontWeight.w700,
                 ),
-              ),
+              ).tr(),
             ),
             const SizedBox(height: 16),
             _buildFormCard(supportState.isSubmitting),
             const SizedBox(height: 20),
-            const Text(
-              'Previous Requests',
+            Text(
+              'help_support.previous_requests'.tr(),
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -128,12 +128,12 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
                   boxShadow: AppTheme.cardShadow,
                 ),
                 child: const Text(
-                  'No support requests yet.',
+                  'help_support.no_requests',
                   style: TextStyle(
                     color: AppTheme.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
-                ),
+                ).tr(),
               )
             else
               ...supportState.tickets.map(_buildTicketCard),
@@ -156,14 +156,14 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
         children: [
           TextField(
             controller: _subjectController,
-            decoration: _inputDecoration('Subject'),
+            decoration: _inputDecoration('help_support.subject'.tr()),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _messageController,
             minLines: 4,
             maxLines: 6,
-            decoration: _inputDecoration('Message'),
+            decoration: _inputDecoration('help_support.message'.tr()),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -173,13 +173,13 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(10),
             ],
-            decoration: _inputDecoration('Phone number'),
+            decoration: _inputDecoration('help_support.phone'.tr()),
           ),
           const SizedBox(height: 16),
           CustomButton(
             onPressed: isSubmitting ? null : _submit,
             isLoading: isSubmitting,
-            text: 'Submit Request',
+            text: 'help_support.submit'.tr(),
             borderRadius: 12,
           ),
         ],
@@ -321,7 +321,7 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
     if (orderId != null && dateLabel.isNotEmpty) {
       return 'Order #$orderId • $dateLabel';
     }
-    if (orderId != null) return 'Order #$orderId';
+    if (orderId != null) return '${'help_support.order'.tr()} #$orderId';
     return dateLabel;
   }
 
@@ -332,13 +332,13 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
 
     if (subject.isEmpty || message.isEmpty || phone.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill subject, message and phone')),
+        SnackBar(content: Text('help_support.fill_all'.tr())),
       );
       return;
     }
     if (!RegExp(r'^\d{10}$').hasMatch(phone)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid 10-digit mobile number')),
+        SnackBar(content: Text('help_support.invalid_phone'.tr())),
       );
       return;
     }
@@ -356,9 +356,7 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
     if (success) {
       _messageController.clear();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Support request submitted successfully.'),
-        ),
+        SnackBar(content: Text('help_support.submitted'.tr())),
       );
     }
   }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../domain/models/pickup_request_model.dart';
 import '../providers/pickup_provider.dart';
 
 class UserReschedulePickupScreen extends ConsumerStatefulWidget {
@@ -74,6 +75,9 @@ class _UserReschedulePickupScreenState
   @override
   Widget build(BuildContext context) {
     final pickupState = ref.watch(pickupProvider);
+    final pickupDetailAsync = widget.pickupId != null
+        ? ref.watch(pickupDetailProvider(widget.pickupId!))
+        : null;
     final isHindi = context.locale.languageCode == 'hi';
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
@@ -107,23 +111,23 @@ class _UserReschedulePickupScreenState
             padding: const EdgeInsets.only(
               left: 24,
               right: 24,
-              top: 24,
+              top: 18,
             ).copyWith(bottom: 190 + bottomInset),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildCurrentSlotCard(),
-                const SizedBox(height: 32),
+                _buildCurrentSlotCard(pickupDetailAsync, isHindi),
+                const SizedBox(height: 24),
                 _buildDateSelectionHeader(isHindi),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildDateList(),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
                 _buildTimeSlotHeader(isHindi),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildTimeSlotList(isHindi),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
                 _buildReasonHeader(isHindi),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 _buildReasonChips(isHindi),
               ],
             ),
@@ -134,9 +138,22 @@ class _UserReschedulePickupScreenState
     );
   }
 
-  Widget _buildCurrentSlotCard() {
+  Widget _buildCurrentSlotCard(
+    AsyncValue<PickupRequestModel>? pickupDetailAsync,
+    bool isHindi,
+  ) {
+    final detail = pickupDetailAsync?.maybeWhen(
+      data: (d) => d,
+      orElse: () => null,
+    );
+    final slotText = detail != null
+        ? DateFormat(
+            isHindi ? 'dd MMM, hh:mm a' : 'MMM dd, hh:mm a',
+          ).format(detail.scheduledAt.toLocal())
+        : (isHindi ? 'लोड हो रहा है...' : 'Loading...');
+
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
@@ -178,17 +195,19 @@ class _UserReschedulePickupScreenState
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Oct 24, 4:00 PM',
-                    style: TextStyle(
+                  Text(
+                    slotText.toUpperCase(),
+                    style: const TextStyle(
                       color: AppTheme.textPrimary,
                       fontWeight: FontWeight.w900,
-                      fontSize: 20,
+                      fontSize: 18,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
-                    'Too busy for this time? No worries.',
+                    isHindi
+                        ? 'इस समय में व्यस्त हैं? कोई बात नहीं।'
+                        : 'Too busy for this time? No worries.',
                     style: TextStyle(
                       color: Colors.grey.shade600,
                       fontSize: 12,
@@ -234,7 +253,7 @@ class _UserReschedulePickupScreenState
 
   Widget _buildDateList() {
     return SizedBox(
-      height: 120,
+      height: 108,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _dateOptions.length,
@@ -247,7 +266,7 @@ class _UserReschedulePickupScreenState
             onTap: () => setState(() => _selectedDate = option['date']),
             borderRadius: BorderRadius.circular(20),
             child: Container(
-              width: 90,
+              width: 86,
               decoration: BoxDecoration(
                 color: isSelected ? AppTheme.primaryColor : Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -284,16 +303,16 @@ class _UserReschedulePickupScreenState
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     '${option['day']}',
                     style: TextStyle(
                       color: isSelected ? Colors.white : AppTheme.textPrimary,
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     option['month'],
                     style: TextStyle(
@@ -332,12 +351,12 @@ class _UserReschedulePickupScreenState
       children: _timeSlots.map((slot) {
         final isSelected = _selectedTimeSlot == slot['id'];
         return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: 10),
           child: InkWell(
             onTap: () => setState(() => _selectedTimeSlot = slot['id']),
             borderRadius: BorderRadius.circular(20),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: isSelected ? AppTheme.primaryColor : Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -373,7 +392,7 @@ class _UserReschedulePickupScreenState
                       color: isSelected ? Colors.white : Colors.grey,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -557,7 +576,7 @@ class _UserReschedulePickupScreenState
                       ],
                     ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
               (isHindi ? 'नया स्लॉट सुनिश्चित करें' : 'Confirm New Slot')
                   .toUpperCase(),

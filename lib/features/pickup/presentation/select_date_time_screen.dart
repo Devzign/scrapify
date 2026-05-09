@@ -90,7 +90,7 @@ class _SelectAddressTimeScreenState
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -112,7 +112,7 @@ class _SelectAddressTimeScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 12),
                     addressesAsync.when(
                       data: (addresses) {
                         if (addresses.isEmpty) {
@@ -129,7 +129,7 @@ class _SelectAddressTimeScreenState
                                   .read(bookingProvider.notifier)
                                   .setSelectedAddress(addr),
                               child: Container(
-                                margin: const EdgeInsets.only(bottom: 10),
+                                margin: const EdgeInsets.only(bottom: 12),
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -215,7 +215,7 @@ class _SelectAddressTimeScreenState
                           Text('Error loading addresses: $err'),
                     ),
 
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 28),
 
                     // --- Date Selection ---
                     Text(
@@ -226,9 +226,9 @@ class _SelectAddressTimeScreenState
                         color: AppTheme.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 14),
                     SizedBox(
-                      height: 92,
+                      height: 120,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
                         itemCount: 7,
@@ -246,14 +246,14 @@ class _SelectAddressTimeScreenState
                                 .read(bookingProvider.notifier)
                                 .setSelectedDate(date),
                             child: Container(
-                              width: 70,
-                              margin: const EdgeInsets.only(right: 10),
+                              width: 92,
+                              margin: const EdgeInsets.only(right: 12),
                               decoration: BoxDecoration(
                                 gradient: isSelected
                                     ? AppTheme.primaryGradient
                                     : null,
                                 color: isSelected ? null : Colors.white,
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(24),
                                 boxShadow: isSelected
                                     ? AppTheme.softShadow
                                     : null,
@@ -272,7 +272,7 @@ class _SelectAddressTimeScreenState
                                       'MMM',
                                     ).format(date).toUpperCase(),
                                     style: TextStyle(
-                                      fontSize: 10,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w800,
                                       color: isSelected
                                           ? Colors.white.withValues(alpha: 0.9)
@@ -280,24 +280,24 @@ class _SelectAddressTimeScreenState
                                       letterSpacing: 1.1,
                                     ),
                                   ),
-                                  const SizedBox(height: 6),
+                                  const SizedBox(height: 8),
                                   Text(
                                     DateFormat('dd').format(date),
                                     style: TextStyle(
-                                      fontSize: 24,
+                                      fontSize: 28,
                                       fontWeight: FontWeight.w900,
                                       color: isSelected
                                           ? Colors.white
                                           : AppTheme.textPrimary,
                                     ),
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 6),
                                   Text(
                                     DateFormat(
                                       'EEE',
                                     ).format(date).toUpperCase(),
                                     style: TextStyle(
-                                      fontSize: 10,
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w800,
                                       color: isSelected
                                           ? Colors.white.withValues(alpha: 0.7)
@@ -313,7 +313,7 @@ class _SelectAddressTimeScreenState
                       ),
                     ),
 
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 28),
 
                     // --- Time Selection ---
                     Text(
@@ -324,7 +324,7 @@ class _SelectAddressTimeScreenState
                         color: AppTheme.textPrimary,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 14),
                     if (_isSlotsLoading)
                       const Padding(
                         padding: EdgeInsets.only(bottom: 12),
@@ -372,7 +372,7 @@ class _SelectAddressTimeScreenState
                                 .read(bookingProvider.notifier)
                                 .setSelectedTimeSlot(time),
                             child: Container(
-                              margin: const EdgeInsets.only(bottom: 10),
+                              margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 14,

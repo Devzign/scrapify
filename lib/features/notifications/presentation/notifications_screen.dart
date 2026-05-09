@@ -9,11 +9,25 @@ import '../../../core/widgets/loading_skeletons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/notification_provider.dart';
 
-class NotificationsScreen extends ConsumerWidget {
+class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
+}
+
+class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(notificationProvider.notifier).getNotifications();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final notificationState = ref.watch(notificationProvider);
 
     final textTheme = Theme.of(context).textTheme;
@@ -25,87 +39,114 @@ class NotificationsScreen extends ConsumerWidget {
               : 'notifications.title'.tr(),
           style: textTheme.headlineMedium,
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: InkWell(
-                  onTap: () {
-                    ref
-                        .read(notificationProvider.notifier)
-                        .readAllNotifications();
-                  },
-                  child: Row(
-                    children: [
-                      const FaIcon(
-                        FontAwesomeIcons.checkDouble,
-                        size: 10,
-                        color: Colors.green,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'notifications.mark_all_read'.tr(),
-                        style: textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
         backgroundColor: AppTheme.backgroundLight,
         elevation: 0,
         toolbarHeight: 80,
       ),
-      body: notificationState.when(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: notificationState.when(
         data: (notifications) {
           if (notifications.isEmpty) {
-            return Center(
-              child: Text(
-                context.locale.languageCode == 'hi'
-                    ? 'कोई नोटिफिकेशन नहीं मिला।'
-                    : 'No notifications found.',
-                style: textTheme.bodyMedium,
+            return null;
+          }
+          return SafeArea(
+            child: SizedBox(
+              width: 210,
+              height: 48,
+              child: FloatingActionButton.extended(
+                heroTag: 'mark_all_read_fab',
+                backgroundColor: Colors.white,
+                foregroundColor: AppTheme.textPrimary,
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  side: BorderSide(color: Colors.grey.shade200),
+                ),
+                onPressed: () {
+                  ref
+                      .read(notificationProvider.notifier)
+                      .readAllNotifications();
+                },
+                icon: const FaIcon(
+                  FontAwesomeIcons.checkDouble,
+                  size: 12,
+                  color: Colors.green,
+                ),
+                label: Text(
+                  'notifications.mark_all_read'.tr(),
+                  style: textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+        loading: () => null,
+        error: (_, __) => null,
+      ),
+      body: notificationState.when(
+        data: (notifications) {
+          final notifier = ref.read(notificationProvider.notifier);
+          if (notifications.isEmpty) {
+            return RefreshIndicator(
+              onRefresh: notifier.getNotifications,
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.55,
+                    child: Center(
+                      child: Text(
+                        context.locale.languageCode == 'hi'
+                            ? 'कोई नोटिफिकेशन नहीं मिला।'
+                            : 'No notifications found.',
+                        style: textTheme.bodyMedium,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           }
-          return ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            itemCount: notifications.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
-            itemBuilder: (context, index) {
-              final notif = notifications[index];
-              return _buildNotificationCard(
-                context: context,
-                icon: FontAwesomeIcons.bell, // Or map based on notif type
-                iconColor: Colors.blue.shade700,
-                iconBg: Colors.blue.shade100,
-                cardBg: notif.isRead ? Colors.white : Colors.blue.shade50,
-                title: notif.title,
-                desc: notif.body,
-                time: notif.createdAt.toString(), // Format as needed
-                isUnread: !notif.isRead,
-                onTap: () {
-                  if (!notif.isRead) {
-                    ref
-                        .read(notificationProvider.notifier)
-                        .readNotification(notif.id);
-                  }
-                },
-              );
-            },
+          return RefreshIndicator(
+            onRefresh: notifier.getNotifications,
+            child: ListView.separated(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              itemCount: notifications.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
+              itemBuilder: (context, index) {
+                final notif = notifications[index];
+                return _buildNotificationCard(
+                  context: context,
+                  icon: FontAwesomeIcons.bell, // Or map based on notif type
+                  iconColor: AppTheme.primaryColor,
+                  iconBg: AppTheme.primaryLight.withValues(alpha: 0.45),
+                  cardBg: notif.isRead
+                      ? Colors.white
+                      : AppTheme.primaryLight.withValues(alpha: 0.22),
+                  title: notif.title,
+                  desc: notif.body,
+                  time: DateFormat('dd MMM yyyy, hh:mm a').format(
+                    notif.createdAt.toLocal(),
+                  ),
+                  isUnread: !notif.isRead,
+                  onTap: () async {
+                    if (!notif.isRead) {
+                      final ok = await ref
+                          .read(notificationProvider.notifier)
+                          .readNotification(notif.id);
+                      if (ok) {
+                        await ref
+                            .read(notificationProvider.notifier)
+                            .getNotifications();
+                      }
+                    }
+                  },
+                );
+              },
+            ),
           );
         },
         loading: () => const NotificationListLoadingSkeleton(),
@@ -151,9 +192,11 @@ class NotificationsScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleLarge,
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
                       ),
                       if (isUnread)
                         Container(

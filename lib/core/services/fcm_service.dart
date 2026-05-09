@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'local_notification_service.dart';
 import '../utils/app_logger.dart';
 
 class FcmService {
@@ -6,6 +7,53 @@ class FcmService {
   static final FcmService instance = FcmService._();
 
   String? _cachedToken;
+  bool _handlersAttached = false;
+
+  Future<void> initializeMessaging() async {
+    try {
+      await LocalNotificationService.instance.initialize();
+
+      await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      if (!_handlersAttached) {
+        FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+          final title = message.notification?.title ?? 'Scrapify';
+          final body = message.notification?.body ?? 'You have a new update.';
+          LocalNotificationService.instance.show(
+            title: title,
+            body: body,
+            id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          );
+        });
+
+        FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+          AppLogger.info(
+            'Notification tapped (background): ${message.messageId}',
+          );
+        });
+
+        _handlersAttached = true;
+      }
+
+      final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+      if (initialMessage != null) {
+        AppLogger.info(
+          'Notification opened app from terminated state: ${initialMessage.messageId}',
+        );
+      }
+
+      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+        _cachedToken = newToken;
+        AppLogger.info('FCM token refreshed');
+      });
+    } catch (e) {
+      AppLogger.error('Failed to initialize FCM messaging handlers', error: e);
+    }
+  }
 
   Future<bool> ensurePermission() async {
     try {

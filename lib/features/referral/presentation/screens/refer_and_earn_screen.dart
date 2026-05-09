@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/user_role_helper.dart';
@@ -40,14 +41,14 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
     if (!isCustomer) {
       return AppScaffold(
         appBar: AppBar(
-          title: const Text('Refer & Earn'),
+          title: Text('refer.title'.tr()),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.pop(),
           ),
         ),
-        body: const Center(
-          child: Text('This feature is only available for customers.'),
+        body: Center(
+          child: Text('refer.customer_only'.tr()),
         ),
       );
     }
@@ -60,22 +61,22 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
           icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
           onPressed: () => context.pop(),
         ),
-        title: const Text(
-          'Refer & Earn',
+        title: Text(
+          'refer.title',
           style: TextStyle(
             color: AppTheme.textPrimary,
             fontWeight: FontWeight.w800,
           ),
-        ),
+        ).tr(),
       ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(referralProvider.notifier).loadReferralData(),
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           children: [
-            const AppSectionHeader(
-              title: 'Refer & Earn',
-              subtitle: 'Invite your friends and earn rewards',
+            AppSectionHeader(
+              title: 'refer.title'.tr(),
+              subtitle: 'refer.subtitle'.tr(),
             ),
             const SizedBox(height: 16),
             if (referralState.isLoading)
@@ -97,7 +98,7 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
               const HowItWorksCard(),
               const SizedBox(height: 16),
               Text(
-                'My Rewards / Coupons',
+                'refer.my_rewards'.tr(),
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
@@ -126,7 +127,7 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Referral code copied')));
+    ).showSnackBar(SnackBar(content: Text('refer.code_copied'.tr())));
   }
 
   void _shareCode() {
@@ -135,7 +136,7 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
     SharePlus.instance.share(
       ShareParams(
         text:
-            'Join our app using my referral code $code and earn rewards on scrap booking.',
+            '${'refer.share_text'.tr()} $code',
       ),
     );
   }

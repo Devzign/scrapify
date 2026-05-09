@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -15,7 +16,7 @@ class ReferralEmptyState extends StatelessWidget {
           const Icon(Icons.card_giftcard, size: 40, color: AppTheme.primaryColor),
           const SizedBox(height: 12),
           Text(
-            'No rewards yet. Invite your friends to start earning.',
+            'refer.no_rewards'.tr(),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppTheme.textSecondary,

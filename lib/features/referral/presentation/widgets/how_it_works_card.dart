@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -15,15 +16,15 @@ class HowItWorksCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'How It Works',
+            'refer.how_it_works'.tr(),
             style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
-          const _StepText('1. Share your referral code with your friend.'),
+          _StepText('refer.step1'.tr()),
           const SizedBox(height: 8),
-          const _StepText('2. Your friend signs up using your referral code.'),
+          _StepText('refer.step2'.tr()),
           const SizedBox(height: 8),
-          const _StepText('3. You get a reward coupon after successful referral.'),
+          _StepText('refer.step3'.tr()),
         ],
       ),
     );

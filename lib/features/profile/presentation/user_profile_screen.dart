@@ -240,8 +240,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                     const SizedBox(height: 12),
                     _buildSettingsTile(
                       icon: Icons.card_giftcard,
-                      title: 'Refer & Earn',
-                      subtitle: 'Invite friends and earn reward coupons',
+                      title: 'profile.refer_earn'.tr(),
+                      subtitle: 'profile.refer_earn_desc'.tr(),
                       onTap: () => context.push(AppRoutes.referAndEarn),
                     ),
                   ],
@@ -257,8 +257,8 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                   const SizedBox(height: 12),
                   _buildSettingsTile(
                     icon: Icons.contact_support_outlined,
-                    title: 'Still need help?',
-                    subtitle: 'Raise a support request for quick assistance',
+                    title: 'profile.need_help'.tr(),
+                    subtitle: 'profile.need_help_desc'.tr(),
                     onTap: () => context.push(AppRoutes.helpSupport),
                   ),
                   const SizedBox(height: 24),

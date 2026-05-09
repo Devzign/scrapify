@@ -25,8 +25,16 @@ class NotificationModel {
     final readAt = _parseDateTime(json['read_at']);
     return NotificationModel(
       id: json['id'].toString(),
-      title: payloadMap?['title']?.toString() ?? json['title'] ?? '',
-      body: payloadMap?['body']?.toString() ?? json['body'] ?? '',
+      title:
+          payloadMap?['title']?.toString() ??
+          json['title']?.toString() ??
+          '',
+      body:
+          payloadMap?['message']?.toString() ??
+          payloadMap?['body']?.toString() ??
+          json['message']?.toString() ??
+          json['body']?.toString() ??
+          '',
       isRead: readAt != null || json['is_read'] == true || json['is_read'] == 1,
       createdAt: _parseDateTime(json['created_at']) ?? DateTime.now(),
       data: payloadMap,

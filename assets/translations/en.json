@@ -195,6 +195,10 @@
     "support_other": "SUPPORT & OTHER",
     "help_support": "Help & Support",
     "faq_desc": "FAQs & Customer Care",
+    "refer_earn": "Refer & Earn",
+    "refer_earn_desc": "Invite friends and earn reward coupons",
+    "need_help": "Still need help?",
+    "need_help_desc": "Raise a support request for quick assistance",
     "about_us": "About Us",
     "logout": "Logout",
     "app_version": "App Version"
@@ -238,6 +242,36 @@
     "dark_mode": "Dark Mode",
     "dark_mode_desc": "Easier on the eyes",
     "save": "Save Changes"
+  },
+  "refer": {
+    "title": "Refer & Earn",
+    "subtitle": "Invite your friends and earn rewards",
+    "customer_only": "This feature is only available for customers.",
+    "your_code": "Your Referral Code",
+    "copy": "Copy",
+    "share": "Share",
+    "how_it_works": "How It Works",
+    "step1": "1. Share your referral code with your friend.",
+    "step2": "2. Your friend signs up using your referral code.",
+    "step3": "3. You get a reward coupon after successful referral.",
+    "my_rewards": "My Rewards / Coupons",
+    "no_rewards": "No rewards yet. Invite your friends to start earning.",
+    "code_copied": "Referral code copied",
+    "share_text": "Join our app using my referral code and earn rewards on scrap booking:"
+  },
+  "help_support": {
+    "title": "Help & Support",
+    "banner_text": "Still need help? Raise a support request and our team will contact you.",
+    "subject": "Subject",
+    "message": "Message",
+    "phone": "Phone number",
+    "submit": "Submit Request",
+    "previous_requests": "Previous Requests",
+    "no_requests": "No support requests yet.",
+    "order": "Order",
+    "fill_all": "Please fill subject, message and phone",
+    "invalid_phone": "Please enter a valid 10-digit mobile number",
+    "submitted": "Support request submitted successfully."
   },
   "faq": {
     "title": "FAQ",

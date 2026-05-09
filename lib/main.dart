@@ -8,6 +8,7 @@ import 'core/utils/app_routes.dart';
 import 'core/storage/app_preferences.dart';
 import 'core/utils/role_route_resolver.dart';
 import 'core/config/app_config.dart';
+import 'core/services/fcm_service.dart';
 import 'core/utils/app_logger.dart';
 import 'firebase_options.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -32,6 +33,7 @@ Future<void> initializeAppServices() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await FcmService.instance.initializeMessaging();
     AppLogger.info('Firebase initialized successfully');
   } catch (e) {
     // Keep app running even when Firebase is not configured yet.

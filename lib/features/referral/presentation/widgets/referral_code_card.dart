@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -24,7 +25,7 @@ class ReferralCodeCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your Referral Code',
+            'refer.your_code'.tr(),
             style: textTheme.labelMedium?.copyWith(
               color: AppTheme.textSecondary,
               fontWeight: FontWeight.w600,
@@ -53,8 +54,8 @@ class ReferralCodeCard extends StatelessWidget {
                     ),
                   ),
                   icon: const Icon(Icons.copy, color: AppTheme.primaryColor),
-                  label: const Text(
-                    'Copy',
+                  label: Text(
+                    'refer.copy'.tr(),
                     style: TextStyle(
                       color: AppTheme.primaryColor,
                       fontWeight: FontWeight.w700,
@@ -74,8 +75,8 @@ class ReferralCodeCard extends StatelessWidget {
                     ),
                   ),
                   icon: const Icon(Icons.share, color: Colors.white),
-                  label: const Text(
-                    'Share',
+                  label: Text(
+                    'refer.share'.tr(),
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,

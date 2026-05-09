@@ -16,6 +16,8 @@ final notificationProvider = StateNotifierProvider<NotificationNotifier, AsyncVa
 
 class NotificationNotifier extends StateNotifier<AsyncValue<List<NotificationModel>>> {
   final NotificationRepository _repository;
+  final Set<String> _markingIds = <String>{};
+  bool _markAllInProgress = false;
 
   NotificationNotifier(this._repository) : super(const AsyncValue.loading()) {
     getNotifications();
@@ -32,6 +34,10 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<NotificationMod
   }
 
   Future<bool> readNotification(String id) async {
+    if (_markingIds.contains(id)) {
+      return false;
+    }
+    _markingIds.add(id);
     final response = await _repository.readNotification(id);
     if (response.isSuccess) {
       // Optimistically update the list
@@ -50,12 +56,18 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<NotificationMod
           return n;
         }).toList();
       });
+      _markingIds.remove(id);
       return true;
     }
+    _markingIds.remove(id);
     return false;
   }
 
   Future<bool> readAllNotifications() async {
+    if (_markAllInProgress) {
+      return false;
+    }
+    _markAllInProgress = true;
     final response = await _repository.readAllNotifications();
     if (response.isSuccess) {
       // Optimistically update all
@@ -71,8 +83,10 @@ class NotificationNotifier extends StateNotifier<AsyncValue<List<NotificationMod
           );
         }).toList();
       });
+      _markAllInProgress = false;
       return true;
     }
+    _markAllInProgress = false;
     return false;
   }
 }
