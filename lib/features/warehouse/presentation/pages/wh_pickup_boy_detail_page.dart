@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../domain/models/warehouse_pickup_boy.dart';
 
 class WhPickupBoyDetailPage extends StatelessWidget {
@@ -31,17 +32,17 @@ class WhPickupBoyDetailPage extends StatelessWidget {
             ? 'AVAILABLE'
             : 'ON ROUTE';
     final statusColor = isOffline
-        ? Colors.grey.shade400
+        ? AppColor.textMuted
         : isAvailable
             ? AppTheme.primaryColor
             : AppTheme.warningColor;
     final statusBg = isOffline
-        ? Colors.grey.shade100
+        ? AppColor.hairline
         : isAvailable
             ? AppTheme.primarySurface
             : AppTheme.hintPeach;
     final dotColor = isOffline
-        ? Colors.grey.shade300
+        ? AppColor.outline
         : isAvailable
             ? AppTheme.successColor
             : const Color(0xFFFB923C);
@@ -49,7 +50,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
     final initial = boy.name.isNotEmpty ? boy.name[0].toUpperCase() : '?';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -78,7 +79,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                                 radius: 40,
                                 backgroundColor: isAvailable
                                     ? AppTheme.primaryLight.withValues(alpha: 0.3)
-                                    : Colors.grey.shade100,
+                                    : AppColor.hairline,
                                 child: Text(
                                   initial,
                                   style: TextStyle(
@@ -86,7 +87,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                                     fontWeight: FontWeight.w800,
                                     color: isAvailable
                                         ? AppTheme.primaryDark
-                                        : Colors.grey.shade500,
+                                        : AppColor.textSecondary,
                                   ),
                                 ),
                               ),
@@ -129,7 +130,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.grey.shade500,
+                                color: AppColor.textSecondary,
                               ),
                             ),
                           ),
@@ -222,8 +223,8 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                                 ? AppTheme.hintPeach
                                 : AppTheme.hairline,
                             boy.currentAssignmentCount > 0
-                                ? const Color(0xFFD97706)
-                                : Colors.grey.shade600,
+                                ? AppColor.warning
+                                : AppColor.textSecondary,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -330,7 +331,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -373,6 +374,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
   ) {
     return Container(
       padding: const EdgeInsets.all(20),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: AppTheme.cardBorderRadius,
@@ -405,7 +407,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              color: Colors.grey.shade400,
+              color: AppColor.textMuted,
               letterSpacing: 0.5,
             ),
           ),
@@ -434,7 +436,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
-                color: Colors.grey.shade400,
+                color: AppColor.textMuted,
                 letterSpacing: 1,
               ),
             ),
@@ -452,7 +454,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.grey.shade400, size: 20),
+          Icon(icon, color: AppColor.textMuted, size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -473,7 +475,7 @@ class WhPickupBoyDetailPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade500,
+                    color: AppColor.textSecondary,
                     letterSpacing: 0.5,
                   ),
                 ),

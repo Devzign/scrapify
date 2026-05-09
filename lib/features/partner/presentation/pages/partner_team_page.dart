@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import '../../../../features/channel_partner/providers/channel_partner_provider.dart';
 import '../partner_locale.dart';
@@ -31,7 +32,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
     final onlineCount = boys.where((b) => b['is_online'] == true).length;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -54,16 +55,16 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                                 margin: const EdgeInsets.all(16),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.shade50,
+                                  color: AppColor.hintPeach,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.orange.shade200,
+                                    color: AppColor.warning.withValues(alpha: 0.30),
                                   ),
                                 ),
                                 child: Text(
                                   state.error!,
                                   style: TextStyle(
-                                    color: Colors.orange.shade800,
+                                    color: AppColor.warning,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -94,7 +95,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -133,12 +134,12 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColor.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 22,
             ),
           ),
@@ -183,7 +184,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey.shade600,
+                    color: AppColor.textSecondary,
                   ),
                 ),
               ],
@@ -192,10 +193,11 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
           const SizedBox(width: 12),
           Container(
             padding: const EdgeInsets.all(12),
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: AppTheme.cardBorderRadius,
-              border: Border.all(color: Colors.grey.shade100),
+              border: Border.all(color: AppColor.hairline),
               boxShadow: AppTheme.cardShadow,
             ),
             child: Row(
@@ -223,7 +225,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                       style: TextStyle(
                         fontSize: 9,
                         fontWeight: FontWeight.w800,
-                        color: Colors.grey.shade400,
+                        color: AppColor.textMuted,
                         letterSpacing: 1,
                       ),
                     ),
@@ -244,7 +246,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade300,
+                              color: AppColor.outline,
                             ),
                           ),
                         ],
@@ -270,7 +272,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
               'No team members found',
               'कोई टीम सदस्य नहीं मिला',
             ),
-            style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+            style: TextStyle(color: AppColor.textMuted, fontSize: 15),
           ),
         ),
       );
@@ -304,19 +306,19 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
         ? 'Online'
         : 'Busy';
     final statusBg = isInactive
-        ? const Color(0xFFFEE2E2)
+        ? AppColor.errorTint
         : !isOnline
         ? AppTheme.hairline
         : isAvailable
         ? AppTheme.primarySurface
-        : const Color(0xFFFEF9C3);
+        : AppColor.hintPeach;
     final statusFg = isInactive
-        ? const Color(0xFFEF4444)
+        ? AppColor.error
         : !isOnline
         ? AppTheme.textSecondary
         : isAvailable
         ? AppTheme.primaryColor
-        : const Color(0xFFD97706);
+        : AppColor.warning;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -341,7 +343,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                       radius: 28,
                       backgroundColor: isOnline
                           ? AppTheme.primaryLight.withValues(alpha: 0.3)
-                          : Colors.grey.shade100,
+                          : AppColor.hairline,
                       child: Text(
                         initial,
                         style: TextStyle(
@@ -349,7 +351,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                           fontWeight: FontWeight.w800,
                           color: isOnline
                               ? AppTheme.primaryDark
-                              : Colors.grey.shade500,
+                              : AppColor.textSecondary,
                         ),
                       ),
                     ),
@@ -379,7 +381,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                           localizedPartnerStatus(context, statusLabel),
                           style: TextStyle(
                             fontSize: 9,
-                            color: Colors.grey.shade400,
+                            color: AppColor.textMuted,
                           ),
                         ),
                       ],
@@ -393,18 +395,18 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                     color: isInactive
-                        ? Colors.grey.shade400
+                        ? AppColor.textMuted
                         : AppTheme.textPrimary,
                   ),
                 ),
                 Text(
                   'ID: ${b['id']}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                  style: TextStyle(fontSize: 12, color: AppColor.textSecondary),
                 ),
                 const SizedBox(height: 12),
                 _buildInfoRow(
                   icon: Icons.warehouse_rounded,
-                  iconColor: Colors.grey.shade400,
+                  iconColor: AppColor.textMuted,
                   label: context.partnerText('Warehouse', 'गोदाम'),
                   value: warehouseName,
                 ),
@@ -414,7 +416,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                     Expanded(
                       child: _buildInfoRow(
                         icon: Icons.local_shipping_rounded,
-                        iconColor: Colors.grey.shade400,
+                        iconColor: AppColor.textMuted,
                         label: context.partnerText('Active', 'सक्रिय'),
                         value: '$currentCount',
                       ),
@@ -422,7 +424,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                     Expanded(
                       child: _buildInfoRow(
                         icon: Icons.task_alt_rounded,
-                        iconColor: Colors.grey.shade400,
+                        iconColor: AppColor.textMuted,
                         label: context.partnerText('Completed', 'पूरा हुआ'),
                         value: '$completedCount',
                       ),
@@ -435,8 +437,8 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFFAFAFA),
-              border: Border(top: BorderSide(color: Colors.grey.shade50)),
+              color: AppColor.backgroundCream,
+              border: Border(top: BorderSide(color: AppColor.backgroundCream)),
               borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(16),
               ),
@@ -454,14 +456,14 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                     },
                     child: Row(
                       children: [
-                        Icon(Icons.call, size: 14, color: Colors.grey.shade500),
+                        Icon(Icons.call, size: 14, color: AppColor.textSecondary),
                         const SizedBox(width: 4),
                         Text(
                           context.partnerText('Call', 'कॉल'),
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
-                            color: Colors.grey.shade500,
+                            color: AppColor.textSecondary,
                           ),
                         ),
                       ],
@@ -518,7 +520,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey.shade400,
+                  color: AppColor.textMuted,
                 ),
               ),
               Text(
@@ -548,7 +550,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
               color: Colors.white,
               borderRadius: AppTheme.cardBorderRadius,
               boxShadow: AppTheme.cardShadow,
-              border: Border.all(color: Colors.grey.shade100),
+              border: Border.all(color: AppColor.hairline),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -567,7 +569,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                     'Live field agent status across your network.',
                     'आपके नेटवर्क के फील्ड एजेंट्स की लाइव स्थिति।',
                   ),
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                  style: TextStyle(fontSize: 13, color: AppColor.textSecondary),
                 ),
                 const SizedBox(height: 20),
                 GridView.count(
@@ -662,7 +664,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
                       child: ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
+                          backgroundColor: AppTheme.backgroundLight,
                           foregroundColor: AppTheme.primaryColor,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
@@ -716,7 +718,7 @@ class _PartnerTeamPageState extends ConsumerState<PartnerTeamPage> {
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w700,
-              color: Colors.grey.shade400,
+              color: AppColor.textMuted,
             ),
           ),
           const SizedBox(height: 4),

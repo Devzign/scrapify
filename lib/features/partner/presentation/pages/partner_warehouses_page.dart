@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../channel_partner/providers/channel_partner_provider.dart';
 import '../partner_locale.dart';
@@ -28,7 +29,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
     final user = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         backgroundColor: AppTheme.primaryColor,
@@ -65,16 +66,16 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                                 ),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.shade50,
+                                  color: AppColor.hintPeach,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.orange.shade200,
+                                    color: AppColor.warning.withValues(alpha: 0.30),
                                   ),
                                 ),
                                 child: Text(
                                   state.error!,
                                   style: TextStyle(
-                                    color: Colors.orange.shade800,
+                                    color: AppColor.warning,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -99,7 +100,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -138,12 +139,12 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColor.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 22,
             ),
           ),
@@ -200,7 +201,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Colors.grey.shade600,
+              color: AppColor.textSecondary,
             ),
           ),
         ],
@@ -218,7 +219,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
               Icon(
                 Icons.warehouse_rounded,
                 size: 48,
-                color: Colors.grey.shade300,
+                color: AppColor.outline,
               ),
               const SizedBox(height: 12),
               Text(
@@ -229,7 +230,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade400,
+                  color: AppColor.textMuted,
                 ),
               ),
             ],
@@ -271,7 +272,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
     if (isActive) {
       return (AppTheme.primarySurface, AppTheme.primaryDark);
     }
-    return (const Color(0xFFFEE2E2), const Color(0xFFEF4444));
+    return (AppColor.errorTint, AppColor.error);
   }
 
   Widget _buildLargeWarehouseCard(Map<String, dynamic> wh) {
@@ -349,7 +350,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Colors.grey.shade500,
+                color: AppColor.textSecondary,
               ),
             ),
           const SizedBox(height: 16),
@@ -370,7 +371,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: Colors.grey.shade400,
+                          color: AppColor.textMuted,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -402,7 +403,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w700,
-                          color: Colors.grey.shade400,
+                          color: AppColor.textMuted,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -426,10 +427,11 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.textPrimary,
+                backgroundColor: AppColor.primary,
+                foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                 ),
                 elevation: 0,
               ),
@@ -474,7 +476,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
         color: Colors.white,
         borderRadius: AppTheme.cardBorderRadius,
         boxShadow: AppTheme.cardShadow,
-        border: !isActive ? Border.all(color: const Color(0xFFFEE2E2)) : null,
+        border: !isActive ? Border.all(color: AppColor.errorTint) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,14 +491,14 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                   CircleAvatar(
                     radius: 14,
                     backgroundColor:
-                        (isActive ? AppTheme.primaryColor : Colors.grey)
+                        (isActive ? AppTheme.primaryColor : AppColor.textMuted)
                             .withValues(alpha: 0.15),
                     child: Text(
                       initials,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w900,
-                        color: isActive ? AppTheme.primaryColor : Colors.grey,
+                        color: isActive ? AppTheme.primaryColor : AppColor.textMuted,
                       ),
                     ),
                   ),
@@ -531,7 +533,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                   fontWeight: FontWeight.w800,
                   color: isActive
                       ? AppTheme.textPrimary
-                      : Colors.grey.shade400,
+                      : AppColor.textMuted,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -539,7 +541,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
               if (region.isNotEmpty)
                 Text(
                   region,
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade400),
+                  style: TextStyle(fontSize: 10, color: AppColor.textMuted),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -555,7 +557,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                     size: 14,
                     color: isActive
                         ? AppTheme.primaryColor
-                        : Colors.grey.shade300,
+                        : AppColor.outline,
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -564,8 +566,8 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: isActive
-                          ? const Color(0xFF334155)
-                          : Colors.grey.shade400,
+                          ? AppColor.brandNavy
+                          : AppColor.textMuted,
                     ),
                   ),
                 ],
@@ -577,8 +579,8 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                     Icons.shopping_bag_rounded,
                     size: 14,
                     color: isActive
-                        ? Colors.grey.shade400
-                        : Colors.grey.shade300,
+                        ? AppColor.textMuted
+                        : AppColor.outline,
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -590,8 +592,8 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                       color: isActive
-                          ? Colors.grey.shade500
-                          : Colors.grey.shade400,
+                          ? AppColor.textSecondary
+                          : AppColor.textMuted,
                     ),
                   ),
                 ],
@@ -643,7 +645,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                 child: _buildQuickActionCard(
                   icon: Icons.view_in_ar_rounded,
                   label: context.partnerText('Audit', 'ऑडिट'),
-                  color: const Color(0xFF6366F1),
+                  color: AppColor.info,
                 ),
               ),
             ],
@@ -660,6 +662,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
   }) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: AppTheme.cardBorderRadius,
@@ -683,7 +686,7 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
             style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF334155),
+              color: AppColor.brandNavy,
             ),
           ),
         ],

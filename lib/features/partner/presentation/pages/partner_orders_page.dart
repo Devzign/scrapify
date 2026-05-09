@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import '../../../../features/channel_partner/providers/channel_partner_provider.dart';
 import '../partner_locale.dart';
@@ -35,7 +36,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
     final orders = state.orders.whereType<Map<String, dynamic>>().toList();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -64,16 +65,16 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                                 ),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.shade50,
+                                  color: AppColor.hintPeach,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.orange.shade200,
+                                    color: AppColor.warning.withValues(alpha: 0.30),
                                   ),
                                 ),
                                 child: Text(
                                   state.error!,
                                   style: TextStyle(
-                                    color: Colors.orange.shade800,
+                                    color: AppColor.warning,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -88,7 +89,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                                     Icon(
                                       Icons.inbox_rounded,
                                       size: 48,
-                                      color: Colors.grey.shade300,
+                                      color: AppColor.outline,
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
@@ -97,7 +98,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                                         'कोई ऑर्डर नहीं मिला',
                                       ),
                                       style: TextStyle(
-                                        color: Colors.grey.shade400,
+                                        color: AppColor.textMuted,
                                         fontSize: 15,
                                       ),
                                     ),
@@ -138,7 +139,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -177,12 +178,12 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColor.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 22,
             ),
           ),
@@ -235,7 +236,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Colors.grey.shade600,
+              color: AppColor.textSecondary,
             ),
           ),
         ],
@@ -262,9 +263,9 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
             hintStyle: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Colors.grey.shade400,
+              color: AppColor.textMuted,
             ),
-            prefixIcon: Icon(Icons.search, color: Colors.grey.shade400),
+            prefixIcon: Icon(Icons.search, color: AppColor.textMuted),
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(vertical: 14),
           ),
@@ -295,7 +296,6 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
           return GestureDetector(
             onTap: () => _applyStatus(statuses[i].$1),
             child: Container(
-              alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: isSelected
@@ -397,7 +397,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color: Colors.grey.shade400,
+                            color: AppColor.textMuted,
                             letterSpacing: 1,
                           ),
                         ),
@@ -430,7 +430,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
                 border: Border.symmetric(
-                  horizontal: BorderSide(color: Colors.grey.shade50),
+                  horizontal: BorderSide(color: AppColor.backgroundCream),
                 ),
               ),
               child: Row(
@@ -444,7 +444,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color: Colors.grey.shade400,
+                            color: AppColor.textMuted,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -453,7 +453,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF334155),
+                            color: AppColor.brandNavy,
                           ),
                         ),
                       ],
@@ -468,7 +468,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
-                            color: Colors.grey.shade400,
+                            color: AppColor.textMuted,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -477,7 +477,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF334155),
+                            color: AppColor.brandNavy,
                           ),
                         ),
                       ],
@@ -489,7 +489,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
             const SizedBox(height: 12),
             _buildInfoRow(
               icon: Icons.location_on_rounded,
-              iconColor: Colors.grey.shade500,
+              iconColor: AppColor.textSecondary,
               label: context.partnerText('Address', 'पता'),
               value: address.length > 35
                   ? '${address.substring(0, 35)}…'
@@ -501,7 +501,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                   ? Icons.moped_rounded
                   : Icons.add_circle_rounded,
               iconColor: pickupBoyName != null
-                  ? Colors.grey.shade500
+                  ? AppColor.textSecondary
                   : AppTheme.primaryColor,
               label: context.partnerText('Pickup Boy', 'पिकअप बॉय'),
               value:
@@ -520,11 +520,11 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                     ? null
                     : () => _showOrderDetail(o),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.textPrimary,
+                  backgroundColor: AppColor.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
                   ),
                   elevation: 0,
                 ),
@@ -581,7 +581,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
             'ऑर्डर विवरण लोड नहीं हो सका',
           );
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
+        SnackBar(content: Text(message), backgroundColor: AppColor.error),
       );
       return;
     }
@@ -635,7 +635,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                   width: 48,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
+                    color: AppColor.outline,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -655,7 +655,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey.shade700,
+                  color: AppColor.textPrimary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -713,7 +713,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                       style: TextStyle(
                         fontSize: 14,
                         height: 1.5,
-                        color: Colors.grey.shade700,
+                        color: AppColor.textPrimary,
                       ),
                     ),
                   ],
@@ -748,7 +748,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: accent ?? const Color(0xFF334155),
+              color: accent ?? AppColor.brandNavy,
             ),
           ),
         ],
@@ -797,7 +797,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Colors.grey.shade500,
+                color: AppColor.textSecondary,
               ),
             ),
           ),
@@ -807,7 +807,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF334155),
+                color: AppColor.brandNavy,
               ),
             ),
           ),
@@ -829,6 +829,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
         Container(
           width: 32,
           height: 32,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: bgColor ?? AppTheme.backgroundCream,
             borderRadius: BorderRadius.circular(8),
@@ -845,7 +846,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w700,
-                  color: Colors.grey.shade400,
+                  color: AppColor.textMuted,
                 ),
               ),
               Text(
@@ -853,7 +854,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: valueColor ?? const Color(0xFF334155),
+                  color: valueColor ?? AppColor.brandNavy,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -877,11 +878,11 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
         return (AppTheme.primarySurface, AppTheme.primaryDark);
       case 'active':
       case 'pending':
-        return (AppTheme.hintPeach, const Color(0xFF92400E));
+        return (AppTheme.hintPeach, AppColor.warning);
       case 'cancelled':
-        return (const Color(0xFFFEE2E2), const Color(0xFF991B1B));
+        return (AppColor.errorTint, AppColor.error);
       case 'rescheduled':
-        return (const Color(0xFFFFD9DF), const Color(0xFF6F3443));
+        return (AppColor.roseTint, AppColor.rose);
       default:
         return (AppTheme.hairline, AppTheme.textSecondary);
     }

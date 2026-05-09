@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../../../core/utils/app_routes.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../providers/warehouse_provider.dart';
@@ -26,7 +27,7 @@ class WhProfilePage extends ConsumerWidget {
     final warehouseAddress = warehouse?.address ?? warehouse?.city ?? '';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -59,7 +60,7 @@ class WhProfilePage extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -95,12 +96,12 @@ class WhProfilePage extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColor.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 22,
             ),
           ),
@@ -119,6 +120,7 @@ class WhProfilePage extends ConsumerWidget {
       padding: const EdgeInsets.all(20),
       child: Container(
         padding: const EdgeInsets.all(20),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: AppTheme.cardBorderRadius,
@@ -198,14 +200,14 @@ class WhProfilePage extends ConsumerWidget {
                         Icon(
                           Icons.call_rounded,
                           size: 14,
-                          color: Colors.grey.shade500,
+                          color: AppColor.textSecondary,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           phone,
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.grey.shade500,
+                            color: AppColor.textSecondary,
                           ),
                         ),
                       ],
@@ -400,7 +402,7 @@ class WhProfilePage extends ConsumerWidget {
           style: TextStyle(
             fontSize: isLarge ? 16 : 13,
             fontWeight: isLarge ? FontWeight.w700 : FontWeight.w500,
-            color: isLarge ? AppTheme.textPrimary : Colors.grey.shade500,
+            color: isLarge ? AppTheme.textPrimary : AppColor.textSecondary,
             height: 1.4,
           ),
         ),
@@ -495,13 +497,7 @@ class WhProfilePage extends ConsumerWidget {
                   ? 'पासवर्ड और 2FA अपडेट करें'
                   : 'Update password and 2FA',
             ),
-            Divider(height: 1, color: Colors.grey.shade50),
-            _buildSettingsItem(
-              icon: Icons.translate_rounded,
-              title: isHindi ? 'भाषा' : 'Language',
-              subtitle: isHindi ? 'हिंदी, अंग्रेजी' : 'English, Hindi',
-            ),
-            Divider(height: 1, color: Colors.grey.shade50),
+            Divider(height: 1, color: AppColor.backgroundCream),
             _buildSettingsItem(
               icon: Icons.policy_rounded,
               title: isHindi ? 'अनुपालन दस्तावेज़' : 'Compliance Docs',
@@ -529,11 +525,12 @@ class WhProfilePage extends ConsumerWidget {
             Container(
               width: 40,
               height: 40,
+              alignment: Alignment.center,
               decoration: const BoxDecoration(
                 color: AppTheme.hairline,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Colors.grey.shade500, size: 20),
+              child: Icon(icon, color: AppColor.textSecondary, size: 20),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -550,14 +547,14 @@ class WhProfilePage extends ConsumerWidget {
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 11, color: AppColor.textSecondary),
                   ),
                 ],
               ),
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: Colors.grey.shade400,
+              color: AppColor.textMuted,
               size: 22,
             ),
           ],
@@ -613,7 +610,7 @@ class WhProfilePage extends ConsumerWidget {
             ),
           ),
           style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.white,
+            backgroundColor: AppTheme.backgroundLight,
             side: BorderSide(
               color: AppTheme.errorColor.withValues(alpha: 0.1),
               width: 2,
@@ -637,7 +634,7 @@ class WhProfilePage extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 11,
-            color: Colors.grey.shade400,
+            color: AppColor.textMuted,
             height: 1.5,
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../domain/models/warehouse_pickup_boy.dart';
 import '../../providers/warehouse_provider.dart';
 import 'wh_pickup_boy_detail_page.dart';
@@ -49,7 +50,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
     final isHindi = context.locale.languageCode == 'hi';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -69,16 +70,16 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                               margin: const EdgeInsets.all(16),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.orange.shade50,
+                                color: AppColor.hintPeach,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: Colors.orange.shade200,
+                                  color: AppColor.warning.withValues(alpha: 0.30),
                                 ),
                               ),
                               child: Text(
                                 state.error!,
                                 style: TextStyle(
-                                  color: Colors.orange.shade800,
+                                  color: AppColor.warning,
                                   fontSize: 13,
                                 ),
                               ),
@@ -107,7 +108,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -141,12 +142,12 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColor.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 22,
             ),
           ),
@@ -176,7 +177,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w800,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               letterSpacing: 1,
             ),
           ),
@@ -193,8 +194,8 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                 hintText: isHindi
                     ? 'नाम या फोन से खोजें...'
                     : 'Search by name or phone...',
-                hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-                prefixIcon: Icon(Icons.search, color: Colors.grey.shade400),
+                hintStyle: TextStyle(fontSize: 13, color: AppColor.textMuted),
+                prefixIcon: Icon(Icons.search, color: AppColor.textMuted),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -284,6 +285,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(20),
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: AppTheme.cardBorderRadius,
@@ -306,7 +308,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                             ),
                             child: Icon(
                               Icons.route_rounded,
-                              color: Colors.grey.shade600,
+                              color: AppColor.textSecondary,
                               size: 22,
                             ),
                           ),
@@ -319,7 +321,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w800,
-                                  color: Colors.grey.shade400,
+                                  color: AppColor.textMuted,
                                 ),
                               ),
                               Text(
@@ -347,7 +349,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                         isHindi ? 'रास्ते में' : 'En-route',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.grey.shade500,
+                          color: AppColor.textSecondary,
                         ),
                       ),
                     ],
@@ -358,6 +360,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(20),
+                  alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: AppTheme.textPrimary,
                     borderRadius: BorderRadius.circular(16),
@@ -400,7 +403,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w800,
-                          color: Colors.grey.shade500,
+                          color: AppColor.textSecondary,
                           letterSpacing: 1,
                         ),
                       ),
@@ -422,7 +425,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
         child: Center(
           child: Text(
             isHindi ? 'कोई पिकअप बॉय नहीं मिला' : 'No pickup boys found',
-            style: TextStyle(color: Colors.grey.shade400, fontSize: 15),
+            style: TextStyle(color: AppColor.textMuted, fontSize: 15),
           ),
         ),
       );
@@ -449,13 +452,13 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
         : (isHindi ? 'रास्ते में' : 'ON ROUTE');
 
     final statusColor = isOffline
-        ? Colors.grey.shade400
+        ? AppColor.textMuted
         : isAvailable
         ? AppTheme.primaryColor
         : AppTheme.warningColor;
 
     final dotColor = isOffline
-        ? Colors.grey.shade300
+        ? AppColor.outline
         : isAvailable
         ? AppTheme.successColor
         : const Color(0xFFFB923C);
@@ -463,8 +466,8 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
     final borderColor = isAvailable && isOnline
         ? AppTheme.primaryColor
         : isOffline
-        ? Colors.grey.shade100
-        : Colors.grey.shade200;
+        ? AppColor.hairline
+        : AppColor.cardBorder;
 
     final initial = boy.name.isNotEmpty ? boy.name[0].toUpperCase() : '?';
 
@@ -500,7 +503,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                         radius: 28,
                         backgroundColor: isAvailable
                             ? AppTheme.primaryLight.withValues(alpha: 0.3)
-                            : Colors.grey.shade100,
+                            : AppColor.hairline,
                         child: Text(
                           initial,
                           style: TextStyle(
@@ -508,7 +511,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                             fontWeight: FontWeight.w800,
                             color: isAvailable
                                 ? AppTheme.primaryDark
-                                : Colors.grey.shade500,
+                                : AppColor.textSecondary,
                           ),
                         ),
                       ),
@@ -561,7 +564,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.grey.shade500,
+                                  color: AppColor.textSecondary,
                                 ),
                               ),
                             ),
@@ -591,7 +594,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                         _buildStatColumn(
                           '${boy.currentAssignmentCount}',
                           isHindi ? 'सक्रिय' : 'Active',
-                          isOffline ? Colors.grey.shade400 : null,
+                          isOffline ? AppColor.textMuted : null,
                         ),
                         _buildStatColumn(
                           '${boy.completedCount}',
@@ -612,7 +615,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
                             : AppTheme.hairline,
                         foregroundColor: isAvailable
                             ? Colors.white
-                            : Colors.grey.shade400,
+                            : AppColor.textMuted,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
@@ -659,7 +662,7 @@ class _WhPickupBoysPageState extends ConsumerState<WhPickupBoysPage> {
           style: TextStyle(
             fontSize: 9,
             fontWeight: FontWeight.w800,
-            color: Colors.grey.shade400,
+            color: AppColor.textMuted,
             letterSpacing: 0.5,
           ),
         ),

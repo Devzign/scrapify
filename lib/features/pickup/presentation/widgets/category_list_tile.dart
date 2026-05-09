@@ -29,7 +29,7 @@ class CategoryListTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusXl),
         child: Container(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppTheme.radiusXl),
             border: Border.all(color: AppColor.cardBorder),
@@ -47,7 +47,7 @@ class CategoryListTile extends StatelessWidget {
                 clipBehavior: Clip.antiAlias,
                 child: _buildLeadingVisual(),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,13 +57,14 @@ class CategoryListTile extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontSize: 17,
+                        fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: AppColor.textPrimary,
+                        height: 1.25,
                       ),
                     ),
                     if (subtitle.trim().isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         subtitle,
                         maxLines: 2,
@@ -71,14 +72,14 @@ class CategoryListTile extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 13,
                           color: AppColor.textSecondary,
-                          height: 1.4,
+                          height: 1.3,
                         ),
                       ),
                     ],
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               Container(
                 width: 32,
                 height: 32,

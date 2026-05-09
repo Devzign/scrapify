@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_scaffold.dart';
 import '../../../auth/providers/auth_provider.dart';
@@ -150,7 +151,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                                     'लंबित',
                                   ),
                                   value: '$pending',
-                                  color: const Color(0xFFD97706),
+                                  color: AppColor.warning,
                                   background: AppTheme.hintPeach,
                                 ),
                               ),
@@ -174,8 +175,8 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                                     'अस्वीकृत',
                                   ),
                                   value: '$rejected',
-                                  color: Colors.red,
-                                  background: const Color(0xFFFEE2E2),
+                                  color: AppColor.error,
+                                  background: AppColor.errorTint,
                                 ),
                               ),
                             ],
@@ -272,7 +273,6 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                   .loadApprovalRequests(status: status);
             },
             child: Container(
-              alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: isSelected ? AppTheme.primaryColor : Colors.white,
@@ -284,7 +284,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: isSelected ? Colors.white : Colors.grey.shade600,
+                  color: isSelected ? Colors.white : AppColor.textSecondary,
                 ),
               ),
             ),
@@ -350,7 +350,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: Colors.grey.shade500,
+                          color: AppColor.textSecondary,
                         ),
                       ),
                   ],
@@ -383,7 +383,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
               style: TextStyle(
                 fontSize: 13,
                 height: 1.4,
-                color: Colors.grey.shade600,
+                color: AppColor.textSecondary,
               ),
             ),
           ],
@@ -410,8 +410,8 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
                         ? null
                         : () => _submitAction(request['id'], 'rejected'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
+                      foregroundColor: AppColor.error,
+                      side: const BorderSide(color: AppColor.error),
                     ),
                     child: Text(context.partnerText('Reject', 'अस्वीकार')),
                   ),
@@ -449,7 +449,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Colors.grey.shade500,
+                color: AppColor.textSecondary,
               ),
             ),
           ),
@@ -459,7 +459,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF334155),
+                color: AppColor.brandNavy,
               ),
             ),
           ),
@@ -490,7 +490,7 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
           ),
           backgroundColor: action == 'approved'
               ? AppTheme.primaryColor
-              : Colors.red,
+              : AppColor.error,
         ),
       );
       ref
@@ -504,9 +504,9 @@ class _PartnerApprovalsPageState extends ConsumerState<PartnerApprovalsPage> {
       case 'approved':
         return (AppTheme.primarySurface, AppTheme.primaryDark);
       case 'rejected':
-        return (const Color(0xFFFEE2E2), const Color(0xFFEF4444));
+        return (AppColor.errorTint, AppColor.error);
       default:
-        return (AppTheme.hintPeach, const Color(0xFF92400E));
+        return (AppTheme.hintPeach, AppColor.warning);
     }
   }
 }

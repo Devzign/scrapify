@@ -72,10 +72,10 @@ class _SubCategorySelectionScreenState
             data: (subCategories) {
               final filtered = _filterCategories(subCategories, _searchQuery);
               return ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 22),
                 children: [
                   _buildSearchField(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -83,22 +83,23 @@ class _SubCategorySelectionScreenState
                       Text(
                         parentCategory.getName(context),
                         style: const TextStyle(
-                          fontSize: 32,
+                          fontSize: 20,
                           fontWeight: FontWeight.w900,
                           color: AppTheme.textPrimary,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
                     _buildDescription(parentCategory),
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       color: AppTheme.textSecondary,
+                      height: 1.35,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 14),
                   if (filtered.isEmpty)
                     _buildEmptyState()
                   else
@@ -108,9 +109,9 @@ class _SubCategorySelectionScreenState
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            crossAxisSpacing: 14,
-                            mainAxisSpacing: 14,
-                            childAspectRatio: 0.9,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 0.98,
                           ),
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
@@ -155,7 +156,7 @@ class _SubCategorySelectionScreenState
                         );
                       },
                     ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
                   CategorySupportBanner(
                     title: context.locale.languageCode == 'hi'
                         ? '${parentCategory.getName(context)} प्रोसेसिंग स्टैंडर्ड'

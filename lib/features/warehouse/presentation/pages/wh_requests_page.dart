@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../domain/models/warehouse_request.dart';
 import '../../domain/models/warehouse_pickup_boy.dart';
 import '../../providers/warehouse_provider.dart';
@@ -51,7 +52,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
     final state = ref.watch(warehouseProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -79,16 +80,16 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                                 ),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.shade50,
+                                  color: AppColor.hintPeach,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.orange.shade200,
+                                    color: AppColor.warning.withValues(alpha: 0.30),
                                   ),
                                 ),
                                 child: Text(
                                   state.error!,
                                   style: TextStyle(
-                                    color: Colors.orange.shade800,
+                                    color: AppColor.warning,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -103,13 +104,13 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                                     Icon(
                                       Icons.inbox_rounded,
                                       size: 48,
-                                      color: Colors.grey.shade300,
+                                      color: AppColor.outline,
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
                                       'No requests found',
                                       style: TextStyle(
-                                        color: Colors.grey.shade400,
+                                        color: AppColor.textMuted,
                                         fontSize: 15,
                                       ),
                                     ),
@@ -143,7 +144,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -177,12 +178,12 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColor.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 22,
             ),
           ),
@@ -229,7 +230,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade500,
+                  color: AppColor.textSecondary,
                 ),
               ),
               Text(
@@ -286,7 +287,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    color: isSelected ? Colors.white : Colors.grey.shade600,
+                    color: isSelected ? Colors.white : AppColor.textSecondary,
                   ),
                 ),
               ),
@@ -333,7 +334,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.w900,
-                            color: Colors.grey.shade400,
+                            color: AppColor.textMuted,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -425,7 +426,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                               ? () => _showReassignSheet(r)
                               : null,
                           style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: Colors.grey.shade200),
+                            side: BorderSide(color: AppColor.cardBorder),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -438,7 +439,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
-                              color: Colors.grey.shade600,
+                              color: AppColor.textSecondary,
                             ),
                           ),
                         ),
@@ -447,7 +448,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                   const SizedBox(width: 10),
                   Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: AppColor.cardBorder),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: IconButton(
@@ -479,7 +480,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
   }) {
     return Row(
       children: [
-        Icon(icon, color: Colors.grey.shade500, size: 20),
+        Icon(icon, color: AppColor.textSecondary, size: 20),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -498,7 +499,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade600,
+                  color: AppColor.textSecondary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -514,20 +515,20 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
     switch (status.toLowerCase()) {
       case 'unassigned':
       case 'pending':
-        return (const Color(0xFFFEE2E2), const Color(0xFF991B1B));
+        return (AppColor.errorTint, AppColor.error);
       case 'assigned':
         return (AppTheme.primarySurface, AppTheme.primaryDark);
       case 'active':
       case 'in_progress':
       case 'on_the_way':
       case 'arrived':
-        return (AppTheme.hintPeach, const Color(0xFF92400E));
+        return (AppTheme.hintPeach, AppColor.warning);
       case 'completed':
-        return (const Color(0xFFE0E7FF), const Color(0xFF3730A3));
+        return (AppColor.alertBlue, AppColor.brandNavy);
       case 'rescheduled':
-        return (const Color(0xFFFFD9DF), const Color(0xFF6F3443));
+        return (AppColor.roseTint, AppColor.rose);
       default:
-        return (Colors.grey.shade100, Colors.grey.shade700);
+        return (AppColor.hairline, AppColor.textPrimary);
     }
   }
 
@@ -641,7 +642,7 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
                       widget.orderCode,
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade500,
+                        color: AppColor.textSecondary,
                       ),
                     ),
                   ],
@@ -659,7 +660,7 @@ class _AssignSheetState extends ConsumerState<_AssignSheet> {
               Center(
                 child: Text(
                   'No available pickup boys',
-                  style: TextStyle(color: Colors.grey.shade400),
+                  style: TextStyle(color: AppColor.textMuted),
                 ),
               )
             else
@@ -783,7 +784,7 @@ class _ReassignSheetState extends ConsumerState<_ReassignSheet> {
                       widget.orderCode,
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey.shade500,
+                        color: AppColor.textSecondary,
                       ),
                     ),
                   ],
@@ -816,7 +817,7 @@ class _ReassignSheetState extends ConsumerState<_ReassignSheet> {
               Center(
                 child: Text(
                   'No available pickup boys',
-                  style: TextStyle(color: Colors.grey.shade400),
+                  style: TextStyle(color: AppColor.textMuted),
                 ),
               )
             else
@@ -907,10 +908,10 @@ class _PickupBoyTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? AppTheme.primaryColor.withValues(alpha: 0.08)
-              : Colors.grey.shade50,
+              : AppColor.backgroundCream,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: selected ? AppTheme.primaryColor : Colors.grey.shade200,
+            color: selected ? AppTheme.primaryColor : AppColor.cardBorder,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -945,7 +946,7 @@ class _PickupBoyTile extends StatelessWidget {
                       boy.phone,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey.shade500,
+                        color: AppColor.textSecondary,
                       ),
                     ),
                 ],

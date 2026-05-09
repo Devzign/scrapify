@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/app_color.dart';
 import '../providers/warehouse_provider.dart';
 import 'pages/wh_dashboard_page.dart';
 import 'pages/wh_requests_page.dart';
@@ -27,29 +29,26 @@ class _WarehouseBottomNavState extends ConsumerState<WarehouseBottomNav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundLight,
       body: IndexedStack(index: _currentIndex, children: _pages),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.grey.shade100)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColor.surface,
+              borderRadius: BorderRadius.circular(AppTheme.radius2xl + 4),
+              border: Border.all(color: AppColor.cardBorder),
+              boxShadow: AppTheme.e2,
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(Icons.home_rounded, 'Home', 0),
-                _buildNavItem(Icons.assignment_late_rounded, 'Requests', 1),
-                _buildNavItem(Icons.local_shipping_rounded, 'Pickups', 2),
-                _buildNavItem(Icons.person_rounded, 'Profile', 3),
+                _buildNavItem(FontAwesomeIcons.house, 'Home', 0),
+                _buildNavItem(FontAwesomeIcons.clipboardList, 'Requests', 1),
+                _buildNavItem(FontAwesomeIcons.truckFast, 'Pickups', 2),
+                _buildNavItem(FontAwesomeIcons.user, 'Profile', 3),
               ],
             ),
           ),
@@ -77,34 +76,40 @@ class _WarehouseBottomNavState extends ConsumerState<WarehouseBottomNav> {
 
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isSelected = _currentIndex == index;
-    return InkWell(
-      onTap: () => _onTabChanged(index),
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? AppTheme.primaryColor
-                  : AppTheme.textMuted,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected
-                    ? AppTheme.primaryColor
-                    : AppTheme.textMuted,
+    return Expanded(
+      child: InkWell(
+        onTap: () => _onTabChanged(index),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColor.primarySurface
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FaIcon(
+                icon,
+                color: isSelected ? AppColor.primary : AppColor.textSecondary,
+                size: 16,
               ),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight:
+                      isSelected ? FontWeight.w800 : FontWeight.w600,
+                  color:
+                      isSelected ? AppColor.primary : AppColor.textSecondary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

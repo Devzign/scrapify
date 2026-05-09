@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/theme/app_color.dart';
 import '../../channel_partner/providers/channel_partner_provider.dart';
 import 'partner_locale.dart';
 import 'pages/partner_dashboard_page.dart';
@@ -30,47 +32,44 @@ class _PartnerBottomNavState extends ConsumerState<PartnerBottomNav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.backgroundLight,
       body: IndexedStack(index: _currentIndex, children: _pages),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(top: BorderSide(color: Colors.grey.shade100)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, -5),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColor.surface,
+              borderRadius: BorderRadius.circular(AppTheme.radius2xl + 4),
+              border: Border.all(color: AppColor.cardBorder),
+              boxShadow: AppTheme.e2,
             ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildNavItem(
-                  Icons.home_rounded,
+                  FontAwesomeIcons.house,
                   context.partnerText('Home', 'होम'),
                   0,
                 ),
                 _buildNavItem(
-                  Icons.list_alt_rounded,
+                  FontAwesomeIcons.listCheck,
                   context.partnerText('Orders', 'ऑर्डर्स'),
                   1,
                 ),
                 _buildNavItem(
-                  Icons.group_rounded,
+                  FontAwesomeIcons.userGroup,
                   context.partnerText('Team', 'टीम'),
                   2,
                 ),
                 _buildNavItem(
-                  Icons.warehouse_rounded,
+                  FontAwesomeIcons.warehouse,
                   context.partnerText('Warehouses', 'गोदाम'),
                   3,
                 ),
                 _buildNavItem(
-                  Icons.person_rounded,
+                  FontAwesomeIcons.user,
                   context.partnerText('Profile', 'प्रोफ़ाइल'),
                   4,
                 ),
@@ -105,34 +104,42 @@ class _PartnerBottomNavState extends ConsumerState<PartnerBottomNav> {
 
   Widget _buildNavItem(IconData icon, String label, int index) {
     final isSelected = _currentIndex == index;
-    return InkWell(
-      onTap: () => _onTabChanged(index),
-      borderRadius: BorderRadius.circular(12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected
-                  ? AppTheme.primaryColor
-                  : AppTheme.textMuted,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected
-                    ? AppTheme.primaryColor
-                    : AppTheme.textMuted,
+    return Expanded(
+      child: InkWell(
+        onTap: () => _onTabChanged(index),
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppColor.primarySurface
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FaIcon(
+                icon,
+                color: isSelected ? AppColor.primary : AppColor.textSecondary,
+                size: 15,
               ),
-            ),
-          ],
+              const SizedBox(height: 6),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight:
+                      isSelected ? FontWeight.w800 : FontWeight.w600,
+                  color:
+                      isSelected ? AppColor.primary : AppColor.textSecondary,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

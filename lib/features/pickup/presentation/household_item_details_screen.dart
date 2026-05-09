@@ -22,6 +22,8 @@ class HouseholdItemDetailsScreen extends ConsumerStatefulWidget {
   final String parentCategoryName;
   final int applianceCategoryId;
   final int? parentCategoryId;
+  final bool selectionOnly;
+  final String? selectionCtaLabel;
 
   const HouseholdItemDetailsScreen({
     super.key,
@@ -29,6 +31,8 @@ class HouseholdItemDetailsScreen extends ConsumerStatefulWidget {
     required this.parentCategoryName,
     required this.applianceCategoryId,
     this.parentCategoryId,
+    this.selectionOnly = false,
+    this.selectionCtaLabel,
   });
 
   @override
@@ -195,30 +199,34 @@ class _HouseholdItemDetailsScreenState
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppTheme.cardBorderColor,
+          color: AppTheme.primarySurface,
           borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppTheme.primaryLight),
         ),
         child: Row(
           children: [
             Container(
-              width: 92,
-              height: 92,
+              width: 104,
+              height: 104,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.88),
                 borderRadius: BorderRadius.circular(22),
               ),
               child: Center(
-                child: _item.imageUrl.trim().isEmpty
-                    ? Icon(_heroIcon, color: AppTheme.primaryDark, size: 42)
-                    : Image.network(
-                        _item.imageUrl,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Icon(
-                          _heroIcon,
-                          color: AppTheme.primaryDark,
-                          size: 42,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: _item.imageUrl.trim().isEmpty
+                      ? Icon(_heroIcon, color: AppTheme.primaryDark, size: 42)
+                      : Image.network(
+                          _item.imageUrl,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => Icon(
+                            _heroIcon,
+                            color: AppTheme.primaryDark,
+                            size: 42,
+                          ),
                         ),
-                      ),
+                ),
               ),
             ),
             const SizedBox(width: 14),
@@ -229,7 +237,7 @@ class _HouseholdItemDetailsScreenState
                   Text(
                     details.name.isEmpty ? _item.name : details.name,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.w900,
                       color: AppTheme.primaryDark,
                     ),
@@ -238,7 +246,7 @@ class _HouseholdItemDetailsScreenState
                   Text(
                     _isHindi ? 'एयर कंडीशनर' : _item.name,
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: AppTheme.textSecondary,
                       fontWeight: FontWeight.w700,
                     ),
@@ -247,7 +255,7 @@ class _HouseholdItemDetailsScreenState
                   Text(
                     'Base ₹${_unitEstimate(details).toStringAsFixed(0)}${_pricingSuffix(details.pricingType)}',
                     style: const TextStyle(
-                      fontSize: 11,
+                      fontSize: 13,
                       color: AppTheme.primaryDark,
                       fontWeight: FontWeight.w800,
                     ),
@@ -583,8 +591,10 @@ class _HouseholdItemDetailsScreenState
       width: double.infinity,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundCream,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: AppTheme.cardBorderColor),
+        boxShadow: AppTheme.cardShadow,
       ),
       child: child,
     );
@@ -621,7 +631,7 @@ class _HouseholdItemDetailsScreenState
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: AppTheme.backgroundCream,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(30),
             border: Border.all(color: AppTheme.cardBorderColor),
           ),
@@ -707,7 +717,9 @@ class _HouseholdItemDetailsScreenState
                 width: double.infinity,
                 child: CustomButton(
                   onPressed: () => _addToBasket(details),
-                  text: _isHindi ? 'बास्केट में जोड़ें' : 'Add to Basket',
+                  text: widget.selectionOnly
+                      ? (widget.selectionCtaLabel ?? (_isHindi ? 'आइटम जोड़ें' : 'Add Item'))
+                      : (_isHindi ? 'बास्केट में जोड़ें' : 'Add to Basket'),
                   leading: const FaIcon(
                     FontAwesomeIcons.basketShopping,
                     size: 16,
@@ -1030,6 +1042,30 @@ class _HouseholdItemDetailsScreenState
     final totalEstimate = _displayEstimate(details);
     final unitEstimate = _unitEstimate(details);
     final isPerKg = details.pricingType.toLowerCase() == 'per_kg';
+
+    if (widget.selectionOnly) {
+      String? condition;
+      for (final section in details.sections) {
+        final key = '${section.slug} ${section.title}'.toLowerCase();
+        if (key.contains('condition') || key.contains('working')) {
+          condition = _selectedOptions[section.slug]?.value;
+          break;
+        }
+      }
+
+      Navigator.of(context).pop(<String, dynamic>{
+        'item_id': widget.applianceCategoryId,
+        'item_name': details.name.isEmpty ? _item.name : details.name,
+        'rate_per_kg': unitEstimate,
+        'pricing_type': details.pricingType,
+        'weight_kg': isPerKg ? _selectedWeightKg : 1.0,
+        'quantity': 1,
+        'condition': condition,
+        'estimated_total': totalEstimate,
+      });
+      return;
+    }
+
     ref
         .read(basketProvider.notifier)
         .setItem(

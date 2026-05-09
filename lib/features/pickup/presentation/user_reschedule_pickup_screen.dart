@@ -16,8 +16,7 @@ class UserReschedulePickupScreen extends ConsumerStatefulWidget {
       _UserReschedulePickupScreenState();
 }
 
-class _UserReschedulePickupScreenState
-    extends ConsumerState<UserReschedulePickupScreen> {
+class _UserReschedulePickupScreenState extends ConsumerState<UserReschedulePickupScreen> {
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   String? _selectedTimeSlot;
   String? _selectedReason;

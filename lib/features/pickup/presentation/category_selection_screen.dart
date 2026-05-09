@@ -77,17 +77,17 @@ class _CategorySelectionScreenState
                   appSettings.features.donationEnabled &&
                   _matchesDonationQuery(_searchQuery);
               return ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 22),
                 children: [
                   const Text(
                     'Scrapify',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 20,
                       fontWeight: FontWeight.w900,
                       color: AppTheme.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
                     context.locale.languageCode == 'hi'
                         ? 'पिकअप बुकिंग जारी रखने के लिए एक श्रेणी चुनें।'
@@ -95,17 +95,17 @@ class _CategorySelectionScreenState
                     style: const TextStyle(
                       fontSize: 14,
                       color: AppTheme.textSecondary,
-                      height: 1.4,
+                      height: 1.35,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 14),
                   _buildSearchField(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
                   if (filtered.isEmpty && !showDonationTile) _buildEmptyState(),
                   if (filtered.isNotEmpty)
                     ...filtered.map(
                       (category) => Padding(
-                        padding: const EdgeInsets.only(bottom: 14),
+                        padding: const EdgeInsets.only(bottom: 10),
                         child: CategoryListTile(
                           title: category.getName(context),
                           subtitle: _categorySubtitle(category),

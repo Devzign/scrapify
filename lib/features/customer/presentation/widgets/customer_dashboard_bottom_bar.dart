@@ -206,51 +206,71 @@ class _BasketFloatingButton extends StatelessWidget {
         color: AppTheme.surfaceColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: AppTheme.e2,
-        child: FloatingActionButton.extended(
-        heroTag: 'dashboard_basket_fab',
-        onPressed: () => context.push(AppRoutes.basket),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        icon: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            const FaIcon(
-              FontAwesomeIcons.basketShopping,
-              color: AppTheme.primaryColor,
-              size: 18,
-            ),
-            Positioned(
-              right: -10,
-              top: -8,
-              child: Container(
-                constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: Text(
-                  '$itemCount',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                  ),
+        padding: EdgeInsets.zero,
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => context.push(AppRoutes.basket),
+            child: SizedBox(
+              width: double.infinity,
+              height: 58,
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        const FaIcon(
+                          FontAwesomeIcons.basketShopping,
+                          color: AppTheme.primaryColor,
+                          size: 18,
+                        ),
+                        Positioned(
+                          right: -10,
+                          top: -8,
+                          child: Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              '$itemCount',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      context.locale.languageCode == 'hi' ? 'बास्केट' : 'Basket',
+                      style: const TextStyle(
+                        color: AppTheme.textPrimary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-        label: Text(
-          context.locale.languageCode == 'hi' ? 'बास्केट' : 'Basket',
-          style: const TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.w800,
-            fontSize: 14,
           ),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         ),
       ),
     );

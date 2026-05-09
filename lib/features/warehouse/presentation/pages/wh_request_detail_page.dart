@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../domain/models/warehouse_pickup_boy.dart';
 import '../../domain/models/warehouse_request.dart';
 import '../../providers/warehouse_provider.dart';
@@ -35,7 +36,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
     final state = ref.watch(warehouseProvider);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -64,7 +65,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -101,12 +102,12 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColor.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 20,
             ),
           ),
@@ -123,7 +124,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
         return (AppTheme.primarySurface, AppTheme.successColor, 'Assigned');
       case 'active':
       case 'in_progress':
-        return (AppTheme.hintPeach, const Color(0xFFD97706), 'Active');
+        return (AppTheme.hintPeach, AppColor.warning, 'Active');
       case 'rescheduled':
         return (
           const Color(0xFFFCE7F3),
@@ -131,9 +132,9 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
           'Rescheduled',
         );
       case 'cancelled':
-        return (const Color(0xFFFEE2E2), const Color(0xFFEF4444), 'Cancelled');
+        return (AppColor.errorTint, AppColor.error, 'Cancelled');
       default:
-        return (const Color(0xFFFEE2E2), const Color(0xFFEF4444), 'Unassigned');
+        return (AppColor.errorTint, AppColor.error, 'Unassigned');
     }
   }
 
@@ -313,7 +314,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: Colors.grey.shade100),
+                                border: Border.all(color: AppColor.hairline),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -488,7 +489,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: Colors.grey.shade500,
+                    color: AppColor.textSecondary,
                     letterSpacing: 1,
                   ),
                 ),
@@ -537,7 +538,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 else
                   Text(
                     'No pickup boy assigned yet.',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 13, color: AppColor.textSecondary),
                   ),
               ],
             ),
@@ -558,7 +559,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 2),
-          child: Icon(icon, color: Colors.grey.shade400, size: 20),
+          child: Icon(icon, color: AppColor.textMuted, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -580,7 +581,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade500,
+                  color: AppColor.textSecondary,
                   letterSpacing: -0.3,
                 ),
               ),
@@ -601,7 +602,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: AppTheme.cardBorderRadius,
-          border: Border.all(color: Colors.grey.shade100),
+          border: Border.all(color: AppColor.hairline),
           boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
@@ -628,7 +629,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                         'Select an available agent near the area',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.grey.shade500,
+                          color: AppColor.textSecondary,
                         ),
                       ),
                     ],
@@ -651,7 +652,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 ],
               ),
             ),
-            Divider(height: 1, color: Colors.grey.shade50),
+            Divider(height: 1, color: AppColor.backgroundCream),
             if (state.isActionLoading)
               const Padding(
                 padding: EdgeInsets.all(20),
@@ -662,7 +663,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 padding: const EdgeInsets.all(20),
                 child: Text(
                   'Tap REFRESH to load available agents.',
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+                  style: TextStyle(fontSize: 13, color: AppColor.textMuted),
                 ),
               )
             else
@@ -715,7 +716,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
         ? AppTheme.successColor
         : const Color(0xFFF59E0B);
     final workloadColor = boy.currentAssignmentCount > 2
-        ? (const Color(0xFFFEE2E2), const Color(0xFFB91C1C))
+        ? (AppColor.errorTint, const Color(0xFFB91C1C))
         : boy.currentAssignmentCount > 0
         ? (AppTheme.hintPeach, const Color(0xFFB45309))
         : (AppTheme.primarySurface, const Color(0xFF15803D));

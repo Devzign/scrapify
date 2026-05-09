@@ -23,24 +23,24 @@ class SubCategoryGridCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white,
+      color: AppColor.surface,
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(24),
         child: Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColor.surface,
             borderRadius: AppTheme.cardBorderRadius,
-            border: AppTheme.cardBorder,
-            boxShadow: AppTheme.cardShadow,
+            border: Border.all(color: AppColor.primaryLight.withValues(alpha: 0.38)),
+            boxShadow: AppTheme.e1,
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final imageHeight = (constraints.maxHeight * 0.44).clamp(
-                48.0,
-                68.0,
+              final imageHeight = (constraints.maxHeight * 0.50).clamp(
+                62.0,
+                92.0,
               );
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,46 +49,40 @@ class SubCategoryGridCard extends StatelessWidget {
                     width: double.infinity,
                     height: imageHeight,
                     decoration: BoxDecoration(
-                      color: AppColor.backgroundCream,
+                      color: AppColor.primarySurface,
                       borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: AppColor.hairline),
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: _buildLeadingVisual(),
                   ),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w800,
-                            color: AppTheme.textPrimary,
-                            height: 1.1,
-                          ),
-                        ),
-                        if (subtitle.trim().isNotEmpty) ...[
-                          const SizedBox(height: 3),
-                          Text(
-                            subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppTheme.primaryColor,
-                              fontWeight: FontWeight.w600,
-                              height: 1.2,
-                            ),
-                          ),
-                        ],
-                      ],
+                  const SizedBox(height: 8),
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.textPrimary,
+                      height: 1.2,
                     ),
                   ),
+                  if (subtitle.trim().isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 1),
+                  ],
                 ],
               );
             },
@@ -107,7 +101,7 @@ class SubCategoryGridCard extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(6),
       child: Image.network(
         normalizedImageUrl,
         fit: BoxFit.contain,

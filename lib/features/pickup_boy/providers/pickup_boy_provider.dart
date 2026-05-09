@@ -77,30 +77,30 @@ class PickupBoyNotifier extends StateNotifier<PickupBoyState> {
     state = state.copyWith(isActionLoading: true, clearError: true);
     final result = await _repository.acceptPickup(id);
     state = state.copyWith(isActionLoading: false);
-    if (!result.isSuccess) {
+    if (result.isError) {
       state = state.copyWith(error: result.errorMessage);
     }
-    return result.isSuccess;
+    return !result.isError;
   }
 
   Future<bool> rejectPickup(int id) async {
     state = state.copyWith(isActionLoading: true, clearError: true);
     final result = await _repository.rejectPickup(id);
     state = state.copyWith(isActionLoading: false);
-    if (!result.isSuccess) {
+    if (result.isError) {
       state = state.copyWith(error: result.errorMessage);
     }
-    return result.isSuccess;
+    return !result.isError;
   }
 
   Future<bool> updateStatus(int id, String status) async {
     state = state.copyWith(isActionLoading: true, clearError: true);
     final result = await _repository.updateStatus(id, status);
     state = state.copyWith(isActionLoading: false);
-    if (!result.isSuccess) {
+    if (result.isError) {
       state = state.copyWith(error: result.errorMessage);
     }
-    return result.isSuccess;
+    return !result.isError;
   }
 
   Future<Map<String, dynamic>?> verifyPickup(
@@ -128,10 +128,10 @@ class PickupBoyNotifier extends StateNotifier<PickupBoyState> {
       additionalNote: additionalNote,
     );
     state = state.copyWith(isActionLoading: false);
-    if (!result.isSuccess) {
+    if (result.isError) {
       state = state.copyWith(error: result.errorMessage);
     }
-    return result.isSuccess;
+    return !result.isError;
   }
 
   Future<bool> toggleOnline(bool isOnline) async {
@@ -143,7 +143,7 @@ class PickupBoyNotifier extends StateNotifier<PickupBoyState> {
     state = state.copyWith(isActionLoading: true, clearError: true);
     final result = await _repository.toggleOnlineStatus(isOnline);
     state = state.copyWith(isActionLoading: false);
-    if (result.isSuccess && state.dashboard != null) {
+    if (!result.isError && state.dashboard != null) {
       final updated = PickupBoyDashboard(
         pickupBoy: state.dashboard!.pickupBoy == null
             ? null
@@ -162,10 +162,10 @@ class PickupBoyNotifier extends StateNotifier<PickupBoyState> {
         upcomingRoute: state.dashboard!.upcomingRoute,
       );
       state = state.copyWith(dashboard: updated);
-    } else if (!result.isSuccess) {
+    } else if (result.isError) {
       state = state.copyWith(error: result.errorMessage);
     }
-    return result.isSuccess;
+    return !result.isError;
   }
 
   void clearError() => state = state.copyWith(clearError: true);

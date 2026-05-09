@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/custom_button.dart';
 import '../../../core/utils/app_routes.dart';
 import '../providers/pickup_boy_provider.dart';
 
@@ -59,34 +62,73 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
               _detail?['pickup_code']?.toString() ??
               'Pickup #${widget.pickupId}',
           style: const TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.bold,
+            color: AppColor.textPrimary,
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_rounded,
+              color: AppColor.textPrimary),
           onPressed: () => context.pop(),
         ),
       ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(_error!, style: const TextStyle(color: Colors.red)),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadDetail,
-                    child: const Text('Retry'),
-                  ),
-                ],
+              ? _buildError()
+              : _buildContent(context, state),
+    );
+  }
+
+  Widget _buildError() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: AppCard(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 64,
+                height: 64,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColor.errorTint,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.error_outline_rounded,
+                  size: 28,
+                  color: AppColor.error,
+                ),
               ),
-            )
-          : _buildContent(context, state),
+              const SizedBox(height: AppTheme.space16),
+              const Text(
+                'Could not load pickup',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppColor.textPrimary,
+                ),
+              ),
+              const SizedBox(height: AppTheme.space8),
+              Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColor.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: AppTheme.space20),
+              CustomButton(text: 'Retry', onPressed: _loadDetail),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -97,15 +139,12 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
       children: [
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Status Badge
                 _StatusBadge(status: status),
-                const SizedBox(height: 16),
-
-                // Customer Info
+                const SizedBox(height: AppTheme.space16),
                 _InfoCard(
                   title: 'Customer Details',
                   icon: FontAwesomeIcons.user,
@@ -130,9 +169,7 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-
-                // Items
+                const SizedBox(height: AppTheme.space16),
                 if (_detail?['items'] != null &&
                     (_detail!['items'] as List).isNotEmpty) ...[
                   _InfoCard(
@@ -142,58 +179,58 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
                       ...(_detail!['items'] as List<dynamic>)
                           .whereType<Map<String, dynamic>>()
                           .map((item) {
-                            // category_name can be a Map {"en": "...", "hi": "..."} or a String
-                            final rawCat = item['category_name'];
-                            String catName;
-                            if (rawCat is Map) {
-                              catName =
-                                  rawCat['en']?.toString() ??
-                                  rawCat.values.first?.toString() ??
-                                  'Item';
-                            } else {
-                              catName =
-                                  rawCat?.toString() ??
-                                  item['item_name']?.toString() ??
-                                  'Item';
-                            }
-                            final weightKg =
-                                item['weight_kg']?.toString() ??
-                                item['expected_weight']?.toString() ??
-                                '-';
-                            final qty = item['quantity']?.toString() ?? '-';
-                            return _InfoRow(
-                              label: catName,
-                              value: 'Qty: $qty | Wt: $weightKg kg',
-                            );
-                          }),
+                        final rawCat = item['category_name'];
+                        String catName;
+                        if (rawCat is Map) {
+                          catName = rawCat['en']?.toString() ??
+                              rawCat.values.first?.toString() ??
+                              'Item';
+                        } else {
+                          catName = rawCat?.toString() ??
+                              item['item_name']?.toString() ??
+                              'Item';
+                        }
+                        final weightKg = item['weight_kg']?.toString() ??
+                            item['expected_weight']?.toString() ??
+                            '-';
+                        final qty = item['quantity']?.toString() ?? '-';
+                        return _InfoRow(
+                          label: catName,
+                          value: 'Qty: $qty | Wt: $weightKg kg',
+                        );
+                      }),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppTheme.space16),
                 ],
-
-                // Quick Actions (Call / Map)
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: _CallButton(
+                        icon: FontAwesomeIcons.phone,
+                        label: 'Call Customer',
+                        color: AppColor.info,
                         onPressed: () async {
-                          final phone = _detail?['customer_phone']?.toString();
+                          final phone =
+                              _detail?['customer_phone']?.toString();
                           if (phone != null && phone.isNotEmpty) {
                             final uri = Uri.parse('tel:$phone');
                             if (await canLaunchUrl(uri)) launchUrl(uri);
                           }
                         },
-                        icon: const FaIcon(FontAwesomeIcons.phone, size: 14),
-                        label: const Text('Call Customer'),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppTheme.space12),
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: _CallButton(
+                        icon: FontAwesomeIcons.mapLocationDot,
+                        label: 'Navigate',
+                        color: AppColor.error,
                         onPressed: () async {
                           final lat = _detail?['latitude']?.toString();
                           final lng = _detail?['longitude']?.toString();
-                          final addr = _detail?['address']?.toString() ?? '';
+                          final addr =
+                              _detail?['address']?.toString() ?? '';
                           Uri uri;
                           if (lat != null && lng != null) {
                             uri = Uri.parse(
@@ -207,20 +244,10 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
                             return;
                           }
                           if (await canLaunchUrl(uri)) {
-                            launchUrl(
-                              uri,
-                              mode: LaunchMode.externalApplication,
-                            );
+                            launchUrl(uri,
+                                mode: LaunchMode.externalApplication);
                           }
                         },
-                        icon: const FaIcon(
-                          FontAwesomeIcons.mapLocationDot,
-                          size: 14,
-                        ),
-                        label: const Text('Navigate'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                        ),
                       ),
                     ),
                   ],
@@ -230,8 +257,11 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
           ),
         ),
         Container(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-          color: Colors.white,
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+          decoration: const BoxDecoration(
+            color: AppColor.surface,
+            border: Border(top: BorderSide(color: AppColor.hairline)),
+          ),
           child: SafeArea(
             top: false,
             child: state.isActionLoading
@@ -249,27 +279,23 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
         return Row(
           children: [
             Expanded(
-              child: OutlinedButton(
+              child: CustomButton(
+                text: 'Reject',
+                variant: AppButtonVariant.outline,
+                backgroundColor: AppColor.error,
+                textColor: AppColor.error,
+                minHeight: 50,
                 onPressed: () => _rejectPickup(context),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                  side: const BorderSide(color: Colors.red),
-                ),
-                child: const Text('Reject'),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppTheme.space12),
             Expanded(
               flex: 2,
-              child: ElevatedButton(
+              child: CustomButton(
+                text: 'Accept Pickup',
+                variant: AppButtonVariant.primary,
+                minHeight: 50,
                 onPressed: () => _acceptPickup(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppTheme.primaryColor,
-                ),
-                child: const Text(
-                  'Accept Pickup',
-                  style: TextStyle(color: Colors.white),
-                ),
               ),
             ),
           ],
@@ -278,86 +304,69 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
       case 'accepted':
         return Column(
           children: [
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => _updateStatus(context, 'on_the_way'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  minimumSize: const Size(double.infinity, 48),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    FaIcon(
-                      FontAwesomeIcons.truck,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 8),
-                    Text('On The Way', style: TextStyle(color: Colors.white)),
-                  ],
-                ),
+            CustomButton(
+              text: 'On The Way',
+              variant: AppButtonVariant.primary,
+              minHeight: 50,
+              leading: const FaIcon(
+                FontAwesomeIcons.truck,
+                size: 14,
+                color: Colors.white,
               ),
+              onPressed: () => _updateStatus(context, 'on_the_way'),
             ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () => context.push(
-                  '${AppRoutes.agentReschedule}/${widget.pickupId}',
-                ),
-                icon: const Icon(Icons.schedule_rounded, size: 16),
-                label: const Text('Request Reschedule'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.orange,
-                  side: const BorderSide(color: Colors.orange),
-                  minimumSize: const Size(double.infinity, 48),
-                ),
+            const SizedBox(height: AppTheme.space8),
+            CustomButton(
+              text: 'Request Reschedule',
+              variant: AppButtonVariant.outline,
+              backgroundColor: AppColor.warning,
+              textColor: AppColor.warning,
+              minHeight: 50,
+              leading: const Icon(
+                Icons.schedule_rounded,
+                size: 16,
+                color: AppColor.warning,
               ),
+              onPressed: () => context
+                  .push('${AppRoutes.agentReschedule}/${widget.pickupId}'),
             ),
           ],
         );
 
       case 'on_the_way':
-        return ElevatedButton(
+        return CustomButton(
+          text: 'Mark Arrived',
+          variant: AppButtonVariant.primary,
+          backgroundColor: AppColor.warning,
+          minHeight: 50,
+          leading: const Icon(
+            Icons.location_on_rounded,
+            size: 16,
+            color: Colors.white,
+          ),
           onPressed: () => _updateStatus(context, 'arrived'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.orange,
-            minimumSize: const Size(double.infinity, 48),
-          ),
-          child: const Text(
-            'Mark Arrived',
-            style: TextStyle(color: Colors.white),
-          ),
         );
 
       case 'arrived':
-        return ElevatedButton(
+        return CustomButton(
+          text: 'Start Verification',
+          variant: AppButtonVariant.primary,
+          minHeight: 50,
+          leading: const FaIcon(
+            FontAwesomeIcons.magnifyingGlass,
+            size: 14,
+            color: Colors.white,
+          ),
           onPressed: () async {
-            await context.push('/pickup-boy/pickups/${widget.pickupId}/verify');
+            await context.push(
+              '/pickup-boy/pickups/${widget.pickupId}/verify',
+            );
             if (!mounted) return;
             await _loadDetail();
             final notifier = ref.read(pickupBoyProvider.notifier);
             notifier.loadAssignments();
             notifier.loadDashboard();
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryColor,
-            minimumSize: const Size(double.infinity, 48),
-          ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FaIcon(
-                FontAwesomeIcons.magnifyingGlass,
-                size: 16,
-                color: Colors.white,
-              ),
-              SizedBox(width: 8),
-              Text('Start Verification', style: TextStyle(color: Colors.white)),
-            ],
-          ),
         );
 
       default:
@@ -382,23 +391,18 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
           }
         });
       }
-      // Reload the detail from API so all fields are fresh
       await _loadDetail();
-      // Reload assignments so dashboard reflects the change
       notifier.loadAssignments();
       notifier.loadDashboard();
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pickup accepted!'),
-          backgroundColor: Colors.green,
-        ),
+        const SnackBar(content: Text('Pickup accepted!')),
       );
     } else {
       final error = ref.read(pickupBoyProvider).error;
       if (error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error), backgroundColor: Colors.red),
+          SnackBar(content: Text(error)),
         );
         notifier.clearError();
       }
@@ -439,24 +443,19 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
           }
         });
       }
-      // Reload the detail from API so all fields are fresh
       await _loadDetail();
-      // Reload assignments and dashboard so they reflect the new status
       notifier.loadAssignments();
       notifier.loadDashboard();
       if (!context.mounted) return;
       final label = newStatus.replaceAll('_', ' ');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Status updated to $label'),
-          backgroundColor: Colors.green,
-        ),
+        SnackBar(content: Text('Status updated to $label')),
       );
     } else {
       final error = ref.read(pickupBoyProvider).error;
       if (error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error), backgroundColor: Colors.red),
+          SnackBar(content: Text(error)),
         );
         notifier.clearError();
       }
@@ -542,19 +541,19 @@ class _StatusBadge extends StatelessWidget {
   Color get _color {
     switch (status) {
       case 'assigned':
-        return Colors.blue;
+        return AppColor.info;
       case 'accepted':
-        return Colors.indigo;
+        return AppColor.brandNavy;
       case 'on_the_way':
-        return Colors.orange;
+        return AppColor.warning;
       case 'arrived':
-        return Colors.purple;
+        return AppColor.rose;
       case 'verifying':
-        return Colors.amber;
+        return AppColor.earth;
       case 'completed':
-        return Colors.green;
+        return AppColor.primary;
       default:
-        return Colors.grey;
+        return AppColor.textMuted;
     }
   }
 
@@ -563,17 +562,17 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: _color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: _color.withValues(alpha: 0.4)),
+        color: _color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
+        border: Border.all(color: _color.withValues(alpha: 0.30)),
       ),
       child: Text(
         status.replaceAll('_', ' ').toUpperCase(),
         style: TextStyle(
           color: _color,
-          fontWeight: FontWeight.bold,
-          fontSize: 12,
-          letterSpacing: 0.5,
+          fontWeight: FontWeight.w800,
+          fontSize: 11,
+          letterSpacing: 0.6,
         ),
       ),
     );
@@ -593,37 +592,37 @@ class _InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+    return AppCard(
+      padding: const EdgeInsets.all(AppTheme.space16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              FaIcon(icon, size: 14, color: AppTheme.primaryColor),
-              const SizedBox(width: 8),
+              Container(
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColor.primarySurface,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                ),
+                child: FaIcon(icon, size: 13, color: AppColor.primary),
+              ),
+              const SizedBox(width: 10),
               Text(
                 title,
                 style: const TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w800,
                   fontSize: 14,
-                  color: AppTheme.textPrimary,
+                  color: AppColor.textPrimary,
                 ),
               ),
             ],
           ),
-          const Divider(height: 16),
+          const SizedBox(height: AppTheme.space12),
+          const Divider(color: AppColor.hairline, height: 1),
+          const SizedBox(height: AppTheme.space12),
           ...children,
         ],
       ),
@@ -639,25 +638,75 @@ class _InfoRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 80,
+            width: 92,
             child: Text(
               label,
-              style: const TextStyle(color: Colors.grey, fontSize: 13),
+              style: const TextStyle(
+                color: AppColor.textMuted,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           Expanded(
             child: Text(
               value,
               style: const TextStyle(
-                color: AppTheme.textPrimary,
+                color: AppColor.textPrimary,
                 fontSize: 13,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
+                height: 1.4,
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CallButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _CallButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        foregroundColor: color,
+        backgroundColor: color.withValues(alpha: 0.06),
+        side: BorderSide(color: color.withValues(alpha: 0.30)),
+        minimumSize: const Size(double.infinity, 50),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FaIcon(icon, size: 14, color: color),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: color,
             ),
           ),
         ],

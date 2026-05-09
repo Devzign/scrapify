@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../../../core/utils/app_routes.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import '../../../../features/channel_partner/providers/channel_partner_provider.dart';
@@ -50,7 +51,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
         : 'CP';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -103,7 +104,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade600,
+                            color: AppColor.textSecondary,
                           ),
                         ),
                       ],
@@ -156,7 +157,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade600,
+                        color: AppColor.textSecondary,
                       ),
                     ),
                     if ((user?.email ?? '').isNotEmpty) ...[
@@ -165,7 +166,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                         user!.email!,
                         style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey.shade500,
+                          color: AppColor.textSecondary,
                         ),
                       ),
                     ],
@@ -323,7 +324,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
             ),
           ),
           const SizedBox(height: 8),
@@ -353,6 +354,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
       borderRadius: BorderRadius.circular(18),
       child: Container(
         padding: const EdgeInsets.all(16),
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: AppTheme.cardBorderRadius,
@@ -365,13 +367,13 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: (destructive ? Colors.red : AppTheme.primaryColor)
+                color: (destructive ? AppColor.error : AppTheme.primaryColor)
                     .withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 icon,
-                color: destructive ? Colors.red : AppTheme.primaryColor,
+                color: destructive ? AppColor.error : AppTheme.primaryColor,
               ),
             ),
             const SizedBox(width: 14),
@@ -384,13 +386,13 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
-                      color: destructive ? Colors.red : AppTheme.textPrimary,
+                      color: destructive ? AppColor.error : AppTheme.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                    style: TextStyle(fontSize: 12, color: AppColor.textSecondary),
                   ),
                 ],
               ),
@@ -415,7 +417,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                 ),
               )
             else
-              Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+              Icon(Icons.chevron_right_rounded, color: AppColor.textMuted),
           ],
         ),
       ),

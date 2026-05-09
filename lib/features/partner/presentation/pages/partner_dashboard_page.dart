@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import '../../../../features/channel_partner/domain/models/channel_partner_dashboard.dart';
 import '../../../../features/channel_partner/providers/channel_partner_provider.dart';
@@ -30,7 +31,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
     final d = state.dashboard;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -53,16 +54,16 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                                 margin: const EdgeInsets.all(16),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.shade50,
+                                  color: AppColor.hintPeach,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.orange.shade200,
+                                    color: AppColor.warning.withValues(alpha: 0.30),
                                   ),
                                 ),
                                 child: Text(
                                   state.error!,
                                   style: TextStyle(
-                                    color: Colors.orange.shade800,
+                                    color: AppColor.warning,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -90,7 +91,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -129,12 +130,12 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColor.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 22,
             ),
           ),
@@ -173,7 +174,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                 const SizedBox(width: 8),
                 Text(
                   '| ID: $userId',
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade400),
+                  style: TextStyle(fontSize: 11, color: AppColor.textMuted),
                 ),
               ],
             ],
@@ -259,7 +260,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w800,
-                                color: Colors.grey.shade500,
+                                color: AppColor.textSecondary,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -291,7 +292,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w800,
-                                color: Colors.grey.shade500,
+                                color: AppColor.textSecondary,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -329,7 +330,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                     _MetricItem(
                       context.partnerText('Pending', 'लंबित'),
                       '${d?.pendingWarehouseApprovals ?? 0}',
-                      Colors.grey.shade500,
+                      AppColor.textSecondary,
                     ),
                   ],
                 ),
@@ -348,7 +349,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                     _MetricItem(
                       context.partnerText('Active', 'सक्रिय'),
                       '${d?.activePickupBoys ?? 0}',
-                      Colors.grey.shade500,
+                      AppColor.textSecondary,
                     ),
                   ],
                 ),
@@ -386,7 +387,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                   style: TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
-                    color: Colors.grey.shade500,
+                    color: AppColor.textSecondary,
                     letterSpacing: 1,
                   ),
                   maxLines: 1,
@@ -475,7 +476,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Colors.grey.shade600,
+                    color: AppColor.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -500,7 +501,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFFEF4444),
+                                  color: AppColor.error,
                                 ),
                               ),
                             ),
@@ -511,7 +512,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
-                              color: Colors.grey.shade400,
+                              color: AppColor.textMuted,
                             ),
                           ),
                         ],
@@ -524,7 +525,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                           Container(
                             height: reschedH,
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade200.withValues(
+                              color: AppColor.cardBorder.withValues(
                                 alpha: 0.5,
                               ),
                               borderRadius: const BorderRadius.vertical(
@@ -537,7 +538,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w800,
-                                  color: Colors.grey.shade600,
+                                  color: AppColor.textSecondary,
                                 ),
                               ),
                             ),
@@ -551,7 +552,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                             style: TextStyle(
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
-                              color: Colors.grey.shade400,
+                              color: AppColor.textMuted,
                             ),
                           ),
                         ],
@@ -563,22 +564,21 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
             ),
           ),
           const SizedBox(height: 16),
-          // Fleet Tracking Card
+          // Fleet Tracking Card — sage gradient (matches customer hero)
           Container(
             width: double.infinity,
             height: 180,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF689C71), Color(0xFF4A7A53)],
+              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+              gradient: AppTheme.sageHeader,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.30),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+                  color: AppColor.primary.withValues(alpha: 0.30),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
                 ),
               ],
             ),
@@ -707,7 +707,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Text(
                 context.partnerText('No recent orders', 'कोई नया ऑर्डर नहीं'),
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                style: TextStyle(color: AppColor.textMuted, fontSize: 13),
               ),
             )
           else
@@ -736,6 +736,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: AppTheme.cardBorderRadius,
@@ -753,7 +754,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
             ),
             child: Icon(
               Icons.inventory_2_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 20,
             ),
           ),
@@ -780,7 +781,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey.shade500,
+                    color: AppColor.textSecondary,
                   ),
                 ),
               ],
@@ -802,7 +803,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
             ),
           ),
           const SizedBox(width: 4),
-          Icon(Icons.chevron_right, color: Colors.grey.shade300, size: 20),
+          Icon(Icons.chevron_right, color: AppColor.outline, size: 20),
         ],
       ),
     );
@@ -821,9 +822,9 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
       case 'on_the_way':
         return (AppTheme.primarySurface, AppTheme.primaryDark);
       case 'cancelled':
-        return (const Color(0xFFFEE2E2), const Color(0xFF991B1B));
+        return (AppColor.errorTint, AppColor.error);
       case 'rescheduled':
-        return (const Color(0xFFFFD9DF), const Color(0xFF6F3443));
+        return (AppColor.roseTint, AppColor.rose);
       default:
         return (AppTheme.outline, AppTheme.textSecondary);
     }

@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/theme/app_color.dart';
 import '../../domain/models/warehouse_dashboard.dart';
 import '../../domain/models/warehouse_request.dart';
 import '../../providers/warehouse_provider.dart';
@@ -28,7 +29,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
     final d = state.dashboard;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.backgroundLight,
       body: SafeArea(
         child: Column(
           children: [
@@ -50,16 +51,16 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                                 margin: const EdgeInsets.all(16),
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.shade50,
+                                  color: AppColor.hintPeach,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: Colors.orange.shade200,
+                                    color: AppColor.warning.withValues(alpha: 0.30),
                                   ),
                                 ),
                                 child: Text(
                                   state.error!,
                                   style: TextStyle(
-                                    color: Colors.orange.shade800,
+                                    color: AppColor.warning,
                                     fontSize: 13,
                                   ),
                                 ),
@@ -84,7 +85,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+        border: Border(bottom: BorderSide(color: AppColor.hairline)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -118,12 +119,12 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: AppColor.backgroundCream,
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.notifications_none_rounded,
-              color: Colors.grey.shade500,
+              color: AppColor.textSecondary,
               size: 22,
             ),
           ),
@@ -259,7 +260,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                 Container(
                   padding: const EdgeInsets.only(top: 16),
                   decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: Colors.grey.shade50)),
+                    border: Border(top: BorderSide(color: AppColor.backgroundCream)),
                   ),
                   child: Row(
                     children: [
@@ -282,7 +283,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey.shade500,
+                                color: AppColor.textSecondary,
                               ),
                             ),
                           ],
@@ -307,7 +308,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey.shade500,
+                                color: AppColor.textSecondary,
                               ),
                             ),
                           ],
@@ -345,18 +346,21 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
             ],
           ),
           const SizedBox(height: 12),
-          // Agents Dark Card
+          // Agents — sage gradient hero card (mirrors customer dashboard)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppTheme.textPrimary,
-              borderRadius: BorderRadius.circular(16),
+              gradient: AppTheme.sageHeader,
+              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.30),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: AppTheme.textPrimary.withValues(alpha: 0.3),
-                  blurRadius: 20,
-                  offset: const Offset(0, 8),
+                  color: AppColor.primary.withValues(alpha: 0.28),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
                 ),
               ],
             ),
@@ -366,10 +370,11 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: AppTheme.cardBorderRadius,
-                    border: AppTheme.cardBorder,
-                    boxShadow: AppTheme.cardShadow,
+                    color: Colors.white.withValues(alpha: 0.20),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.35),
+                    ),
                   ),
                   child: const Icon(
                     Icons.engineering_rounded,
@@ -394,7 +399,8 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                         'Warehouse Staffing Overview',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Colors.grey.shade500,
+                          color: Colors.white.withValues(alpha: 0.80),
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -406,10 +412,10 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(AppTheme.radiusPill),
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Colors.white.withValues(alpha: 0.32),
                     ),
                   ),
                   child: Row(
@@ -418,17 +424,17 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                         width: 8,
                         height: 8,
                         decoration: const BoxDecoration(
-                          color: Color(0xFF4ADE80),
+                          color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         '${d?.availablePickupBoys ?? 0} Available',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white.withValues(alpha: 0.9),
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
                         ),
                       ),
                     ],
@@ -478,14 +484,14 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Icon(icon, color: iconColor ?? Colors.grey.shade400, size: 24),
+              Icon(icon, color: iconColor ?? AppColor.textMuted, size: 24),
               if (tag != null)
                 Text(
                   tag.toUpperCase(),
                   style: TextStyle(
                     fontSize: 9,
                     fontWeight: FontWeight.w800,
-                    color: Colors.grey.shade400,
+                    color: AppColor.textMuted,
                   ),
                 ),
             ],
@@ -562,7 +568,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                 context.locale.languageCode == 'hi'
                     ? 'कोई हालिया अनुरोध नहीं'
                     : 'No recent requests',
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+                style: TextStyle(color: AppColor.textMuted, fontSize: 13),
               ),
             )
           else
@@ -579,8 +585,8 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
     String hindi;
     String label;
     if (s == 'unassigned' || s == 'pending') {
-      bg = const Color(0xFFFEE2E2);
-      fg = const Color(0xFF991B1B);
+      bg = AppColor.errorTint;
+      fg = AppColor.error;
       hindi = 'अनिर्दिष्ट';
       label = 'Unassigned';
     } else if (s == 'assigned') {
@@ -593,22 +599,22 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
         s == 'on_the_way' ||
         s == 'arrived') {
       bg = AppTheme.hintPeach;
-      fg = const Color(0xFF92400E);
+      fg = AppColor.warning;
       hindi = 'सक्रिय';
       label = 'Active';
     } else if (s == 'completed') {
-      bg = const Color(0xFFE0E7FF);
-      fg = const Color(0xFF3730A3);
+      bg = AppColor.alertBlue;
+      fg = AppColor.brandNavy;
       hindi = 'पूरा हुआ';
       label = 'Completed';
     } else if (s == 'rescheduled') {
       bg = AppTheme.hintPeach;
-      fg = const Color(0xFF9A3412);
+      fg = AppColor.warning;
       hindi = 'पुनर्निर्धारित';
       label = 'Rescheduled';
     } else {
-      bg = Colors.grey.shade100;
-      fg = Colors.grey.shade700;
+      bg = AppColor.hairline;
+      fg = AppColor.textPrimary;
       hindi = s;
       label = r.status;
     }
@@ -629,6 +635,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: AppTheme.cardBorderRadius,
@@ -646,7 +653,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
             ),
             child: Icon(
               Icons.inventory_2_rounded,
-              color: Colors.grey.shade400,
+              color: AppColor.textMuted,
               size: 20,
             ),
           ),
@@ -665,7 +672,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                 ),
                 Text(
                   '${r.customer} • ${r.area}',
-                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                  style: TextStyle(fontSize: 11, color: AppColor.textSecondary),
                 ),
               ],
             ),
@@ -707,17 +714,20 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
         height: 180,
         width: double.infinity,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppTheme.textPrimary, Color(0xFF334155)],
+            colors: [AppColor.deepNavy, AppColor.brandNavy],
+          ),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.10),
           ),
           boxShadow: [
             BoxShadow(
-              color: AppTheme.textPrimary.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+              color: AppColor.deepNavy.withValues(alpha: 0.25),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
             ),
           ],
         ),
@@ -785,7 +795,11 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                   const SizedBox(height: 2),
                   Text(
                     'Manage and track all pickups from one place.',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white.withValues(alpha: 0.78),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),

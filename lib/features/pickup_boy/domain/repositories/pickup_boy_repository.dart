@@ -68,24 +68,24 @@ class PickupBoyRepository {
     return ApiResponse.error(response.errorMessage ?? 'Failed to load pickup detail');
   }
 
-  Future<ApiResponse<void>> acceptPickup(int id) async {
+  Future<ApiResponse<bool>> acceptPickup(int id) async {
     final response = await _apiClient.post('/pickup-boy/pickups/$id/accept');
-    if (response.isSuccess) return ApiResponse.success(null);
+    if (response.isSuccess) return ApiResponse.success(true);
     return ApiResponse.error(response.errorMessage ?? 'Failed to accept pickup');
   }
 
-  Future<ApiResponse<void>> rejectPickup(int id) async {
+  Future<ApiResponse<bool>> rejectPickup(int id) async {
     final response = await _apiClient.post('/pickup-boy/pickups/$id/reject');
-    if (response.isSuccess) return ApiResponse.success(null);
+    if (response.isSuccess) return ApiResponse.success(true);
     return ApiResponse.error(response.errorMessage ?? 'Failed to reject pickup');
   }
 
-  Future<ApiResponse<void>> updateStatus(int id, String status) async {
+  Future<ApiResponse<bool>> updateStatus(int id, String status) async {
     final response = await _apiClient.post(
       '/pickup-boy/pickups/$id/status',
       data: {'status': status},
     );
-    if (response.isSuccess) return ApiResponse.success(null);
+    if (response.isSuccess) return ApiResponse.success(true);
     return ApiResponse.error(response.errorMessage ?? 'Failed to update status');
   }
 
@@ -127,7 +127,7 @@ class PickupBoyRepository {
     return ApiResponse.error(response.errorMessage ?? 'Failed to verify pickup');
   }
 
-  Future<ApiResponse<void>> rescheduleRequest(
+  Future<ApiResponse<bool>> rescheduleRequest(
     int id, {
     required String reasonCode,
     String? additionalNote,
@@ -139,20 +139,20 @@ class PickupBoyRepository {
         if (additionalNote != null) 'additional_note': additionalNote,
       },
     );
-    if (response.isSuccess) return ApiResponse.success(null);
+    if (response.isSuccess) return ApiResponse.success(true);
     return ApiResponse.error(response.errorMessage ?? 'Failed to send reschedule request');
   }
 
-  Future<ApiResponse<void>> toggleOnlineStatus(bool isOnline) async {
+  Future<ApiResponse<bool>> toggleOnlineStatus(bool isOnline) async {
     final response = await _apiClient.post(
       '/pickup-boy/status',
       data: {'is_online': isOnline},
     );
-    if (response.isSuccess) return ApiResponse.success(null);
+    if (response.isSuccess) return ApiResponse.success(true);
     return ApiResponse.error(response.errorMessage ?? 'Failed to update status');
   }
 
-  Future<ApiResponse<void>> updateLocation({
+  Future<ApiResponse<bool>> updateLocation({
     required double latitude,
     required double longitude,
     String? vehicleNumber,
@@ -165,7 +165,7 @@ class PickupBoyRepository {
         if (vehicleNumber != null) 'vehicle_number': vehicleNumber,
       },
     );
-    if (response.isSuccess) return ApiResponse.success(null);
+    if (response.isSuccess) return ApiResponse.success(true);
     return ApiResponse.error(response.errorMessage ?? 'Failed to update location');
   }
 }
