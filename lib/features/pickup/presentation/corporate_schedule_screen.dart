@@ -357,6 +357,7 @@ class _CorporateScheduleScreenState
                     child: TextField(
                       controller: _notesController,
                       maxLines: 3,
+                      maxLength: 500,
                       onChanged: (v) => ref
                           .read(corporateBookingProvider.notifier)
                           .setNotes(v),

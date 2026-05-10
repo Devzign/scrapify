@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
 import '../../../../core/utils/role_route_resolver.dart';
+import '../../../../core/utils/validators.dart';
 import '../../providers/auth_provider.dart';
 import 'login_otp_view_state.dart';
 
@@ -281,37 +282,17 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     state = state.copyWith(shouldFocusOtp: false);
   }
 
-  String? _validatePhone(String value) {
-    if (value.isEmpty) {
-      return 'Please enter your mobile number.';
-    }
-    if (value.length < 10) {
-      return 'Mobile number must be 10 digits.';
-    }
-    if (!RegExp(r'^[6-9]\d{9}$').hasMatch(value)) {
-      return 'Please enter a valid Indian mobile number.';
-    }
-    return null;
-  }
+  String? _validatePhone(String value) => Validators.indianMobile(value);
 
-  String? _validateUserName(String value) {
-    if (value.isEmpty) {
-      return 'Please enter your user name.';
-    }
-    if (value.length < 2) {
-      return 'User name must be at least 2 characters.';
-    }
-    return null;
-  }
+  String? _validateUserName(String value) => Validators.name(value, fieldName: 'Name');
 
   String? _validateReferral(String value) {
-    if (value.trim().isEmpty) {
-      return null;
-    }
-    if (value.length > 6) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return null;
+    if (trimmed.length > 6) {
       return 'Referral code must be at most 6 characters.';
     }
-    if (!RegExp(r'^[A-Z0-9]+$').hasMatch(value)) {
+    if (!RegExp(r'^[A-Z0-9]+$').hasMatch(trimmed)) {
       return 'Use only letters and numbers.';
     }
     return null;

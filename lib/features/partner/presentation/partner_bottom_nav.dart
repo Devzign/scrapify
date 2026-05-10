@@ -9,7 +9,6 @@ import 'pages/partner_dashboard_page.dart';
 import 'pages/partner_orders_page.dart';
 import 'pages/partner_team_page.dart';
 import 'pages/partner_warehouses_page.dart';
-import 'pages/partner_profile_page.dart';
 
 class PartnerBottomNav extends ConsumerStatefulWidget {
   const PartnerBottomNav({super.key});
@@ -26,7 +25,6 @@ class _PartnerBottomNavState extends ConsumerState<PartnerBottomNav> {
     PartnerOrdersPage(),
     PartnerTeamPage(),
     PartnerWarehousesPage(),
-    PartnerProfilePage(),
   ];
 
   @override
@@ -67,11 +65,6 @@ class _PartnerBottomNavState extends ConsumerState<PartnerBottomNav> {
                   FontAwesomeIcons.warehouse,
                   context.partnerText('Warehouses', 'गोदाम'),
                   3,
-                ),
-                _buildNavItem(
-                  FontAwesomeIcons.user,
-                  context.partnerText('Profile', 'प्रोफ़ाइल'),
-                  4,
                 ),
               ],
             ),

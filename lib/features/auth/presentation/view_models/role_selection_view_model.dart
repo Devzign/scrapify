@@ -38,13 +38,17 @@ class RoleSelectionViewModel extends StateNotifier<RoleSelectionViewState> {
         .where((role) => role.visible && role.code.toLowerCase() != 'admin')
         .toList();
 
-    final selectedRole = roles.any((role) => role.code == state.selectedRole)
-        ? state.selectedRole
-        : (roles.isNotEmpty ? roles.first.code : 'customer');
+    // Preserve the user's prior selection if it's still valid; otherwise leave
+    // it null so the user has to make an active choice before continuing.
+    final selectedRole =
+        roles.any((role) => role.code == state.selectedRole)
+            ? state.selectedRole
+            : null;
 
     state = state.copyWith(
       roles: roles,
       selectedRole: selectedRole,
+      clearSelectedRole: selectedRole == null,
       isLoading: false,
       hasLoadedRoles: true,
     );

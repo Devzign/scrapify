@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../profile/domain/models/payment_method_model.dart';
 import '../../../profile/providers/payment_provider.dart';
@@ -89,45 +90,25 @@ class _AddPaymentPopupState extends ConsumerState<AddPaymentPopup> {
     }
   }
 
-  String? _validateRequired(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Required';
+  String? _validateAccountHolder(String? value) =>
+      Validators.name(value, fieldName: 'Account holder name');
+
+  String? _validateBankName(String? value) {
+    final err = Validators.required(value, fieldName: 'Bank name');
+    if (err != null) return err;
+    final trimmed = value!.trim();
+    if (trimmed.length < 2 || trimmed.length > 60) {
+      return 'Enter a valid bank name';
     }
     return null;
   }
 
-  String? _validateAccountNumber(String? value) {
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Required';
-    }
-    if (!RegExp(r'^\d{9,18}$').hasMatch(trimmed)) {
-      return 'Enter a valid account number';
-    }
-    return null;
-  }
+  String? _validateAccountNumber(String? value) =>
+      Validators.accountNumber(value);
 
-  String? _validateIfsc(String? value) {
-    final trimmed = value?.trim().toUpperCase() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Required';
-    }
-    if (!RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$').hasMatch(trimmed)) {
-      return 'Enter a valid IFSC code';
-    }
-    return null;
-  }
+  String? _validateIfsc(String? value) => Validators.ifsc(value);
 
-  String? _validateUpiId(String? value) {
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Required';
-    }
-    if (!RegExp(r'^[a-zA-Z0-9._-]{2,256}@[a-zA-Z]{2,64}$').hasMatch(trimmed)) {
-      return 'Enter a valid UPI ID';
-    }
-    return null;
-  }
+  String? _validateUpiId(String? value) => Validators.upi(value);
 
   @override
   Widget build(BuildContext context) {
@@ -159,14 +140,14 @@ class _AddPaymentPopupState extends ConsumerState<AddPaymentPopup> {
                     controller: _holderNameController,
                     label: 'Account Holder Name',
                     hint: 'As per bank records',
-                    validator: _validateRequired,
+                    validator: _validateAccountHolder,
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
                     controller: _bankNameController,
                     label: 'Bank Name',
                     hint: 'e.g. SBI, HDFC',
-                    validator: _validateRequired,
+                    validator: _validateBankName,
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(

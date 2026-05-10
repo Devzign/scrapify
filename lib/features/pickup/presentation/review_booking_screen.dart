@@ -16,6 +16,7 @@ import '../providers/basket_provider.dart';
 import '../providers/booking_provider.dart';
 import '../providers/donation_provider.dart';
 import '../../referral/providers/referral_provider.dart';
+import '../../settings/providers/settings_provider.dart';
 import 'widgets/add_payment_popup.dart';
 import 'widgets/payment_selection_sheet.dart';
 
@@ -51,6 +52,23 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
     final isDonationFlow = booking.isDonationFlow;
     final items = isDonationFlow ? donationState.items : basketItems;
     final totalEstimate = ref.read(basketProvider.notifier).totalEstimate;
+    final appSettings = ref.watch(settingsProvider);
+    final minimumFreePickupAmount = _toDouble(
+      appSettings.settings['minimum_free_pickup_amount'],
+      1500,
+    );
+    final lowValueShippingCharge = _toDouble(
+      appSettings.settings['low_value_shipping_charge'],
+      100,
+    );
+    final shippingCharge = isDonationFlow
+        ? 0.0
+        : (totalEstimate < minimumFreePickupAmount
+              ? lowValueShippingCharge
+              : 0);
+    final estimatedAfterShipping = isDonationFlow
+        ? totalEstimate
+        : (totalEstimate - shippingCharge).clamp(0, double.infinity).toDouble();
     final authUser = ref.watch(authProvider);
     final isCustomer = isCustomerUser(authUser);
     final isCouponValidating = ref.watch(referralProvider).isCouponValidating;
@@ -199,7 +217,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                               ref: ref,
                               booking: booking,
                               isValidating: isCouponValidating,
-                              totalEstimate: totalEstimate,
+                              totalEstimate: estimatedAfterShipping,
                               appliedCouponCode: booking.appliedCouponCode,
                               appliedCouponExtraValue:
                                   appliedCoupon?.finalExtraValue,
@@ -368,55 +386,69 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                             ),
                           ],
                         ),
-                        Builder(builder: (_) {
-                          final extra = appliedCoupon?.finalExtraValue ?? 0;
-                          final hasCoupon = extra > 0;
-                          final net = totalEstimate + extra;
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Text(
-                                'NET PAYOUT',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w800,
-                                  color: AppTheme.primaryColor,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              if (hasCoupon)
-                                Text(
-                                  '₹${totalEstimate.toStringAsFixed(0)}',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: AppTheme.textMuted,
-                                    decoration: TextDecoration.lineThrough,
+                        Builder(
+                          builder: (_) {
+                            final extra = appliedCoupon?.finalExtraValue ?? 0;
+                            final hasCoupon = extra > 0;
+                            final net = estimatedAfterShipping + extra;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  'NET PAYOUT',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppTheme.primaryColor,
+                                    letterSpacing: 1.2,
                                   ),
                                 ),
-                              if (hasCoupon)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Text(
-                                    '+ ₹${extra.toStringAsFixed(0)} coupon',
+                                const SizedBox(height: 4),
+                                if (hasCoupon)
+                                  Text(
+                                    '₹${estimatedAfterShipping.toStringAsFixed(0)}',
                                     style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppTheme.successColor,
+                                      fontSize: 14,
+                                      color: AppTheme.textMuted,
+                                      decoration: TextDecoration.lineThrough,
                                     ),
                                   ),
+                                if (!isDonationFlow && shippingCharge > 0)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Text(
+                                      '- ₹${shippingCharge.toStringAsFixed(0)} shipping',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.redAccent,
+                                      ),
+                                    ),
+                                  ),
+                                if (hasCoupon)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Text(
+                                      '+ ₹${extra.toStringAsFixed(0)} coupon',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppTheme.successColor,
+                                      ),
+                                    ),
+                                  ),
+                                Text(
+                                  '₹${net.toStringAsFixed(0)}',
+                                  style: const TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w900,
+                                    color: AppTheme.primaryColor,
+                                  ),
                                 ),
-                              Text(
-                                '₹${net.toStringAsFixed(0)}',
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppTheme.primaryColor,
-                                ),
-                              ),
-                            ],
-                          );
-                        }),
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                   const SizedBox(height: 12),
@@ -710,6 +742,12 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
         ],
       ],
     );
+  }
+
+  double _toDouble(dynamic value, double fallback) {
+    if (value == null) return fallback;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString()) ?? fallback;
   }
 
   Future<void> _applyCoupon({
@@ -1090,7 +1128,11 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
         children: [
-          const Icon(Icons.check_circle, color: AppTheme.successColor, size: 18),
+          const Icon(
+            Icons.check_circle,
+            color: AppTheme.successColor,
+            size: 18,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

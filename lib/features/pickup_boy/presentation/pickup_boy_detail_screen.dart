@@ -379,19 +379,29 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
     final ok = await notifier.acceptPickup(widget.pickupId);
     if (!context.mounted) return;
     if (ok) {
+      // Optimistic UI update — propagate the new status across every status field
+      // we look at in `_resolvedStatus`. We deliberately do NOT call `_loadDetail()`
+      // afterwards: the GET endpoint can briefly return cached/stale data which
+      // would otherwise overwrite the optimistic update and confuse the user.
       if (mounted && _detail != null) {
         setState(() {
-          _detail = Map<String, dynamic>.from(_detail!)
+          final updated = Map<String, dynamic>.from(_detail!)
             ..['status'] = 'accepted'
             ..['pickup_status'] = 'accepted';
-          if (_detail!['pickup_request'] is Map<String, dynamic>) {
-            _detail!['pickup_request'] = Map<String, dynamic>.from(
-              _detail!['pickup_request'] as Map<String, dynamic>,
+          if (updated['assignment'] is Map<String, dynamic>) {
+            updated['assignment'] = Map<String, dynamic>.from(
+              updated['assignment'] as Map<String, dynamic>,
             )..['status'] = 'accepted';
           }
+          if (updated['pickup_request'] is Map<String, dynamic>) {
+            updated['pickup_request'] = Map<String, dynamic>.from(
+              updated['pickup_request'] as Map<String, dynamic>,
+            )..['status'] = 'accepted';
+          }
+          _detail = updated;
         });
       }
-      await _loadDetail();
+      // Refresh sibling screens so the dashboard/list reflect the change.
       notifier.loadAssignments();
       notifier.loadDashboard();
       if (!context.mounted) return;
@@ -426,24 +436,28 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
     final ok = await notifier.updateStatus(widget.pickupId, newStatus);
     if (!context.mounted) return;
     if (ok) {
+      // Optimistic UI update across every status field. We do NOT re-fetch the
+      // detail here — an immediate GET can return cached/stale data that would
+      // overwrite the new status and force the user to navigate away and back.
       if (mounted && _detail != null) {
         setState(() {
-          _detail = Map<String, dynamic>.from(_detail!)
+          final updated = Map<String, dynamic>.from(_detail!)
             ..['status'] = newStatus
             ..['pickup_status'] = newStatus;
-          if (_detail!['assignment'] is Map<String, dynamic>) {
-            _detail!['assignment'] = Map<String, dynamic>.from(
-              _detail!['assignment'] as Map<String, dynamic>,
+          if (updated['assignment'] is Map<String, dynamic>) {
+            updated['assignment'] = Map<String, dynamic>.from(
+              updated['assignment'] as Map<String, dynamic>,
             )..['status'] = newStatus;
           }
-          if (_detail!['pickup_request'] is Map<String, dynamic>) {
-            _detail!['pickup_request'] = Map<String, dynamic>.from(
-              _detail!['pickup_request'] as Map<String, dynamic>,
+          if (updated['pickup_request'] is Map<String, dynamic>) {
+            updated['pickup_request'] = Map<String, dynamic>.from(
+              updated['pickup_request'] as Map<String, dynamic>,
             )..['status'] = newStatus;
           }
+          _detail = updated;
         });
       }
-      await _loadDetail();
+      // Refresh sibling screens so the dashboard/list reflect the change.
       notifier.loadAssignments();
       notifier.loadDashboard();
       if (!context.mounted) return;

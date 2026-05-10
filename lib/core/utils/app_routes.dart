@@ -28,6 +28,13 @@ import '../../features/pickup_boy/presentation/pickup_boy_detail_screen.dart';
 import '../../features/pickup_boy/presentation/pickup_boy_verification_screen.dart';
 import '../../features/warehouse/presentation/warehouse_dashboard.dart';
 import '../../features/partner/presentation/partner_dashboard.dart';
+import '../../features/partner/presentation/pages/partner_operations_page.dart';
+import '../../features/partner/presentation/pages/partner_customers_page.dart';
+import '../../features/partner/presentation/pages/partner_create_pickup_page.dart';
+import '../../features/partner/presentation/pages/partner_pickup_tracking_page.dart';
+import '../../features/partner/presentation/pages/partner_handover_page.dart';
+import '../../features/partner/presentation/pages/partner_settlements_page.dart';
+import '../../features/partner/presentation/pages/partner_profile_page.dart';
 import '../../features/pricing/presentation/material_price_list_screen.dart';
 import '../../features/pickup/presentation/rate_pickup_screen.dart';
 import '../../features/pickup/presentation/pickup_details_screen.dart';
@@ -77,6 +84,13 @@ class AppRoutes {
   static const String pickupDashboard = '/dashboard/pickup';
   static const String warehouseDashboard = '/dashboard/warehouse';
   static const String partnerDashboard = '/dashboard/partner';
+  static const String partnerOperations = '/dashboard/partner/operations';
+  static const String partnerCustomers = '/dashboard/partner/customers';
+  static const String partnerCreatePickup = '/dashboard/partner/create-pickup';
+  static const String partnerPickupTracking = '/dashboard/partner/pickup-tracking';
+  static const String partnerHandover = '/dashboard/partner/handover';
+  static const String partnerSettlements = '/dashboard/partner/settlements';
+  static const String partnerProfile = '/dashboard/partner/profile';
   static const String materialPriceList = '/pricing/materials';
   static const String notifications = '/notifications';
   static const String profile = '/profile';
@@ -180,6 +194,34 @@ class AppRoutes {
         GoRoute(
           path: partnerDashboard,
           builder: (context, state) => const PartnerDashboard(),
+        ),
+        GoRoute(
+          path: partnerOperations,
+          builder: (context, state) => const PartnerOperationsPage(),
+        ),
+        GoRoute(
+          path: partnerCustomers,
+          builder: (context, state) => const PartnerCustomersPage(),
+        ),
+        GoRoute(
+          path: partnerCreatePickup,
+          builder: (context, state) => const PartnerCreatePickupPage(),
+        ),
+        GoRoute(
+          path: partnerPickupTracking,
+          builder: (context, state) => const PartnerPickupTrackingPage(),
+        ),
+        GoRoute(
+          path: partnerHandover,
+          builder: (context, state) => const PartnerHandoverPage(),
+        ),
+        GoRoute(
+          path: partnerSettlements,
+          builder: (context, state) => const PartnerSettlementsPage(),
+        ),
+        GoRoute(
+          path: partnerProfile,
+          builder: (context, state) => const PartnerProfilePage(),
         ),
         GoRoute(
           path: categorySelection,

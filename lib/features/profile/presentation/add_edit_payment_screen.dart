@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../providers/payment_provider.dart';
 import '../domain/models/payment_method_model.dart';
@@ -69,59 +70,41 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
     }
   }
 
-  String? _validateRequired(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Required';
+  String? _validateAccountHolder(String? value) {
+    if (_type != 'bank') return null;
+    return Validators.name(value, fieldName: 'Account holder name');
+  }
+
+  String? _validateBankName(String? value) {
+    if (_type != 'bank') return null;
+    final err = Validators.required(value, fieldName: 'Bank name');
+    if (err != null) return err;
+    final trimmed = value!.trim();
+    if (trimmed.length < 2 || trimmed.length > 60) {
+      return 'Enter a valid bank name';
     }
     return null;
   }
 
   String? _validateAccountNumber(String? value) {
-    if (_type != 'bank') {
-      return null;
-    }
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Required';
-    }
-    if (!RegExp(r'^\d{9,18}$').hasMatch(trimmed)) {
-      return 'Enter a valid account number';
-    }
-    return null;
+    if (_type != 'bank') return null;
+    return Validators.accountNumber(value);
   }
 
   String? _validateIfsc(String? value) {
-    if (_type != 'bank') {
-      return null;
-    }
-    final trimmed = value?.trim().toUpperCase() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Required';
-    }
-    if (!RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$').hasMatch(trimmed)) {
-      return 'Enter a valid IFSC code';
-    }
-    return null;
+    if (_type != 'bank') return null;
+    return Validators.ifsc(value);
   }
 
   String? _validateUpiId(String? value) {
-    if (_type != 'upi') {
-      return null;
-    }
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Required';
-    }
-    if (!RegExp(r'^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$').hasMatch(trimmed)) {
-      return 'Enter a valid UPI ID';
-    }
-    return null;
+    if (_type != 'upi') return null;
+    return Validators.upi(value);
   }
 
   bool get _isFormValid {
     if (_type == 'bank') {
-      return _validateRequired(_holderNameController.text) == null &&
-          _validateRequired(_bankNameController.text) == null &&
+      return _validateAccountHolder(_holderNameController.text) == null &&
+          _validateBankName(_bankNameController.text) == null &&
           _validateAccountNumber(_accNoController.text) == null &&
           _validateIfsc(_ifscController.text) == null;
     }
@@ -246,7 +229,8 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
                           label: 'payment.add.holder_name'.tr(),
                           hint: 'payment.add.holder_name_hint'.tr(),
                           isDark: isDark,
-                          validator: _type == 'bank' ? _validateRequired : null,
+                          textCapitalization: TextCapitalization.words,
+                          validator: _validateAccountHolder,
                         ),
                         const SizedBox(height: 16),
                         _buildTextField(
@@ -254,7 +238,8 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
                           label: 'payment.add.bank_name'.tr(),
                           hint: 'payment.add.bank_name_hint'.tr(),
                           isDark: isDark,
-                          validator: _type == 'bank' ? _validateRequired : null,
+                          textCapitalization: TextCapitalization.words,
+                          validator: _validateBankName,
                         ),
                         const SizedBox(height: 16),
                         _buildTextField(

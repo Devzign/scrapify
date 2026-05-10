@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:scrapify/core/widgets/custom_button.dart';
 import 'package:scrapify/features/profile/presentation/add_address_screen.dart';
 import 'package:scrapify/features/profile/domain/repositories/address_repository.dart';
 import 'package:scrapify/features/profile/domain/models/address_model.dart';
@@ -76,12 +77,20 @@ void main() {
     // Verify screen renders
     expect(find.byType(AddAddressScreen), findsOneWidget);
 
-    // Check for TextFields
-    // We expect several text fields (Name, Phone, Address Line 1, Address Line 2, Landmark, Pincode)
-    expect(find.byType(TextField), findsWidgets);
+    // Form uses TextFormField widgets.
+    expect(find.byType(TextFormField), findsWidgets);
+
+    // Fill required fields
+    final houseField = find.byType(TextFormField).at(0);
+    final streetField = find.byType(TextFormField).at(1);
+    final pincodeField = find.byType(TextFormField).at(2);
+    await tester.enterText(houseField, 'A-12');
+    await tester.enterText(streetField, 'MG Road');
+    await tester.enterText(pincodeField, '122001');
+    await tester.pumpAndSettle();
 
     // Check for Save button
-    final saveButton = find.byType(ElevatedButton);
+    final saveButton = find.byType(CustomButton);
     expect(saveButton, findsOneWidget);
 
     // Tap the save button

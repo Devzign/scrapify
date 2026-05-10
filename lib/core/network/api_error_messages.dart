@@ -26,8 +26,7 @@ class ApiErrorMessages {
     // Pickup
     'pickup.price_locked': 'Price is locked. Contact admin to edit.',
     'pickup.cannot_assign': 'Cannot assign — pickup already closed.',
-    'pickup.minimum_value_not_met':
-        'Pickup value below minimum threshold (₹1500).',
+    'pickup.minimum_value_not_met': 'Pickup value is below minimum threshold.',
     'pickup.not_found': 'Pickup not found.',
 
     // Warehouse / pickup-boy mapping
@@ -61,10 +60,7 @@ class ApiErrorMessages {
   }
 
   /// Convenience for a Map response (`{message, data, status}`).
-  static String fromResponse(
-    Map<String, dynamic>? body, {
-    String? fallback,
-  }) {
+  static String fromResponse(Map<String, dynamic>? body, {String? fallback}) {
     return resolve(body?['message'] as String?, fallback: fallback);
   }
 }

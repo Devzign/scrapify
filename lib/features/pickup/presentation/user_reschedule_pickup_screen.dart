@@ -624,7 +624,26 @@ class _UserReschedulePickupScreenState extends ConsumerState<UserReschedulePicku
 
   Future<void> _submitReschedule() async {
     final id = widget.pickupId;
-    if (id == null || _selectedTimeSlot == null) return;
+    if (id == null) return;
+
+    if (_selectedTimeSlot == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please pick a time slot.')),
+      );
+      return;
+    }
+
+    // Don't allow rescheduling to a date in the past.
+    final today = DateTime.now();
+    final todayStart = DateTime(today.year, today.month, today.day);
+    if (_selectedDate.isBefore(todayStart)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please pick today or a future date.'),
+        ),
+      );
+      return;
+    }
 
     final date =
         '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';

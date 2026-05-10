@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_color.dart';
+import '../../../../core/utils/app_routes.dart';
 import '../../../auth/providers/auth_provider.dart';
 import '../../../channel_partner/providers/channel_partner_provider.dart';
 import '../partner_locale.dart';
@@ -15,14 +17,6 @@ class PartnerWarehousesPage extends ConsumerStatefulWidget {
 }
 
 class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(
-      () => ref.read(channelPartnerProvider.notifier).loadWarehouses(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(channelPartnerProvider);
@@ -136,17 +130,42 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColor.backgroundCream,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.notifications_none_rounded,
-              color: AppColor.textSecondary,
-              size: 22,
-            ),
+          Row(
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(40),
+                onTap: () => context.push(AppRoutes.notifications),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColor.backgroundCream,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.notifications_none_rounded,
+                    color: AppColor.textSecondary,
+                    size: 22,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              InkWell(
+                borderRadius: BorderRadius.circular(40),
+                onTap: () => context.push(AppRoutes.partnerProfile),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColor.backgroundCream,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.person_outline_rounded,
+                    color: AppColor.textSecondary,
+                    size: 22,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

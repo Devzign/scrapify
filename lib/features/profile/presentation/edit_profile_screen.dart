@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/config/app_config.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -43,27 +44,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
-  String? _validateName(String? value) {
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Name is required';
-    }
-    if (trimmed.length < 2) {
-      return 'Enter a valid name';
-    }
-    return null;
-  }
+  String? _validateName(String? value) =>
+      Validators.name(value, fieldName: 'Name');
 
-  String? _validateEmail(String? value) {
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Email is required';
-    }
-    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(trimmed)) {
-      return 'Enter a valid email';
-    }
-    return null;
-  }
+  String? _validateEmail(String? value) =>
+      Validators.email(value, requiredField: true);
 
   Future<void> _pickProfilePhoto() async {
     final picker = ImagePicker();

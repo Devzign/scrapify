@@ -160,7 +160,7 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: _weight > 0
+                onPressed: (_weight > 0 && _weight <= 1000)
                     ? () {
                         // Navigate to Review / Add to Basket
                         context.push(AppRoutes.reviewBooking);

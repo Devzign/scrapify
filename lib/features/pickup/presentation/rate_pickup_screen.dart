@@ -17,6 +17,44 @@ class RatePickupScreen extends StatefulWidget {
 class _RatePickupScreenState extends State<RatePickupScreen> {
   int _rating = 4;
   final Set<String> _selectedFeedback = {'On Time'};
+  final TextEditingController _commentController = TextEditingController();
+
+  @override
+  void dispose() {
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  void _submitRating() {
+    if (_rating < 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please pick a star rating.')),
+      );
+      return;
+    }
+    final comment = _commentController.text.trim();
+    if (comment.length > 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Comment cannot exceed 200 characters.'),
+        ),
+      );
+      return;
+    }
+    // Low-rating sanity check: ask the user to leave at least one feedback hint
+    // so the dispatch team has something to act on.
+    if (_rating <= 2 && _selectedFeedback.isEmpty && comment.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please tell us what went wrong — pick a chip or add a comment.',
+          ),
+        ),
+      );
+      return;
+    }
+    // TODO(api): submit (_rating, _selectedFeedback, comment) when backend ready.
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -164,26 +202,33 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
             // Comment Box
             AppCard(
               padding: EdgeInsets.zero,
-              child: const TextField(
+              child: TextField(
+                controller: _commentController,
                 maxLines: 4,
-                decoration: InputDecoration(
+                maxLength: 200,
+                onChanged: (_) => setState(() {}),
+                decoration: const InputDecoration(
                   hintText: 'Write a comment... / अपनी बात लिखें...',
                   hintStyle: TextStyle(
                     color: AppTheme.textSecondary,
                     fontSize: 13,
                   ),
                   border: InputBorder.none,
+                  counterText: '',
                   contentPadding: EdgeInsets.all(16),
                 ),
               ),
             ),
-            const Align(
+            Align(
               alignment: Alignment.centerRight,
               child: Padding(
-                padding: EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  '0/200',
-                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+                  '${_commentController.text.length}/200',
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 11,
+                  ),
                 ),
               ),
             ),
@@ -193,9 +238,7 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
               width: double.infinity,
               child: CustomButton(
                 text: 'SUBMIT  /  सबमिट करें',
-                onPressed: () {
-                  // Submit Rating
-                },
+                onPressed: _submitRating,
               ),
             ),
             const SizedBox(height: 24),

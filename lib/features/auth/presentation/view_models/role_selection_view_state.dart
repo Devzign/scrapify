@@ -2,14 +2,18 @@ import '../../domain/models/user_type_option.dart';
 
 class RoleSelectionViewState {
   final List<UserTypeOption> roles;
-  final String selectedRole;
+
+  /// `null` until the user explicitly taps a role card. We deliberately do
+  /// NOT seed a default — the user must make an active choice before they
+  /// can continue.
+  final String? selectedRole;
   final bool isLoading;
   final String? error;
   final bool hasLoadedRoles;
 
   const RoleSelectionViewState({
     this.roles = const [],
-    this.selectedRole = 'customer',
+    this.selectedRole,
     this.isLoading = false,
     this.error,
     this.hasLoadedRoles = false,
@@ -22,10 +26,13 @@ class RoleSelectionViewState {
     String? error,
     bool? hasLoadedRoles,
     bool clearError = false,
+    bool clearSelectedRole = false,
   }) {
     return RoleSelectionViewState(
       roles: roles ?? this.roles,
-      selectedRole: selectedRole ?? this.selectedRole,
+      selectedRole: clearSelectedRole
+          ? null
+          : (selectedRole ?? this.selectedRole),
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
       hasLoadedRoles: hasLoadedRoles ?? this.hasLoadedRoles,

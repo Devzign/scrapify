@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -95,6 +96,54 @@ class _PickupBoyVerificationScreenState
         ),
       );
       return;
+    }
+
+    // Re-validate every active item so we don't post bad data.
+    final activeItems = _items.where((i) => i.action != 'removed').toList();
+    if (activeItems.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Add at least one item before submitting.')),
+      );
+      return;
+    }
+    for (final item in activeItems) {
+      if (item.itemName.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Every item needs a name.')),
+        );
+        return;
+      }
+      final w = item.weight;
+      if (w == null || w <= 0 || w > 10000) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('"${item.itemName}" needs a valid weight (kg).'),
+          ),
+        );
+        return;
+      }
+      final q = item.quantity;
+      if (q == null || q <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '"${item.itemName}" needs a valid quantity.',
+            ),
+          ),
+        );
+        return;
+      }
+      final r = item.ratePerKg;
+      if (r == null || r < 0 || r > 100000) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '"${item.itemName}" needs a valid rate per kg.',
+            ),
+          ),
+        );
+        return;
+      }
     }
 
     final result = await ref
@@ -524,6 +573,10 @@ class _ItemCardState extends State<_ItemCard> {
                     controller: _weightCtrl,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                      LengthLimitingTextInputFormatter(7),
+                    ],
                     decoration: _fieldDecoration('Weight (kg)'),
                     onChanged: (v) => widget.onUpdate(
                       widget.item.copyWith(weight: double.tryParse(v)),
@@ -535,6 +588,10 @@ class _ItemCardState extends State<_ItemCard> {
                   child: TextField(
                     controller: _qtyCtrl,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(5),
+                    ],
                     decoration: _fieldDecoration('Quantity'),
                     onChanged: (v) => widget.onUpdate(
                       widget.item.copyWith(quantity: int.tryParse(v)),
@@ -572,6 +629,10 @@ class _ItemCardState extends State<_ItemCard> {
                     controller: _rateCtrl,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                      LengthLimitingTextInputFormatter(8),
+                    ],
                     decoration: _fieldDecoration('Rate (per kg)'),
                     onChanged: (v) => widget.onUpdate(
                       widget.item.copyWith(ratePerKg: double.tryParse(v)),
@@ -651,14 +712,63 @@ class _AddItemPageState extends ConsumerState<_AddItemPage> {
   }
 
   void _saveItem() {
-    if (_nameCtrl.text.trim().isEmpty) return;
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Item name is required.')),
+      );
+      return;
+    }
+    if (name.length > 80) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Item name is too long.')),
+      );
+      return;
+    }
+
+    final weight = double.tryParse(_weightCtrl.text.trim());
+    if (weight == null || weight <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a valid weight (kg).')),
+      );
+      return;
+    }
+    if (weight > 10000) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Weight is too large.')),
+      );
+      return;
+    }
+
+    final qty = int.tryParse(_qtyCtrl.text.trim());
+    if (qty == null || qty <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Quantity must be a positive whole number.')),
+      );
+      return;
+    }
+
+    final rate = double.tryParse(_rateCtrl.text.trim());
+    if (rate == null || rate < 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enter a valid rate per kg.')),
+      );
+      return;
+    }
+    if (rate > 100000) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Rate is unreasonably large.')),
+      );
+      return;
+    }
+
     final item = PickupItem(
       itemId: _selectedSubCategoryId,
-      itemName: _nameCtrl.text.trim(),
-      weight: double.tryParse(_weightCtrl.text),
-      quantity: int.tryParse(_qtyCtrl.text),
+      itemName: name,
+      weight: weight,
+      quantity: qty,
       condition: _condition,
-      ratePerKg: double.tryParse(_rateCtrl.text),
+      ratePerKg: rate,
       action: 'added',
     );
     Navigator.of(context).pop(item);
@@ -823,12 +933,19 @@ class _AddItemPageState extends ConsumerState<_AddItemPage> {
               const SizedBox(height: AppTheme.space12),
               TextField(
                 controller: _nameCtrl,
-                decoration: _fieldDecoration('Item Name *'),
+                maxLength: 80,
+                decoration: _fieldDecoration('Item Name *')
+                    .copyWith(counterText: ''),
               ),
               const SizedBox(height: AppTheme.space12),
               TextField(
                 controller: _weightCtrl,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                  LengthLimitingTextInputFormatter(7),
+                ],
                 onChanged: (_) => setState(() {}),
                 decoration: _fieldDecoration('Weight (kg)'),
               ),
@@ -836,6 +953,10 @@ class _AddItemPageState extends ConsumerState<_AddItemPage> {
               TextField(
                 controller: _qtyCtrl,
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(5),
+                ],
                 onChanged: (_) => setState(() {}),
                 decoration: _fieldDecoration('Quantity'),
               ),
@@ -858,7 +979,12 @@ class _AddItemPageState extends ConsumerState<_AddItemPage> {
               ],
               TextField(
                 controller: _rateCtrl,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
+                  LengthLimitingTextInputFormatter(8),
+                ],
                 onChanged: (_) => setState(() {}),
                 decoration: _fieldDecoration('Rate (per kg)'),
               ),

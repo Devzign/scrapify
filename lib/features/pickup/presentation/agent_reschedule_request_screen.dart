@@ -318,6 +318,7 @@ class _AgentRescheduleRequestScreenState
         TextField(
           controller: _detailsController,
           maxLines: 4,
+          maxLength: 500,
           decoration: InputDecoration(
             hintText: isHindi
                 ? 'संक्षेप में स्थिति बताएं...'
@@ -403,10 +404,36 @@ class _AgentRescheduleRequestScreenState
 
   Future<void> _submitReschedule() async {
     final id = widget.pickupId;
-    if (id == null || _selectedReason == null) return;
+    if (id == null) return;
 
-    final reason = _selectedReason!;
+    final reason = _selectedReason;
+    if (reason == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please pick a reason for rescheduling.')),
+      );
+      return;
+    }
+
     final notes = _detailsController.text.trim();
+    // "Other" requires explanatory details so the customer/dispatch can act on it.
+    if (reason == 'other' && notes.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please add at least 10 characters of detail when choosing "Other".',
+          ),
+        ),
+      );
+      return;
+    }
+    if (notes.length > 500) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Details cannot exceed 500 characters.'),
+        ),
+      );
+      return;
+    }
 
     final ok = await ref
         .read(pickupBoyProvider.notifier)

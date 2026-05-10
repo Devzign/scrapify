@@ -242,6 +242,16 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
               ),
               const SizedBox(height: 12),
               _buildActionTile(
+                icon: Icons.settings_suggest_rounded,
+                title: context.partnerText('Operations', 'ऑपरेशन्स'),
+                subtitle: context.partnerText(
+                  'Customers, pickups, tracking, handover, settlements',
+                  'कस्टमर, पिकअप, ट्रैकिंग, हैंडओवर, सेटलमेंट',
+                ),
+                onTap: () => context.push(AppRoutes.partnerOperations),
+              ),
+              const SizedBox(height: 12),
+              _buildActionTile(
                 icon: Icons.language_rounded,
                 title: context.partnerText('Language', 'भाषा'),
                 subtitle: context.partnerText(
@@ -271,18 +281,7 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
                   'Reach Scrapify support for partner issues',
                   'पार्टनर सहायता के लिए स्क्रैपिफाई टीम से संपर्क करें',
                 ),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        context.partnerText(
-                          'Support flow will be connected here.',
-                          'सपोर्ट फ़्लो यहां जोड़ा जाएगा।',
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                onTap: () => context.push(AppRoutes.helpSupport),
               ),
               const SizedBox(height: 12),
               _buildActionTile(

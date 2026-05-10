@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_color.dart';
+import '../../../../core/utils/app_routes.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import '../../../../features/channel_partner/providers/channel_partner_provider.dart';
 import '../partner_locale.dart';
@@ -15,14 +17,7 @@ class PartnerOrdersPage extends ConsumerStatefulWidget {
 
 class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
   String? _statusFilter;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(
-      () => ref.read(channelPartnerProvider.notifier).loadOrders(),
-    );
-  }
+  String _searchQuery = '';
 
   void _applyStatus(String? status) {
     setState(() => _statusFilter = status);
@@ -33,7 +28,15 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(channelPartnerProvider);
     final user = ref.watch(authProvider);
-    final orders = state.orders.whereType<Map<String, dynamic>>().toList();
+    final ordersRaw = state.orders.whereType<Map<String, dynamic>>().toList();
+    final orders = ordersRaw.where((o) {
+      if (_searchQuery.isEmpty) return true;
+      final q = _searchQuery.toLowerCase();
+      final code = (o['order_code']?.toString() ?? o['pickup_code']?.toString() ?? '').toLowerCase();
+      final customer = (o['customer_name']?.toString() ?? '').toLowerCase();
+      final mobile = (o['customer_phone']?.toString() ?? '').toLowerCase();
+      return code.contains(q) || customer.contains(q) || mobile.contains(q);
+    }).toList();
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -175,17 +178,42 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColor.backgroundCream,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.notifications_none_rounded,
-              color: AppColor.textSecondary,
-              size: 22,
-            ),
+          Row(
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(40),
+                onTap: () => context.push(AppRoutes.notifications),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColor.backgroundCream,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.notifications_none_rounded,
+                    color: AppColor.textSecondary,
+                    size: 22,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              InkWell(
+                borderRadius: BorderRadius.circular(40),
+                onTap: () => context.push(AppRoutes.partnerProfile),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColor.backgroundCream,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.person_outline_rounded,
+                    color: AppColor.textSecondary,
+                    size: 22,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -255,6 +283,7 @@ class _PartnerOrdersPageState extends ConsumerState<PartnerOrdersPage> {
           boxShadow: AppTheme.cardShadow,
         ),
         child: TextField(
+          onChanged: (v) => setState(() => _searchQuery = v.trim()),
           decoration: InputDecoration(
             hintText: context.partnerText(
               'Search order ID or customer...',

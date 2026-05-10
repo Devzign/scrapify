@@ -21,27 +21,58 @@ class RoleSelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(roleSelectionViewModelProvider);
     final viewModel = ref.read(roleSelectionViewModelProvider.notifier);
-    final roles = state.roles.isNotEmpty ? state.roles : _fallbackRoles();
 
     if (!state.hasLoadedRoles && !state.isLoading) {
       Future<void>.microtask(viewModel.loadRoles);
     }
 
+    // Source of truth for the visible cards:
+    //   - If we have roles from the API, show them.
+    //   - Else if the API failed (error AND we're not still loading), fall back
+    //     to the hardcoded list so the screen is at least usable offline.
+    //   - Else show a skeleton — never flash the wrong number of cards.
+    final hasApiRoles = state.roles.isNotEmpty;
+    final apiFailed =
+        state.hasLoadedRoles && !state.isLoading && state.roles.isEmpty;
+    final List<UserTypeOption> roles = hasApiRoles
+        ? state.roles
+        : (apiFailed ? _fallbackRoles() : const <UserTypeOption>[]);
+    final showLoading = !hasApiRoles && !apiFailed;
+
     return Scaffold(
       backgroundColor: AppColor.backgroundLight,
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-        child: CustomButton(
-          onPressed: state.isLoading
-              ? null
-              : () {
-                  context.push(
-                    AppRoutes.login,
-                    extra: {'role': state.selectedRole},
-                  );
-                },
-          text: 'common.continue'.tr(),
-          trailing: const FaIcon(FontAwesomeIcons.arrowRight, size: 18),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (state.selectedRole == null && !state.isLoading) ...[
+              const Padding(
+                padding: EdgeInsets.only(bottom: 10),
+                child: Text(
+                  'Please select a role to continue',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColor.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+            CustomButton(
+              onPressed: (state.isLoading || state.selectedRole == null)
+                  ? null
+                  : () {
+                      context.push(
+                        AppRoutes.login,
+                        extra: {'role': state.selectedRole},
+                      );
+                    },
+              text: 'common.continue'.tr(),
+              trailing: const FaIcon(FontAwesomeIcons.arrowRight, size: 18),
+            ),
+          ],
         ),
       ),
       body: AnnotatedRegion<SystemUiOverlayStyle>(
@@ -119,21 +150,30 @@ class RoleSelectionScreen extends ConsumerWidget {
                     ),
                     SizedBox(height: 22.h),
                     Expanded(
-                      child: ListView.separated(
-                        padding: EdgeInsets.only(bottom: 16.h),
-                        itemCount: roles.length,
-                        separatorBuilder: (_, _) => SizedBox(height: 14.h),
-                        itemBuilder: (context, index) {
-                          final role = roles[index];
-                          return RoleOptionCard(
-                            icon: _iconForRole(role.code),
-                            title: _titleForRole(role),
-                            description: _descriptionForRole(role),
-                            isSelected: state.selectedRole == role.code,
-                            onTap: () => viewModel.selectRole(role.code),
-                          );
-                        },
-                      ),
+                      child: showLoading
+                          ? ListView.separated(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              itemCount: 4,
+                              separatorBuilder: (_, _) =>
+                                  SizedBox(height: 14.h),
+                              itemBuilder: (_, _) => const _RoleCardSkeleton(),
+                            )
+                          : ListView.separated(
+                              padding: EdgeInsets.only(bottom: 16.h),
+                              itemCount: roles.length,
+                              separatorBuilder: (_, _) =>
+                                  SizedBox(height: 14.h),
+                              itemBuilder: (context, index) {
+                                final role = roles[index];
+                                return RoleOptionCard(
+                                  icon: _iconForRole(role.code),
+                                  title: _titleForRole(role),
+                                  description: _descriptionForRole(role),
+                                  isSelected: state.selectedRole == role.code,
+                                  onTap: () => viewModel.selectRole(role.code),
+                                );
+                              },
+                            ),
                     ),
                     if (state.error != null && state.roles.isEmpty)
                       Padding(
@@ -232,5 +272,62 @@ class RoleSelectionScreen extends ConsumerWidget {
       default:
         return FontAwesomeIcons.houseUser;
     }
+  }
+}
+
+/// Placeholder card shown while the user-types API call is in flight.
+/// Sized to roughly match `RoleOptionCard` so the layout doesn't jump.
+class _RoleCardSkeleton extends StatelessWidget {
+  const _RoleCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 88,
+      decoration: BoxDecoration(
+        color: AppColor.surface,
+        borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+        border: Border.all(color: AppColor.cardBorder),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: AppColor.backgroundCream,
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 140,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: AppColor.backgroundCream,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: 200,
+                  height: 11,
+                  decoration: BoxDecoration(
+                    color: AppColor.backgroundCream,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

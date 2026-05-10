@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_color.dart';
+import '../../../../core/utils/app_routes.dart';
 import '../../../../features/auth/providers/auth_provider.dart';
 import '../../../../features/channel_partner/domain/models/channel_partner_dashboard.dart';
 import '../../../../features/channel_partner/providers/channel_partner_provider.dart';
@@ -69,6 +71,7 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                                 ),
                               ),
                             _buildHeaderSection(user?.name, user?.id),
+                            _buildQuickActions(context),
                             _buildMetricsGrid(d),
                             _buildOrderHealthAndFleet(d),
                             _buildRecentOrders(d),
@@ -127,16 +130,66 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
               ),
             ],
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColor.backgroundCream,
-              shape: BoxShape.circle,
+          Row(
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(40),
+                onTap: () => context.push(AppRoutes.notifications),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColor.backgroundCream,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.notifications_none_rounded,
+                    color: AppColor.textSecondary,
+                    size: 22,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              InkWell(
+                borderRadius: BorderRadius.circular(40),
+                onTap: () => context.push(AppRoutes.partnerProfile),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColor.backgroundCream,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.person_outline_rounded,
+                    color: AppColor.textSecondary,
+                    size: 22,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () => context.push(AppRoutes.partnerOperations),
+              icon: const Icon(Icons.tune_rounded, size: 16),
+              label: const Text('Operations'),
             ),
-            child: Icon(
-              Icons.notifications_none_rounded,
-              color: AppColor.textSecondary,
-              size: 22,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: OutlinedButton.icon(
+              onPressed: () => context.push(AppRoutes.helpSupport),
+              icon: const Icon(Icons.support_agent_rounded, size: 16),
+              label: const Text('Support'),
             ),
           ),
         ],
@@ -313,6 +366,26 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
               ],
             ),
           ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(child: _statBadge('Total Customers', '${d?.totalCustomers ?? 0}')),
+              const SizedBox(width: 10),
+              Expanded(child: _statBadge('Total Pickups', '${d?.totalPickups ?? d?.totalOrders ?? 0}')),
+              const SizedBox(width: 10),
+              Expanded(child: _statBadge('Pending', '${d?.pendingPickups ?? d?.activeOrders ?? 0}')),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(child: _statBadge('Assigned', '${d?.assignedPickups ?? 0}')),
+              const SizedBox(width: 10),
+              Expanded(child: _statBadge('Delivered', '${d?.deliveredToWarehouse ?? 0}')),
+              const SizedBox(width: 10),
+              Expanded(child: _statBadge('Pending Settle', '${d?.pendingSettlement ?? 0}')),
+            ],
+          ),
           const SizedBox(height: 16),
           // Warehouses & Team Row
           Row(
@@ -439,6 +512,40 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _statBadge(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundCream,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              color: AppColor.textMuted,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w900,
+              color: AppTheme.textPrimary,
             ),
           ),
         ],

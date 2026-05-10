@@ -14,7 +14,7 @@ class SavedAddressesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final locale = context.locale;
+    final locale = Localizations.maybeLocaleOf(context) ?? const Locale('en');
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final addressState = ref.watch(addressProvider);

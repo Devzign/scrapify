@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/app_shimmer.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -156,13 +157,16 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
         children: [
           TextField(
             controller: _subjectController,
-            decoration: _inputDecoration('help_support.subject'.tr()),
+            maxLength: 120,
+            decoration: _inputDecoration('help_support.subject'.tr())
+                .copyWith(counterText: ''),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _messageController,
             minLines: 4,
             maxLines: 6,
+            maxLength: 1000,
             decoration: _inputDecoration('help_support.message'.tr()),
           ),
           const SizedBox(height: 12),
@@ -173,7 +177,8 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(10),
             ],
-            decoration: _inputDecoration('help_support.phone'.tr()),
+            decoration: _inputDecoration('help_support.phone'.tr())
+                .copyWith(counterText: ''),
           ),
           const SizedBox(height: 16),
           CustomButton(
@@ -330,15 +335,43 @@ class _HelpSupportScreenState extends ConsumerState<HelpSupportScreen> {
     final message = _messageController.text.trim();
     final phone = _phoneController.text.trim();
 
-    if (subject.isEmpty || message.isEmpty || phone.isEmpty) {
+    // Subject — required, 3 to 120 chars.
+    final subjectErr = Validators.required(subject, fieldName: 'Subject');
+    if (subjectErr != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('help_support.fill_all'.tr())),
+        SnackBar(content: Text(subjectErr)),
       );
       return;
     }
-    if (!RegExp(r'^\d{10}$').hasMatch(phone)) {
+    if (subject.length < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('help_support.invalid_phone'.tr())),
+        const SnackBar(content: Text('Subject is too short.')),
+      );
+      return;
+    }
+
+    // Message — required, 10 to 1000 chars.
+    final messageErr = Validators.required(message, fieldName: 'Message');
+    if (messageErr != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(messageErr)),
+      );
+      return;
+    }
+    if (message.length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please describe the issue in at least 10 characters.'),
+        ),
+      );
+      return;
+    }
+
+    // Phone — Indian mobile.
+    final phoneErr = Validators.indianMobile(phone);
+    if (phoneErr != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(phoneErr)),
       );
       return;
     }

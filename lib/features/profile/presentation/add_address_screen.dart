@@ -6,9 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../providers/address_provider.dart';
 import '../domain/models/address_model.dart';
@@ -26,7 +26,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
   final Completer<GoogleMapController> _controller = Completer();
 
   final CameraPosition _initialPosition = const CameraPosition(
-    target: LatLng(28.6139, 77.2090), // Default to New Delhi
+    target: LatLng(28.6139, 77.2090),
     zoom: 14.4746,
   );
 
@@ -136,25 +136,28 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
     }
   }
 
-  bool _isValidPincode(String value) {
-    return RegExp(r'^\d{6}$').hasMatch(value.trim());
-  }
+  String? _validatePincode(String? value) => Validators.pinCode(value);
 
-  String? _validateRequired(String? value, String fieldName) {
-    if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
-    }
+  String? _validateHouse(String? value) {
+    final err = Validators.required(value, fieldName: 'House/Flat No.');
+    if (err != null) return err;
+    final trimmed = value!.trim();
+    if (trimmed.length > 30) return 'House/Flat No. is too long';
     return null;
   }
 
-  String? _validatePincode(String? value) {
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Pincode is required';
-    }
-    if (!_isValidPincode(trimmed)) {
-      return 'Pincode must be exactly 6 digits';
-    }
+  String? _validateStreet(String? value) {
+    final err = Validators.required(value, fieldName: 'Street/Area');
+    if (err != null) return err;
+    final trimmed = value!.trim();
+    if (trimmed.length < 3) return 'Street/Area looks too short';
+    if (trimmed.length > 120) return 'Street/Area is too long';
+    return null;
+  }
+
+  String? _validateLandmark(String? value) {
+    if (value == null || value.trim().isEmpty) return null;
+    if (value.trim().length > 80) return 'Landmark is too long';
     return null;
   }
 
@@ -380,8 +383,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                         hintText: 'address_book.add.house_no_hint'.tr(),
                         controller: _houseController,
                         isDark: isDark,
-                        validator: (value) =>
-                            _validateRequired(value, 'House/Flat No.'.tr()),
+                        validator: _validateHouse,
                       ),
                       const SizedBox(height: 20),
                       _buildTextField(
@@ -390,8 +392,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                         hintText: 'address_book.add.street_hint'.tr(),
                         controller: _streetController,
                         isDark: isDark,
-                        validator: (value) =>
-                            _validateRequired(value, 'Street/Area'.tr()),
+                        validator: _validateStreet,
                       ),
                       const SizedBox(height: 20),
                       _buildTextField(
@@ -415,6 +416,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                         controller: _landmarkController,
                         isOptional: true,
                         isDark: isDark,
+                        validator: _validateLandmark,
                       ),
                       const SizedBox(height: 24),
 

@@ -9,7 +9,7 @@ import UserNotifications
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GMSServices.provideAPIKey("AIzaSyAYp0o5_bsiJdEGmMLIrlIDnJAI63rPtvk")
+    GMSServices.provideAPIKey("AIzaSyBxn1MmF7oFUFI4fgTYxhm1M9GB4YPQZwY")
     UNUserNotificationCenter.current().delegate = self
     application.registerForRemoteNotifications()
     GeneratedPluginRegistrant.register(with: self)
