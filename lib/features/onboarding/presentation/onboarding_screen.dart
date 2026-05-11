@@ -132,11 +132,16 @@ class OnboardingScreen extends ConsumerWidget {
                         SizedBox(height: 22.h),
                         CustomButton(
                           text: isLastPage
-                              ? 'Get Started  |  शुरू करें  →'
-                              : 'Next  →',
+                              ? 'Get Started  |  शुरू करें'
+                              : 'Next',
                           onPressed: viewModel.handlePrimaryAction,
                           variant: AppButtonVariant.primary,
                           fontWeight: FontWeight.w700,
+                          trailing: const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 20,
+                            color: Colors.white,
+                          ),
                         ),
                       ],
                     ),
