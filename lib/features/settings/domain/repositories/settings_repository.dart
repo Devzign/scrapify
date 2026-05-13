@@ -19,13 +19,14 @@ class SettingsRepository {
     String? locationName,
     String? fcmToken,
   }) async {
+    final normalizedLocationName = (locationName ?? '').trim();
     return _dioClient.post<AppSettingsModel>(
       ApiEndpoints.appSettings,
       data: {
-        if (latitude != null) 'latitude': latitude,
-        if (longitude != null) 'longitude': longitude,
-        if (locationName != null) 'location_name': locationName,
-        if (fcmToken != null && fcmToken.isNotEmpty) 'fcm_token': fcmToken,
+        'latitude': latitude,
+        'longitude': longitude,
+        'location_name': normalizedLocationName,
+        'fcm_token': (fcmToken ?? '').trim(),
       },
       parser: (json) =>
           AppSettingsModel.fromJson(json['data'] as Map<String, dynamic>),

@@ -165,14 +165,19 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: AppTheme.cardBorderRadius,
-                        border: AppTheme.cardBorder,
-                        boxShadow: AppTheme.cardShadow,
+                        color: AppColor.primary,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColor.primary.withValues(alpha: 0.28),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: const Icon(
-                        Icons.person_outline_rounded,
-                        color: AppTheme.textPrimary,
+                        Icons.person_rounded,
+                        color: Colors.white,
                         size: 22,
                       ),
                     ),
@@ -183,38 +188,53 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
         title: Text(
           _getAppBarTitle(),
           style: const TextStyle(
-            color: AppTheme.primaryColor,
-            fontWeight: FontWeight.bold,
+            color: AppColor.deepNavy,
+            fontWeight: FontWeight.w900,
             fontSize: 22,
+            letterSpacing: -0.4,
           ),
         ),
         actions: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.notifications_none_rounded,
-                  color: AppTheme.textPrimary,
-                  size: 26,
-                ),
-                onPressed: () => context.push('/notifications'),
-              ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
+          Container(
+            margin: const EdgeInsets.only(right: 16),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                InkWell(
+                  onTap: () => context.push('/notifications'),
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColor.cardBorder),
+                      boxShadow: AppTheme.e1,
+                    ),
+                    child: const Icon(
+                      Icons.notifications_rounded,
+                      color: AppColor.deepNavy,
+                      size: 22,
+                    ),
                   ),
                 ),
-              ),
-            ],
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: Container(
+                    width: 9,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      color: AppColor.error,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.5),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: _buildBody(),
@@ -411,20 +431,21 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                               'dashboard.book_pickup'.tr(),
                               style: const TextStyle(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: 20,
                                 height: 1.1,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: -0.3,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             Text(
                               'dashboard.book_pickup_desc'.tr(),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.92),
+                                color: Colors.white.withValues(alpha: 0.90),
                                 fontSize: 12,
-                                height: 1.35,
+                                height: 1.45,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -480,61 +501,84 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Categories Header
+              // ── Section header: Categories ─────────────────────────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    'dashboard.what_to_sell'.tr(),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppTheme.textPrimary,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'dashboard.what_to_sell'.tr(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                          color: AppColor.deepNavy,
+                          letterSpacing: -0.3,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      const Text(
+                        'Tap a category to see rates',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: AppColor.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                   InkWell(
                     onTap: () =>
                         _guardedTap(() => context.push('/pickup/category')),
-                    child: Text(
-                      'dashboard.view_all'.tr(),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppTheme.primaryColor,
+                    borderRadius: BorderRadius.circular(999),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: AppColor.primarySurface,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'dashboard.view_all'.tr(),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: AppColor.primaryDark,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
-              // Horizontal scroll categories
               Consumer(
                 builder: (context, ref, child) {
-                  return ref
-                      .watch(categoriesProvider)
-                      .when(
+                  return ref.watch(categoriesProvider).when(
                         data: (categories) {
                           if (categories.isEmpty) {
-                            return const Center(
-                              child: Text('No categories available'),
-                            );
+                            return const SizedBox.shrink();
                           }
-                          final limitedCategories = categories.take(3).toList();
+                          final limited = categories.take(5).toList();
                           return SizedBox(
-                            height: 190,
+                            height: 176,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
-                              itemCount: limitedCategories.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(width: 16),
+                              padding: const EdgeInsets.only(right: 4),
+                              itemCount: limited.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 12),
                               itemBuilder: (context, index) {
-                                final category = limitedCategories[index];
+                                final category = limited[index];
                                 return _buildMaterialCard(
                                   title: category.getName(context),
                                   subtitle: category.pricingType ?? '',
                                   imageUrl: category.imageUrl,
-                                  iconData: _getIconForCategory(category.slug),
+                                  iconData:
+                                      _getIconForCategory(category.slug),
                                   isDark: false,
                                   onTap: () => _guardedTap(
                                     () => context.push(
@@ -546,14 +590,11 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                             ),
                           );
                         },
-                        loading: () =>
-                            const Center(child: DashboardLoadingSkeleton()),
-                        error: (error, stack) => Center(
-                          child: Text(
-                            'Error loading categories',
-                            style: TextStyle(color: Colors.red.shade700),
-                          ),
+                        loading: () => const SizedBox(
+                          height: 176,
+                          child: Center(child: DashboardLoadingSkeleton()),
                         ),
+                        error: (error, stack) => const SizedBox.shrink(),
                       );
                 },
               ),
@@ -568,9 +609,10 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
               Text(
                 'dashboard.active_request'.tr(),
                 style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                  color: AppColor.deepNavy,
+                  letterSpacing: -0.3,
                 ),
               ),
               const SizedBox(height: 16),
@@ -1581,6 +1623,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     }
   }
 
+  /// Website-matching rectangular category card used in the horizontal scroll.
   Widget _buildMaterialCard({
     required String title,
     required String subtitle,
@@ -1589,115 +1632,121 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     required VoidCallback onTap,
     String? imageUrl,
   }) {
-    return InkWell(
+    return GestureDetector(
       onTap: () => _guardedTap(onTap),
-      borderRadius: BorderRadius.circular(18),
       child: Container(
-        width: 168,
+        width: 130,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.72),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.9)),
-          boxShadow: AppTheme.cardShadow,
+          border: Border.all(color: AppColor.cardBorder),
+          boxShadow: AppTheme.e1,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 112,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(18),
-                  topRight: Radius.circular(18),
-                ),
-                color: AppTheme.primaryLight.withValues(alpha: 0.45),
-              ),
-              child: imageUrl != null
-                  ? ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(18),
-                        topRight: Radius.circular(18),
-                      ),
-                      child: Image.network(
-                        imageUrl,
-                        fit: BoxFit.contain,
-                        alignment: Alignment.center,
-                        errorBuilder: (_, __, ___) => Center(
-                          child: FaIcon(
-                            iconData,
-                            color: AppTheme.primaryColor.withValues(
-                              alpha: 0.72,
-                            ),
-                            size: 34,
-                          ),
-                        ),
-                      ),
-                    )
-                  : Center(
-                      child: FaIcon(
-                        iconData,
-                        color: AppTheme.primaryColor.withValues(alpha: 0.72),
-                        size: 34,
-                      ),
-                    ),
-            ),
+            // Image panel — warm cream like website cards
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                        height: 1.2,
-                      ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withValues(
-                              alpha: 0.12,
-                            ),
-                            shape: BoxShape.circle,
-                          ),
-                          child: FaIcon(
-                            iconData,
-                            color: AppTheme.primaryColor,
-                            size: 11,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            subtitle.isEmpty ? 'Instant quote' : subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppTheme.textSecondary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: _imagePanelColor(title),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(18)),
                 ),
+                clipBehavior: Clip.antiAlias,
+                child: imageUrl != null && imageUrl.isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Image.network(
+                          imageUrl,
+                          fit: BoxFit.contain,
+                          alignment: Alignment.center,
+                          errorBuilder: (_, __, ___) => Center(
+                            child: FaIcon(
+                              iconData,
+                              color: AppColor.primary,
+                              size: 32,
+                            ),
+                          ),
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return Center(
+                              child: SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Center(
+                        child: FaIcon(
+                          iconData,
+                          color: AppColor.primary,
+                          size: 32,
+                        ),
+                      ),
+              ),
+            ),
+            // Label
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: AppColor.deepNavy,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 12,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.arrow_forward_rounded,
+                          size: 11, color: AppColor.primary),
+                      const SizedBox(width: 3),
+                      const Text(
+                        'Explore',
+                        style: TextStyle(
+                          color: AppColor.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  Color _imagePanelColor(String seed) {
+    const palette = <Color>[
+      Color(0xFFEAF4EC),
+      Color(0xFFF1EFE7),
+      Color(0xFFF2F3F7),
+      Color(0xFFEEF5F2),
+      Color(0xFFF6F1E8),
+      Color(0xFFE9F0EB),
+    ];
+    final index = seed.trim().isEmpty
+        ? 0
+        : seed.codeUnits.fold<int>(0, (a, b) => a + b) % palette.length;
+    return palette[index];
   }
 }

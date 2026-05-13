@@ -41,8 +41,14 @@ class RoleSelectionScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColor.backgroundLight,
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      bottomNavigationBar: Container(
+        color: AppColor.backgroundLight,
+        padding: EdgeInsets.fromLTRB(
+          24,
+          12,
+          24,
+          MediaQuery.of(context).padding.bottom + 16,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -76,79 +82,65 @@ class RoleSelectionScreen extends ConsumerWidget {
         ),
       ),
       body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.dark,
-        child: Stack(
+        value: SystemUiOverlayStyle.light,
+        child: Column(
           children: [
-            Positioned(
-              top: -120,
-              left: -80,
-              right: -80,
-              child: IgnorePointer(
-                child: Container(
-                  height: 360,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        AppColor.primary.withValues(alpha: 0.14),
-                        Colors.transparent,
-                      ],
-                    ),
+            // ── Green header section ──────────────────────────────────────
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF1A5C35), AppColor.primary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(28),
+                ),
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 28),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Select Your Role',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'role.subtitle'.tr(),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.82),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-            SafeArea(
+
+            // ── Role cards ────────────────────────────────────────────────
+            Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    SizedBox(height: 8.h),
-                    Center(
-                      child: Container(
-                        height: 76.w,
-                        width: 76.w,
-                        decoration: BoxDecoration(
-                          color: AppColor.primarySurface,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: AppColor.primary.withValues(alpha: 0.18),
-                            width: 1,
-                          ),
-                        ),
-                        child: const Center(
-                          child: FaIcon(
-                            FontAwesomeIcons.users,
-                            color: AppColor.primary,
-                            size: 30,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 22.h),
-                    const Text(
-                      'Select Your Role',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        color: AppColor.deepNavy,
-                        letterSpacing: -0.4,
-                      ),
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'role.subtitle'.tr(),
-                      style: const TextStyle(
-                        color: AppColor.textSecondary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        height: 1.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 22.h),
+                    SizedBox(height: 0.h),
                     Expanded(
                       child: showLoading
                           ? ListView.separated(

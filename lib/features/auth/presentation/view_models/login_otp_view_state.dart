@@ -8,12 +8,14 @@ class LoginOtpViewState {
   final bool showReferralInput;
   final String otpValue;
   final String? userNameError;
+  final String? emailError;
   final String? phoneError;
   final String? referralError;
   final String? snackBarMessage;
   final bool isSuccessMessage;
   final String? nextRoute;
   final int secondsRemaining;
+  final bool isRegisterMode;
 
   const LoginOtpViewState({
     this.otpSent = false,
@@ -25,12 +27,14 @@ class LoginOtpViewState {
     this.showReferralInput = false,
     this.otpValue = '',
     this.userNameError,
+    this.emailError,
     this.phoneError,
     this.referralError,
     this.snackBarMessage,
     this.isSuccessMessage = false,
     this.nextRoute,
     this.secondsRemaining = 30,
+    this.isRegisterMode = false,
   });
 
   LoginOtpViewState copyWith({
@@ -43,13 +47,16 @@ class LoginOtpViewState {
     bool? showReferralInput,
     String? otpValue,
     String? userNameError,
+    String? emailError,
     String? phoneError,
     String? referralError,
     String? snackBarMessage,
     bool? isSuccessMessage,
     String? nextRoute,
     int? secondsRemaining,
+    bool? isRegisterMode,
     bool clearUserNameError = false,
+    bool clearEmailError = false,
     bool clearPhoneError = false,
     bool clearReferralError = false,
     bool clearSnackBarMessage = false,
@@ -67,6 +74,7 @@ class LoginOtpViewState {
       userNameError: clearUserNameError
           ? null
           : userNameError ?? this.userNameError,
+      emailError: clearEmailError ? null : emailError ?? this.emailError,
       phoneError: clearPhoneError ? null : phoneError ?? this.phoneError,
       referralError: clearReferralError
           ? null
@@ -77,6 +85,7 @@ class LoginOtpViewState {
       isSuccessMessage: isSuccessMessage ?? this.isSuccessMessage,
       nextRoute: clearNextRoute ? null : nextRoute ?? this.nextRoute,
       secondsRemaining: secondsRemaining ?? this.secondsRemaining,
+      isRegisterMode: isRegisterMode ?? this.isRegisterMode,
     );
   }
 }

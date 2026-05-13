@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_theme.dart';
@@ -90,84 +91,114 @@ class _PartnerDashboardPageState extends ConsumerState<PartnerDashboardPage> {
     final initial = (name?.trim().isNotEmpty ?? false)
         ? name!.trim()[0].toUpperCase()
         : 'P';
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: AppColor.hairline)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF1A5C35), AppColor.primary],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.12),
-                child: Text(
-                  initial,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.primaryColor,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                name ?? 'Partner',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              InkWell(
-                borderRadius: BorderRadius.circular(40),
-                onTap: () => context.push(AppRoutes.notifications),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
+            child: Row(
+              children: [
+                // Avatar initial bubble
+                Container(
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
-                    color: AppColor.backgroundCream,
+                    color: Colors.white.withValues(alpha: 0.18),
                     shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.35),
+                    ),
                   ),
-                  child: Icon(
-                    Icons.notifications_none_rounded,
-                    color: AppColor.textSecondary,
-                    size: 22,
+                  child: Center(
+                    child: Text(
+                      initial,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              InkWell(
-                borderRadius: BorderRadius.circular(40),
-                onTap: () => context.push(AppRoutes.partnerProfile),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: AppColor.backgroundCream,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.person_outline_rounded,
-                    color: AppColor.textSecondary,
-                    size: 22,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name ?? 'Partner',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                      Text(
+                        'Channel Partner',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.75),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
+                // Notifications button
+                GestureDetector(
+                  onTap: () => context.push(AppRoutes.notifications),
+                  child: Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.16),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.30),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.notifications_none_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Profile button
+                GestureDetector(
+                  onTap: () => context.push(AppRoutes.partnerProfile),
+                  child: Container(
+                    padding: const EdgeInsets.all(9),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.16),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.30),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.person_outline_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }

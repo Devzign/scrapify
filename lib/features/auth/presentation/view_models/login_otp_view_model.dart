@@ -6,9 +6,12 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter/services.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
+import '../../../../core/services/location_service.dart';
+import '../../../../core/services/fcm_service.dart';
 import '../../../../core/utils/role_route_resolver.dart';
 import '../../../../core/utils/validators.dart';
 import '../../providers/auth_provider.dart';
+import '../../../settings/providers/settings_provider.dart';
 import 'login_otp_view_state.dart';
 
 final loginOtpViewModelProvider = StateNotifierProvider.autoDispose
@@ -18,7 +21,9 @@ final loginOtpViewModelProvider = StateNotifierProvider.autoDispose
 
 class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
   final Ref _ref;
+  final LocationService _locationService = LocationService();
   late final TextEditingController userNameController;
+  late final TextEditingController emailController;
   late final TextEditingController phoneController;
   late final TextEditingController otpController;
   late final TextEditingController referralController;
@@ -31,6 +36,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
   LoginOtpViewModel(this._ref, this._selectedRole)
     : super(const LoginOtpViewState()) {
     userNameController = TextEditingController();
+    emailController = TextEditingController();
     phoneController = TextEditingController();
     otpController = TextEditingController();
     referralController = TextEditingController();
@@ -42,6 +48,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     _ref.onDispose(() {
       _timer?.cancel();
       userNameController.dispose();
+      emailController.dispose();
       phoneController.dispose();
       otpController.dispose();
       referralController.dispose();
@@ -56,6 +63,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
   }
 
   bool get isCustomerRole => selectedRole == 'customer';
+  bool get isRegisterMode => state.isRegisterMode;
 
   List<TextInputFormatter> get referralInputFormatters => [
     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
@@ -109,8 +117,33 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     }
   }
 
+  void onEmailChanged(String value) {
+    if (state.emailError == null) {
+      return;
+    }
+    final error = _validateEmail(value.trim());
+    state = state.copyWith(emailError: error, clearEmailError: error == null);
+  }
+
   void toggleReferralInput() {
     state = state.copyWith(showReferralInput: !state.showReferralInput);
+  }
+
+  void setAuthMode({required bool registerMode}) {
+    _timer?.cancel();
+    otpController.clear();
+    state = state.copyWith(
+      isRegisterMode: registerMode,
+      otpSent: false,
+      otpValue: '',
+      otpError: false,
+      canResendOtp: false,
+      secondsRemaining: 30,
+      clearUserNameError: true,
+      clearEmailError: true,
+      clearPhoneError: true,
+      clearReferralError: true,
+    );
   }
 
   void onReferralChanged(String value) {
@@ -126,11 +159,17 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
 
   Future<void> sendOtp() async {
     final userName = userNameController.text.trim();
+    final email = emailController.text.trim();
     final phone = phoneController.text.trim();
-    if (isCustomerRole) {
+    if (isCustomerRole && state.isRegisterMode) {
       final userNameError = _validateUserName(userName);
       if (userNameError != null) {
         state = state.copyWith(userNameError: userNameError);
+        return;
+      }
+      final emailError = _validateEmail(email);
+      if (emailError != null) {
+        state = state.copyWith(emailError: emailError);
         return;
       }
     }
@@ -144,6 +183,7 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
 
     state = state.copyWith(
       clearUserNameError: true,
+      clearEmailError: true,
       clearPhoneError: true,
       clearReferralError: true,
       isLoading: true,
@@ -158,9 +198,10 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     }
 
     final authRepository = _ref.read(authRepositoryProvider);
+    final locationPayload = await _buildLocationPayload();
 
     // Pre-validate referral code (customer only) — fail fast before sending OTP.
-    if (isCustomerRole && referralCode.isNotEmpty) {
+    if (isCustomerRole && state.isRegisterMode && referralCode.isNotEmpty) {
       final preCheck = await authRepository.validateReferralCode(referralCode);
       if (!preCheck.isSuccess) {
         state = state.copyWith(
@@ -171,14 +212,28 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
       }
     }
 
-    final response = await authRepository.sendOtp(
-      name: isCustomerRole ? userName : null,
-      phone: phone,
-      role: selectedRole,
-      referralCode: isCustomerRole && referralCode.isNotEmpty
-          ? referralCode
-          : null,
-    );
+    final response = isCustomerRole
+        ? (state.isRegisterMode
+              ? await authRepository.sendRegistrationOtp(
+                  phone: phone,
+                  name: userName,
+                  email: email,
+                  referralCode: referralCode.isNotEmpty ? referralCode : null,
+                  latitude: locationPayload.latitude,
+                  longitude: locationPayload.longitude,
+                  locationName: locationPayload.locationName,
+                )
+              : await authRepository.sendLoginOtp(
+                  phone: phone,
+                  latitude: locationPayload.latitude,
+                  longitude: locationPayload.longitude,
+                  locationName: locationPayload.locationName,
+                ))
+        : await authRepository.sendOtp(
+            phone: phone,
+            role: selectedRole,
+            name: null,
+          );
 
     state = state.copyWith(isLoading: false);
 
@@ -233,27 +288,53 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
     }
 
     state = state.copyWith(isLoading: true);
-    final authNotifier = _ref.read(authProvider.notifier);
     final referralCode = referralController.text.trim();
-    final isSuccess = await authNotifier.login(
-      phone,
-      otp,
-      role: selectedRole,
-      referralCode: isCustomerRole && referralCode.isNotEmpty
-          ? referralCode
-          : null,
-    );
+    final authRepository = _ref.read(authRepositoryProvider);
+    final locationPayload = await _buildLocationPayload();
+    final response = isCustomerRole
+        ? (state.isRegisterMode
+              ? await authRepository.verifyRegistrationOtp(
+                  phone: phone,
+                  otp: otp,
+                  referralCode: referralCode.isNotEmpty ? referralCode : null,
+                  latitude: locationPayload.latitude,
+                  longitude: locationPayload.longitude,
+                  locationName: locationPayload.locationName,
+                )
+              : await authRepository.verifyLoginOtp(
+                  phone: phone,
+                  otp: otp,
+                  latitude: locationPayload.latitude,
+                  longitude: locationPayload.longitude,
+                  locationName: locationPayload.locationName,
+                ))
+        : await authRepository.verifyOtp(
+            phone: phone,
+            otp: otp,
+            role: selectedRole,
+          );
 
     state = state.copyWith(isLoading: false);
 
-    if (isSuccess) {
-      final loggedInUser = _ref.read(authProvider);
+    if (response.isSuccess) {
+      final loggedInUser = response.data;
       final resolvedRole = (loggedInUser?.roles.isNotEmpty ?? false)
           ? loggedInUser!.roles.first
           : selectedRole;
 
-      final referralApplied =
-          _ref.read(authRepositoryProvider).lastReferralApplied;
+      final fcmToken = await FcmService.instance.getToken();
+      await _ref
+          .read(settingsProvider.notifier)
+          .syncSettings(
+            latitude: locationPayload.latitude,
+            longitude: locationPayload.longitude,
+            locationName: locationPayload.locationName,
+            fcmToken: fcmToken,
+          );
+
+      final referralApplied = _ref
+          .read(authRepositoryProvider)
+          .lastReferralApplied;
 
       state = state.copyWith(
         nextRoute: RoleRouteResolver.resolve(resolvedRole),
@@ -284,7 +365,10 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
 
   String? _validatePhone(String value) => Validators.indianMobile(value);
 
-  String? _validateUserName(String value) => Validators.name(value, fieldName: 'Name');
+  String? _validateUserName(String value) =>
+      Validators.name(value, fieldName: 'Name');
+  String? _validateEmail(String value) =>
+      Validators.email(value, requiredField: true);
 
   String? _validateReferral(String value) {
     final trimmed = value.trim();
@@ -316,4 +400,50 @@ class LoginOtpViewModel extends StateNotifier<LoginOtpViewState> {
   void _handleOtpFocusChanged() {
     state = state.copyWith(isOtpFieldFocused: otpFocusNode.hasFocus);
   }
+
+  Future<_AuthLocationPayload> _buildLocationPayload() async {
+    final appSettings = _ref.read(settingsProvider);
+    final rawLat = appSettings.settings['latitude'];
+    final rawLng = appSettings.settings['longitude'];
+
+    double? latitude = rawLat is num
+        ? rawLat.toDouble()
+        : double.tryParse('$rawLat');
+    double? longitude = rawLng is num
+        ? rawLng.toDouble()
+        : double.tryParse('$rawLng');
+    String locationName = appSettings.serviceAvailability.locationName.trim();
+
+    if (latitude == null || longitude == null) {
+      final bestLocation = await _locationService.getBestAvailableLocation();
+      latitude = bestLocation?.latitude;
+      longitude = bestLocation?.longitude;
+      if (locationName.isEmpty) {
+        locationName = bestLocation?.locationName?.trim() ?? '';
+      }
+    }
+
+    if (locationName.isEmpty && latitude != null && longitude != null) {
+      locationName =
+          await _locationService.getLocationName(latitude, longitude) ?? '';
+    }
+
+    return _AuthLocationPayload(
+      latitude: latitude,
+      longitude: longitude,
+      locationName: locationName.isEmpty ? null : locationName,
+    );
+  }
+}
+
+class _AuthLocationPayload {
+  const _AuthLocationPayload({
+    this.latitude,
+    this.longitude,
+    this.locationName,
+  });
+
+  final double? latitude;
+  final double? longitude;
+  final String? locationName;
 }

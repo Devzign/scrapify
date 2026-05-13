@@ -14,6 +14,10 @@ class ApiEndpoints {
 
   static const String authSendOtp = '/auth/send-otp';
   static const String authVerifyOtp = '/auth/verify-otp';
+  static const String authRegisterSendOtp = '/auth/register/send-otp';
+  static const String authRegisterVerifyOtp = '/auth/register/verify-otp';
+  static const String authLoginSendOtp = '/auth/login/send-otp';
+  static const String authLoginVerifyOtp = '/auth/login/verify-otp';
   static const String authUserTypes = '/auth/user-types';
   static const String authProfile = '/auth/profile';
   static const String authProfileUpdate = '/auth/profile/update';
@@ -36,7 +40,9 @@ class ApiEndpoints {
   static const String pickupRequests = '/pickup-requests';
   static const String donationRequest = '/donation-request';
   static const String donationRequests = '/donation-requests';
+  static const String donationProducts = '/donation-products';
   static const String corporateBookings = '/corporate-bookings';
+  static const String corporateBookingOptions = '/corporate-bookings/options';
   static const String helpSupport = '/help-support';
   static const String referralValidateCode = '/referral/validate-code';
   static const String referralMyCode = '/referral/my-code';

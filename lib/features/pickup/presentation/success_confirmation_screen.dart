@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../domain/models/pickup_request_model.dart';
 import '../providers/pickup_provider.dart';
+import '../../../core/theme/app_color.dart';
 
 class SuccessConfirmationScreen extends ConsumerWidget {
   final PickupRequestModel? pickup;
@@ -51,7 +52,15 @@ class SuccessConfirmationScreen extends ConsumerWidget {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+          ),
           onPressed: () {
             ref.invalidate(pickupsProvider);
             context.go(AppRoutes.customerDashboard);
@@ -70,7 +79,7 @@ class SuccessConfirmationScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.help_outline, color: AppTheme.textPrimary),
-            onPressed: () {},
+            onPressed: () => context.push(AppRoutes.helpSupport),
           ),
         ],
         centerTitle: true,

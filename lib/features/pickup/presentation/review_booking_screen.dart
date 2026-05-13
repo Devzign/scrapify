@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_endpoints.dart';
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/utils/user_role_helper.dart';
@@ -74,18 +75,43 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
     final isCouponValidating = ref.watch(referralProvider).isCouponValidating;
     final appliedCoupon = booking.appliedCoupon;
 
-    final lat = booking.selectedAddress?.latitude ?? 28.6139;
-    final lng = booking.selectedAddress?.longitude ?? 77.2090;
+    final lat = booking.selectedAddress?.latitude;
+    final lng = booking.selectedAddress?.longitude;
+    final String _mapCenter;
+    final String _markerParam;
+    if (lat != null && lng != null) {
+      _mapCenter = '$lat,$lng';
+      _markerParam = 'color:red%7C$lat,$lng';
+    } else {
+      // No coordinates saved — geocode from address text so the map shows
+      // the correct city/area instead of the New Delhi default.
+      final addrParts = <String>[
+        if (booking.selectedAddress?.addressLine1.isNotEmpty == true)
+          booking.selectedAddress!.addressLine1,
+        if (booking.selectedAddress?.cityName?.isNotEmpty == true)
+          booking.selectedAddress!.cityName!,
+        if (booking.selectedAddress?.pincode.isNotEmpty == true)
+          booking.selectedAddress!.pincode,
+      ];
+      final encoded = Uri.encodeComponent(addrParts.join(', '));
+      _mapCenter = encoded;
+      _markerParam = 'color:red%7C$encoded';
+    }
     final mapUrl =
-        'https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng&zoom=15&size=600x300&markers=color:red%7C$lat,$lng&key=${ApiEndpoints.googleMapsApiKey}';
+        'https://maps.googleapis.com/maps/api/staticmap?center=$_mapCenter&zoom=15&size=600x300&markers=$_markerParam&key=${ApiEndpoints.googleMapsApiKey}';
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppTheme.textPrimary,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),

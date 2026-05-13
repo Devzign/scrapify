@@ -7,6 +7,7 @@ import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../providers/payment_provider.dart';
 import '../domain/models/payment_method_model.dart';
+import '../../../core/theme/app_color.dart';
 
 class PaymentMethodsScreen extends ConsumerWidget {
   const PaymentMethodsScreen({super.key});
@@ -26,10 +27,14 @@ class PaymentMethodsScreen extends ConsumerWidget {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: isDark ? Colors.white : AppTheme.textPrimary,
-            size: 24,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),

@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
@@ -9,6 +8,7 @@ import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../providers/booking_provider.dart';
 import '../providers/donation_provider.dart';
+import '../../../core/theme/app_color.dart';
 
 class DonationCategorySelectionScreen extends ConsumerWidget {
   const DonationCategorySelectionScreen({super.key});
@@ -17,15 +17,21 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedItems = ref.watch(donationProvider);
     final donationNotifier = ref.read(donationProvider.notifier);
+    final donationCategories = ref.watch(donationCategoriesProvider);
     final isHindi = context.locale.languageCode == 'hi';
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppTheme.textPrimary,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),
@@ -105,7 +111,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                           const SizedBox(height: 6),
                           Text(
                             isHindi
-                                ? 'पुराने कपड़े और फर्नीचर दान करें।'
+                                ? 'उपयोगी वस्तुएं दान करें।'
                                 : 'Support social causes with reusable goods',
                             style: const TextStyle(
                               fontSize: 14,
@@ -116,8 +122,8 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                           const SizedBox(height: 20),
                           Text(
                             isHindi
-                                ? 'आज आप क्या दान करना चाहते हैं? हम अभी कपड़े और पुराने फर्नीचर स्वीकार कर रहे हैं।'
-                                : 'Choose what you want to donate today. We are currently accepting clothes and old furniture.',
+                                ? 'आज आप क्या दान करना चाहते हैं?'
+                                : 'Choose what you want to donate today.',
                             style: const TextStyle(
                               fontSize: 14,
                               height: 1.5,
@@ -152,7 +158,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                     GridView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      itemCount: DonationNotifier.donationCategories.length,
+                      itemCount: donationCategories.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
@@ -161,8 +167,7 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
                             childAspectRatio: 0.9,
                           ),
                       itemBuilder: (context, index) {
-                        final category =
-                            DonationNotifier.donationCategories[index];
+                        final category = donationCategories[index];
                         final quantity = donationNotifier.quantityFor(
                           category.id,
                         );
@@ -287,7 +292,14 @@ class DonationCategorySelectionScreen extends ConsumerWidget {
   static IconData _iconForSlug(String slug) {
     switch (slug) {
       case 'clothes':
+      case 'cloth':
         return Icons.checkroom_rounded;
+      case 'shoes':
+        return Icons.hiking_rounded;
+      case 'toys':
+        return Icons.toys_rounded;
+      case 'books':
+        return Icons.menu_book_rounded;
       case 'furniture':
         return Icons.chair_rounded;
       default:

@@ -43,11 +43,10 @@ class CustomerDashboardBottomBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (showBasketButton) ...[
-              Align(
-                alignment: Alignment.centerLeft,
+              Center(
                 child: _BasketFloatingButton(itemCount: basketItemCount),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
             ],
             SizedBox(
               height: 104,
@@ -200,76 +199,84 @@ class _BasketFloatingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 58,
-      child: AppCard(
-        color: AppTheme.surfaceColor,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: AppTheme.e2,
-        padding: EdgeInsets.zero,
-        child: Material(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () => context.push(AppRoutes.basket),
-            child: SizedBox(
-              width: double.infinity,
-              height: 58,
-              child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        const FaIcon(
-                          FontAwesomeIcons.basketShopping,
-                          color: AppTheme.primaryColor,
-                          size: 18,
+    final isHindi = context.locale.languageCode == 'hi';
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => context.push(AppRoutes.basket),
+        borderRadius: BorderRadius.circular(32),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            color: AppTheme.primaryColor,
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primaryColor.withValues(alpha: 0.35),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Basket icon with red badge
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const FaIcon(
+                    FontAwesomeIcons.basketShopping,
+                    color: Colors.white,
+                    size: 18,
+                  ),
+                  Positioned(
+                    right: -8,
+                    top: -7,
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade500,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      child: Text(
+                        '$itemCount',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
                         ),
-                        Positioned(
-                          right: -10,
-                          top: -8,
-                          child: Container(
-                            constraints: const BoxConstraints(
-                              minWidth: 20,
-                              minHeight: 20,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 2,
-                            ),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              '$itemCount',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      context.locale.languageCode == 'hi' ? 'बास्केट' : 'Basket',
-                      style: const TextStyle(
-                        color: AppTheme.textPrimary,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
                       ),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              const SizedBox(width: 10),
+              Text(
+                isHindi ? 'बास्केट' : 'Basket',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  letterSpacing: 0.2,
                 ),
               ),
-            ),
+              const SizedBox(width: 6),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 16,
+              ),
+            ],
           ),
         ),
       ),

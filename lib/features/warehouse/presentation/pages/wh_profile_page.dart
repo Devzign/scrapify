@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_color.dart';
 import '../../../../core/utils/app_routes.dart';
@@ -41,8 +42,6 @@ class WhProfilePage extends ConsumerWidget {
                   children: [
                     _buildHeroProfile(name, phone, initials, isHindi),
                     _buildInfoSection(warehouseName, warehouseAddress, isHindi),
-                    _buildSupportSection(isHindi),
-                    _buildAccountSettings(isHindi),
                     _buildLogout(context, ref, isHindi),
                     _buildAppVersion(),
                   ],
@@ -92,18 +91,6 @@ class WhProfilePage extends ConsumerWidget {
                 ),
               ),
             ],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColor.backgroundCream,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.notifications_none_rounded,
-              color: AppColor.textSecondary,
-              size: 22,
-            ),
           ),
         ],
       ),
@@ -278,100 +265,12 @@ class WhProfilePage extends ConsumerWidget {
               isLarge: false,
             ),
             const SizedBox(height: 18),
-            Row(
-              children: [
-                _buildSmallButton(
-                  Icons.map_rounded,
-                  isHindi ? 'मानचित्र' : 'View Map',
-                ),
-                const SizedBox(width: 8),
-                _buildSmallButton(
-                  Icons.edit_rounded,
-                  isHindi ? 'संपादित करें' : 'Edit Details',
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSupportSection(bool isHindi) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppTheme.primaryColor,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: AppTheme.primaryColor.withValues(alpha: 0.3),
-              blurRadius: 16,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: AppTheme.cardBorderRadius,
-                    border: AppTheme.cardBorder,
-                    boxShadow: AppTheme.cardShadow,
-                  ),
-                  child: const Icon(
-                    Icons.support_agent_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  isHindi ? 'सहायता' : 'Support',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              isHindi
-                  ? 'लॉजिस्टिक्स या इन्वेंटरी में मदद चाहिए? हमारी 24/7 सपोर्ट लाइन यहाँ है।'
-                  : 'Need help with logistics or inventory? Our 24/7 support line is here.',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.white.withValues(alpha: 0.85),
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSupportAction(
-                    Icons.phone_in_talk_rounded,
-                    isHindi ? 'कॉल करें' : 'Call Support',
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildSupportAction(
-                    Icons.chat_bubble_rounded,
-                    isHindi ? 'WhatsApp' : 'WhatsApp Chat',
-                  ),
-                ),
-              ],
+            _buildSmallButton(
+              Icons.map_rounded,
+              isHindi ? 'मानचित्र' : 'View Map',
+              onTap: warehouseAddress.isNotEmpty
+                  ? () => _openMap(warehouseAddress)
+                  : null,
             ),
           ],
         ),
@@ -410,100 +309,27 @@ class WhProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSmallButton(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppTheme.outline,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: AppTheme.textPrimary),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSupportAction(IconData icon, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: Colors.white, size: 16),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
+  Widget _buildSmallButton(IconData icon, String label, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: AppTheme.outline,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14, color: AppTheme.textPrimary),
+            const SizedBox(width: 6),
+            Text(
               label,
               style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+                color: AppTheme.textPrimary,
               ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAccountSettings(bool isHindi) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: AppTheme.cardBorderRadius,
-          border: AppTheme.cardBorder,
-          boxShadow: AppTheme.cardShadow,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-              child: Text(
-                isHindi ? 'खाता सेटिंग्स' : 'Account Settings',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            _buildSettingsItem(
-              icon: Icons.lock_rounded,
-              title: isHindi ? 'सुरक्षा' : 'Security',
-              subtitle: isHindi
-                  ? 'पासवर्ड और 2FA अपडेट करें'
-                  : 'Update password and 2FA',
-            ),
-            Divider(height: 1, color: AppColor.backgroundCream),
-            _buildSettingsItem(
-              icon: Icons.policy_rounded,
-              title: isHindi ? 'अनुपालन दस्तावेज़' : 'Compliance Docs',
-              subtitle: isHindi
-                  ? 'गोदाम प्रमाणपत्र देखें'
-                  : 'View warehouse certifications',
             ),
           ],
         ),
@@ -511,61 +337,17 @@ class WhProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSettingsItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return InkWell(
-      onTap: () {},
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: AppTheme.hairline,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: AppColor.textSecondary, size: 20),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 11, color: AppColor.textSecondary),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: AppColor.textMuted,
-              size: 22,
-            ),
-          ],
-        ),
-      ),
-    );
+  Future<void> _openMap(String address) async {
+    final encoded = Uri.encodeComponent(address);
+    final uri = Uri.parse('https://www.google.com/maps/search/?api=1&query=$encoded');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
   }
 
   Widget _buildLogout(BuildContext context, WidgetRef ref, bool isHindi) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: SizedBox(
         width: double.infinity,
         child: OutlinedButton.icon(

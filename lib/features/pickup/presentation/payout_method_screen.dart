@@ -7,6 +7,7 @@ import '../providers/basket_provider.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../../core/theme/app_color.dart';
 
 class PayoutMethodScreen extends ConsumerWidget {
   const PayoutMethodScreen({super.key});
@@ -33,9 +34,14 @@ class PayoutMethodScreen extends ConsumerWidget {
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppTheme.textPrimary,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),

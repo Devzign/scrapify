@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_theme.dart';
@@ -10,8 +9,11 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../settings/providers/settings_provider.dart';
 import '../domain/repositories/pickup_repository.dart';
 import '../providers/corporate_provider.dart';
+import '../../../core/theme/app_color.dart';
 
 class CorporateReviewScreen extends ConsumerWidget {
   const CorporateReviewScreen({super.key});
@@ -27,9 +29,14 @@ class CorporateReviewScreen extends ConsumerWidget {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppTheme.textPrimary,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),
@@ -107,6 +114,24 @@ class CorporateReviewScreen extends ConsumerWidget {
 
   Future<void> _submit(BuildContext context, WidgetRef ref) async {
     final booking = ref.read(corporateBookingProvider);
+    final user = ref.read(authProvider);
+    final settings = ref.read(settingsProvider).settings;
+    final corporateCategories =
+        (settings['corporate_categories'] as List<dynamic>?)
+            ?.map((e) => e.toString().trim())
+            .where((e) => e.isNotEmpty)
+            .toList() ??
+        const [
+          'E-Waste',
+          'General Waste',
+          'Hazardous Waste (Industrial Waste)',
+        ];
+    final meetingTypes =
+        (settings['corporate_meeting_types'] as List<dynamic>?)
+            ?.map((e) => e.toString().trim().toLowerCase())
+            .where((e) => e.isNotEmpty)
+            .toList() ??
+        const ['in_person', 'google_meet', 'skype'];
     if (!booking.isReadyToSubmit) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please complete all required fields')),
@@ -145,6 +170,12 @@ class CorporateReviewScreen extends ConsumerWidget {
       'notes': booking.notes?.isNotEmpty == true
           ? booking.notes!
           : 'Corporate quotation request from mobile app',
+      'company_name': user?.name ?? 'N/A',
+      'contact_name': user?.name ?? 'N/A',
+      'contact_mobile': user?.phone ?? '0000000000',
+      'contact_email': user?.email ?? 'na@example.com',
+      'corporate_category': corporateCategories.first,
+      'meeting_type': meetingTypes.first,
       'items': items,
       'images': booking.images,
     };

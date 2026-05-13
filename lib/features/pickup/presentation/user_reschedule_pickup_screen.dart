@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../domain/models/pickup_request_model.dart';
 import '../providers/pickup_provider.dart';
+import '../../../core/theme/app_color.dart';
 
 class UserReschedulePickupScreen extends ConsumerStatefulWidget {
   final int? pickupId;
@@ -86,7 +88,15 @@ class _UserReschedulePickupScreenState extends ConsumerState<UserReschedulePicku
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.grey),
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -100,7 +110,7 @@ class _UserReschedulePickupScreenState extends ConsumerState<UserReschedulePicku
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.grey),
-            onPressed: () {},
+            onPressed: () => context.push(AppRoutes.notifications),
           ),
         ],
       ),

@@ -247,8 +247,15 @@ class _PickupBoyVerificationScreenState
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded,
-              color: AppColor.textPrimary),
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+          ),
           onPressed: () => context.pop(),
         ),
       ),
@@ -801,7 +808,15 @@ class _AddItemPageState extends ConsumerState<_AddItemPage> {
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColor.textPrimary),
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

@@ -29,14 +29,28 @@ class Category {
   });
 
   factory Category.fromJson(Map<String, dynamic> json) {
+    // Pricing may be at the top level OR nested inside pricing_rules[0]
+    final pricingRules = json['pricing_rules'] as List<dynamic>?;
+    final firstRule = (pricingRules != null && pricingRules.isNotEmpty)
+        ? Map<String, dynamic>.from(pricingRules.first as Map)
+        : null;
+
+    final resolvedPricingType =
+        json['pricing_type'] as String? ??
+        firstRule?['pricing_type'] as String?;
+
+    final resolvedBasePrice =
+        (json['base_price'] as num?)?.toDouble() ??
+        double.tryParse(firstRule?['base_price']?.toString() ?? '');
+
     return Category(
       id: _parseInt(json['id']) ?? 0,
       name: LocalizedName.fromJson(json['name']),
       slug: json['slug']?.toString() ?? '',
       categoryTypeId: _parseInt(json['category_type_id']),
       parentId: _parseInt(json['parent_id']),
-      pricingType: json['pricing_type'] as String?,
-      basePrice: (json['base_price'] as num?)?.toDouble(),
+      pricingType: resolvedPricingType,
+      basePrice: resolvedBasePrice,
       requiresDetails:
           json['requires_details'] == true || json['requires_details'] == 1,
       imageUrl:

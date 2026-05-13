@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../domain/models/tracking_timeline_model.dart';
@@ -28,10 +29,30 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
     final trackingAsync = ref.watch(trackingProvider(widget.pickupId));
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColor.backgroundLight,
       appBar: AppBar(
+        backgroundColor: const Color(0xFF1A5C35),
+        elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1A5C35), AppColor.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.16),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded,
+                color: Colors.white, size: 18),
+          ),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -43,14 +64,13 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
         title: Text(
           'Track Pickup #OD-${widget.pickupId}',
           style: const TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 17,
+            letterSpacing: -0.2,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
       ),
       body: trackingAsync.when(
         data: (tracking) {

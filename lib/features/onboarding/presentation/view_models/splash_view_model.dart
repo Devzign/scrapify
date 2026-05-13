@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import '../../../../core/services/location_service.dart';
 import '../../../../core/storage/app_preferences.dart';
 import '../../../../core/utils/app_routes.dart';
 import '../../../../core/utils/role_route_resolver.dart';
@@ -8,8 +9,8 @@ import 'splash_view_state.dart';
 
 final splashViewModelProvider =
     StateNotifierProvider<SplashViewModel, SplashViewState>((ref) {
-  return SplashViewModel(ref);
-});
+      return SplashViewModel(ref);
+    });
 
 class SplashViewModel extends StateNotifier<SplashViewState> {
   final Ref _ref;
@@ -24,6 +25,9 @@ class SplashViewModel extends StateNotifier<SplashViewState> {
 
     _isLoading = true;
 
+    // Prompt location permission early and cache it for login/app-settings payloads.
+    await LocationService().getBestAvailableLocation();
+
     // 1. Get Settings
     final appSettings = _ref.read(settingsProvider);
 
@@ -35,8 +39,8 @@ class SplashViewModel extends StateNotifier<SplashViewState> {
     final nextRoute = token != null && token.isNotEmpty
         ? RoleRouteResolver.resolve(await preferences.getPrimaryUserRole())
         : hasSeenOnboarding
-            ? AppRoutes.language
-            : AppRoutes.onboarding;
+        ? AppRoutes.language
+        : AppRoutes.onboarding;
 
     state = state.copyWith(
       hasResolvedRoute: true,

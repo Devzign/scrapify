@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -46,25 +47,49 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
     final isOnline = state.dashboard?.isOnline ?? true;
 
     return AppScaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppColor.backgroundLight,
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        backgroundColor: const Color(0xFF1A5C35),
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1A5C35), AppColor.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         title: Text(
           'pickup_dashboard.title'.tr(),
           style: const TextStyle(
-            color: AppTheme.primaryColor,
-            fontWeight: FontWeight.w800,
-            fontSize: 20,
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 18,
+            letterSpacing: -0.3,
           ),
         ),
         actions: [
-          IconButton(
-            tooltip: 'Logout',
-            icon: const Icon(
-              Icons.logout_rounded,
-              color: AppColor.error,
+          GestureDetector(
+            onTap: _logout,
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.16),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.30),
+                ),
+              ),
+              child: const Icon(
+                Icons.logout_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
-            onPressed: _logout,
           ),
         ],
       ),

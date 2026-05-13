@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/utils/app_routes.dart';
+import '../../../core/theme/app_color.dart';
 
 class WeightEntryScreen extends StatefulWidget {
   final String itemName;
@@ -38,7 +39,15 @@ class _WeightEntryScreenState extends State<WeightEntryScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(FontAwesomeIcons.arrowLeft, size: 20),
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(

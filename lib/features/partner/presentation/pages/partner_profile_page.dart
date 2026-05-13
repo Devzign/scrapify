@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -254,24 +255,10 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
               _buildActionTile(
                 icon: Icons.language_rounded,
                 title: context.partnerText('Language', 'भाषा'),
-                subtitle: context.partnerText(
-                  context.isHindi ? 'Hindi selected' : 'English selected',
-                  context.isHindi
-                      ? 'हिन्दी चुनी गई है'
-                      : 'अंग्रेज़ी चुनी गई है',
-                ),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        context.partnerText(
-                          'Change language from the main app language settings.',
-                          'भाषा बदलने के लिए मुख्य ऐप भाषा सेटिंग्स का उपयोग करें।',
-                        ),
-                      ),
-                    ),
-                  );
-                },
+                subtitle: context.isHindi
+                    ? 'हिन्दी चुनी गई है'
+                    : 'English selected',
+                onTap: () => _showLanguageSheet(context),
               ),
               const SizedBox(height: 12),
               _buildActionTile(
@@ -301,6 +288,185 @@ class _PartnerProfilePageState extends ConsumerState<PartnerProfilePage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            final isHindi = ctx.locale.languageCode == 'hi';
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Drag handle
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                  // Header
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primarySurface,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.language_rounded,
+                          color: AppTheme.primaryColor,
+                          size: 18,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        isHindi ? 'भाषा चुनें' : 'Select Language',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // English option
+                  _langOption(
+                    ctx: ctx,
+                    label: 'English',
+                    sublabel: 'English',
+                    iconLabel: 'A',
+                    isSelected: !isHindi,
+                    onTap: () async {
+                      await ctx.setLocale(const Locale('en'));
+                      if (ctx.mounted) Navigator.pop(ctx);
+                      if (mounted) setState(() {});
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  // Hindi option
+                  _langOption(
+                    ctx: ctx,
+                    label: 'हिंदी',
+                    sublabel: 'Hindi',
+                    iconLabel: 'अ',
+                    isSelected: isHindi,
+                    onTap: () async {
+                      await ctx.setLocale(const Locale('hi'));
+                      if (ctx.mounted) Navigator.pop(ctx);
+                      if (mounted) setState(() {});
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _langOption({
+    required BuildContext ctx,
+    required String label,
+    required String sublabel,
+    required String iconLabel,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? AppTheme.primarySurface : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected
+                ? AppTheme.primaryColor
+                : AppTheme.cardBorderColor,
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? AppTheme.primaryColor
+                    : AppTheme.backgroundCream,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                iconLabel,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: isSelected ? Colors.white : AppTheme.primaryDark,
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: isSelected
+                          ? AppTheme.primaryDark
+                          : AppTheme.textPrimary,
+                    ),
+                  ),
+                  Text(
+                    sublabel,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColor.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (isSelected)
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: const BoxDecoration(
+                  color: AppTheme.primaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  color: Colors.white,
+                  size: 14,
+                ),
+              ),
+          ],
         ),
       ),
     );

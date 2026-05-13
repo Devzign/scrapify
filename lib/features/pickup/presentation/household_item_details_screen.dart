@@ -16,6 +16,7 @@ import '../domain/models/pickup_catalog_item.dart';
 import '../domain/repositories/category_repository.dart';
 import '../providers/basket_provider.dart';
 import '../providers/category_provider.dart';
+import '../../../core/theme/app_color.dart';
 
 class HouseholdItemDetailsScreen extends ConsumerStatefulWidget {
   final PickupCatalogItem item;
@@ -114,10 +115,14 @@ class _HouseholdItemDetailsScreenState
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppTheme.textPrimary,
-            size: 18,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),
@@ -442,11 +447,10 @@ class _HouseholdItemDetailsScreenState
     HomeApplianceOption selected,
   ) {
     final visibleOptions = _visibleOptionsForSection(section);
-    if (visibleOptions.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    if (visibleOptions.isEmpty) return const SizedBox.shrink();
 
-    if (_isConditionSection(section)) {
+    // Working Condition and Usage Age stay as pill chips
+    if (_isConditionSection(section) || _isUsageAgeSection(section)) {
       return Wrap(
         spacing: 10,
         runSpacing: 10,
@@ -463,64 +467,222 @@ class _HouseholdItemDetailsScreenState
       );
     }
 
-    if (_isBodySection(section)) {
-      return Column(
-        children: visibleOptions
-            .map(
-              (option) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _outlinedOption(
-                  label: option.value,
-                  isSelected: selected.id == option.id,
-                  onTap: () => _updateSelection(section.slug, option),
-                  fullWidth: true,
+    // Everything else → custom styled bottom-sheet dropdown
+    final currentSelected =
+        visibleOptions.any((o) => o.id == selected.id) ? selected : visibleOptions.first;
+
+    return _buildCustomDropdownTrigger(
+      section: section,
+      selected: currentSelected,
+      options: visibleOptions,
+    );
+  }
+
+  Widget _buildCustomDropdownTrigger({
+    required HomeApplianceSection section,
+    required HomeApplianceOption selected,
+    required List<HomeApplianceOption> options,
+  }) {
+    return GestureDetector(
+      onTap: () => _showOptionBottomSheet(section, selected, options),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+        decoration: BoxDecoration(
+          color: AppTheme.primarySurface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppTheme.primaryDark.withValues(alpha: 0.25),
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                selected.value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.primaryDark,
                 ),
               ),
-            )
-            .toList(),
-      );
-    }
-
-    final isCapacity = '${section.slug} ${section.title}'
-        .toLowerCase()
-        .contains('capacity');
-
-    if (isCapacity) {
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-          childAspectRatio: 2.25,
-        ),
-        itemCount: visibleOptions.length,
-        itemBuilder: (context, index) {
-          final option = visibleOptions[index];
-          return _outlinedOption(
-            label: option.value,
-            isSelected: selected.id == option.id,
-            onTap: () => _updateSelection(section.slug, option),
-            fullWidth: true,
-          );
-        },
-      );
-    }
-
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: visibleOptions
-          .map(
-            (option) => _outlinedOption(
-              label: option.value,
-              isSelected: selected.id == option.id,
-              onTap: () => _updateSelection(section.slug, option),
-              fullWidth: false,
             ),
-          )
-          .toList(),
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryLight,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: AppTheme.primaryDark,
+                size: 20,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showOptionBottomSheet(
+    HomeApplianceSection section,
+    HomeApplianceOption currentSelected,
+    List<HomeApplianceOption> options,
+  ) {
+    final title = _displayTitle(section.title, section.slug);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(ctx).size.height * 0.6,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 4),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+              ),
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 8, 0),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primarySurface,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(
+                        Icons.tune_rounded,
+                        color: AppTheme.primaryDark,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: AppTheme.primaryDark,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.backgroundCream,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          size: 18,
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Divider(color: Colors.grey.shade100, height: 1),
+              // Options list
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(bottom: 20),
+                  itemCount: options.length,
+                  separatorBuilder: (_, __) =>
+                      Divider(color: Colors.grey.shade100, height: 1),
+                  itemBuilder: (_, i) {
+                    final option = options[i];
+                    final isSelected = option.id == currentSelected.id;
+                    return InkWell(
+                      onTap: () {
+                        _updateSelection(section.slug, option);
+                        Navigator.pop(ctx);
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        color: isSelected
+                            ? AppTheme.primarySurface
+                            : Colors.transparent,
+                        child: Row(
+                          children: [
+                            // Radio indicator
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: isSelected
+                                    ? AppTheme.primaryDark
+                                    : Colors.transparent,
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppTheme.primaryDark
+                                      : AppTheme.cardBorderColor,
+                                  width: 2,
+                                ),
+                              ),
+                              child: isSelected
+                                  ? const Icon(
+                                      Icons.check,
+                                      color: Colors.white,
+                                      size: 12,
+                                    )
+                                  : null,
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Text(
+                                option.value,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
+                                  color: isSelected
+                                      ? AppTheme.primaryDark
+                                      : AppTheme.textPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -860,21 +1022,27 @@ class _HouseholdItemDetailsScreenState
   }
 
   bool _isConditionSection(HomeApplianceSection section) {
-    final key = '${section.slug} ${section.title}'.toLowerCase();
-    return key.contains('condition') ||
-        key.contains('status') ||
-        section.options.any((option) {
-          final value = option.value.toLowerCase();
-          return value == 'working' ||
-              value == 'fully working' ||
-              value == 'partially working' ||
-              value == 'not working';
-        });
+    // Rely ONLY on option values, not slug/title string matching,
+    // to prevent brand / capacity sections from being misclassified as chips.
+    return section.options.any((option) {
+      final value = option.value.toLowerCase().trim();
+      return value == 'working' ||
+          value == 'fully working' ||
+          value == 'partially working' ||
+          value == 'not working' ||
+          value == 'non-working';
+    });
   }
 
-  bool _isBodySection(HomeApplianceSection section) {
+  bool _isUsageAgeSection(HomeApplianceSection section) {
+    // Must have BOTH 'usage' and 'age' in the slug or title,
+    // AND must not look like a brand / capacity section.
     final key = '${section.slug} ${section.title}'.toLowerCase();
-    return key.contains('body') || key.contains('mount');
+    if (key.contains('brand') || key.contains('capacity') ||
+        key.contains('type') || key.contains('size')) {
+      return false;
+    }
+    return key.contains('usage') && key.contains('age');
   }
 
   List<HomeApplianceOption> _visibleOptionsForSection(

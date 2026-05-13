@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/app_config.dart';
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/utils/user_role_helper.dart';
@@ -41,90 +42,71 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
 
     return AppScaffold(
       key: ValueKey('profile_${locale.languageCode}'),
-      backgroundColor: AppTheme.backgroundLight,
-      appBar: widget.showAppBar
-          ? AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
-                onPressed: () => context.pop(),
-              ),
-              title: Text(
-                'profile.title'.tr(),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              centerTitle: true,
-            )
-          : null,
+      backgroundColor: AppColor.backgroundLight,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(0),
+        child: AppBar(
+          backgroundColor: const Color(0xFF1A5C35),
+          elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
+        ),
+      ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            // Header Section
+            // ── Green gradient header ──────────────────────────────────
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(
-                top: 12,
-                bottom: 32,
-                left: 24,
-                right: 24,
-              ),
               decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
+                gradient: LinearGradient(
+                  colors: [Color(0xFF1A5C35), AppColor.primary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
               ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 120,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            AppTheme.primaryColor.withValues(alpha: 0.1),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Column(
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+                  child: Column(
                     children: [
+                      // Back button row
+                      if (widget.showAppBar)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: GestureDetector(
+                            onTap: () => context.pop(),
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.16),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.30),
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back_rounded,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: 12),
                       // Avatar with Edit Button
                       Stack(
                         alignment: Alignment.bottomRight,
                         children: [
                           Container(
-                            width: 120,
-                            height: 120,
+                            width: 110,
+                            height: 110,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.grey.shade200,
-                              border: Border.all(color: Colors.white, width: 4),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Colors.black12,
-                                  blurRadius: 10,
-                                  offset: Offset(0, 4),
-                                ),
-                              ],
+                              color: Colors.white.withValues(alpha: 0.20),
+                              border: Border.all(color: Colors.white, width: 3),
                               image: DecorationImage(
                                 image: remotePhotoUrl != null
                                     ? NetworkImage(remotePhotoUrl)
@@ -135,59 +117,69 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                               ),
                             ),
                           ),
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 4, right: 4),
-                            padding: const EdgeInsets.all(8),
-                            decoration: const BoxDecoration(
-                              color: AppTheme.primaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                            child: InkWell(
-                              onTap: () => context.push(AppRoutes.editProfile),
+                          GestureDetector(
+                            onTap: () => context.push(AppRoutes.editProfile),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 2, right: 2),
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.15),
+                                    blurRadius: 6,
+                                  ),
+                                ],
+                              ),
                               child: const Icon(
                                 Icons.edit,
-                                color: Colors.white,
-                                size: 18,
+                                color: AppColor.primary,
+                                size: 16,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
                       Text(
                         user?.name ?? 'Loading...',
                         style: const TextStyle(
-                          fontSize: 24,
+                          fontSize: 22,
                           fontWeight: FontWeight.w900,
-                          color: AppTheme.textPrimary,
+                          color: Colors.white,
+                          letterSpacing: -0.3,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         user?.phone ?? '+91 ...',
-                        style: const TextStyle(
-                          fontSize: 15,
+                        style: TextStyle(
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: AppTheme.textSecondary,
+                          color: Colors.white.withValues(alpha: 0.80),
                         ),
                       ),
                       const SizedBox(height: 12),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
+                          horizontal: 14,
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: AppTheme.primaryLight.withValues(alpha: 0.5),
+                          color: Colors.white.withValues(alpha: 0.16),
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.30),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(
                               Icons.verified,
-                              color: AppTheme.primaryColor,
-                              size: 16,
+                              color: Colors.white,
+                              size: 15,
                             ),
                             const SizedBox(width: 6),
                             Text(
@@ -195,7 +187,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                               style: const TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w900,
-                                color: AppTheme.primaryColor,
+                                color: Colors.white,
                               ),
                             ),
                           ],
@@ -203,7 +195,7 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
 
@@ -347,51 +339,73 @@ class _UserProfileScreenState extends ConsumerState<UserProfileScreen> {
     required String subtitle,
     required VoidCallback onTap,
   }) {
-    return InkWell(
-      onTap: onTap,
+    return Material(
+      color: Colors.white,
       borderRadius: BorderRadius.circular(20),
-      child: AppCard(
-        padding: const EdgeInsets.all(16),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade100),
-        boxShadow: null,
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryLight.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColor.cardBorder, width: 1.2),
+            boxShadow: AppTheme.e1,
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(
+                  color: AppColor.primarySurface,
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: Icon(icon, color: AppColor.primary, size: 22),
               ),
-              child: Icon(icon, color: AppTheme.primaryColor, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.textPrimary,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: AppColor.deepNavy,
+                        letterSpacing: -0.1,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppTheme.textSecondary,
-                      fontWeight: FontWeight.w500,
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColor.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right, size: 24, color: Colors.grey),
-          ],
+              const SizedBox(width: 8),
+              Container(
+                width: 32,
+                height: 32,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  color: AppColor.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

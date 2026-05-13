@@ -6,6 +6,7 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../../core/theme/app_color.dart';
 
 class RatePickupScreen extends StatefulWidget {
   const RatePickupScreen({super.key});
@@ -62,10 +63,14 @@ class _RatePickupScreenState extends State<RatePickupScreen> {
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppTheme.textPrimary,
-            size: 20,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),

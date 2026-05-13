@@ -7,6 +7,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_button.dart';
@@ -31,7 +33,10 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
   );
 
   bool _isLoadingLocation = false;
-  LatLng? _currentCenter = const LatLng(28.6139, 77.2090);
+  // Null until the user explicitly drags the map or taps "My Location".
+  // Prevents saving the default New-Delhi coordinates for non-Delhi addresses.
+  LatLng? _currentCenter;
+  bool _isMapReady = false;
 
   final TextEditingController _streetController = TextEditingController();
   final TextEditingController _houseController = TextEditingController();
@@ -50,15 +55,10 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
   }
 
   Future<void> _getCurrentLocation() async {
-    setState(() {
-      _isLoadingLocation = true;
-    });
-
+    setState(() => _isLoadingLocation = true);
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw Exception('Location services are disabled.');
-      }
+      if (!serviceEnabled) throw Exception('Location services are disabled.');
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -67,11 +67,9 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
           throw Exception('Location permissions are denied');
         }
       }
-
       if (permission == LocationPermission.deniedForever) {
         throw Exception(
-          'Location permissions are permanently denied, we cannot request permissions.',
-        );
+            'Location permissions are permanently denied.');
       }
 
       Position position = await Geolocator.getCurrentPosition();
@@ -84,50 +82,36 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
         ),
       );
 
+      // User explicitly requested their location — mark as intentional.
       _currentCenter = latLng;
+      _isMapReady = true;
       _getAddressFromLatLng(latLng);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(e.toString())));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingLocation = false;
-        });
-      }
+      if (mounted) setState(() => _isLoadingLocation = false);
     }
   }
 
   Future<void> _getAddressFromLatLng(LatLng position) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-
+      final placemarks = await placemarkFromCoordinates(
+          position.latitude, position.longitude);
       if (placemarks.isNotEmpty) {
         final place = placemarks[0];
-        List<String> addressParts = [];
-        if (place.subLocality != null && place.subLocality!.isNotEmpty) {
-          addressParts.add(place.subLocality!);
-        }
-        if (place.locality != null && place.locality!.isNotEmpty) {
-          addressParts.add(place.locality!);
-        }
-        if (place.administrativeArea != null &&
-            place.administrativeArea!.isNotEmpty) {
-          addressParts.add(place.administrativeArea!);
-        }
-
+        final parts = <String>[
+          if (place.subLocality?.isNotEmpty == true) place.subLocality!,
+          if (place.locality?.isNotEmpty == true) place.locality!,
+          if (place.administrativeArea?.isNotEmpty == true)
+            place.administrativeArea!,
+        ];
         setState(() {
-          _streetController.text = addressParts.join(', ');
-          _pincodeController.text = (place.postalCode ?? '').replaceAll(
-            RegExp(r'[^0-9]'),
-            '',
-          );
+          _streetController.text = parts.join(', ');
+          _pincodeController.text =
+              (place.postalCode ?? '').replaceAll(RegExp(r'[^0-9]'), '');
           _resolvedState = place.administrativeArea;
         });
       }
@@ -136,54 +120,43 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
     }
   }
 
-  String? _validatePincode(String? value) => Validators.pinCode(value);
+  String? _validatePincode(String? v) => Validators.pinCode(v);
 
-  String? _validateHouse(String? value) {
-    final err = Validators.required(value, fieldName: 'House/Flat No.');
+  String? _validateHouse(String? v) {
+    final err = Validators.required(v, fieldName: 'House/Flat No.');
     if (err != null) return err;
-    final trimmed = value!.trim();
-    if (trimmed.length > 30) return 'House/Flat No. is too long';
+    if (v!.trim().length > 30) return 'House/Flat No. is too long';
     return null;
   }
 
-  String? _validateStreet(String? value) {
-    final err = Validators.required(value, fieldName: 'Street/Area');
+  String? _validateStreet(String? v) {
+    final err = Validators.required(v, fieldName: 'Street/Area');
     if (err != null) return err;
-    final trimmed = value!.trim();
-    if (trimmed.length < 3) return 'Street/Area looks too short';
-    if (trimmed.length > 120) return 'Street/Area is too long';
+    final t = v!.trim();
+    if (t.length < 3) return 'Street/Area looks too short';
+    if (t.length > 120) return 'Street/Area is too long';
     return null;
   }
 
-  String? _validateLandmark(String? value) {
-    if (value == null || value.trim().isEmpty) return null;
-    if (value.trim().length > 80) return 'Landmark is too long';
+  String? _validateLandmark(String? v) {
+    if (v == null || v.trim().isEmpty) return null;
+    if (v.trim().length > 80) return 'Landmark is too long';
     return null;
   }
 
   Future<void> _saveAddress(bool isSaving) async {
-    if (isSaving) {
-      return;
-    }
-
+    if (isSaving) return;
     setState(() => _hasSubmitted = true);
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     final messenger = ScaffoldMessenger.of(context);
     final navigator = GoRouter.of(context);
-    final house = _houseController.text.trim();
-    final street = _streetController.text.trim();
-    final landmark = _landmarkController.text.trim();
-    final pincode = _pincodeController.text.trim();
-
     final newAddress = AddressModel(
       id: 0,
       title: _selectedAddressType,
-      addressLine1: '$house, $street',
-      addressLine2: landmark,
-      pincode: pincode,
+      addressLine1: '${_houseController.text.trim()}, ${_streetController.text.trim()}',
+      addressLine2: _landmarkController.text.trim(),
+      pincode: _pincodeController.text.trim(),
       cityId: 1,
       state: _resolvedState,
       isDefault: false,
@@ -191,12 +164,9 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
       longitude: _currentCenter?.longitude,
     );
 
-    final success = await ref
-        .read(addressProvider.notifier)
-        .addAddress(newAddress);
-    if (!mounted) {
-      return;
-    }
+    final success =
+        await ref.read(addressProvider.notifier).addAddress(newAddress);
+    if (!mounted) return;
     if (success) {
       navigator.pop();
       return;
@@ -208,33 +178,35 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final addressState = ref.watch(addressProvider);
     final isSaving = addressState is AsyncLoading;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF102213) : AppTheme.hairline,
+      backgroundColor: AppColor.backgroundLight,
       appBar: AppBar(
-        backgroundColor: isDark
-            ? const Color(0xFF1A331F).withValues(alpha: 0.95)
-            : AppTheme.hairline.withValues(alpha: 0.95),
-        elevation: 0,
+        backgroundColor: AppColor.primary,
         surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: isDark ? Colors.white : AppTheme.textPrimary, // slate-900
-            size: 28,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.16),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 18),
           ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'address_book.add.title'.tr(),
-          style: TextStyle(
-            color: isDark ? Colors.white : AppTheme.textPrimary,
+          style: const TextStyle(
+            color: Colors.white,
             fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w700,
           ),
         ),
         centerTitle: true,
@@ -247,30 +219,25 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
         child: Stack(
           children: [
             ListView(
-              padding: const EdgeInsets.only(
-                bottom: 100,
-              ), // space for sticky button
+              padding: const EdgeInsets.only(bottom: 100),
               children: [
-                // Map Section
+                // ── Map section ────────────────────────────────────────────
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          width: double.infinity,
+                      const _FieldLabel(label: 'Pin your location'),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColor.outline),
+                          boxShadow: AppTheme.e1,
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: SizedBox(
                           height: 200,
-                          decoration: BoxDecoration(
-                            color: isDark
-                                ? AppTheme.textPrimary
-                                : AppTheme.surfaceColor,
-                            border: Border.all(
-                              color: isDark
-                                  ? AppTheme.textPrimary
-                                  : AppTheme.outline,
-                            ),
-                          ),
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -282,53 +249,59 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                                 zoomControlsEnabled: false,
                                 compassEnabled: false,
                                 mapToolbarEnabled: false,
-                                onMapCreated: (GoogleMapController controller) {
-                                  _controller.complete(controller);
+                                onMapCreated: (GoogleMapController c) {
+                                  _controller.complete(c);
+                                  // Ignore the initial camera-move that fires
+                                  // during map load. Mark ready after a short
+                                  // delay so only user drags update the pin.
+                                  Future.delayed(
+                                    const Duration(milliseconds: 400),
+                                    () { if (mounted) setState(() => _isMapReady = true); },
+                                  );
                                 },
-                                onCameraMove: (CameraPosition position) {
-                                  _currentCenter = position.target;
+                                onCameraMove: (CameraPosition p) {
+                                  if (_isMapReady) {
+                                    _currentCenter = p.target;
+                                  }
                                 },
                                 onCameraIdle: () {
-                                  if (_currentCenter != null) {
+                                  if (_isMapReady && _currentCenter != null) {
                                     _getAddressFromLatLng(_currentCenter!);
                                   }
                                 },
                               ),
-                              // Always-centered Pin
+                              // Centre pin
                               IgnorePointer(
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Icon(
                                       Icons.location_on,
-                                      color: AppTheme.primaryColor,
+                                      color: AppColor.primary,
                                       size: 48,
                                     ),
                                     Container(
                                       width: 12,
                                       height: 6,
                                       decoration: BoxDecoration(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.2,
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                          100,
-                                        ),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.2),
+                                        borderRadius:
+                                            BorderRadius.circular(100),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              // My Location Button
+                              // My location button
                               Positioned(
                                 bottom: 12,
                                 right: 12,
                                 child: Material(
-                                  color: isDark
-                                      ? const Color(0xFF1A331F)
-                                      : AppTheme.surfaceColor,
+                                  color: AppColor.surface,
                                   shape: const CircleBorder(),
                                   elevation: 2,
+                                  shadowColor: AppColor.glassShadow,
                                   child: InkWell(
                                     onTap: _getCurrentLocation,
                                     customBorder: const CircleBorder(),
@@ -336,16 +309,17 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                                       padding: const EdgeInsets.all(10),
                                       child: _isLoadingLocation
                                           ? const SizedBox(
-                                              width: 24,
-                                              height: 24,
+                                              width: 22,
+                                              height: 22,
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
+                                                color: AppColor.primary,
                                               ),
                                             )
                                           : const Icon(
-                                              Icons.my_location,
-                                              color: AppTheme.primaryColor,
-                                              size: 24,
+                                              Icons.my_location_rounded,
+                                              color: AppColor.primary,
+                                              size: 22,
                                             ),
                                     ),
                                   ),
@@ -355,15 +329,13 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'address_book.add.map_hint'.tr(),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Drag the map to pin your exact location',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: isDark
-                              ? AppTheme.textMuted
-                              : AppTheme.textSecondary,
-                          fontSize: 14,
+                          color: AppColor.textMuted,
+                          fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -371,104 +343,124 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
                   ),
                 ),
 
-                // Form Fields
+                // ── White card form ────────────────────────────────────────
                 Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildTextField(
-                        context,
-                        label: 'address_book.add.house_no'.tr(),
-                        hintText: 'address_book.add.house_no_hint'.tr(),
-                        controller: _houseController,
-                        isDark: isDark,
-                        validator: _validateHouse,
-                      ),
-                      const SizedBox(height: 20),
-                      _buildTextField(
-                        context,
-                        label: 'address_book.add.street'.tr(),
-                        hintText: 'address_book.add.street_hint'.tr(),
-                        controller: _streetController,
-                        isDark: isDark,
-                        validator: _validateStreet,
-                      ),
-                      const SizedBox(height: 20),
-                      _buildTextField(
-                        context,
-                        label: 'Pincode'.tr(),
-                        hintText: 'Enter 6-digit pincode'.tr(),
-                        controller: _pincodeController,
-                        isDark: isDark,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(6),
-                        ],
-                        validator: _validatePincode,
-                      ),
-                      const SizedBox(height: 20),
-                      _buildTextField(
-                        context,
-                        label: 'address_book.add.landmark'.tr(),
-                        hintText: 'address_book.add.landmark_hint'.tr(),
-                        controller: _landmarkController,
-                        isOptional: true,
-                        isDark: isDark,
-                        validator: _validateLandmark,
-                      ),
-                      const SizedBox(height: 24),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColor.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border:
+                          Border.all(color: AppColor.cardBorder),
+                      boxShadow: AppTheme.e1,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildField(
+                          label: 'address_book.add.house_no'.tr(),
+                          hint: 'address_book.add.house_no_hint'.tr(),
+                          controller: _houseController,
+                          icon: Icons.home_rounded,
+                          validator: _validateHouse,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildField(
+                          label: 'address_book.add.street'.tr(),
+                          hint: 'address_book.add.street_hint'.tr(),
+                          controller: _streetController,
+                          icon: Icons.location_city_rounded,
+                          validator: _validateStreet,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildField(
+                          label: 'Pincode',
+                          hint: 'Enter 6-digit pincode',
+                          controller: _pincodeController,
+                          icon: Icons.pin_drop_rounded,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(6),
+                          ],
+                          validator: _validatePincode,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildField(
+                          label: 'address_book.add.landmark'.tr(),
+                          hint: 'address_book.add.landmark_hint'.tr(),
+                          controller: _landmarkController,
+                          icon: Icons.place_rounded,
+                          isOptional: true,
+                          validator: _validateLandmark,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
-                      // Address Type Row
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            'address_book.add.save_as'.tr(),
-                            style: TextStyle(
-                              color: isDark
-                                  ? Colors.white
-                                  : AppTheme.textPrimary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                // ── Address type ───────────────────────────────────────────
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColor.surface,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColor.cardBorder),
+                      boxShadow: AppTheme.e1,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'address_book.add.save_as'.tr(),
+                          style: const TextStyle(
+                            color: AppColor.textPrimary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            _AddressTypeChip(
+                              value: 'home',
+                              label: 'address_book.home'.tr(),
+                              icon: Icons.home_rounded,
+                              selected: _selectedAddressType == 'home',
+                              onTap: () => setState(
+                                  () => _selectedAddressType = 'home'),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        children: [
-                          _buildAddressTypeChip(
-                            value: 'home',
-                            label: 'address_book.home'.tr(),
-                            icon: Icons.home,
-                            isDark: isDark,
-                          ),
-                          _buildAddressTypeChip(
-                            value: 'work',
-                            label: 'address_book.work'.tr(),
-                            icon: Icons.work,
-                            isDark: isDark,
-                          ),
-                          _buildAddressTypeChip(
-                            value: 'other',
-                            label: 'edit_profile.other'.tr(),
-                            icon: Icons.location_on,
-                            isDark: isDark,
-                          ),
-                        ],
-                      ),
-                    ],
+                            _AddressTypeChip(
+                              value: 'work',
+                              label: 'address_book.work'.tr(),
+                              icon: Icons.work_rounded,
+                              selected: _selectedAddressType == 'work',
+                              onTap: () => setState(
+                                  () => _selectedAddressType = 'work'),
+                            ),
+                            _AddressTypeChip(
+                              value: 'other',
+                              label: 'edit_profile.other'.tr(),
+                              icon: Icons.location_on_rounded,
+                              selected: _selectedAddressType == 'other',
+                              onTap: () => setState(
+                                  () => _selectedAddressType = 'other'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
 
-            // Sticky Footer Button
+            // ── Sticky save button ─────────────────────────────────────────
             Positioned(
               bottom: 0,
               left: 0,
@@ -476,26 +468,29 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
               child: Container(
                 padding: EdgeInsets.fromLTRB(
                   16,
+                  12,
                   16,
-                  16,
-                  MediaQuery.of(context).padding.bottom + 16,
+                  MediaQuery.of(context).padding.bottom + 12,
                 ),
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1A331F) : AppTheme.hairline,
-                  border: Border(
-                    top: BorderSide(
-                      color: isDark
-                          ? AppTheme.textPrimary
-                          : AppTheme.hairline,
-                    ),
+                  color: AppColor.backgroundLight,
+                  border: const Border(
+                    top: BorderSide(color: AppColor.hairline),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColor.deepNavy.withValues(alpha: 0.06),
+                      blurRadius: 12,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
                 ),
                 child: CustomButton(
                   onPressed: () => _saveAddress(isSaving),
                   isLoading: isSaving,
                   text: 'address_book.add.save_btn'.tr(),
-                  borderRadius: 12,
-                  fontSize: 18,
+                  borderRadius: 14,
+                  fontSize: 16,
                 ),
               ),
             ),
@@ -505,13 +500,12 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
     );
   }
 
-  Widget _buildTextField(
-    BuildContext context, {
+  Widget _buildField({
     required String label,
-    required String hintText,
-    TextEditingController? controller,
+    required String hint,
+    required TextEditingController controller,
+    required IconData icon,
     bool isOptional = false,
-    required bool isDark,
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
     String? Function(String?)? validator,
@@ -519,73 +513,78 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                color: isDark ? Colors.white : AppTheme.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+        Row(children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColor.textPrimary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
             ),
-            if (isOptional)
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: Text(
-                  'address_book.add.optional'.tr(),
-                  style: TextStyle(
-                    color: AppTheme.textMuted,
-                    fontSize: 14,
-                  ),
+          ),
+          if (isOptional) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColor.hairline,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Text(
+                'optional',
+                style: TextStyle(
+                  color: AppColor.textMuted,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
+            ),
           ],
-        ),
+        ]),
         const SizedBox(height: 6),
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
-          style: TextStyle(
-            color: isDark ? Colors.white : AppTheme.textPrimary,
-            fontSize: 18,
+          style: const TextStyle(
+            color: AppColor.textPrimary,
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
           ),
           decoration: InputDecoration(
-            hintText: hintText,
-            hintStyle: TextStyle(
-              color: isDark
-                  ? AppTheme.textMuted
-                  : AppTheme.textMuted, // slate-400
+            hintText: hint,
+            hintStyle: const TextStyle(
+              color: AppColor.textMuted,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
             ),
+            prefixIcon: Icon(icon, color: AppColor.primary, size: 20),
             filled: true,
-            fillColor: isDark
-                ? AppTheme.textPrimary.withValues(alpha: 0.8)
-                : AppTheme.surfaceColor, // swapped for light mode
+            fillColor: AppColor.backgroundLight,
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
+                horizontal: 14, vertical: 14),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+              borderSide: const BorderSide(color: AppColor.outline),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: isDark
-                    ? const Color(0xFF334155)
-                    : AppTheme.outline, // ring slate-700/200
-              ),
+              borderSide: const BorderSide(color: AppColor.outline),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppTheme.primaryColor, // primary
-                width: 2,
-              ),
+              borderSide:
+                  const BorderSide(color: AppColor.primary, width: 1.6),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColor.error),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide:
+                  const BorderSide(color: AppColor.error, width: 1.6),
             ),
           ),
           validator: validator,
@@ -593,38 +592,59 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
       ],
     );
   }
+}
 
-  Widget _buildAddressTypeChip({
-    required String value,
-    required String label,
-    required IconData icon,
-    required bool isDark,
-  }) {
-    final isSelected = _selectedAddressType == value;
+// ── Helpers ────────────────────────────────────────────────────────────────
 
+class _FieldLabel extends StatelessWidget {
+  final String label;
+  const _FieldLabel({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      label,
+      style: const TextStyle(
+        color: AppColor.textPrimary,
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+  }
+}
+
+class _AddressTypeChip extends StatelessWidget {
+  final String value;
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _AddressTypeChip({
+    required this.value,
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedAddressType = value;
-        });
-      },
+      onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryColor.withValues(alpha: 0.2) // primary/20
-              : (isDark
-                    ? const Color(0xFF1A331F)
-                    : Colors.white), // surface-dark or white
-          borderRadius: BorderRadius.circular(100),
+          color: selected
+              ? AppColor.primarySurface
+              : AppColor.backgroundLight,
+          borderRadius: BorderRadius.circular(999),
           border: Border.all(
-            color: isSelected
-                ? AppTheme
-                      .primaryColor // primary
-                : (isDark
-                      ? const Color(0xFF334155)
-                      : AppTheme.outline), // slate-700 or slate-200
+            color: selected ? AppColor.primary : AppColor.outline,
+            width: selected ? 1.5 : 1,
           ),
         ),
         child: Row(
@@ -632,26 +652,19 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
           children: [
             Icon(
               icon,
-              size: 20,
-              color: isSelected
-                  ? const Color(0xFF0EB524) // primary-dark
-                  : (isDark
-                        ? AppTheme.textMuted
-                        : AppTheme.textSecondary), // slate-400/500
+              size: 18,
+              color: selected ? AppColor.primary : AppColor.textSecondary,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 7),
             Text(
               label,
               style: TextStyle(
-                color: isSelected
-                    ? (isDark
-                          ? Colors.white
-                          : AppTheme.textPrimary) // text primary active
-                    : (isDark
-                          ? AppTheme.outline
-                          : AppTheme.textSecondary), // slate-200/600 default
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+                color: selected
+                    ? AppColor.primaryDark
+                    : AppColor.textSecondary,
+                fontSize: 14,
+                fontWeight:
+                    selected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ],

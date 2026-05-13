@@ -191,14 +191,24 @@ class PickupImageModel {
   final int id;
   final String imagePath;
   final String? url;
+  final double? latitude;
+  final double? longitude;
 
-  PickupImageModel({required this.id, required this.imagePath, this.url});
+  PickupImageModel({
+    required this.id,
+    required this.imagePath,
+    this.url,
+    this.latitude,
+    this.longitude,
+  });
 
   factory PickupImageModel.fromJson(Map<String, dynamic> json) {
     return PickupImageModel(
       id: PickupRequestModel._parseInt(json['id']) ?? 0,
       imagePath: json['image_path']?.toString() ?? '',
       url: json['url']?.toString(),
+      latitude: PickupRequestModel._parseDouble(json['latitude']),
+      longitude: PickupRequestModel._parseDouble(json['longitude']),
     );
   }
 }

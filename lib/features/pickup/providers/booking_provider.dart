@@ -21,6 +21,7 @@ class BookingState {
   final ValidateCouponResponseModel? appliedCoupon;
   // categoryImages: categoryId → list of photos for that category
   final Map<int, List<XFile>> categoryImages;
+  final Map<String, Map<String, double>> imageGeoByPath;
   final bool isSubmitting;
   final String? error;
 
@@ -35,6 +36,7 @@ class BookingState {
     this.appliedCouponCode,
     this.appliedCoupon,
     this.categoryImages = const {},
+    this.imageGeoByPath = const {},
     this.isSubmitting = false,
     this.error,
   });
@@ -54,6 +56,7 @@ class BookingState {
     String? appliedCouponCode,
     ValidateCouponResponseModel? appliedCoupon,
     Map<int, List<XFile>>? categoryImages,
+    Map<String, Map<String, double>>? imageGeoByPath,
     bool? isSubmitting,
     String? error,
     bool clearCoupon = false,
@@ -72,6 +75,7 @@ class BookingState {
           : (appliedCouponCode ?? this.appliedCouponCode),
       appliedCoupon: clearCoupon ? null : (appliedCoupon ?? this.appliedCoupon),
       categoryImages: categoryImages ?? this.categoryImages,
+      imageGeoByPath: imageGeoByPath ?? this.imageGeoByPath,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       error: error,
     );
@@ -97,6 +101,7 @@ class BookingNotifier extends Notifier<BookingState> {
       appliedCouponCode: null,
       appliedCoupon: null,
       categoryImages: const {},
+      imageGeoByPath: const {},
     );
   }
 
@@ -108,6 +113,7 @@ class BookingNotifier extends Notifier<BookingState> {
       appliedCouponCode: null,
       appliedCoupon: null,
       categoryImages: const {},
+      imageGeoByPath: const {},
     );
   }
 
@@ -153,18 +159,35 @@ class BookingNotifier extends Notifier<BookingState> {
     state = state.copyWith(clearCoupon: true);
   }
 
-  void addCategoryImage(int categoryId, XFile image) {
+  void addCategoryImage(
+    int categoryId,
+    XFile image, {
+    double? latitude,
+    double? longitude,
+  }) {
     final updated = Map<int, List<XFile>>.from(state.categoryImages);
     updated[categoryId] = [...(updated[categoryId] ?? []), image];
-    state = state.copyWith(categoryImages: updated);
+    final updatedGeo = Map<String, Map<String, double>>.from(
+      state.imageGeoByPath,
+    );
+    if (latitude != null && longitude != null) {
+      updatedGeo[image.path] = {'latitude': latitude, 'longitude': longitude};
+    }
+    state = state.copyWith(categoryImages: updated, imageGeoByPath: updatedGeo);
   }
 
   void removeCategoryImage(int categoryId, int imageIndex) {
     final updated = Map<int, List<XFile>>.from(state.categoryImages);
     final list = List<XFile>.from(updated[categoryId] ?? []);
-    list.removeAt(imageIndex);
+    final removed = imageIndex < list.length ? list.removeAt(imageIndex) : null;
     updated[categoryId] = list;
-    state = state.copyWith(categoryImages: updated);
+    final updatedGeo = Map<String, Map<String, double>>.from(
+      state.imageGeoByPath,
+    );
+    if (removed != null) {
+      updatedGeo.remove(removed.path);
+    }
+    state = state.copyWith(categoryImages: updated, imageGeoByPath: updatedGeo);
   }
 
   // Legacy helpers kept for non-category flows
@@ -237,6 +260,15 @@ class BookingNotifier extends Notifier<BookingState> {
         'coupon_code': state.appliedCouponCode,
         'items': itemsList,
         'images': state.images,
+        'proof_images': _buildProofImagesPayload(state.images),
+        'image_locations': _buildImageLocationsPayload(
+          state.images,
+          state.imageGeoByPath,
+        ),
+        'proof_image_locations': _buildProofImageLocationsPayload(
+          state.images,
+          state.imageGeoByPath,
+        ),
       };
 
       AppLogger.info('Booking Submission Data: $data');
@@ -346,6 +378,55 @@ class BookingNotifier extends Notifier<BookingState> {
   void reset() {
     state = BookingState();
   }
+}
+
+Map<String, XFile> _buildProofImagesPayload(List<XFile> images) {
+  if (images.isEmpty) {
+    return {};
+  }
+  XFile pickAt(int index) => images[index < images.length ? index : 0];
+  return {
+    'front': pickAt(0),
+    'back': pickAt(1),
+    'left': pickAt(2),
+    'right': pickAt(3),
+  };
+}
+
+List<Map<String, double>> _buildImageLocationsPayload(
+  List<XFile> images,
+  Map<String, Map<String, double>> imageGeoByPath,
+) {
+  return images.map((image) {
+    final geo = imageGeoByPath[image.path];
+    if (geo == null) {
+      return <String, double>{};
+    }
+    return {
+      if (geo['latitude'] != null) 'latitude': geo['latitude']!,
+      if (geo['longitude'] != null) 'longitude': geo['longitude']!,
+    };
+  }).toList();
+}
+
+Map<String, Map<String, double>> _buildProofImageLocationsPayload(
+  List<XFile> images,
+  Map<String, Map<String, double>> imageGeoByPath,
+) {
+  if (images.isEmpty) {
+    return {};
+  }
+  XFile pickAt(int index) => images[index < images.length ? index : 0];
+  final front = imageGeoByPath[pickAt(0).path];
+  final back = imageGeoByPath[pickAt(1).path];
+  final left = imageGeoByPath[pickAt(2).path];
+  final right = imageGeoByPath[pickAt(3).path];
+  return {
+    if (front != null) 'front': front,
+    if (back != null) 'back': back,
+    if (left != null) 'left': left,
+    if (right != null) 'right': right,
+  };
 }
 
 final bookingProvider = NotifierProvider<BookingNotifier, BookingState>(() {

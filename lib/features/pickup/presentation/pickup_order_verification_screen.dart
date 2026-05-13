@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/theme/app_color.dart';
 
 class PickupOrderVerificationScreen extends StatefulWidget {
   const PickupOrderVerificationScreen({super.key});
@@ -42,7 +44,15 @@ class _PickupOrderVerificationScreenState
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -58,7 +68,7 @@ class _PickupOrderVerificationScreenState
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.grey),
-            onPressed: () {},
+            onPressed: () => context.push(AppRoutes.notifications),
           ),
         ],
       ),

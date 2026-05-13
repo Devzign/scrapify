@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -12,6 +11,7 @@ import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../domain/models/basket_item.dart';
 import '../providers/donation_provider.dart';
+import '../../../core/theme/app_color.dart';
 
 class DonationItemsScreen extends ConsumerStatefulWidget {
   const DonationItemsScreen({super.key});
@@ -56,9 +56,14 @@ class _DonationItemsScreenState extends ConsumerState<DonationItemsScreen> {
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppTheme.textPrimary,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),

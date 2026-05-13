@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
@@ -32,16 +35,14 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
 
     final textTheme = Theme.of(context).textTheme;
     return AppScaffold(
-      appBar: AppBar(
-        title: Text(
-          context.locale.languageCode == 'hi'
-              ? 'notifications.title_hi'.tr()
-              : 'notifications.title'.tr(),
-          style: textTheme.headlineMedium,
+      backgroundColor: AppColor.backgroundLight,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(0),
+        child: AppBar(
+          backgroundColor: const Color(0xFF1A5C35),
+          elevation: 0,
+          systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
-        backgroundColor: AppTheme.backgroundLight,
-        elevation: 0,
-        toolbarHeight: 80,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: notificationState.when(
@@ -85,7 +86,98 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         loading: () => null,
         error: (_, __) => null,
       ),
-      body: notificationState.when(
+      body: Column(
+        children: [
+          // ── Green gradient header ─────────────────────────────────────
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF1A5C35), AppColor.primary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Top row: back button + bell icon ─────────────────
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        GestureDetector(
+                          onTap: () => context.pop(),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.16),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.30),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.16),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.30),
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.notifications_outlined,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // ── Title + subtitle ──────────────────────────────────
+                    const SizedBox(height: 16),
+                    Text(
+                      context.locale.languageCode == 'hi'
+                          ? 'notifications.title_hi'.tr()
+                          : 'notifications.title'.tr(),
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: -0.5,
+                        height: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      context.locale.languageCode == 'hi'
+                          ? 'अपडेट और अलर्ट'
+                          : 'Updates & alerts',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.80),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // ── Notification list ─────────────────────────────────────────
+          Expanded(
+            child: notificationState.when(
         data: (notifications) {
           final notifier = ref.read(notificationProvider.notifier);
           if (notifications.isEmpty) {
@@ -152,6 +244,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         loading: () => const NotificationListLoadingSkeleton(),
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -202,8 +297,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade400,
+                          decoration: const BoxDecoration(
+                            color: AppColor.primary,
                             shape: BoxShape.circle,
                           ),
                         ),

@@ -8,6 +8,7 @@ import '../../../core/utils/validators.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../providers/payment_provider.dart';
 import '../domain/models/payment_method_model.dart';
+import '../../../core/theme/app_color.dart';
 
 class AddEditPaymentScreen extends ConsumerStatefulWidget {
   final PaymentMethodModel? paymentMethod;
@@ -172,9 +173,14 @@ class _AddEditPaymentScreenState extends ConsumerState<AddEditPaymentScreen> {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: isDark ? Colors.white : AppTheme.textPrimary,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),

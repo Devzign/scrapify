@@ -24,8 +24,7 @@ class AuthRepository {
       data: {'referral_code': code.trim().toUpperCase()},
     );
     if (response.isSuccess) {
-      final referrerName =
-          response.data?['data']?['referrer_name']?.toString();
+      final referrerName = response.data?['data']?['referrer_name']?.toString();
       return ApiResponse.success(referrerName);
     }
     return ApiResponse.error(response.errorMessage ?? 'Invalid referral code');
@@ -36,6 +35,7 @@ class AuthRepository {
     required String phone,
     required String role,
     String? name,
+    String? email,
     String? referralCode,
   }) async {
     final body = <String, dynamic>{
@@ -43,6 +43,8 @@ class AuthRepository {
       'role': ApiRoleMapper.toApiRole(role),
       if (role == 'customer' && name != null && name.trim().isNotEmpty)
         'name': name.trim(),
+      if (role == 'customer' && email != null && email.trim().isNotEmpty)
+        'email': email.trim().toLowerCase(),
     };
     if (role == 'customer' &&
         referralCode != null &&
@@ -63,6 +65,60 @@ class AuthRepository {
     } else {
       return ApiResponse.error(response.errorMessage ?? 'Failed to send OTP');
     }
+  }
+
+  Future<ApiResponse<String>> sendRegistrationOtp({
+    required String phone,
+    required String name,
+    required String email,
+    String? referralCode,
+    double? latitude,
+    double? longitude,
+    String? locationName,
+  }) async {
+    final body = <String, dynamic>{
+      'phone': phone,
+      'name': name.trim(),
+      'email': email.trim().toLowerCase(),
+      if (referralCode != null && referralCode.trim().isNotEmpty)
+        'referral_code': referralCode.trim().toUpperCase(),
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (locationName != null && locationName.trim().isNotEmpty)
+        'location_name': locationName.trim(),
+    };
+    final response = await _apiClient.post(
+      ApiEndpoints.authRegisterSendOtp,
+      data: body,
+    );
+    if (!response.isSuccess) {
+      return ApiResponse.error(response.errorMessage ?? 'Failed to send OTP');
+    }
+    final otp = response.data?['data']?['otp']?.toString() ?? 'OTP Sent';
+    return ApiResponse.success(otp);
+  }
+
+  Future<ApiResponse<String>> sendLoginOtp({
+    required String phone,
+    double? latitude,
+    double? longitude,
+    String? locationName,
+  }) async {
+    final response = await _apiClient.post(
+      ApiEndpoints.authLoginSendOtp,
+      data: {
+        'phone': phone,
+        if (latitude != null) 'latitude': latitude,
+        if (longitude != null) 'longitude': longitude,
+        if (locationName != null && locationName.trim().isNotEmpty)
+          'location_name': locationName.trim(),
+      },
+    );
+    if (!response.isSuccess) {
+      return ApiResponse.error(response.errorMessage ?? 'Failed to send OTP');
+    }
+    final otp = response.data?['data']?['otp']?.toString() ?? 'OTP Sent';
+    return ApiResponse.success(otp);
   }
 
   Future<ApiResponse<List<UserTypeOption>>> fetchUserTypes() async {
@@ -132,6 +188,79 @@ class AuthRepository {
       }
     } else {
       return ApiResponse.error(response.errorMessage ?? 'Invalid OTP');
+    }
+  }
+
+  Future<ApiResponse<User>> verifyRegistrationOtp({
+    required String phone,
+    required String otp,
+    String? referralCode,
+    double? latitude,
+    double? longitude,
+    String? locationName,
+  }) async {
+    return _verifyOtpByEndpoint(
+      endpoint: ApiEndpoints.authRegisterVerifyOtp,
+      phone: phone,
+      otp: otp,
+      referralCode: referralCode,
+      latitude: latitude,
+      longitude: longitude,
+      locationName: locationName,
+    );
+  }
+
+  Future<ApiResponse<User>> verifyLoginOtp({
+    required String phone,
+    required String otp,
+    double? latitude,
+    double? longitude,
+    String? locationName,
+  }) async {
+    return _verifyOtpByEndpoint(
+      endpoint: ApiEndpoints.authLoginVerifyOtp,
+      phone: phone,
+      otp: otp,
+      latitude: latitude,
+      longitude: longitude,
+      locationName: locationName,
+    );
+  }
+
+  Future<ApiResponse<User>> _verifyOtpByEndpoint({
+    required String endpoint,
+    required String phone,
+    required String otp,
+    String? referralCode,
+    double? latitude,
+    double? longitude,
+    String? locationName,
+  }) async {
+    final body = <String, dynamic>{
+      'phone': phone,
+      'otp': otp,
+      'device_name': kIsWeb ? 'Web' : Platform.operatingSystem,
+      if (referralCode != null && referralCode.trim().isNotEmpty)
+        'referral_code': referralCode.trim().toUpperCase(),
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (locationName != null && locationName.trim().isNotEmpty)
+        'location_name': locationName.trim(),
+    };
+    final response = await _apiClient.post(endpoint, data: body);
+    if (!response.isSuccess) {
+      return ApiResponse.error(response.errorMessage ?? 'Invalid OTP');
+    }
+    try {
+      final data = response.data['data'];
+      final token = data['token'] as String;
+      final user = User.fromJson(data['user']);
+      _lastReferralApplied = data['referral_applied'] == true;
+      await _saveSession(token, user);
+      await _preferences.setHasSeenOnboarding(true);
+      return ApiResponse.success(user);
+    } catch (_) {
+      return ApiResponse.error('Failed to parse user data');
     }
   }
 

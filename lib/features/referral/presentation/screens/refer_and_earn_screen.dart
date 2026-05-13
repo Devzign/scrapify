@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import '../../../../core/theme/app_color.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/user_role_helper.dart';
 import '../../../../core/widgets/app_scaffold.dart';
@@ -43,7 +44,15 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
         appBar: AppBar(
           title: Text('refer.title'.tr()),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppColor.primarySurface,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+              ),
+              child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+            ),
             onPressed: () => context.pop(),
           ),
         ),
@@ -54,18 +63,40 @@ class _ReferAndEarnScreenState extends ConsumerState<ReferAndEarnScreen> {
     }
 
     return AppScaffold(
+      backgroundColor: AppColor.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF1A5C35),
         elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1A5C35), AppColor.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textPrimary),
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.16),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded,
+                color: Colors.white, size: 18),
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'refer.title',
-          style: TextStyle(
-            color: AppTheme.textPrimary,
-            fontWeight: FontWeight.w800,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+            fontSize: 18,
+            letterSpacing: -0.2,
           ),
         ).tr(),
       ),

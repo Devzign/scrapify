@@ -9,9 +9,15 @@ import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../../core/services/location_service.dart';
 import '../domain/models/basket_item.dart';
 import '../providers/basket_provider.dart';
 import '../providers/booking_provider.dart';
+import '../../../core/theme/app_color.dart';
+
+// Labels for each of the 4 required proof shots
+const _proofLabels = ['Front', 'Back', 'Left', 'Right'];
+const _proofLabelsHi = ['सामने', 'पीछे', 'बायां', 'दायां'];
 
 class UploadPhotoScreen extends ConsumerStatefulWidget {
   const UploadPhotoScreen({super.key});
@@ -22,13 +28,21 @@ class UploadPhotoScreen extends ConsumerStatefulWidget {
 
 class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
   final ImagePicker _picker = ImagePicker();
+  final LocationService _locationService = LocationService();
 
-  Future<void> _pickImage(int categoryId) async {
+  /// Pick image for [categoryId] at proof-slot [slotIndex].
+  Future<void> _pickImage(int categoryId, int slotIndex) async {
     final source = await _showSourceDialog();
     if (source == null) return;
     final XFile? image = await _picker.pickImage(source: source);
     if (image != null) {
-      ref.read(bookingProvider.notifier).addCategoryImage(categoryId, image);
+      final position = await _locationService.getCurrentPosition();
+      ref.read(bookingProvider.notifier).addCategoryImage(
+            categoryId,
+            image,
+            latitude: position?.latitude,
+            longitude: position?.longitude,
+          );
     }
   }
 
@@ -107,7 +121,7 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
     final basketItems = ref.watch(basketProvider);
     final isHindi = context.locale.languageCode == 'hi';
 
-    // Every category must have at least 1 photo
+    // Continue is enabled when every category has at least 1 photo
     final allCovered =
         basketItems.isNotEmpty &&
         basketItems.every(
@@ -120,9 +134,14 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
       backgroundColor: AppTheme.backgroundLight,
       appBar: AppBar(
         leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppTheme.textPrimary,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColor.primarySurface,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
           onPressed: () => context.pop(),
         ),
@@ -136,7 +155,7 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () {},
+            onPressed: () => context.push(AppRoutes.helpSupport),
             child: Text(
               'common.help'.tr(),
               style: const TextStyle(
@@ -172,41 +191,9 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                 height: 1.2,
               ),
             ),
-            const SizedBox(height: 20),
-
-            // Hint banner
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.hintPeach,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  const FaIcon(
-                    FontAwesomeIcons.circleExclamation,
-                    color: AppTheme.warningColor,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      isHindi
-                          ? 'प्रत्येक श्रेणी के लिए कम से कम 1 फोटो आवश्यक है।'
-                          : 'At least 1 photo required per category for accurate pricing.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppTheme.warningColor.withValues(alpha: 0.85),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 24),
 
-            // Per-category upload cards
+            // Per-category sequential upload cards
             if (basketItems.isEmpty)
               Center(
                 child: Text(
@@ -219,7 +206,9 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                 (item) => _CategoryPhotoCard(
                   item: item,
                   images: bookingState.categoryImages[item.category.id] ?? [],
-                  onAddPhoto: () => _pickImage(item.category.id),
+                  isHindi: isHindi,
+                  onAddPhoto: (slotIndex) =>
+                      _pickImage(item.category.id, slotIndex),
                   onRemovePhoto: (idx) => ref
                       .read(bookingProvider.notifier)
                       .removeCategoryImage(item.category.id, idx),
@@ -264,18 +253,10 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
                     spacing: 8,
                     runSpacing: 8,
                     children: [
+                      _tipChip(FontAwesomeIcons.sun, 'upload.good_lighting'.tr()),
                       _tipChip(
-                        FontAwesomeIcons.sun,
-                        'upload.good_lighting'.tr(),
-                      ),
-                      _tipChip(
-                        FontAwesomeIcons.layerGroup,
-                        'upload.separate_items'.tr(),
-                      ),
-                      _tipChip(
-                        FontAwesomeIcons.eyeSlash,
-                        'upload.no_blur'.tr(),
-                      ),
+                          FontAwesomeIcons.layerGroup, 'upload.separate_items'.tr()),
+                      _tipChip(FontAwesomeIcons.eyeSlash, 'upload.no_blur'.tr()),
                     ],
                   ),
                 ],
@@ -325,26 +306,29 @@ class _UploadPhotoScreenState extends ConsumerState<UploadPhotoScreen> {
   }
 }
 
+// ── Per-category card with sequential Front→Back→Left→Right slots ──────────
+
 class _CategoryPhotoCard extends StatelessWidget {
   final BasketItem item;
   final List<XFile> images;
-  final VoidCallback onAddPhoto;
+  final bool isHindi;
+  final void Function(int slotIndex) onAddPhoto;
   final void Function(int index) onRemovePhoto;
 
   const _CategoryPhotoCard({
     required this.item,
     required this.images,
+    required this.isHindi,
     required this.onAddPhoto,
     required this.onRemovePhoto,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isHindi = context.locale.languageCode == 'hi';
-    final hasPhoto = images.isNotEmpty;
-    final categoryName = isHindi
-        ? item.category.name.hi
-        : item.category.name.en;
+    final filled = images.length.clamp(0, 4);
+    final allDone = filled >= 4;
+    final categoryName =
+        isHindi ? item.category.name.hi : item.category.name.en;
     final subName = item.subCategoryName;
 
     return Container(
@@ -354,17 +338,17 @@ class _CategoryPhotoCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: AppTheme.cardBorderRadius,
         border: Border.all(
-          color: hasPhoto
+          color: allDone
               ? AppTheme.primaryColor.withValues(alpha: 0.4)
               : Colors.grey.shade200,
-          width: hasPhoto ? 2 : 1,
+          width: allDone ? 2 : 1,
         ),
         boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header row
+          // ── Header ──────────────────────────────────────────────────────
           Row(
             children: [
               Container(
@@ -409,26 +393,24 @@ class _CategoryPhotoCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Required / Done badge
+              // Progress badge e.g. "2 / 4"
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: hasPhoto
+                  color: allDone
                       ? AppTheme.successColor
                       : AppTheme.hintPeach,
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
-                  hasPhoto
+                  allDone
                       ? (isHindi ? 'हो गया ✓' : 'Done ✓')
-                      : (isHindi ? 'आवश्यक' : 'Required'),
+                      : '$filled / 4',
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: FontWeight.w800,
-                    color: hasPhoto
+                    color: allDone
                         ? AppTheme.primaryDark
                         : AppTheme.warningColor,
                   ),
@@ -438,145 +420,43 @@ class _CategoryPhotoCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // Photos row (horizontal scroll) or empty placeholder
-          if (hasPhoto) ...[
-            SizedBox(
-              height: 110,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: images.length + 1, // +1 for add button
-                separatorBuilder: (_, __) => const SizedBox(width: 10),
-                itemBuilder: (ctx, i) {
-                  if (i == images.length) {
-                    // Add more photos button
-                    return GestureDetector(
-                      onTap: onAddPhoto,
-                      child: Container(
-                        width: 110,
-                        height: 110,
-                        decoration: BoxDecoration(
-                          color: AppTheme.backgroundCream,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                            style: BorderStyle.solid,
-                          ),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add_a_photo_rounded,
-                              color: AppTheme.primaryColor.withValues(
-                                alpha: 0.7,
-                              ),
-                              size: 24,
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              isHindi ? 'और जोड़ें' : 'Add More',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.primaryColor.withValues(
-                                  alpha: 0.8,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
-                  return Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.file(
-                          File(images[i].path),
-                          width: 110,
-                          height: 110,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Positioned(
-                        right: -2,
-                        top: -2,
-                        child: GestureDetector(
-                          onTap: () => onRemovePhoto(i),
-                          child: Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.close_rounded,
-                              color: Colors.white,
-                              size: 14,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+          // ── 4-slot grid ─────────────────────────────────────────────────
+          // Slot 0 = Front, 1 = Back, 2 = Left, 3 = Right
+          // Filled slots show the photo. Active slot = first unfilled (tappable).
+          // Future slots are greyed/locked.
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 4,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 1.0,
             ),
-          ] else ...[
-            // Empty placeholder — tap to add
-            GestureDetector(
-              onTap: onAddPhoto,
-              child: Container(
-                width: double.infinity,
-                height: 130,
-                decoration: BoxDecoration(
-                  color: AppTheme.backgroundCream,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.grey.shade300,
-                    style: BorderStyle.solid,
-                  ),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: AppTheme.cardBorder,
-                        boxShadow: AppTheme.cardShadow,
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt_rounded,
-                        color: AppTheme.primaryColor,
-                        size: 26,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      isHindi ? 'फोटो जोड़ें' : 'Add Photo',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      isHindi ? 'कैमरा या गैलरी से' : 'Camera or gallery',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+            itemBuilder: (ctx, i) {
+              final label =
+                  isHindi ? _proofLabelsHi[i] : _proofLabels[i];
+              if (i < filled) {
+                // Filled slot — show photo + label + remove button
+                return _FilledSlot(
+                  image: images[i],
+                  label: label,
+                  onRemove: () => onRemovePhoto(i),
+                );
+              } else if (i == filled) {
+                // Active slot — tap to add
+                return _ActiveSlot(
+                  label: label,
+                  isHindi: isHindi,
+                  onTap: () => onAddPhoto(i),
+                );
+              } else {
+                // Locked slot
+                return _LockedSlot(label: label);
+              }
+            },
+          ),
         ],
       ),
     );
@@ -606,5 +486,188 @@ class _CategoryPhotoCard extends StatelessWidget {
       default:
         return Icons.inventory_2_rounded;
     }
+  }
+}
+
+// ── Slot widgets ────────────────────────────────────────────────────────────
+
+class _FilledSlot extends StatelessWidget {
+  final XFile image;
+  final String label;
+  final VoidCallback onRemove;
+
+  const _FilledSlot({
+    required this.image,
+    required this.label,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Image.file(
+            File(image.path),
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
+        ),
+        // Label at bottom
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(vertical: 5),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(14)),
+              color: Colors.black.withValues(alpha: 0.45),
+            ),
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
+        // ✓ badge top-left
+        Positioned(
+          top: 6,
+          left: 6,
+          child: Container(
+            padding: const EdgeInsets.all(3),
+            decoration: const BoxDecoration(
+              color: AppTheme.primaryColor,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check_rounded,
+                color: Colors.white, size: 10),
+          ),
+        ),
+        // Remove button top-right
+        Positioned(
+          top: 4,
+          right: 4,
+          child: GestureDetector(
+            onTap: onRemove,
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close_rounded,
+                  color: Colors.white, size: 12),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActiveSlot extends StatelessWidget {
+  final String label;
+  final bool isHindi;
+  final VoidCallback onTap;
+
+  const _ActiveSlot({
+    required this.label,
+    required this.isHindi,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.primaryLight.withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: AppTheme.primaryColor.withValues(alpha: 0.5),
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: AppTheme.cardShadow,
+              ),
+              child: const Icon(
+                Icons.camera_alt_rounded,
+                color: AppTheme.primaryColor,
+                size: 22,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              isHindi ? '$label फोटो जोड़ें' : 'Add $label',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.primaryColor,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              isHindi ? 'कैमरा या गैलरी' : 'Camera or gallery',
+              style: TextStyle(
+                fontSize: 10,
+                color: Colors.grey.shade500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LockedSlot extends StatelessWidget {
+  final String label;
+
+  const _LockedSlot({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.lock_outline_rounded,
+              color: Colors.grey.shade300, size: 22),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade400,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

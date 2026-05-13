@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 
 class PickupDetailsScreen extends StatelessWidget {
@@ -9,35 +11,55 @@ class PickupDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: AppColor.backgroundLight,
       appBar: AppBar(
+        backgroundColor: const Color(0xFF1A5C35),
+        elevation: 0,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1A5C35), AppColor.primary],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         leading: IconButton(
-          icon: const FaIcon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppTheme.textPrimary,
-            size: 20,
+          icon: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.16),
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
+            ),
+            child: const Icon(Icons.arrow_back_rounded,
+                color: Colors.white, size: 18),
           ),
           onPressed: () => context.pop(),
         ),
-        title: Column(
-          children: const [
+        title: const Column(
+          children: [
             Text(
               'Pickup #4092',
               style: TextStyle(
-                color: AppTheme.textPrimary,
-                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
                 fontSize: 16,
+                letterSpacing: -0.2,
               ),
             ),
             Text(
               'पिकअप #4092',
-              style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ],
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),

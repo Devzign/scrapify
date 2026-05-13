@@ -74,29 +74,39 @@ class AppColor {
   static const Color successTint = Color(0xFFDFF1E6);
 
   // ---------------------------------------------------------------------------
-  // BACKGROUNDS — warm cream (the eye-strain fix)
+  // BACKGROUNDS — pale mint green (matches the scrapi5.com website palette)
   // ---------------------------------------------------------------------------
-  /// Main app background — a calm warm cream. Easier on eyes than the
-  /// old pale-green wash, and lets sage greens "pop" properly.
-  static const Color backgroundLight = Color(0xFFF5F1E8);
+  /// Main app background — a crisp pale mint that mirrors the scrapi5.com
+  /// website palette exactly. Slightly more saturated than before for a
+  /// cleaner, more eye-catching backdrop against white cards.
+  static const Color backgroundLight = Color(0xFFD4EDCA);
 
-  /// Lighter cream variant — used for section backgrounds and large illustrations.
+  /// Lighter cream variant — used inside cards for image backdrops and
+  /// section panels (kept warm so product photography reads naturally).
   static const Color backgroundCream = Color(0xFFFBF8F1);
 
-  /// Onboarding gets a slightly cooler cream so the bright illustrations sing.
-  static const Color onboardingBackground = Color(0xFFF3EFE6);
+  /// Warm cream backdrop behind product images on category/sub-category
+  /// cards — slightly more saturated than `backgroundCream` so it stands
+  /// out cleanly against the white card body and the mint page background.
+  static const Color imageBg = Color(0xFFF5EFE0);
 
-  /// Card / modal surface — pure white on the cream gives proper contrast.
+  /// Onboarding shares the website's pale-mint hero so the very first screen
+  /// already feels consistent with the rest of the app.
+  static const Color onboardingBackground = Color(0xFFE5F2E0);
+
+  /// Card / modal surface — pure white. Reads cleanly on the new pale-mint
+  /// background and matches the website's white product cards.
   static const Color surface = Color(0xFFFFFFFF);
 
-  /// A faint card border — visible on cream but invisible on white.
-  static const Color cardBorder = Color(0xFFE5DFD2);
+  /// Card border — slightly stronger so white cards clearly pop against the
+  /// mint background. Maintains a clean, modern look without being harsh.
+  static const Color cardBorder = Color(0xFFD6DDD2);
 
   /// Used for very subtle dividers within cards.
-  static const Color hairline = Color(0xFFEDE7D9);
+  static const Color hairline = Color(0xFFE9EEE6);
 
   /// Soft outline used on outlined buttons / chips.
-  static const Color outline = Color(0xFFD8D2C2);
+  static const Color outline = Color(0xFFCFD7CB);
 
   // ---------------------------------------------------------------------------
   // GLASS / DEPTH (kept for back-compat with screens that use these tokens)

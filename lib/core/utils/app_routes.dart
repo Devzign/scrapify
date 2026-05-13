@@ -149,6 +149,9 @@ class AppRoutes {
         }
 
         if (isPublic) {
+          // Allow the role-selection screen even when logged in — the user may
+          // be intentionally switching roles (e.g. after logout or fresh open).
+          if (path == role) return null;
           return _homeForRole(roleValue);
         }
 

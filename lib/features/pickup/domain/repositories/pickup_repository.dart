@@ -53,6 +53,14 @@ class PickupRepository {
     final Map<String, dynamic> payload = Map<String, dynamic>.from(data);
     final List<XFile> images =
         (payload.remove('images') as List<dynamic>? ?? []).cast<XFile>();
+    final Map<String, dynamic> proofImages = Map<String, dynamic>.from(
+      payload.remove('proof_images') as Map<String, dynamic>? ?? {},
+    );
+    final List<dynamic> imageLocations =
+        payload.remove('image_locations') as List<dynamic>? ?? [];
+    final Map<String, dynamic> proofImageLocations = Map<String, dynamic>.from(
+      payload.remove('proof_image_locations') as Map<String, dynamic>? ?? {},
+    );
     final List<dynamic> items = payload.remove('items') as List<dynamic>? ?? [];
 
     final formData = FormData();
@@ -77,6 +85,16 @@ class PickupRepository {
       payload['donation_category'],
     );
     _addFieldIfPresent(formData, 'notes', payload['notes']);
+    _addFieldIfPresent(formData, 'company_name', payload['company_name']);
+    _addFieldIfPresent(formData, 'contact_name', payload['contact_name']);
+    _addFieldIfPresent(formData, 'contact_mobile', payload['contact_mobile']);
+    _addFieldIfPresent(formData, 'contact_email', payload['contact_email']);
+    _addFieldIfPresent(
+      formData,
+      'corporate_category',
+      payload['corporate_category'],
+    );
+    _addFieldIfPresent(formData, 'meeting_type', payload['meeting_type']);
 
     for (var itemIndex = 0; itemIndex < items.length; itemIndex++) {
       final item = Map<String, dynamic>.from(items[itemIndex] as Map);
@@ -141,6 +159,48 @@ class PickupRepository {
       }
 
       formData.files.add(MapEntry('images[]', multipart));
+
+      if (i < imageLocations.length) {
+        final location = imageLocations[i];
+        if (location is Map) {
+          final lat = location['latitude'];
+          final lng = location['longitude'];
+          _addFieldIfPresent(formData, 'image_locations[$i][latitude]', lat);
+          _addFieldIfPresent(formData, 'image_locations[$i][longitude]', lng);
+        }
+      }
+    }
+
+    for (final entry in proofImages.entries) {
+      final label = entry.key.trim().toLowerCase();
+      final rawFile = entry.value;
+      if (label.isEmpty || rawFile is! XFile) {
+        continue;
+      }
+      final imageFile = File(rawFile.path);
+      final exists = await imageFile.exists();
+      if (!exists) {
+        continue;
+      }
+      final multipart = await MultipartFile.fromFile(
+        rawFile.path,
+        filename: rawFile.name,
+      );
+      formData.files.add(MapEntry('proof_images[$label]', multipart));
+
+      final geo = proofImageLocations[label];
+      if (geo is Map) {
+        _addFieldIfPresent(
+          formData,
+          'proof_image_locations[$label][latitude]',
+          geo['latitude'],
+        );
+        _addFieldIfPresent(
+          formData,
+          'proof_image_locations[$label][longitude]',
+          geo['longitude'],
+        );
+      }
     }
 
     AppLogger.info(
@@ -302,7 +362,7 @@ class PickupRepository {
             final isAvailable = available is bool
                 ? available
                 : (available?.toString().toLowerCase() != 'false' &&
-                    available?.toString() != '0');
+                      available?.toString() != '0');
             if (!isAvailable) {
               continue;
             }
