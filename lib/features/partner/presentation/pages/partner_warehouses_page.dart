@@ -24,15 +24,6 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppTheme.primaryColor,
-        child: const Icon(
-          Icons.add_business_rounded,
-          color: Colors.white,
-          size: 28,
-        ),
-      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -76,7 +67,6 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
                               ),
                             _buildHeader(state.warehouses.length),
                             _buildWarehouseList(state.warehouses),
-                            _buildQuickActions(),
                           ],
                         ),
                       ),
@@ -624,92 +614,4 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
     );
   }
 
-  Widget _buildQuickActions() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.partnerText('Quick Actions', 'क्विक एक्शन'),
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildQuickActionCard(
-                  icon: Icons.add_business_rounded,
-                  label: context.partnerText('Add Hub', 'हब जोड़ें'),
-                  color: AppTheme.textPrimary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildQuickActionCard(
-                  icon: Icons.local_shipping_rounded,
-                  label: context.partnerText(
-                    'Assign Agent',
-                    'एजेंट असाइन करें',
-                  ),
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildQuickActionCard(
-                  icon: Icons.view_in_ar_rounded,
-                  label: context.partnerText('Audit', 'ऑडिट'),
-                  color: AppColor.info,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickActionCard({
-    required IconData icon,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: AppColor.brandNavy,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

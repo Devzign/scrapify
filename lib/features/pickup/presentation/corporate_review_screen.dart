@@ -9,8 +9,6 @@ import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
 import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/custom_button.dart';
-import '../../auth/providers/auth_provider.dart';
-import '../../settings/providers/settings_provider.dart';
 import '../domain/repositories/pickup_repository.dart';
 import '../providers/corporate_provider.dart';
 import '../../../core/theme/app_color.dart';
@@ -34,9 +32,15 @@ class CorporateReviewScreen extends ConsumerWidget {
             decoration: BoxDecoration(
               color: AppColor.primarySurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+              border: Border.all(
+                color: AppColor.primary.withValues(alpha: 0.20),
+              ),
             ),
-            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+            child: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppColor.primary,
+              size: 18,
+            ),
           ),
           onPressed: () => context.pop(),
         ),
@@ -86,6 +90,30 @@ class CorporateReviewScreen extends ConsumerWidget {
                   ? '${booking.selectedAddress!.title} - ${booking.selectedAddress!.addressLine1}'
                   : '-',
             ),
+            const SizedBox(height: 10),
+            _row(
+              isHindi ? 'कंपनी का नाम' : 'Company name',
+              booking.companyName,
+            ),
+            const SizedBox(height: 10),
+            _row(isHindi ? 'संपर्क नाम' : 'Contact name', booking.contactName),
+            const SizedBox(height: 10),
+            _row(
+              isHindi ? 'मोबाइल नंबर' : 'Mobile number',
+              booking.contactMobile,
+            ),
+            const SizedBox(height: 10),
+            _row(isHindi ? 'ईमेल' : 'Email', booking.contactEmail),
+            const SizedBox(height: 10),
+            _row(
+              isHindi ? 'कॉर्पोरेट श्रेणी' : 'Corporate category',
+              booking.corporateCategory,
+            ),
+            const SizedBox(height: 10),
+            _row(
+              isHindi ? 'मीटिंग प्रकार' : 'Meeting type',
+              booking.meetingType.replaceAll('_', ' '),
+            ),
             const Spacer(),
             CustomButton(
               onPressed: booking.isReadyToSubmit
@@ -114,27 +142,21 @@ class CorporateReviewScreen extends ConsumerWidget {
 
   Future<void> _submit(BuildContext context, WidgetRef ref) async {
     final booking = ref.read(corporateBookingProvider);
-    final user = ref.read(authProvider);
-    final settings = ref.read(settingsProvider).settings;
-    final corporateCategories =
-        (settings['corporate_categories'] as List<dynamic>?)
-            ?.map((e) => e.toString().trim())
-            .where((e) => e.isNotEmpty)
-            .toList() ??
-        const [
-          'E-Waste',
-          'General Waste',
-          'Hazardous Waste (Industrial Waste)',
-        ];
-    final meetingTypes =
-        (settings['corporate_meeting_types'] as List<dynamic>?)
-            ?.map((e) => e.toString().trim().toLowerCase())
-            .where((e) => e.isNotEmpty)
-            .toList() ??
-        const ['in_person', 'google_meet', 'skype'];
     if (!booking.isReadyToSubmit) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please complete all required fields')),
+      );
+      return;
+    }
+    if (booking.contactMobile.trim().length < 10) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid mobile number')),
+      );
+      return;
+    }
+    if (!booking.contactEmail.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email')),
       );
       return;
     }
@@ -150,7 +172,7 @@ class CorporateReviewScreen extends ConsumerWidget {
           (item) => {
             'category_id': item.category.id,
             // Keep both for backend compatibility across donation/scrap-style parsers.
-            'quantity': item.unit == 'pcs' ? item.quantity.round() : 1,
+            'quantity': item.unit == 'kg' ? 1 : item.quantity.round(),
             'weight': item.unit == 'kg' ? item.quantity : null,
             'attributes': <Map<String, dynamic>>[],
           },
@@ -170,12 +192,14 @@ class CorporateReviewScreen extends ConsumerWidget {
       'notes': booking.notes?.isNotEmpty == true
           ? booking.notes!
           : 'Corporate quotation request from mobile app',
-      'company_name': user?.name ?? 'N/A',
-      'contact_name': user?.name ?? 'N/A',
-      'contact_mobile': user?.phone ?? '0000000000',
-      'contact_email': user?.email ?? 'na@example.com',
-      'corporate_category': corporateCategories.first,
-      'meeting_type': meetingTypes.first,
+      'company_name': booking.companyName.trim(),
+      'contact_name': booking.contactName.trim(),
+      'contact_mobile': booking.contactMobile.trim(),
+      'contact_email': booking.contactEmail.trim(),
+      'corporate_category': booking.corporateCategory.trim(),
+      'meeting_type': booking.meetingType.trim(),
+      if ((booking.gstNumber ?? '').trim().isNotEmpty)
+        'gst_number': booking.gstNumber!.trim(),
       'items': items,
       'images': booking.images,
     };

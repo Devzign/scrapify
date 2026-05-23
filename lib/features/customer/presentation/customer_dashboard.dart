@@ -599,12 +599,12 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                 },
               ),
               const SizedBox(height: 16),
-
+              _buildCorporateCard(context),
+              const SizedBox(height: 16),
               if (appSettings.features.donationEnabled) ...[
                 _buildDonationCard(context),
                 const SizedBox(height: 16),
               ],
-              _buildCorporateCard(context),
               const SizedBox(height: 16),
               Text(
                 'dashboard.active_request'.tr(),
@@ -910,57 +910,58 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
   Widget _buildOrdersTab() {
     final pickupsAsync = ref.watch(pickupsProvider);
 
-    return RefreshIndicator(
-      onRefresh: () => ref.refresh(pickupsProvider.future),
-      child: pickupsAsync.when(
-        data: (pickups) {
-          final filtered = pickups.where(_matchesOrdersTypeTab).toList();
-          if (filtered.isEmpty) {
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(24),
-              children: [
-                _buildOrdersTypeTabs(),
-                const SizedBox(height: 18),
-                _buildEmptyOrdersCard(
-                  title: context.locale.languageCode == 'hi'
-                      ? 'कोई ऑर्डर नहीं मिला'
-                      : 'No orders found',
-                  subtitle: context.locale.languageCode == 'hi'
-                      ? 'चुने गए टैब में अभी कोई ऑर्डर नहीं है'
-                      : 'No orders available in selected tab',
-                ),
-              ],
-            );
-          }
-
-          return ListView.separated(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 140),
-            itemCount: filtered.length + 1,
-            separatorBuilder: (_, __) => const SizedBox(height: 14),
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return _buildOrdersTypeTabs();
-              }
-              return _buildOrderHistoryCard(context, filtered[index - 1]);
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(24),
-          children: [
-            _buildOrdersTypeTabs(),
-            const SizedBox(height: 18),
-            _buildEmptyOrdersCard(
-              title: 'Failed to load orders',
-              subtitle: error.toString(),
-            ),
-          ],
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          child: _buildOrdersTypeTabs(),
         ),
-      ),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () => ref.refresh(pickupsProvider.future),
+            child: pickupsAsync.when(
+              data: (pickups) {
+                final filtered = pickups.where(_matchesOrdersTypeTab).toList();
+                if (filtered.isEmpty) {
+                  return ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      _buildEmptyOrdersCard(
+                        title: context.locale.languageCode == 'hi'
+                            ? 'कोई ऑर्डर नहीं मिला'
+                            : 'No orders found',
+                        subtitle: context.locale.languageCode == 'hi'
+                            ? 'चुने गए टैब में अभी कोई ऑर्डर नहीं है'
+                            : 'No orders available in selected tab',
+                      ),
+                    ],
+                  );
+                }
+                return ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 140),
+                  itemCount: filtered.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 14),
+                  itemBuilder: (context, index) =>
+                      _buildOrderHistoryCard(context, filtered[index]),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stack) => ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(24),
+                children: [
+                  _buildEmptyOrdersCard(
+                    title: 'Failed to load orders',
+                    subtitle: error.toString(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

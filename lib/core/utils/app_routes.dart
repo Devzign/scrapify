@@ -54,6 +54,7 @@ import '../../features/pickup/presentation/agent_reschedule_request_screen.dart'
 import '../../features/pickup/presentation/user_reschedule_pickup_screen.dart';
 import '../../features/pickup/presentation/corporate_category_screen.dart';
 import '../../features/pickup/presentation/corporate_schedule_screen.dart';
+import '../../features/pickup/presentation/corporate_details_screen.dart';
 import '../../features/pickup/presentation/corporate_review_screen.dart';
 import '../../features/referral/presentation/screens/refer_and_earn_screen.dart';
 import '../../features/help_support/presentation/help_support_screen.dart';
@@ -87,7 +88,8 @@ class AppRoutes {
   static const String partnerOperations = '/dashboard/partner/operations';
   static const String partnerCustomers = '/dashboard/partner/customers';
   static const String partnerCreatePickup = '/dashboard/partner/create-pickup';
-  static const String partnerPickupTracking = '/dashboard/partner/pickup-tracking';
+  static const String partnerPickupTracking =
+      '/dashboard/partner/pickup-tracking';
   static const String partnerHandover = '/dashboard/partner/handover';
   static const String partnerSettlements = '/dashboard/partner/settlements';
   static const String partnerProfile = '/dashboard/partner/profile';
@@ -107,6 +109,7 @@ class AppRoutes {
   static const String pickupBoyDetail = '/pickup-boy/pickups';
   static const String corporateCategory = '/corporate/category';
   static const String corporateSchedule = '/corporate/schedule';
+  static const String corporateDetails = '/corporate/details';
   static const String corporateReview = '/corporate/review';
   static const String referAndEarn = '/refer-and-earn';
   static const String helpSupport = '/help-support';
@@ -237,6 +240,10 @@ class AppRoutes {
         GoRoute(
           path: corporateSchedule,
           builder: (context, state) => const CorporateScheduleScreen(),
+        ),
+        GoRoute(
+          path: corporateDetails,
+          builder: (context, state) => const CorporateDetailsScreen(),
         ),
         GoRoute(
           path: corporateReview,

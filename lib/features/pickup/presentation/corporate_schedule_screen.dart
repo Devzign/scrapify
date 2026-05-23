@@ -3,16 +3,15 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../profile/providers/address_provider.dart';
 import '../providers/corporate_provider.dart';
-import '../../../core/theme/app_color.dart';
 
 class CorporateScheduleScreen extends ConsumerStatefulWidget {
   const CorporateScheduleScreen({super.key});
@@ -24,17 +23,15 @@ class CorporateScheduleScreen extends ConsumerStatefulWidget {
 
 class _CorporateScheduleScreenState
     extends ConsumerState<CorporateScheduleScreen> {
-  final List<String> _timeSlots = [
+  final List<String> _timeSlots = const [
     '10:00 AM - 01:00 PM',
     '02:00 PM - 05:00 PM',
   ];
-  late final TextEditingController _notesController;
   final _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    _notesController = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final booking = ref.read(corporateBookingProvider);
       if (booking.selectedDate == null) {
@@ -45,18 +42,13 @@ class _CorporateScheduleScreenState
     });
   }
 
-  @override
-  void dispose() {
-    _notesController.dispose();
-    super.dispose();
-  }
-
   List<String> _availableSlots(DateTime? date) {
     if (date == null) return _timeSlots;
     final now = DateTime.now();
     final isToday =
         date.year == now.year && date.month == now.month && date.day == now.day;
     if (!isToday) return _timeSlots;
+
     return _timeSlots.where((slot) {
       final end = slot.split(' - ').last.trim();
       final parts = end.split(' ');
@@ -75,7 +67,7 @@ class _CorporateScheduleScreenState
     final slots = _availableSlots(booking.selectedDate);
 
     return Scaffold(
-      backgroundColor: AppTheme.backgroundLight,
+      backgroundColor: const Color(0xFFF5FAF3),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -86,9 +78,15 @@ class _CorporateScheduleScreenState
             decoration: BoxDecoration(
               color: AppColor.primarySurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+              border: Border.all(
+                color: AppColor.primary.withValues(alpha: 0.20),
+              ),
             ),
-            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+            child: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppColor.primary,
+              size: 18,
+            ),
           ),
           onPressed: () => context.pop(),
         ),
@@ -109,15 +107,10 @@ class _CorporateScheduleScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Items summary
                   _buildItemsSummary(booking, isHindi),
                   const SizedBox(height: 24),
-                  // Address
-                  _buildSectionTitle(
-                    isHindi ? 'पता चुनें' : 'Select Address',
-                    context,
-                  ),
-                  const SizedBox(height: 12),
+                  _title(isHindi ? 'पता चुनें' : 'Select Address'),
+                  const SizedBox(height: 10),
                   addressesAsync.when(
                     data: (addresses) => addresses.isEmpty
                         ? TextButton.icon(
@@ -127,7 +120,7 @@ class _CorporateScheduleScreenState
                           )
                         : Column(
                             children: addresses.map((addr) {
-                              final sel =
+                              final selected =
                                   booking.selectedAddress?.id == addr.id;
                               return GestureDetector(
                                 onTap: () => ref
@@ -138,61 +131,35 @@ class _CorporateScheduleScreenState
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: AppTheme.cardBorderRadius,
-                                    boxShadow: AppTheme.cardShadow,
+                                    borderRadius: BorderRadius.circular(14),
                                     border: Border.all(
-                                      color: sel
+                                      color: selected
                                           ? AppTheme.primaryColor
-                                          : Colors.transparent,
-                                      width: 2,
+                                          : AppTheme.outline,
+                                      width: selected ? 2 : 1,
                                     ),
                                   ),
                                   child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Container(
-                                        width: 22,
-                                        height: 22,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: sel
-                                                ? AppTheme.primaryColor
-                                                : AppTheme.outline,
-                                            width: sel ? 7 : 2,
-                                          ),
-                                        ),
+                                      Icon(
+                                        selected
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_off,
+                                        size: 20,
+                                        color: selected
+                                            ? AppTheme.primaryColor
+                                            : AppTheme.textMuted,
                                       ),
-                                      const SizedBox(width: 14),
+                                      const SizedBox(width: 10),
                                       Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              addr.title.toUpperCase(),
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w800,
-                                                color: AppTheme.primaryColor,
-                                                fontSize: 11,
-                                                letterSpacing: 1.1,
-                                              ),
-                                            ),
-                                            Text(
-                                              addr.addressLine1,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w700,
-                                                color: AppTheme.textPrimary,
-                                              ),
-                                            ),
-                                            Text(
-                                              '${addr.cityName}, ${addr.pincode}',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                color: AppTheme.textSecondary,
-                                              ),
-                                            ),
-                                          ],
+                                        child: Text(
+                                          '${addr.title} - ${addr.addressLine1}, ${addr.cityName}, ${addr.pincode}',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -205,21 +172,17 @@ class _CorporateScheduleScreenState
                         const Center(child: CircularProgressIndicator()),
                     error: (e, _) => Text('$e'),
                   ),
-                  const SizedBox(height: 24),
-                  // Date
-                  _buildSectionTitle(
-                    isHindi ? 'तारीख चुनें' : 'Select Date',
-                    context,
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 20),
+                  _title(isHindi ? 'तारीख चुनें' : 'Select Date'),
+                  const SizedBox(height: 10),
                   SizedBox(
-                    height: 100,
+                    height: 90,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: 7,
                       itemBuilder: (_, i) {
                         final date = DateTime.now().add(Duration(days: i));
-                        final sel =
+                        final selected =
                             booking.selectedDate?.year == date.year &&
                             booking.selectedDate?.month == date.month &&
                             booking.selectedDate?.day == date.day;
@@ -231,49 +194,32 @@ class _CorporateScheduleScreenState
                             width: 72,
                             margin: const EdgeInsets.only(right: 10),
                             decoration: BoxDecoration(
-                              gradient: sel ? AppTheme.primaryGradient : null,
-                              color: sel ? null : Colors.white,
-                              borderRadius: BorderRadius.circular(18),
-                              boxShadow: sel ? AppTheme.softShadow : null,
-                              border: Border.all(
-                                color: sel
-                                    ? Colors.transparent
-                                    : AppTheme.hairline,
-                              ),
+                              color: selected
+                                  ? AppTheme.primaryColor
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(color: AppTheme.outline),
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
-                                  DateFormat('MMM').format(date).toUpperCase(),
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w800,
-                                    color: sel
-                                        ? Colors.white.withValues(alpha: 0.9)
-                                        : AppTheme.textSecondary,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
                                   DateFormat('dd').format(date),
                                   style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w900,
-                                    color: sel
+                                    color: selected
                                         ? Colors.white
                                         : AppTheme.textPrimary,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 20,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
                                 Text(
-                                  DateFormat('EEE').format(date).toUpperCase(),
+                                  DateFormat('EEE').format(date),
                                   style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w800,
-                                    color: sel
-                                        ? Colors.white.withValues(alpha: 0.7)
+                                    color: selected
+                                        ? Colors.white70
                                         : AppTheme.textSecondary,
+                                    fontSize: 12,
                                   ),
                                 ),
                               ],
@@ -283,61 +229,44 @@ class _CorporateScheduleScreenState
                       },
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // Time
-                  _buildSectionTitle(
-                    isHindi ? 'समय चुनें' : 'Select Time',
-                    context,
-                  ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 20),
+                  _title(isHindi ? 'समय चुनें' : 'Select Time'),
+                  const SizedBox(height: 10),
                   ...slots.map((slot) {
-                    final sel = booking.selectedTimeSlot == slot;
+                    final selected = booking.selectedTimeSlot == slot;
                     return GestureDetector(
                       onTap: () => ref
                           .read(corporateBookingProvider.notifier)
                           .setTimeSlot(slot),
                       child: Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
-                        ),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: AppTheme.cardBorderRadius,
-                          boxShadow: AppTheme.cardShadow,
+                          borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: sel
+                            color: selected
                                 ? AppTheme.primaryColor
-                                : Colors.transparent,
-                            width: 2,
+                                : AppTheme.outline,
+                            width: selected ? 2 : 1,
                           ),
                         ),
                         child: Row(
                           children: [
-                            FaIcon(
-                              FontAwesomeIcons.clock,
-                              color: sel
-                                  ? AppTheme.primaryColor
-                                  : AppTheme.textMuted,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 16),
                             Expanded(
                               child: Text(
                                 slot,
                                 style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w800,
-                                  color: sel
+                                  fontWeight: FontWeight.w700,
+                                  color: selected
                                       ? AppTheme.primaryColor
                                       : AppTheme.textPrimary,
                                 ),
                               ),
                             ),
-                            if (sel)
-                              const FaIcon(
-                                FontAwesomeIcons.solidCircleCheck,
+                            if (selected)
+                              const Icon(
+                                Icons.check_circle,
                                 color: AppTheme.primaryColor,
                                 size: 20,
                               ),
@@ -346,227 +275,166 @@ class _CorporateScheduleScreenState
                       ),
                     );
                   }),
-                  const SizedBox(height: 24),
-                  // Notes
-                  _buildSectionTitle(
-                    isHindi ? 'नोट्स (वैकल्पिक)' : 'Notes (Optional)',
-                    context,
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: AppTheme.cardBorderRadius,
-                      border: AppTheme.cardBorder,
-                      boxShadow: AppTheme.cardShadow,
-                    ),
-                    child: TextField(
-                      controller: _notesController,
-                      maxLines: 3,
-                      maxLength: 500,
-                      onChanged: (v) => ref
-                          .read(corporateBookingProvider.notifier)
-                          .setNotes(v),
-                      decoration: InputDecoration(
-                        hintText: isHindi
-                            ? 'जैसे: 200 कंप्यूटर, टूटे फर्नीचर, आदि'
-                            : 'e.g. 200 computers, broken furniture, etc.',
-                        hintStyle: const TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 13,
+                  const SizedBox(height: 20),
+                  _title(isHindi ? 'फोटो (वैकल्पिक)' : 'Photos (Optional)'),
+                  const SizedBox(height: 10),
+                  if (booking.images.isEmpty)
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        height: 90,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTheme.outline),
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
-                        ),
-                        fillColor: Colors.white,
-                        filled: true,
-                        contentPadding: const EdgeInsets.all(16),
+                        child: const Icon(Icons.add_a_photo_outlined),
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 90,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: booking.images.length + 1,
+                        separatorBuilder: (_, __) => const SizedBox(width: 8),
+                        itemBuilder: (_, i) {
+                          if (i == booking.images.length) {
+                            return GestureDetector(
+                              onTap: _pickImage,
+                              child: Container(
+                                width: 90,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: AppTheme.outline),
+                                ),
+                                child: const Icon(Icons.add),
+                              ),
+                            );
+                          }
+                          return Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.file(
+                                  File(booking.images[i].path),
+                                  width: 90,
+                                  height: 90,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                right: 4,
+                                top: 4,
+                                child: GestureDetector(
+                                  onTap: () => ref
+                                      .read(corporateBookingProvider.notifier)
+                                      .removeImage(i),
+                                  child: const CircleAvatar(
+                                    radius: 10,
+                                    backgroundColor: Colors.red,
+                                    child: Icon(
+                                      Icons.close,
+                                      size: 12,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Photos
-                  _buildSectionTitle(
-                    isHindi
-                        ? 'फ़ोटो अपलोड करें (वैकल्पिक)'
-                        : 'Upload Photos (Optional)',
-                    context,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildPhotoSection(booking, isHindi),
                 ],
               ),
             ),
           ),
-          _buildBottomBar(context, booking, isHindi),
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, -10),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              child: SizedBox(
+                width: double.infinity,
+                child: CustomButton(
+                  onPressed:
+                      booking.items.isNotEmpty &&
+                          booking.selectedAddress != null &&
+                          booking.selectedDate != null &&
+                          booking.selectedTimeSlot != null
+                      ? () => context.push(AppRoutes.corporateDetails)
+                      : null,
+                  text: isHindi ? 'अगला: कंपनी विवरण' : 'NEXT: COMPANY DETAILS',
+                  minHeight: 56,
+                  borderRadius: 16,
+                ),
+              ),
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _title(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w800,
+        color: AppTheme.textPrimary,
       ),
     );
   }
 
   Widget _buildItemsSummary(CorporateBookingState booking, bool isHindi) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppTheme.primaryColor.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
+        color: AppTheme.primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: AppTheme.primaryColor.withValues(alpha: 0.15),
-          width: 1,
+          color: AppTheme.primaryColor.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const FaIcon(
-                FontAwesomeIcons.layerGroup,
-                color: AppTheme.primaryColor,
-                size: 14,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                isHindi
-                    ? '${booking.items.length} श्रेणी चुनी गई'
-                    : '${booking.items.length} categor${booking.items.length == 1 ? 'y' : 'ies'} selected',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 13,
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-            ],
+          Text(
+            isHindi
+                ? '${booking.items.length} श्रेणी चुनी गई'
+                : '${booking.items.length} category selected',
+            style: const TextStyle(
+              color: Color(0xFF1F7A45),
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
+            ),
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            children: booking.items.map((item) {
-              final name = isHindi
-                  ? item.category.name.hi
-                  : item.category.name.en;
-              return Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: AppTheme.cardBorderRadius,
-                  border: AppTheme.cardBorder,
-                  boxShadow: AppTheme.cardShadow,
-                ),
-                child: Text(
-                  '$name — ${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} ${item.unit}',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              );
-            }).toList(),
+          ...booking.items.map(
+                (item) => Text(
+              '${item.category.name.en} - ${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} ${item.unit}',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.textPrimary,
+              ),
+            ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPhotoSection(CorporateBookingState booking, bool isHindi) {
-    return Column(
-      children: [
-        if (booking.images.isNotEmpty)
-          SizedBox(
-            height: 90,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: booking.images.length + 1,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
-              itemBuilder: (_, i) {
-                if (i == booking.images.length) {
-                  return _AddPhotoTile(onTap: _pickImage, isHindi: isHindi);
-                }
-                return Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(
-                        File(booking.images[i].path),
-                        width: 90,
-                        height: 90,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          width: 90,
-                          height: 90,
-                          color: AppTheme.primarySurface,
-                          child: const Icon(
-                            Icons.image,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 4,
-                      right: 4,
-                      child: GestureDetector(
-                        onTap: () => ref
-                            .read(corporateBookingProvider.notifier)
-                            .removeImage(i),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 12,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          )
-        else
-          GestureDetector(
-            onTap: _pickImage,
-            child: Container(
-              width: double.infinity,
-              height: 100,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: AppTheme.cardBorderRadius,
-                border: Border.all(color: AppTheme.outline, width: 2),
-                boxShadow: AppTheme.cardShadow,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const FaIcon(
-                    FontAwesomeIcons.camera,
-                    color: AppTheme.textMuted,
-                    size: 24,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    isHindi ? 'फ़ोटो जोड़ें' : 'Add Photos',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppTheme.textMuted,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
     );
   }
 
@@ -596,75 +464,5 @@ class _CorporateScheduleScreenState
     if (image != null && mounted) {
       ref.read(corporateBookingProvider.notifier).addImage(image);
     }
-  }
-
-  Widget _buildSectionTitle(String title, BuildContext context) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: AppTheme.textPrimary,
-      ),
-    );
-  }
-
-  Widget _buildBottomBar(
-    BuildContext context,
-    CorporateBookingState booking,
-    bool isHindi,
-  ) {
-    final canProceed = booking.isReadyToSubmit;
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, -10),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: CustomButton(
-          onPressed: canProceed
-              ? () => context.push(AppRoutes.corporateReview)
-              : null,
-          text: isHindi ? 'समीक्षा करें' : 'REVIEW BOOKING',
-          minHeight: 60,
-          borderRadius: 20,
-        ),
-      ),
-    );
-  }
-}
-
-class _AddPhotoTile extends StatelessWidget {
-  final VoidCallback onTap;
-  final bool isHindi;
-  const _AddPhotoTile({required this.onTap, required this.isHindi});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 90,
-        height: 90,
-        decoration: BoxDecoration(
-          color: AppTheme.backgroundCream,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.outline, width: 2),
-        ),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FaIcon(FontAwesomeIcons.plus, color: AppTheme.textMuted, size: 18),
-          ],
-        ),
-      ),
-    );
   }
 }

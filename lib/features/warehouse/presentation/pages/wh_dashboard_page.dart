@@ -6,6 +6,8 @@ import '../../../../core/theme/app_color.dart';
 import '../../domain/models/warehouse_dashboard.dart';
 import '../../domain/models/warehouse_request.dart';
 import '../../providers/warehouse_provider.dart';
+import 'wh_request_detail_page.dart';
+import 'wh_requests_page.dart';
 
 class WhDashboardPage extends ConsumerStatefulWidget {
   const WhDashboardPage({super.key});
@@ -95,37 +97,20 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Icon(
-                Icons.warehouse_rounded,
-                color: AppTheme.primaryColor,
-                size: 24,
-              ),
-              const SizedBox(width: 10),
-              Text(
-                warehouseName ?? 'Scrapi5 Warehouse',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AppTheme.textPrimary,
-                  letterSpacing: -0.5,
-                ),
-              ),
-            ],
+          Icon(
+            Icons.warehouse_rounded,
+            color: AppTheme.primaryColor,
+            size: 24,
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColor.backgroundCream,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.notifications_none_rounded,
-              color: AppColor.textSecondary,
-              size: 22,
+          const SizedBox(width: 10),
+          Text(
+            warehouseName ?? 'Scrapi5 Warehouse',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+              color: AppTheme.textPrimary,
+              letterSpacing: -0.5,
             ),
           ),
         ],
@@ -549,13 +534,21 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                   ),
                 ],
               ),
-              Text(
-                context.locale.languageCode == 'hi' ? 'सभी देखें' : 'VIEW ALL',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.primaryColor,
-                  letterSpacing: 1,
+              GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const WhRequestsPage(),
+                  ),
+                ),
+                child: Text(
+                  context.locale.languageCode == 'hi' ? 'सभी देखें' : 'VIEW ALL',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.primaryColor,
+                    letterSpacing: 1,
+                  ),
                 ),
               ),
             ],
@@ -572,7 +565,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
               ),
             )
           else
-            ...requests.map((r) => _buildRequestCard(_requestItemFromModel(r))),
+            ...requests.map((r) => _buildRequestCard(_requestItemFromModel(r), r)),
         ],
       ),
     );
@@ -631,8 +624,15 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
     );
   }
 
-  Widget _buildRequestCard(_RequestItem r) {
-    return Container(
+  Widget _buildRequestCard(_RequestItem r, WarehouseRequest original) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => WhRequestDetailPage(request: original),
+        ),
+      ),
+      child: Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       alignment: Alignment.center,
@@ -703,6 +703,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
             ],
           ),
         ],
+      ),
       ),
     );
   }

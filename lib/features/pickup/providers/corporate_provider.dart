@@ -6,7 +6,7 @@ import '../domain/models/category.dart';
 class CorporateItem {
   final Category category;
   final double quantity;
-  final String unit; // 'kg' or 'pcs'
+  final String unit; // 'kg' or 'qns'
 
   CorporateItem({
     required this.category,
@@ -28,6 +28,13 @@ class CorporateBookingState {
   final AddressModel? selectedAddress;
   final DateTime? selectedDate;
   final String? selectedTimeSlot;
+  final String companyName;
+  final String contactName;
+  final String contactMobile;
+  final String contactEmail;
+  final String corporateCategory;
+  final String meetingType;
+  final String? gstNumber;
   final String? notes;
   final List<XFile> images;
   final bool isSubmitting;
@@ -38,6 +45,13 @@ class CorporateBookingState {
     this.selectedAddress,
     this.selectedDate,
     this.selectedTimeSlot,
+    this.companyName = '',
+    this.contactName = '',
+    this.contactMobile = '',
+    this.contactEmail = '',
+    this.corporateCategory = '',
+    this.meetingType = '',
+    this.gstNumber,
     this.notes,
     this.images = const [],
     this.isSubmitting = false,
@@ -49,6 +63,13 @@ class CorporateBookingState {
     AddressModel? selectedAddress,
     DateTime? selectedDate,
     String? selectedTimeSlot,
+    String? companyName,
+    String? contactName,
+    String? contactMobile,
+    String? contactEmail,
+    String? corporateCategory,
+    String? meetingType,
+    String? gstNumber,
     String? notes,
     List<XFile>? images,
     bool? isSubmitting,
@@ -60,6 +81,13 @@ class CorporateBookingState {
       selectedAddress: selectedAddress ?? this.selectedAddress,
       selectedDate: selectedDate ?? this.selectedDate,
       selectedTimeSlot: selectedTimeSlot ?? this.selectedTimeSlot,
+      companyName: companyName ?? this.companyName,
+      contactName: contactName ?? this.contactName,
+      contactMobile: contactMobile ?? this.contactMobile,
+      contactEmail: contactEmail ?? this.contactEmail,
+      corporateCategory: corporateCategory ?? this.corporateCategory,
+      meetingType: meetingType ?? this.meetingType,
+      gstNumber: gstNumber ?? this.gstNumber,
       notes: notes ?? this.notes,
       images: images ?? this.images,
       isSubmitting: isSubmitting ?? this.isSubmitting,
@@ -72,7 +100,13 @@ class CorporateBookingState {
       items.isNotEmpty &&
       selectedAddress != null &&
       selectedDate != null &&
-      selectedTimeSlot != null;
+      selectedTimeSlot != null &&
+      companyName.trim().isNotEmpty &&
+      contactName.trim().isNotEmpty &&
+      contactMobile.trim().isNotEmpty &&
+      contactEmail.trim().isNotEmpty &&
+      corporateCategory.trim().isNotEmpty &&
+      meetingType.trim().isNotEmpty;
 }
 
 class CorporateBookingNotifier extends Notifier<CorporateBookingState> {
@@ -82,15 +116,22 @@ class CorporateBookingNotifier extends Notifier<CorporateBookingState> {
   void reset() => state = CorporateBookingState();
 
   void setItem(Category category, double quantity, String unit) {
-    final existing = state.items.indexWhere((i) => i.category.id == category.id);
+    final existing = state.items.indexWhere(
+      (i) => i.category.id == category.id,
+    );
     if (quantity <= 0) {
       if (existing != -1) {
-        final updated = List<CorporateItem>.from(state.items)..removeAt(existing);
+        final updated = List<CorporateItem>.from(state.items)
+          ..removeAt(existing);
         state = state.copyWith(items: updated);
       }
       return;
     }
-    final item = CorporateItem(category: category, quantity: quantity, unit: unit);
+    final item = CorporateItem(
+      category: category,
+      quantity: quantity,
+      unit: unit,
+    );
     if (existing == -1) {
       state = state.copyWith(items: [...state.items, item]);
     } else {
@@ -111,7 +152,28 @@ class CorporateBookingNotifier extends Notifier<CorporateBookingState> {
 
   void setDate(DateTime date) => state = state.copyWith(selectedDate: date);
 
-  void setTimeSlot(String slot) => state = state.copyWith(selectedTimeSlot: slot);
+  void setTimeSlot(String slot) =>
+      state = state.copyWith(selectedTimeSlot: slot);
+
+  void setCompanyName(String value) =>
+      state = state.copyWith(companyName: value);
+
+  void setContactName(String value) =>
+      state = state.copyWith(contactName: value);
+
+  void setContactMobile(String value) =>
+      state = state.copyWith(contactMobile: value);
+
+  void setContactEmail(String value) =>
+      state = state.copyWith(contactEmail: value);
+
+  void setCorporateCategory(String value) =>
+      state = state.copyWith(corporateCategory: value);
+
+  void setMeetingType(String value) =>
+      state = state.copyWith(meetingType: value);
+
+  void setGstNumber(String value) => state = state.copyWith(gstNumber: value);
 
   void setNotes(String notes) => state = state.copyWith(notes: notes);
 
@@ -134,5 +196,5 @@ class CorporateBookingNotifier extends Notifier<CorporateBookingState> {
 
 final corporateBookingProvider =
     NotifierProvider<CorporateBookingNotifier, CorporateBookingState>(
-  CorporateBookingNotifier.new,
-);
+      CorporateBookingNotifier.new,
+    );

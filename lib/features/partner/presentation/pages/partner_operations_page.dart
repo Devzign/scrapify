@@ -17,38 +17,10 @@ class PartnerOperationsPage extends StatelessWidget {
         children: [
           _tile(
             context,
-            icon: Icons.people_alt_rounded,
-            title: 'Customer Management',
-            subtitle: 'List, add, edit and view customer details',
-            onTap: () => context.push(AppRoutes.partnerCustomers),
-          ),
-          _tile(
-            context,
             icon: Icons.add_box_rounded,
             title: 'Create Pickup Request',
             subtitle: 'Create request with item details, images and slot',
             onTap: () => context.push(AppRoutes.partnerCreatePickup),
-          ),
-          _tile(
-            context,
-            icon: Icons.route_rounded,
-            title: 'Pickup Tracking',
-            subtitle: 'Track timeline, status, assign and reassign pickup boys',
-            onTap: () => context.push(AppRoutes.partnerPickupTracking),
-          ),
-          _tile(
-            context,
-            icon: Icons.local_shipping_rounded,
-            title: 'Deliver to Warehouse',
-            subtitle: 'Submit final weight/amount with delivery proofs',
-            onTap: () => context.push(AppRoutes.partnerHandover),
-          ),
-          _tile(
-            context,
-            icon: Icons.currency_rupee_rounded,
-            title: 'Settlement & Payout',
-            subtitle: 'Track payable amount and payout status',
-            onTap: () => context.push(AppRoutes.partnerSettlements),
           ),
         ],
       ),
