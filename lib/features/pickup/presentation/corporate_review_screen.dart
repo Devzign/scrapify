@@ -67,7 +67,7 @@ class CorporateReviewScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             _row(
               isHindi ? 'चुनी गई श्रेणियां' : 'Selected categories',
-              '${booking.items.length}',
+              '${booking.corporateEntries.length}',
             ),
             const SizedBox(height: 10),
             _row(isHindi ? 'फोटो' : 'Photos', '${booking.images.length}'),
@@ -167,16 +167,18 @@ class CorporateReviewScreen extends ConsumerWidget {
       booking.selectedTimeSlot!,
     );
 
-    final items = booking.items
+    final corporateCategoryItems = booking.corporateEntries
         .map(
           (item) => {
-            'category_id': item.category.id,
-            // Keep both for backend compatibility across donation/scrap-style parsers.
-            'quantity': item.unit == 'kg' ? 1 : item.quantity.round(),
-            'weight': item.unit == 'kg' ? item.quantity : null,
-            'attributes': <Map<String, dynamic>>[],
+            'corporate_category': item.category,
+            'unit': item.unit,
+            'quantity': item.quantity,
           },
         )
+        .toList();
+    final corporateCategories = booking.corporateEntries
+        .map((e) => e.category)
+        .toSet()
         .toList();
 
     final data = <String, dynamic>{
@@ -196,11 +198,15 @@ class CorporateReviewScreen extends ConsumerWidget {
       'contact_name': booking.contactName.trim(),
       'contact_mobile': booking.contactMobile.trim(),
       'contact_email': booking.contactEmail.trim(),
-      'corporate_category': booking.corporateCategory.trim(),
+      'corporate_categories': corporateCategories,
+      'corporate_category_items': corporateCategoryItems,
+      'corporate_category': booking.corporateCategory.trim().isNotEmpty
+          ? booking.corporateCategory.trim()
+          : corporateCategories.first,
       'meeting_type': booking.meetingType.trim(),
       if ((booking.gstNumber ?? '').trim().isNotEmpty)
         'gst_number': booking.gstNumber!.trim(),
-      'items': items,
+      'items': const [],
       'images': booking.images,
     };
 

@@ -369,7 +369,7 @@ class _CorporateScheduleScreenState
                 width: double.infinity,
                 child: CustomButton(
                   onPressed:
-                      booking.items.isNotEmpty &&
+                      booking.corporateEntries.isNotEmpty &&
                           booking.selectedAddress != null &&
                           booking.selectedDate != null &&
                           booking.selectedTimeSlot != null
@@ -405,17 +405,15 @@ class _CorporateScheduleScreenState
       decoration: BoxDecoration(
         color: AppTheme.primaryColor.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppTheme.primaryColor.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             isHindi
-                ? '${booking.items.length} श्रेणी चुनी गई'
-                : '${booking.items.length} category selected',
+                ? '${booking.corporateEntries.length} श्रेणी चुनी गई'
+                : '${booking.corporateEntries.length} category selected',
             style: const TextStyle(
               color: Color(0xFF1F7A45),
               fontWeight: FontWeight.w800,
@@ -423,9 +421,9 @@ class _CorporateScheduleScreenState
             ),
           ),
           const SizedBox(height: 8),
-          ...booking.items.map(
-                (item) => Text(
-              '${item.category.name.en} - ${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} ${item.unit}',
+          ...booking.corporateEntries.map(
+            (item) => Text(
+              '${item.category} - ${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} ${item.unit}',
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,

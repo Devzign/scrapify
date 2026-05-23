@@ -142,7 +142,9 @@ class _CorporateDetailsScreenState
                 children: [
                   _buildField(
                     controller: _companyNameController,
-                    label: isHindi ? 'कंपनी का नाम *' : 'Company Name *',
+                    label: isHindi
+                        ? 'कंपनी का नाम (वैकल्पिक)'
+                        : 'Company Name (Optional)',
                     hint: isHindi
                         ? 'कंपनी का नाम दर्ज करें'
                         : 'Enter company name',

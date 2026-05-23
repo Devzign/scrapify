@@ -5,9 +5,9 @@ class ApiEndpoints {
 
   static String get googleMapsApiKey {
     if (Platform.isAndroid) {
-      return 'AIzaSyBxn1MmF7oFUFI4fgTYxhm1M9GB4YPQZwY';
+      return 'AIzaSyBc66d5mRq_tau0aKJQyZnSXtZY_tVuppY';
     } else if (Platform.isIOS) {
-      return 'AIzaSyBxn1MmF7oFUFI4fgTYxhm1M9GB4YPQZwY';
+      return 'AIzaSyBc66d5mRq_tau0aKJQyZnSXtZY_tVuppY';
     }
     return '';
   }

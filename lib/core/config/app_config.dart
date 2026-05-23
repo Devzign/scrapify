@@ -1,7 +1,5 @@
-/// Flavor enumeration
 enum AppFlavor { dev, staging, production }
 
-/// Global app configuration — initialized once at startup from the entry point.
 class AppConfig {
   static bool _initialized = false;
   static bool get isInitialized => _initialized;
@@ -31,11 +29,9 @@ class AppConfig {
         AppFlavor.production => 'Scrapify',
       },
       baseUrl: switch (flavor) {
-        AppFlavor.dev => 'http://127.0.0.1:8000/api',
-        AppFlavor.staging =>
-          'https://floralwhite-spoonbill-935004.hostingersite.com/api',
-        AppFlavor.production =>
-          'https://scrapi5.com/api',
+        AppFlavor.dev => 'https://dev.scrapi5.com',
+        AppFlavor.staging => 'https://dev.scrapi5.com',
+        AppFlavor.production => 'https://scrapi5.com/api',
       },
     );
     _initialized = true;

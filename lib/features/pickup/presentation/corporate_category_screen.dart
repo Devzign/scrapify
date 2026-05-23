@@ -8,8 +8,6 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../settings/providers/settings_provider.dart';
-import '../domain/models/category.dart';
-import '../providers/category_provider.dart';
 import '../providers/corporate_provider.dart';
 
 class CorporateCategoryScreen extends ConsumerStatefulWidget {
@@ -23,6 +21,7 @@ class CorporateCategoryScreen extends ConsumerStatefulWidget {
 class _CorporateCategoryScreenState
     extends ConsumerState<CorporateCategoryScreen> {
   String _selectedUnit = 'kg';
+  String? _selectedCorporateCategory;
   late final TextEditingController _qtyController;
 
   @override
@@ -41,7 +40,6 @@ class _CorporateCategoryScreenState
   @override
   Widget build(BuildContext context) {
     final isHindi = context.locale.languageCode == 'hi';
-    final categoriesAsync = ref.watch(categoriesProvider);
     final booking = ref.watch(corporateBookingProvider);
     final settings = ref.watch(settingsProvider).settings;
     final corporateCategories =
@@ -54,11 +52,14 @@ class _CorporateCategoryScreenState
           'General Waste',
           'Hazardous Waste (Industrial Waste)',
         ];
-    if (booking.corporateCategory.isEmpty && corporateCategories.isNotEmpty) {
+
+    if (_selectedCorporateCategory == null && corporateCategories.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref
-            .read(corporateBookingProvider.notifier)
-            .setCorporateCategory(corporateCategories.first);
+        if (mounted) {
+          setState(
+            () => _selectedCorporateCategory = corporateCategories.first,
+          );
+        }
       });
     }
 
@@ -66,29 +67,27 @@ class _CorporateCategoryScreenState
       backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0),
-        child: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
+        child: AppBar(backgroundColor: Colors.transparent, elevation: 0),
       ),
       body: Column(
         children: [
-          _buildHeaderSection(booking.corporateCategory, isHindi, context),
-          Expanded(
-            child: categoriesAsync.when(
-              data: (categories) =>
-                  _buildBody(categories, booking, isHindi, corporateCategories),
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
-            ),
+          _buildHeaderSection(
+            _selectedCorporateCategory ?? '',
+            isHindi,
+            context,
           ),
+          Expanded(child: _buildBody(booking, isHindi, corporateCategories)),
           _buildBottomBar(context, booking, isHindi),
         ],
       ),
     );
   }
 
-  Widget _buildHeaderSection(String selectedCategory, bool isHindi, BuildContext context) {
+  Widget _buildHeaderSection(
+    String selectedCategory,
+    bool isHindi,
+    BuildContext context,
+  ) {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
@@ -147,7 +146,6 @@ class _CorporateCategoryScreenState
   }
 
   Widget _buildBody(
-    List<Category> categories,
     CorporateBookingState booking,
     bool isHindi,
     List<String> corporateCategories,
@@ -181,9 +179,9 @@ class _CorporateCategoryScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  isHindi ? 'कॉर्पोरेट श्रेणी *' : 'Corporate Category *',
-                  style: const TextStyle(
+                const Text(
+                  'Corporate Category *',
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: AppTheme.textPrimary,
@@ -191,22 +189,20 @@ class _CorporateCategoryScreenState
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  key: ValueKey('corp_cat_${booking.corporateCategory}'),
-                  initialValue: booking.corporateCategory.isEmpty
-                      ? null
-                      : booking.corporateCategory,
+                  key: ValueKey('corp_cat_$_selectedCorporateCategory'),
+                  initialValue: _selectedCorporateCategory,
                   decoration: _inputDecoration(''),
                   items: corporateCategories
                       .map(
-                        (cat) =>
-                            DropdownMenuItem<String>(value: cat, child: Text(cat)),
+                        (cat) => DropdownMenuItem<String>(
+                          value: cat,
+                          child: Text(cat),
+                        ),
                       )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
-                      ref
-                          .read(corporateBookingProvider.notifier)
-                          .setCorporateCategory(value);
+                      setState(() => _selectedCorporateCategory = value);
                     }
                   },
                   icon: const Icon(Icons.keyboard_arrow_down_rounded),
@@ -235,7 +231,7 @@ class _CorporateCategoryScreenState
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: () => _addCategoryDummy(booking),
+                    onPressed: _addCorporateCategoryEntry,
                     style: OutlinedButton.styleFrom(
                       backgroundColor: Colors.white,
                       minimumSize: const Size.fromHeight(48),
@@ -257,7 +253,7 @@ class _CorporateCategoryScreenState
                   ),
                 ),
                 const SizedBox(height: 8),
-                if (booking.items.isEmpty)
+                if (booking.corporateEntries.isEmpty)
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
@@ -275,8 +271,10 @@ class _CorporateCategoryScreenState
                       style: const TextStyle(color: AppTheme.textMuted),
                     ),
                   ),
-                ...booking.items.map(
-                  (item) => Container(
+                ...booking.corporateEntries.asMap().entries.map((entry) {
+                  final i = entry.key;
+                  final item = entry.value;
+                  return Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -288,7 +286,7 @@ class _CorporateCategoryScreenState
                       children: [
                         Expanded(
                           child: Text(
-                            '${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} ${item.unit}',
+                            '${item.category} - ${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} ${item.unit}',
                             style: const TextStyle(
                               fontWeight: FontWeight.w800,
                               color: AppTheme.textPrimary,
@@ -298,13 +296,16 @@ class _CorporateCategoryScreenState
                         IconButton(
                           onPressed: () => ref
                               .read(corporateBookingProvider.notifier)
-                              .removeItem(item.category.id),
-                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                              .removeCorporateEntryAt(i),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                ),
+                  );
+                }),
               ],
             ),
           ),
@@ -360,22 +361,15 @@ class _CorporateCategoryScreenState
     );
   }
 
-  void _addCategoryDummy(CorporateBookingState booking) {
+  void _addCorporateCategoryEntry() {
+    final category = _selectedCorporateCategory;
     final quantity = double.tryParse(_qtyController.text.trim()) ?? 0;
-    if (quantity <= 0) return;
-
-    final dummyCategory = Category(
-      id: -1,
-      name: LocalizedName(en: '', hi: ''),
-      slug: '',
-      imageUrl: '',
-      attributes: const [],
-      children: const [],
-    );
+    if (category == null || quantity <= 0) return;
 
     ref
         .read(corporateBookingProvider.notifier)
-        .setItem(dummyCategory, quantity, _selectedUnit);
+        .addCorporateEntry(category, quantity, _selectedUnit);
+
     setState(() {
       _qtyController.clear();
       _selectedUnit = 'kg';
@@ -387,7 +381,7 @@ class _CorporateCategoryScreenState
     CorporateBookingState booking,
     bool isHindi,
   ) {
-    final itemCount = booking.items.length;
+    final itemCount = booking.corporateEntries.length;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
       decoration: BoxDecoration(

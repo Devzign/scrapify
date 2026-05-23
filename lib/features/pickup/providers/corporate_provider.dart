@@ -3,6 +3,18 @@ import 'package:image_picker/image_picker.dart';
 import '../../profile/domain/models/address_model.dart';
 import '../domain/models/category.dart';
 
+class CorporateCategoryEntry {
+  final String category;
+  final double quantity;
+  final String unit; // 'kg' or 'qns'
+
+  CorporateCategoryEntry({
+    required this.category,
+    required this.quantity,
+    required this.unit,
+  });
+}
+
 class CorporateItem {
   final Category category;
   final double quantity;
@@ -25,6 +37,7 @@ class CorporateItem {
 
 class CorporateBookingState {
   final List<CorporateItem> items;
+  final List<CorporateCategoryEntry> corporateEntries;
   final AddressModel? selectedAddress;
   final DateTime? selectedDate;
   final String? selectedTimeSlot;
@@ -42,6 +55,7 @@ class CorporateBookingState {
 
   CorporateBookingState({
     this.items = const [],
+    this.corporateEntries = const [],
     this.selectedAddress,
     this.selectedDate,
     this.selectedTimeSlot,
@@ -60,6 +74,7 @@ class CorporateBookingState {
 
   CorporateBookingState copyWith({
     List<CorporateItem>? items,
+    List<CorporateCategoryEntry>? corporateEntries,
     AddressModel? selectedAddress,
     DateTime? selectedDate,
     String? selectedTimeSlot,
@@ -78,6 +93,7 @@ class CorporateBookingState {
   }) {
     return CorporateBookingState(
       items: items ?? this.items,
+      corporateEntries: corporateEntries ?? this.corporateEntries,
       selectedAddress: selectedAddress ?? this.selectedAddress,
       selectedDate: selectedDate ?? this.selectedDate,
       selectedTimeSlot: selectedTimeSlot ?? this.selectedTimeSlot,
@@ -95,17 +111,16 @@ class CorporateBookingState {
     );
   }
 
-  bool get isReadyForSchedule => items.isNotEmpty;
+  bool get isReadyForSchedule =>
+      corporateEntries.isNotEmpty || items.isNotEmpty;
   bool get isReadyToSubmit =>
-      items.isNotEmpty &&
+      (corporateEntries.isNotEmpty || items.isNotEmpty) &&
       selectedAddress != null &&
       selectedDate != null &&
       selectedTimeSlot != null &&
-      companyName.trim().isNotEmpty &&
       contactName.trim().isNotEmpty &&
       contactMobile.trim().isNotEmpty &&
       contactEmail.trim().isNotEmpty &&
-      corporateCategory.trim().isNotEmpty &&
       meetingType.trim().isNotEmpty;
 }
 
@@ -145,6 +160,34 @@ class CorporateBookingNotifier extends Notifier<CorporateBookingState> {
     state = state.copyWith(
       items: state.items.where((i) => i.category.id != categoryId).toList(),
     );
+  }
+
+  void addCorporateEntry(String category, double quantity, String unit) {
+    final normalized = category.trim();
+    if (normalized.isEmpty || quantity <= 0) return;
+    final existing = state.corporateEntries.indexWhere(
+      (e) => e.category == normalized && e.unit == unit,
+    );
+    final entry = CorporateCategoryEntry(
+      category: normalized,
+      quantity: quantity,
+      unit: unit,
+    );
+    if (existing == -1) {
+      state = state.copyWith(
+        corporateEntries: [...state.corporateEntries, entry],
+      );
+      return;
+    }
+    final updated = List<CorporateCategoryEntry>.from(state.corporateEntries);
+    updated[existing] = entry;
+    state = state.copyWith(corporateEntries: updated);
+  }
+
+  void removeCorporateEntryAt(int index) {
+    final updated = List<CorporateCategoryEntry>.from(state.corporateEntries)
+      ..removeAt(index);
+    state = state.copyWith(corporateEntries: updated);
   }
 
   void setAddress(AddressModel address) =>
