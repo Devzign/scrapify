@@ -317,9 +317,9 @@ class BookingNotifier extends Notifier<BookingState> {
       final itemsList = donationItems
           .map(
             (item) => {
-              'category_id': item.category.id,
-              'weight': item.quantity,
+              'product_name': item.category.name.en,
               'quantity': item.quantity.round(),
+              'weight': 0,
               'attributes': item.selectedAttributes
                   .map((attr) => {'attribute_id': attr.id, 'value': attr.value})
                   .toList(),

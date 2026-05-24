@@ -4,11 +4,13 @@ import '../../profile/domain/models/address_model.dart';
 import '../domain/models/category.dart';
 
 class CorporateCategoryEntry {
+  final int? categoryId;
   final String category;
   final double quantity;
   final String unit; // 'kg' or 'qns'
 
   CorporateCategoryEntry({
+    this.categoryId,
     required this.category,
     required this.quantity,
     required this.unit,
@@ -162,13 +164,23 @@ class CorporateBookingNotifier extends Notifier<CorporateBookingState> {
     );
   }
 
-  void addCorporateEntry(String category, double quantity, String unit) {
+  void addCorporateEntry(
+    String category,
+    double quantity,
+    String unit, {
+    int? categoryId,
+  }) {
     final normalized = category.trim();
     if (normalized.isEmpty || quantity <= 0) return;
     final existing = state.corporateEntries.indexWhere(
-      (e) => e.category == normalized && e.unit == unit,
+      (e) =>
+          (categoryId != null
+              ? e.categoryId == categoryId
+              : e.category == normalized) &&
+          e.unit == unit,
     );
     final entry = CorporateCategoryEntry(
+      categoryId: categoryId,
       category: normalized,
       quantity: quantity,
       unit: unit,
@@ -176,12 +188,20 @@ class CorporateBookingNotifier extends Notifier<CorporateBookingState> {
     if (existing == -1) {
       state = state.copyWith(
         corporateEntries: [...state.corporateEntries, entry],
+        corporateCategory: state.corporateCategory.trim().isEmpty
+            ? normalized
+            : state.corporateCategory,
       );
       return;
     }
     final updated = List<CorporateCategoryEntry>.from(state.corporateEntries);
     updated[existing] = entry;
-    state = state.copyWith(corporateEntries: updated);
+    state = state.copyWith(
+      corporateEntries: updated,
+      corporateCategory: state.corporateCategory.trim().isEmpty
+          ? normalized
+          : state.corporateCategory,
+    );
   }
 
   void removeCorporateEntryAt(int index) {

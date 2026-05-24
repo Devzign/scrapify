@@ -7,7 +7,9 @@ import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
-import '../../settings/providers/settings_provider.dart';
+import '../domain/models/category.dart';
+import '../domain/models/corporate_booking_option.dart';
+import '../providers/category_provider.dart';
 import '../providers/corporate_provider.dart';
 
 class CorporateCategoryScreen extends ConsumerStatefulWidget {
@@ -21,7 +23,8 @@ class CorporateCategoryScreen extends ConsumerStatefulWidget {
 class _CorporateCategoryScreenState
     extends ConsumerState<CorporateCategoryScreen> {
   String _selectedUnit = 'kg';
-  String? _selectedCorporateCategory;
+  int? _selectedCategoryTypeId;
+  Category? _selectedSubcategory;
   late final TextEditingController _qtyController;
 
   @override
@@ -41,27 +44,7 @@ class _CorporateCategoryScreenState
   Widget build(BuildContext context) {
     final isHindi = context.locale.languageCode == 'hi';
     final booking = ref.watch(corporateBookingProvider);
-    final settings = ref.watch(settingsProvider).settings;
-    final corporateCategories =
-        (settings['corporate_categories'] as List<dynamic>?)
-            ?.map((e) => e.toString().trim())
-            .where((e) => e.isNotEmpty)
-            .toList() ??
-        const [
-          'E-Waste',
-          'General Waste',
-          'Hazardous Waste (Industrial Waste)',
-        ];
-
-    if (_selectedCorporateCategory == null && corporateCategories.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(
-            () => _selectedCorporateCategory = corporateCategories.first,
-          );
-        }
-      });
-    }
+    final categoryOptionsAsync = ref.watch(corporateBookingOptionsProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -72,11 +55,64 @@ class _CorporateCategoryScreenState
       body: Column(
         children: [
           _buildHeaderSection(
-            _selectedCorporateCategory ?? '',
+            _selectedSubcategory?.getName(context) ?? '',
             isHindi,
             context,
           ),
-          Expanded(child: _buildBody(booking, isHindi, corporateCategories)),
+          Expanded(
+            child: categoryOptionsAsync.when(
+              data: (options) {
+                final categoryTypes = options.groups;
+                if (_selectedCategoryTypeId == null &&
+                    categoryTypes.isNotEmpty) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted && _selectedCategoryTypeId == null) {
+                      setState(
+                        () => _selectedCategoryTypeId = categoryTypes.first.id,
+                      );
+                    }
+                  });
+                }
+
+                final selectedTypeId =
+                    _selectedCategoryTypeId ??
+                    (categoryTypes.isNotEmpty ? categoryTypes.first.id : null);
+                if (selectedTypeId == null) {
+                  return _emptyState(
+                    isHindi
+                        ? 'कोई कॉर्पोरेट श्रेणी उपलब्ध नहीं है'
+                        : 'No corporate categories available',
+                  );
+                }
+
+                final selectedType = categoryTypes.firstWhere(
+                  (group) => group.id == selectedTypeId,
+                  orElse: () => categoryTypes.first,
+                );
+                final subcategories = selectedType.subcategories;
+                if ((_selectedSubcategory == null ||
+                        !subcategories.any(
+                          (cat) => cat.id == _selectedSubcategory!.id,
+                        )) &&
+                    subcategories.isNotEmpty) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (!mounted) return;
+                    setState(() => _selectedSubcategory = subcategories.first);
+                  });
+                }
+
+                return _buildBody(
+                  booking,
+                  isHindi,
+                  categoryTypes,
+                  subcategories,
+                  selectedTypeId,
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => _emptyState(error.toString()),
+            ),
+          ),
           _buildBottomBar(context, booking, isHindi),
         ],
       ),
@@ -148,7 +184,9 @@ class _CorporateCategoryScreenState
   Widget _buildBody(
     CorporateBookingState booking,
     bool isHindi,
-    List<String> corporateCategories,
+    List<CorporateCategoryGroup> categoryTypes,
+    List<Category> subcategories,
+    int selectedTypeId,
   ) {
     return Column(
       children: [
@@ -188,23 +226,71 @@ class _CorporateCategoryScreenState
                   ),
                 ),
                 const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  key: ValueKey('corp_cat_$_selectedCorporateCategory'),
-                  initialValue: _selectedCorporateCategory,
+                DropdownButtonFormField<int>(
+                  key: ValueKey('corp_type_$selectedTypeId'),
+                  initialValue: selectedTypeId,
                   decoration: _inputDecoration(''),
-                  items: corporateCategories
+                  items: categoryTypes
                       .map(
-                        (cat) => DropdownMenuItem<String>(
-                          value: cat,
-                          child: Text(cat),
+                        (cat) => DropdownMenuItem<int>(
+                          value: cat.id,
+                          child: Text(cat.name),
                         ),
                       )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {
-                      setState(() => _selectedCorporateCategory = value);
+                      setState(() {
+                        _selectedCategoryTypeId = value;
+                        _selectedSubcategory = null;
+                      });
                     }
                   },
+                  icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Corporate Item *',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<int>(
+                  key: ValueKey('corp_sub_${_selectedSubcategory?.id ?? 0}'),
+                  initialValue:
+                      _selectedSubcategory != null &&
+                          subcategories.any(
+                            (cat) => cat.id == _selectedSubcategory!.id,
+                          )
+                      ? _selectedSubcategory!.id
+                      : null,
+                  decoration: _inputDecoration(
+                    subcategories.isEmpty
+                        ? (isHindi
+                              ? 'कोई उप-श्रेणी उपलब्ध नहीं है'
+                              : 'No sub-category available')
+                        : '',
+                  ),
+                  items: subcategories
+                      .map(
+                        (cat) => DropdownMenuItem<int>(
+                          value: cat.id,
+                          child: Text(cat.getName(context)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: subcategories.isEmpty
+                      ? null
+                      : (value) {
+                          if (value == null) return;
+                          setState(
+                            () => _selectedSubcategory = subcategories
+                                .firstWhere((cat) => cat.id == value),
+                          );
+                        },
                   icon: const Icon(Icons.keyboard_arrow_down_rounded),
                 ),
                 const SizedBox(height: 10),
@@ -245,7 +331,7 @@ class _CorporateCategoryScreenState
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  isHindi ? 'चुनी गई श्रेणियां' : 'Selected Categories',
+                  isHindi ? 'चुने गए आइटम' : 'Selected Items',
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
@@ -266,8 +352,8 @@ class _CorporateCategoryScreenState
                     ),
                     child: Text(
                       isHindi
-                          ? 'अभी तक कोई श्रेणी नहीं जोड़ी गई'
-                          : 'No categories added yet',
+                          ? 'अभी तक कोई आइटम नहीं जोड़ा गया'
+                          : 'No items added yet',
                       style: const TextStyle(color: AppTheme.textMuted),
                     ),
                   ),
@@ -362,18 +448,39 @@ class _CorporateCategoryScreenState
   }
 
   void _addCorporateCategoryEntry() {
-    final category = _selectedCorporateCategory;
+    final category = _selectedSubcategory;
     final quantity = double.tryParse(_qtyController.text.trim()) ?? 0;
     if (category == null || quantity <= 0) return;
 
     ref
         .read(corporateBookingProvider.notifier)
-        .addCorporateEntry(category, quantity, _selectedUnit);
+        .addCorporateEntry(
+          category.getName(context),
+          quantity,
+          _selectedUnit,
+          categoryId: category.id,
+        );
 
     setState(() {
       _qtyController.clear();
       _selectedUnit = 'kg';
     });
+  }
+
+  Widget _emptyState(String message) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            color: AppTheme.textMuted,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildBottomBar(
@@ -401,7 +508,7 @@ class _CorporateCategoryScreenState
             onPressed: itemCount > 0
                 ? () => context.push(AppRoutes.corporateSchedule)
                 : null,
-            text: isHindi ? 'शेड्यूल करें' : 'SCHEDULE PICKUP',
+            text: isHindi ? 'पिकअप शेड्यूल करें' : 'SCHEDULE PICKUP',
             minHeight: 56,
             borderRadius: 16,
           ),

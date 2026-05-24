@@ -3,6 +3,7 @@ import '../../../../core/network/api_endpoints.dart';
 import '../../../../core/network/api_response.dart';
 import '../../../../core/network/dio_client.dart';
 import '../models/category.dart';
+import '../models/corporate_booking_option.dart';
 import '../models/home_appliance_details.dart';
 
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
@@ -75,6 +76,13 @@ class CategoryRepository {
       queryParameters: {'category_id': categoryId},
       parser: (data) =>
           HomeApplianceDetails.fromJson(data['data'] as Map<String, dynamic>),
+    );
+  }
+
+  Future<ApiResponse<CorporateBookingOption>> fetchCorporateBookingOptions() {
+    return _dioClient.get<CorporateBookingOption>(
+      ApiEndpoints.corporateBookingOptions,
+      parser: (data) => CorporateBookingOption.fromJson(data),
     );
   }
 

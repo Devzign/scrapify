@@ -412,8 +412,8 @@ class _CorporateScheduleScreenState
         children: [
           Text(
             isHindi
-                ? '${booking.corporateEntries.length} श्रेणी चुनी गई'
-                : '${booking.corporateEntries.length} category selected',
+                ? '${booking.corporateEntries.length} आइटम चुने गए'
+                : '${booking.corporateEntries.length} items selected',
             style: const TextStyle(
               color: Color(0xFF1F7A45),
               fontWeight: FontWeight.w800,

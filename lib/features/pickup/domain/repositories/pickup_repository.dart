@@ -62,6 +62,10 @@ class PickupRepository {
       payload.remove('proof_image_locations') as Map<String, dynamic>? ?? {},
     );
     final List<dynamic> items = payload.remove('items') as List<dynamic>? ?? [];
+    final List<dynamic> corporateCategories =
+        payload.remove('corporate_categories') as List<dynamic>? ?? [];
+    final List<dynamic> corporateCategoryItems =
+        payload.remove('corporate_category_items') as List<dynamic>? ?? [];
 
     final formData = FormData();
 
@@ -95,6 +99,34 @@ class PickupRepository {
       payload['corporate_category'],
     );
     _addFieldIfPresent(formData, 'meeting_type', payload['meeting_type']);
+    _addFieldIfPresent(formData, 'gst_number', payload['gst_number']);
+
+    for (var i = 0; i < corporateCategories.length; i++) {
+      _addFieldIfPresent(
+        formData,
+        'corporate_categories[$i]',
+        corporateCategories[i],
+      );
+    }
+
+    for (var i = 0; i < corporateCategoryItems.length; i++) {
+      final item = Map<String, dynamic>.from(corporateCategoryItems[i] as Map);
+      _addFieldIfPresent(
+        formData,
+        'corporate_category_items[$i][corporate_category]',
+        item['corporate_category'],
+      );
+      _addFieldIfPresent(
+        formData,
+        'corporate_category_items[$i][unit]',
+        item['unit'],
+      );
+      _addFieldIfPresent(
+        formData,
+        'corporate_category_items[$i][quantity]',
+        item['quantity'],
+      );
+    }
 
     for (var itemIndex = 0; itemIndex < items.length; itemIndex++) {
       final item = Map<String, dynamic>.from(items[itemIndex] as Map);
@@ -107,6 +139,11 @@ class PickupRepository {
         formData,
         'items[$itemIndex][item_id]',
         item['item_id'],
+      );
+      _addFieldIfPresent(
+        formData,
+        'items[$itemIndex][product_name]',
+        item['product_name'],
       );
       _addFieldIfPresent(
         formData,

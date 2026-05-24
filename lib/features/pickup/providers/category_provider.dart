@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/models/category.dart';
+import '../domain/models/corporate_booking_option.dart';
 import '../domain/models/home_appliance_details.dart';
 import '../domain/repositories/category_repository.dart';
 
@@ -65,6 +66,21 @@ final homeApplianceDetailsProvider =
         );
       }
     });
+
+final corporateBookingOptionsProvider = FutureProvider<CorporateBookingOption>((
+  ref,
+) async {
+  final repository = ref.watch(categoryRepositoryProvider);
+  final response = await repository.fetchCorporateBookingOptions();
+
+  if (response.isSuccess && response.data != null) {
+    return response.data!;
+  } else {
+    throw Exception(
+      response.errorMessage ?? 'Failed to fetch corporate booking options',
+    );
+  }
+});
 
 Category? _findCategoryRecursive(List<Category> categories, int id) {
   for (var cat in categories) {

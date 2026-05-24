@@ -532,155 +532,282 @@ class _HouseholdItemDetailsScreenState
     List<HomeApplianceOption> options,
   ) {
     final title = _displayTitle(section.title, section.slug);
+
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) {
-        return Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(ctx).size.height * 0.6,
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Drag handle
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(top: 12, bottom: 4),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(99),
-                ),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            bool showCustomInput =
+                currentSelected.value.toLowerCase() == 'other' &&
+                    currentSelected.value != 'other';
+            final textController = TextEditingController(
+              text: showCustomInput ? currentSelected.value : '',
+            );
+
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(ctx).size.height * 0.75,
               ),
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 8, 0),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primarySurface,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.tune_rounded,
-                        color: AppTheme.primaryDark,
-                        size: 18,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.primaryDark,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      icon: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.backgroundCream,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.close_rounded,
-                          size: 18,
-                          color: AppTheme.textSecondary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
               ),
-              const SizedBox(height: 8),
-              Divider(color: Colors.grey.shade100, height: 1),
-              // Options list
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.only(bottom: 20),
-                  itemCount: options.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(color: Colors.grey.shade100, height: 1),
-                  itemBuilder: (_, i) {
-                    final option = options[i];
-                    final isSelected = option.id == currentSelected.id;
-                    return InkWell(
-                      onTap: () {
-                        _updateSelection(section.slug, option);
-                        Navigator.pop(ctx);
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 150),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Drag handle
+                  Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(top: 12, bottom: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 8, 0),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primarySurface,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.tune_rounded,
+                            color: AppTheme.primaryDark,
+                            size: 18,
+                          ),
                         ),
-                        color: isSelected
-                            ? AppTheme.primarySurface
-                            : Colors.transparent,
-                        child: Row(
-                          children: [
-                            // Radio indicator
-                            Container(
-                              width: 20,
-                              height: 20,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: isSelected
-                                    ? AppTheme.primaryDark
-                                    : Colors.transparent,
-                                border: Border.all(
-                                  color: isSelected
-                                      ? AppTheme.primaryDark
-                                      : AppTheme.cardBorderColor,
-                                  width: 2,
-                                ),
-                              ),
-                              child: isSelected
-                                  ? const Icon(
-                                      Icons.check,
-                                      color: Colors.white,
-                                      size: 12,
-                                    )
-                                  : null,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.primaryDark,
                             ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Text(
-                                option.value,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          icon: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppTheme.backgroundCream,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close_rounded,
+                              size: 18,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Divider(color: Colors.grey.shade100, height: 1),
+                  // Options list or custom input
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.only(bottom: 0),
+                            itemCount: options.length,
+                            separatorBuilder: (_, __) =>
+                                Divider(color: Colors.grey.shade100, height: 1),
+                            itemBuilder: (_, i) {
+                              final option = options[i];
+                              final isOther =
+                                  option.value.toLowerCase() == 'other';
+                              final isSelected = isOther
+                                  ? currentSelected.value.toLowerCase() == 'other'
+                                  : option.id == currentSelected.id;
+
+                              return InkWell(
+                                onTap: () {
+                                  if (isOther) {
+                                    setState(() {
+                                      showCustomInput = true;
+                                    });
+                                  } else {
+                                    _updateSelection(section.slug, option);
+                                    Navigator.pop(ctx);
+                                  }
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 150),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 16,
+                                  ),
                                   color: isSelected
-                                      ? AppTheme.primaryDark
-                                      : AppTheme.textPrimary,
+                                      ? AppTheme.primarySurface
+                                      : Colors.transparent,
+                                  child: Row(
+                                    children: [
+                                      // Radio indicator
+                                      Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: isSelected
+                                              ? AppTheme.primaryDark
+                                              : Colors.transparent,
+                                          border: Border.all(
+                                            color: isSelected
+                                                ? AppTheme.primaryDark
+                                                : AppTheme.cardBorderColor,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: isSelected
+                                            ? const Icon(
+                                                Icons.check,
+                                                color: Colors.white,
+                                                size: 12,
+                                              )
+                                            : null,
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Text(
+                                          option.value,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: isSelected
+                                                ? FontWeight.w800
+                                                : FontWeight.w600,
+                                            color: isSelected
+                                                ? AppTheme.primaryDark
+                                                : AppTheme.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
+                              );
+                            },
+                          ),
+                          // Custom input section
+                          if (showCustomInput) ...[
+                            Divider(color: Colors.grey.shade100, height: 1),
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _isHindi
+                                        ? 'अपना नाम दर्ज करें'
+                                        : 'Enter Custom Name',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppTheme.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  TextField(
+                                    controller: textController,
+                                    decoration: InputDecoration(
+                                      hintText: _isHindi
+                                          ? 'जैसे: Samsung, Sony'
+                                          : 'e.g., Samsung, Sony',
+                                      hintStyle: const TextStyle(
+                                        color: AppTheme.textSecondary,
+                                        fontSize: 14,
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                        borderSide: const BorderSide(
+                                            color: AppTheme.cardBorderColor),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                        borderSide: const BorderSide(
+                                          color: AppTheme.primaryDark,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                    autofocus: true,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            AppTheme.primaryDark,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12),
+                                      ),
+                                      onPressed: () {
+                                        final customName =
+                                            textController.text.trim();
+                                        if (customName.isNotEmpty) {
+                                          final otherOption =
+                                              options.firstWhere((o) =>
+                                                  o.value.toLowerCase() ==
+                                                  'other');
+                                          final customOption =
+                                              HomeApplianceOption(
+                                            id: otherOption.id,
+                                            value: customName,
+                                          );
+                                          _updateSelection(
+                                              section.slug, customOption);
+                                          Navigator.pop(ctx);
+                                        }
+                                      },
+                                      child: Text(
+                                        _isHindi ? 'सेव करें' : 'Save',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
-                        ),
+                        ],
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

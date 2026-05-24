@@ -20,6 +20,12 @@ class CorporateReviewScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isHindi = context.locale.languageCode == 'hi';
     final booking = ref.watch(corporateBookingProvider);
+    final selectedCategorySummary = booking.corporateEntries
+        .map(
+          (item) =>
+              '${item.category} - ${item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity} ${item.unit}',
+        )
+        .join(', ');
 
     return AppScaffold(
       appBar: AppBar(
@@ -58,63 +64,80 @@ class CorporateReviewScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppSectionHeader(
-              title: isHindi ? 'बुकिंग समीक्षा' : 'Review Booking',
-              subtitle: isHindi
-                  ? 'सबमिट करने से पहले अपनी जानकारी जांच लें'
-                  : 'Check your details before submitting',
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppSectionHeader(
+                      title: isHindi ? 'बुकिंग समीक्षा' : 'Review Booking',
+                      subtitle: isHindi
+                          ? 'सबमिट करने से पहले अपनी जानकारी जांच लें'
+                          : 'Check your details before submitting',
+                    ),
+                    const SizedBox(height: 16),
+                    _row(
+                      isHindi ? 'चुने गए आइटम' : 'Selected items',
+                      '${booking.corporateEntries.length}',
+                    ),
+                    const SizedBox(height: 10),
+                    _row(
+                      isHindi ? 'फोटो' : 'Photos',
+                      '${booking.images.length}',
+                    ),
+                    const SizedBox(height: 10),
+                    _row(
+                      isHindi ? 'समय स्लॉट' : 'Time slot',
+                      booking.selectedTimeSlot ?? '-',
+                    ),
+                    const SizedBox(height: 10),
+                    _row(
+                      isHindi ? 'तारीख' : 'Date',
+                      booking.selectedDate != null
+                          ? DateFormat(
+                              'dd MMM yyyy',
+                            ).format(booking.selectedDate!)
+                          : '-',
+                    ),
+                    const SizedBox(height: 10),
+                    _row(
+                      isHindi ? 'पता' : 'Address',
+                      booking.selectedAddress != null
+                          ? '${booking.selectedAddress!.title} - ${booking.selectedAddress!.addressLine1}'
+                          : '-',
+                    ),
+                    const SizedBox(height: 10),
+                    _row(
+                      isHindi ? 'कंपनी का नाम' : 'Company name',
+                      booking.companyName,
+                    ),
+                    const SizedBox(height: 10),
+                    _row(
+                      isHindi ? 'संपर्क नाम' : 'Contact name',
+                      booking.contactName,
+                    ),
+                    const SizedBox(height: 10),
+                    _row(
+                      isHindi ? 'मोबाइल नंबर' : 'Mobile number',
+                      booking.contactMobile,
+                    ),
+                    const SizedBox(height: 10),
+                    _row(isHindi ? 'ईमेल' : 'Email', booking.contactEmail),
+                    const SizedBox(height: 10),
+                    _row(
+                      isHindi ? 'कॉर्पोरेट आइटम' : 'Corporate items',
+                      selectedCategorySummary,
+                    ),
+                    const SizedBox(height: 10),
+                    _row(
+                      isHindi ? 'मीटिंग प्रकार' : 'Meeting type',
+                      booking.meetingType.replaceAll('_', ' '),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
-            _row(
-              isHindi ? 'चुनी गई श्रेणियां' : 'Selected categories',
-              '${booking.corporateEntries.length}',
-            ),
-            const SizedBox(height: 10),
-            _row(isHindi ? 'फोटो' : 'Photos', '${booking.images.length}'),
-            const SizedBox(height: 10),
-            _row(
-              isHindi ? 'समय स्लॉट' : 'Time slot',
-              booking.selectedTimeSlot ?? '-',
-            ),
-            const SizedBox(height: 10),
-            _row(
-              isHindi ? 'तारीख' : 'Date',
-              booking.selectedDate != null
-                  ? DateFormat('dd MMM yyyy').format(booking.selectedDate!)
-                  : '-',
-            ),
-            const SizedBox(height: 10),
-            _row(
-              isHindi ? 'पता' : 'Address',
-              booking.selectedAddress != null
-                  ? '${booking.selectedAddress!.title} - ${booking.selectedAddress!.addressLine1}'
-                  : '-',
-            ),
-            const SizedBox(height: 10),
-            _row(
-              isHindi ? 'कंपनी का नाम' : 'Company name',
-              booking.companyName,
-            ),
-            const SizedBox(height: 10),
-            _row(isHindi ? 'संपर्क नाम' : 'Contact name', booking.contactName),
-            const SizedBox(height: 10),
-            _row(
-              isHindi ? 'मोबाइल नंबर' : 'Mobile number',
-              booking.contactMobile,
-            ),
-            const SizedBox(height: 10),
-            _row(isHindi ? 'ईमेल' : 'Email', booking.contactEmail),
-            const SizedBox(height: 10),
-            _row(
-              isHindi ? 'कॉर्पोरेट श्रेणी' : 'Corporate category',
-              booking.corporateCategory,
-            ),
-            const SizedBox(height: 10),
-            _row(
-              isHindi ? 'मीटिंग प्रकार' : 'Meeting type',
-              booking.meetingType.replaceAll('_', ' '),
-            ),
-            const Spacer(),
+            const SizedBox(height: 12),
             CustomButton(
               onPressed: booking.isReadyToSubmit
                   ? () => _submit(context, ref)
@@ -176,9 +199,15 @@ class CorporateReviewScreen extends ConsumerWidget {
           },
         )
         .toList();
-    final corporateCategories = booking.corporateEntries
-        .map((e) => e.category)
-        .toSet()
+    final items = booking.corporateEntries
+        .where((entry) => entry.categoryId != null)
+        .map(
+          (entry) => {
+            'category_id': entry.categoryId,
+            'quantity': entry.unit == 'qns' ? entry.quantity.ceil() : 1,
+            'weight': entry.unit == 'kg' ? entry.quantity : 0,
+          },
+        )
         .toList();
 
     final data = <String, dynamic>{
@@ -198,15 +227,11 @@ class CorporateReviewScreen extends ConsumerWidget {
       'contact_name': booking.contactName.trim(),
       'contact_mobile': booking.contactMobile.trim(),
       'contact_email': booking.contactEmail.trim(),
-      'corporate_categories': corporateCategories,
       'corporate_category_items': corporateCategoryItems,
-      'corporate_category': booking.corporateCategory.trim().isNotEmpty
-          ? booking.corporateCategory.trim()
-          : corporateCategories.first,
       'meeting_type': booking.meetingType.trim(),
       if ((booking.gstNumber ?? '').trim().isNotEmpty)
         'gst_number': booking.gstNumber!.trim(),
-      'items': const [],
+      'items': items,
       'images': booking.images,
     };
 
