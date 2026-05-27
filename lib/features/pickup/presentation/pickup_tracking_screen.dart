@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
+import '../domain/models/pickup_request_model.dart';
 import '../domain/models/tracking_timeline_model.dart';
 import '../providers/pickup_provider.dart';
 import 'widgets/pickup_price_summary.dart';
@@ -27,6 +28,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
   @override
   Widget build(BuildContext context) {
     final trackingAsync = ref.watch(trackingProvider(widget.pickupId));
+    final detailAsync = ref.watch(pickupDetailProvider(widget.pickupId));
 
     return Scaffold(
       backgroundColor: AppColor.backgroundLight,
@@ -50,8 +52,11 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white.withValues(alpha: 0.30)),
             ),
-            child: const Icon(Icons.arrow_back_rounded,
-                color: Colors.white, size: 18),
+            child: const Icon(
+              Icons.arrow_back_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
           ),
           onPressed: () {
             if (context.canPop()) {
@@ -74,8 +79,17 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
       ),
       body: trackingAsync.when(
         data: (tracking) {
-          _updateMarkers(tracking);
-          return _buildBody(context, tracking);
+          final pickupDetail = detailAsync.asData?.value;
+          final mapLocation = _resolveMapLocation(
+            detail: pickupDetail,
+            tracking: tracking,
+          );
+          _updateMarkers(
+            latitude: mapLocation?.latitude,
+            longitude: mapLocation?.longitude,
+            pickupCode: pickupDetail?.pickupCode ?? tracking.pickupCode,
+          );
+          return _buildBody(context, tracking, pickupDetail, mapLocation);
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(
@@ -92,23 +106,29 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
     );
   }
 
-  void _updateMarkers(TrackingTimelineModel tracking) {
-    if (tracking.latitude != null && tracking.longitude != null) {
-      _markers.clear();
+  void _updateMarkers({
+    required double? latitude,
+    required double? longitude,
+    required String pickupCode,
+  }) {
+    _markers.clear();
+    if (latitude != null && longitude != null) {
       _markers.add(
         Marker(
-          markerId: MarkerId('pickup_location_${tracking.id}'),
-          position: LatLng(tracking.latitude!, tracking.longitude!),
-          infoWindow: InfoWindow(
-            title: 'Pickup Location',
-            snippet: tracking.pickupCode,
-          ),
+          markerId: MarkerId('pickup_location_${widget.pickupId}'),
+          position: LatLng(latitude, longitude),
+          infoWindow: InfoWindow(title: 'Pickup Location', snippet: pickupCode),
         ),
       );
     }
   }
 
-  Widget _buildBody(BuildContext context, TrackingTimelineModel tracking) {
+  Widget _buildBody(
+    BuildContext context,
+    TrackingTimelineModel tracking,
+    PickupRequestModel? pickupDetail,
+    _MapLocation? mapLocation,
+  ) {
     final statusLabel = _formatStatusLabel(tracking.status);
 
     return Column(
@@ -118,10 +138,10 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
           flex: 4,
           child: Stack(
             children: [
-              if (tracking.latitude != null && tracking.longitude != null)
+              if (mapLocation != null)
                 GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target: LatLng(tracking.latitude!, tracking.longitude!),
+                    target: LatLng(mapLocation.latitude, mapLocation.longitude),
                     zoom: 15,
                   ),
                   markers: _markers,
@@ -263,20 +283,20 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
 
                   const SizedBox(height: 24),
 
-                  // Price summary (estimated / coupon / final + lock badge)
-                  Consumer(
-                    builder: (context, ref, _) {
-                      final detailAsync =
-                          ref.watch(pickupDetailProvider(widget.pickupId));
-                      return detailAsync.maybeWhen(
-                        data: (pickup) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: PickupPriceSummary(pickup: pickup),
-                        ),
-                        orElse: () => const SizedBox.shrink(),
-                      );
-                    },
-                  ),
+                  if (pickupDetail != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: PickupPriceSummary(pickup: pickupDetail),
+                    ),
+
+                  if (pickupDetail != null) ...[
+                    const SizedBox(height: 8),
+                    _buildAddressCard(pickupDetail),
+                    if (pickupDetail.images.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _buildImagesSection(pickupDetail.images),
+                    ],
+                  ],
 
                   const SizedBox(height: 8),
 
@@ -424,9 +444,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                   border: Border.all(
                     color: isCompleted
                         ? AppTheme.primaryColor
-                        : (isActive
-                              ? AppTheme.infoColor
-                              : AppTheme.outline),
+                        : (isActive ? AppTheme.infoColor : AppTheme.outline),
                     width: 2,
                   ),
                 ),
@@ -441,9 +459,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                 ),
               ),
               if (!isLast)
-                Expanded(
-                  child: Container(width: 2, color: AppTheme.outline),
-                ),
+                Expanded(child: Container(width: 2, color: AppTheme.outline)),
             ],
           ),
           const SizedBox(width: 16),
@@ -576,6 +592,147 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
     );
   }
 
+  Widget _buildAddressCard(PickupRequestModel pickup) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppTheme.backgroundCream,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.hairline),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.location_on_outlined,
+            color: AppTheme.primaryColor,
+            size: 20,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Pickup Address',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  pickup.address,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImagesSection(List<PickupImageModel> images) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.hairline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Uploaded Photos (${images.length})',
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: AppTheme.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 84,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: images.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final image = images[index];
+                final imageUrl = image.url ?? image.imagePath;
+
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          width: 84,
+                          height: 84,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _imagePlaceholder(),
+                        )
+                      : _imagePlaceholder(),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _imagePlaceholder() {
+    return Container(
+      width: 84,
+      height: 84,
+      color: AppTheme.primarySurface,
+      child: const Icon(
+        Icons.image_not_supported_outlined,
+        color: AppTheme.primaryColor,
+      ),
+    );
+  }
+
+  _MapLocation? _resolveMapLocation({
+    required PickupRequestModel? detail,
+    required TrackingTimelineModel tracking,
+  }) {
+    if (_isValidCoordinate(detail?.latitude, detail?.longitude)) {
+      return _MapLocation(detail!.latitude, detail.longitude);
+    }
+
+    if (_isValidCoordinate(tracking.latitude, tracking.longitude)) {
+      return _MapLocation(tracking.latitude!, tracking.longitude!);
+    }
+
+    final imageWithGeo = detail?.images.where((image) {
+      return _isValidCoordinate(image.latitude, image.longitude);
+    }).firstOrNull;
+
+    if (imageWithGeo != null) {
+      return _MapLocation(imageWithGeo.latitude!, imageWithGeo.longitude!);
+    }
+
+    return null;
+  }
+
+  bool _isValidCoordinate(double? latitude, double? longitude) {
+    if (latitude == null || longitude == null) {
+      return false;
+    }
+
+    return latitude.abs() > 0.000001 || longitude.abs() > 0.000001;
+  }
+
   String _formatStatusLabel(String status) {
     if (status.isEmpty) return 'Pending';
     return status[0].toUpperCase() + status.substring(1).toLowerCase();
@@ -605,4 +762,11 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
       }
     }
   }
+}
+
+class _MapLocation {
+  final double latitude;
+  final double longitude;
+
+  const _MapLocation(this.latitude, this.longitude);
 }

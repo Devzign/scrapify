@@ -75,30 +75,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
     final isCouponValidating = ref.watch(referralProvider).isCouponValidating;
     final appliedCoupon = booking.appliedCoupon;
 
-    final lat = booking.selectedAddress?.latitude;
-    final lng = booking.selectedAddress?.longitude;
-    final String _mapCenter;
-    final String _markerParam;
-    if (lat != null && lng != null) {
-      _mapCenter = '$lat,$lng';
-      _markerParam = 'color:red%7C$lat,$lng';
-    } else {
-      // No coordinates saved — geocode from address text so the map shows
-      // the correct city/area instead of the New Delhi default.
-      final addrParts = <String>[
-        if (booking.selectedAddress?.addressLine1.isNotEmpty == true)
-          booking.selectedAddress!.addressLine1,
-        if (booking.selectedAddress?.cityName?.isNotEmpty == true)
-          booking.selectedAddress!.cityName!,
-        if (booking.selectedAddress?.pincode.isNotEmpty == true)
-          booking.selectedAddress!.pincode,
-      ];
-      final encoded = Uri.encodeComponent(addrParts.join(', '));
-      _mapCenter = encoded;
-      _markerParam = 'color:red%7C$encoded';
-    }
-    final mapUrl =
-        'https://maps.googleapis.com/maps/api/staticmap?center=$_mapCenter&zoom=15&size=600x300&markers=$_markerParam&key=${ApiEndpoints.googleMapsApiKey}';
+    final mapUrl = _buildStaticMapUrl(booking);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -109,9 +86,15 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
             decoration: BoxDecoration(
               color: AppColor.primarySurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+              border: Border.all(
+                color: AppColor.primary.withValues(alpha: 0.20),
+              ),
             ),
-            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+            child: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppColor.primary,
+              size: 18,
+            ),
           ),
           onPressed: () => context.pop(),
         ),
@@ -135,29 +118,8 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                   Container(
                     height: 180,
                     width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppTheme.outline,
-                      image: DecorationImage(
-                        image: NetworkImage(mapUrl),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          border: AppTheme.cardBorder,
-                          boxShadow: AppTheme.cardShadow,
-                        ),
-                        child: const Icon(
-                          Icons.location_on,
-                          color: Colors.red,
-                          size: 28,
-                        ),
-                      ),
-                    ),
+                    color: AppTheme.outline,
+                    child: _buildMapPreview(mapUrl),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
@@ -1089,6 +1051,73 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  String? _buildStaticMapUrl(BookingState booking) {
+    final lat = booking.selectedAddress?.latitude;
+    final lng = booking.selectedAddress?.longitude;
+    if (lat != null && lng != null) {
+      return 'https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng&zoom=15&size=600x300&markers=color:red%7C$lat,$lng&key=${ApiEndpoints.googleMapsApiKey}';
+    }
+
+    final addrParts = <String>[
+      if (booking.selectedAddress?.addressLine1.trim().isNotEmpty == true)
+        booking.selectedAddress!.addressLine1.trim(),
+      if (booking.selectedAddress?.cityName?.trim().isNotEmpty == true)
+        booking.selectedAddress!.cityName!.trim(),
+      if (booking.selectedAddress?.pincode.trim().isNotEmpty == true)
+        booking.selectedAddress!.pincode.trim(),
+    ];
+    if (addrParts.isEmpty || ApiEndpoints.googleMapsApiKey.trim().isEmpty) {
+      return null;
+    }
+
+    final encoded = Uri.encodeComponent(addrParts.join(', '));
+    return 'https://maps.googleapis.com/maps/api/staticmap?center=$encoded&zoom=15&size=600x300&markers=color:red%7C$encoded&key=${ApiEndpoints.googleMapsApiKey}';
+  }
+
+  Widget _buildMapPreview(String? mapUrl) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (mapUrl != null)
+          Image.network(
+            mapUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return _buildMapFallback();
+            },
+          )
+        else
+          _buildMapFallback(),
+        Center(
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: AppTheme.cardBorder,
+              boxShadow: AppTheme.cardShadow,
+            ),
+            child: const Icon(Icons.location_on, color: Colors.red, size: 28),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMapFallback() {
+    return Container(
+      color: AppTheme.outline,
+      alignment: Alignment.center,
+      child: const Text(
+        'Map preview unavailable',
+        style: TextStyle(
+          color: AppTheme.textSecondary,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

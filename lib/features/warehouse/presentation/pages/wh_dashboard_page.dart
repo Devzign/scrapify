@@ -1,8 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_color.dart';
+import '../../../../core/widgets/dashboard_stat_card.dart';
+import '../../../../core/widgets/metric_grid.dart';
+import '../../../../core/widgets/status_badge.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 import '../../domain/models/warehouse_dashboard.dart';
 import '../../domain/models/warehouse_request.dart';
 import '../../providers/warehouse_provider.dart';
@@ -35,7 +40,7 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildAppBar(d?.warehouse?.name),
+            _buildModernAppBar(d?.warehouse?.name),
             Expanded(
               child: state.isLoading && d == null
                   ? const Center(child: CircularProgressIndicator())
@@ -49,28 +54,13 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (state.error != null)
-                              Container(
-                                margin: const EdgeInsets.all(16),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: AppColor.hintPeach,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: AppColor.warning.withValues(alpha: 0.30),
-                                  ),
-                                ),
-                                child: Text(
-                                  state.error!,
-                                  style: TextStyle(
-                                    color: AppColor.warning,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ),
-                            _buildHeader(d?.warehouse?.name),
-                            _buildMetricsBento(d),
-                            _buildRecentRequests(d),
-                            _buildWarehouseVisual(),
+                              _buildErrorBanner(state.error!),
+                            _buildModernHeader(d?.warehouse?.name),
+                            _buildModernMetrics(d),
+                            _buildQuickActions(),
+                            _buildRecentPickupRequests(d),
+                            if (d != null && d.totalPickupBoys > 0)
+                              _buildPickupBoysSection(d),
                           ],
                         ),
                       ),
@@ -82,565 +72,17 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
     );
   }
 
-  Widget _buildAppBar(String? warehouseName) {
+  /// Modern app bar with warehouse icon and name
+  Widget _buildModernAppBar(String? warehouseName) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.space16,
+        vertical: AppTheme.space12,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(bottom: BorderSide(color: AppColor.hairline)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.warehouse_rounded,
-            color: AppTheme.primaryColor,
-            size: 24,
-          ),
-          const SizedBox(width: 10),
-          Text(
-            warehouseName ?? 'Scrapi5 Warehouse',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-              color: AppTheme.textPrimary,
-              letterSpacing: -0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(String? warehouseName) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            warehouseName ?? 'Main Dashboard',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w900,
-              color: AppTheme.textPrimary,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Text(
-                'Operational Overview',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppTheme.primaryColor,
-                  letterSpacing: 1,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMetricsBento(WarehouseDashboard? d) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          // Large Focus Card - Total Requests
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: AppTheme.cardBorderRadius,
-              border: AppTheme.cardBorder,
-              boxShadow: AppTheme.cardShadow,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: AppTheme.primarySurface,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.warehouse_rounded,
-                        color: AppTheme.primaryColor,
-                        size: 24,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primarySurface,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: AppTheme.primaryColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'LIVE',
-                            style: TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w800,
-                              color: AppTheme.primaryDark,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  '${d?.totalRequests ?? 0}',
-                  style: const TextStyle(
-                    fontSize: 42,
-                    fontWeight: FontWeight.w900,
-                    color: AppTheme.textPrimary,
-                    height: 1,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  context.locale.languageCode == 'hi'
-                      ? 'कुल अनुरोध'
-                      : 'Total Requests',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.only(top: 16),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: AppColor.backgroundCream)),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${d?.unassignedRequests ?? 0}',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.errorColor,
-                              ),
-                            ),
-                            Text(
-                              context.locale.languageCode == 'hi'
-                                  ? 'अनिर्दिष्ट'
-                                  : 'Unassigned',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColor.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${d?.assignedRequests ?? 0}',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.w800,
-                                color: AppTheme.primaryColor,
-                              ),
-                            ),
-                            Text(
-                              context.locale.languageCode == 'hi'
-                                  ? 'सौंपा गया'
-                                  : 'Assigned',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: AppColor.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Active Pickups + Completed row
-          Row(
-            children: [
-              Expanded(
-                child: _buildSmallMetricCard(
-                  icon: Icons.local_shipping_rounded,
-                  label: 'Active Pickups',
-                  labelHindi: 'सक्रिय पिकअप',
-                  value: '${d?.activePickups ?? 0}',
-                  tag: 'Current',
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildSmallMetricCard(
-                  icon: Icons.check_circle_rounded,
-                  label: 'Completed',
-                  labelHindi: 'पूरा हुआ',
-                  value: '${d?.completedPickups ?? 0}',
-                  tag: 'Today',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Agents — sage gradient hero card (mirrors customer dashboard)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: AppTheme.sageHeader,
-              borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.30),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColor.primary.withValues(alpha: 0.28),
-                  blurRadius: 24,
-                  offset: const Offset(0, 12),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.20),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.35),
-                    ),
-                  ),
-                  child: const Icon(
-                    Icons.engineering_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${d?.totalPickupBoys ?? 0} Total Agents',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        'Warehouse Staffing Overview',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.white.withValues(alpha: 0.80),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.32),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '${d?.availablePickupBoys ?? 0} Available',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          // Rescheduled Card
-          _buildSmallMetricCard(
-            icon: Icons.event_repeat_rounded,
-            iconColor: AppTheme.errorColor,
-            label: 'Rescheduled',
-            labelHindi: 'पुनर्निर्धारित',
-            value: '${d?.rescheduledRequests ?? 0}',
-            valueColor: AppTheme.errorColor,
-            fullWidth: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSmallMetricCard({
-    required IconData icon,
-    required String label,
-    required String labelHindi,
-    required String value,
-    String? tag,
-    Color? iconColor,
-    Color? valueColor,
-    bool fullWidth = false,
-  }) {
-    return Container(
-      width: fullWidth ? double.infinity : null,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(icon, color: iconColor ?? AppColor.textMuted, size: 24),
-              if (tag != null)
-                Text(
-                  tag.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: AppColor.textMuted,
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w900,
-              color: valueColor ?? AppTheme.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            context.locale.languageCode == 'hi' ? labelHindi : label,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              color: AppTheme.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecentRequests(WarehouseDashboard? d) {
-    final raw = d?.recentRequests ?? [];
-    final requests = raw
-        .whereType<Map<String, dynamic>>()
-        .map((e) => WarehouseRequest.fromJson(e))
-        .take(3)
-        .toList();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.locale.languageCode == 'hi'
-                        ? 'हालिया अनुरोध'
-                        : 'Recent Requests',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w900,
-                      color: AppTheme.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const WhRequestsPage(),
-                  ),
-                ),
-                child: Text(
-                  context.locale.languageCode == 'hi' ? 'सभी देखें' : 'VIEW ALL',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.primaryColor,
-                    letterSpacing: 1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (requests.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Text(
-                context.locale.languageCode == 'hi'
-                    ? 'कोई हालिया अनुरोध नहीं'
-                    : 'No recent requests',
-                style: TextStyle(color: AppColor.textMuted, fontSize: 13),
-              ),
-            )
-          else
-            ...requests.map((r) => _buildRequestCard(_requestItemFromModel(r), r)),
-        ],
-      ),
-    );
-  }
-
-  _RequestItem _requestItemFromModel(WarehouseRequest r) {
-    final s = r.status.toLowerCase();
-    Color bg;
-    Color fg;
-    String hindi;
-    String label;
-    if (s == 'unassigned' || s == 'pending') {
-      bg = AppColor.errorTint;
-      fg = AppColor.error;
-      hindi = 'अनिर्दिष्ट';
-      label = 'Unassigned';
-    } else if (s == 'assigned') {
-      bg = AppTheme.primarySurface;
-      fg = AppTheme.primaryDark;
-      hindi = 'सौंपा गया';
-      label = 'Assigned';
-    } else if (s == 'active' ||
-        s == 'in_progress' ||
-        s == 'on_the_way' ||
-        s == 'arrived') {
-      bg = AppTheme.hintPeach;
-      fg = AppColor.warning;
-      hindi = 'सक्रिय';
-      label = 'Active';
-    } else if (s == 'completed') {
-      bg = AppColor.alertBlue;
-      fg = AppColor.brandNavy;
-      hindi = 'पूरा हुआ';
-      label = 'Completed';
-    } else if (s == 'rescheduled') {
-      bg = AppTheme.hintPeach;
-      fg = AppColor.warning;
-      hindi = 'पुनर्निर्धारित';
-      label = 'Rescheduled';
-    } else {
-      bg = AppColor.hairline;
-      fg = AppColor.textPrimary;
-      hindi = s;
-      label = r.status;
-    }
-    return _RequestItem(
-      orderId: r.orderCode,
-      customer: r.customerName,
-      area: r.address.length > 20
-          ? '${r.address.substring(0, 20)}…'
-          : r.address,
-      status: label,
-      statusColor: bg,
-      statusTextColor: fg,
-      statusHindi: hindi,
-    );
-  }
-
-  Widget _buildRequestCard(_RequestItem r, WarehouseRequest original) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => WhRequestDetailPage(request: original),
-        ),
-      ),
-      child: Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppTheme.cardBorderRadius,
-        border: AppTheme.cardBorder,
-        boxShadow: AppTheme.cardShadow,
+        border: Border(bottom: BorderSide(color: AppColor.hairline, width: 0.5)),
+        boxShadow: AppTheme.e1,
       ),
       child: Row(
         children: [
@@ -648,55 +90,556 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppTheme.backgroundCream,
-              borderRadius: BorderRadius.circular(10),
+              color: AppColor.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
             ),
             child: Icon(
-              Icons.inventory_2_rounded,
-              color: AppColor.textMuted,
+              Icons.warehouse_rounded,
+              color: AppColor.primary,
               size: 20,
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppTheme.space12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  r.orderId,
+                  warehouseName ?? 'Warehouse',
                   style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: AppTheme.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: AppColor.textPrimary,
+                    letterSpacing: -0.3,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+                const SizedBox(height: 2),
                 Text(
-                  '${r.customer} • ${r.area}',
-                  style: TextStyle(fontSize: 11, color: AppColor.textSecondary),
+                  'warehouse_dashboard.operational_overview'.tr(),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: AppColor.textMuted,
+                  ),
                 ),
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+        ],
+      ),
+    );
+  }
+
+  /// Error banner
+  Widget _buildErrorBanner(String error) {
+    return Container(
+      margin: const EdgeInsets.all(AppTheme.space16),
+      padding: const EdgeInsets.all(AppTheme.space12),
+      decoration: BoxDecoration(
+        color: AppColor.hintPeach,
+        borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+        border: Border.all(
+          color: AppColor.warning.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.warning_rounded,
+            color: AppColor.warning,
+            size: 18,
+          ),
+          const SizedBox(width: AppTheme.space12),
+          Expanded(
+            child: Text(
+              error,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AppColor.warning,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Modern header with title and subtitle
+  Widget _buildModernHeader(String? warehouseName) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppTheme.space16,
+        AppTheme.space20,
+        AppTheme.space16,
+        AppTheme.space12,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            warehouseName ?? 'warehouse_dashboard.title'.tr(),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w900,
+              color: AppColor.textPrimary,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'warehouse_dashboard.operational_overview'.tr(),
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColor.primary,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Modern metrics grid with 4 key stats
+  Widget _buildModernMetrics(WarehouseDashboard? d) {
+    final metrics = [
+      DashboardStatCard(
+        label: 'warehouse_dashboard.assigned_pickups'.tr(),
+        value: '${d?.assignedRequests ?? 0}',
+        icon: Icons.local_shipping_rounded,
+        iconColor: AppColor.primary,
+        backgroundColor: AppColor.surface,
+      ),
+      DashboardStatCard(
+        label: 'warehouse_dashboard.pending_pickups'.tr(),
+        value: '${d?.unassignedRequests ?? 0}',
+        icon: Icons.schedule_rounded,
+        iconColor: AppColor.warning,
+        valueColor: AppColor.warning,
+        backgroundColor: AppColor.surface,
+      ),
+      DashboardStatCard(
+        label: 'warehouse_dashboard.completed_today'.tr(),
+        value: '${d?.completedPickups ?? 0}',
+        icon: Icons.check_circle_rounded,
+        iconColor: AppColor.success,
+        valueColor: AppColor.success,
+        backgroundColor: AppColor.surface,
+      ),
+      DashboardStatCard(
+        label: 'warehouse_dashboard.todays_workload'.tr(),
+        value: '${d?.totalRequests ?? 0}',
+        icon: Icons.trending_up_rounded,
+        iconColor: AppColor.info,
+        valueColor: AppColor.info,
+        backgroundColor: AppColor.surface,
+      ),
+    ];
+
+    return MetricGrid(
+      metrics: metrics,
+      columns: 2,
+      spacing: AppTheme.space12,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.space12,
+        vertical: AppTheme.space12,
+      ),
+    );
+  }
+
+  /// Quick action buttons
+  Widget _buildQuickActions() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.space16,
+        vertical: AppTheme.space16,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Quick Actions',
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColor.textPrimary,
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: AppTheme.space12),
+          Row(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
+              Expanded(
+                child: _buildQuickActionCard(
+                  icon: Icons.assignment_rounded,
+                  label: 'View Requests',
+                  color: AppColor.primary,
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const WhRequestsPage(),
+                      ),
+                    );
+                  },
                 ),
-                decoration: BoxDecoration(
-                  color: r.statusColor,
-                  borderRadius: BorderRadius.circular(20),
+              ),
+              const SizedBox(width: AppTheme.space12),
+              Expanded(
+                child: _buildQuickActionCard(
+                  icon: Icons.group_rounded,
+                  label: 'Assign Partner',
+                  color: AppColor.info,
+                  onTap: () {},
                 ),
-                child: Text(
-                  context.locale.languageCode == 'hi'
-                      ? r.statusHindi.toUpperCase()
-                      : r.status.toUpperCase(),
-                  style: TextStyle(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: r.statusTextColor,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Quick action card
+  Widget _buildQuickActionCard({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(AppTheme.space12),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          border: Border.all(
+            color: color.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: AppTheme.space8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: color,
+                letterSpacing: 0.2,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Recent pickup requests section
+  Widget _buildRecentPickupRequests(WarehouseDashboard? d) {
+    // Parse raw JSON to WarehouseRequest objects
+    final rawRequests = d?.recentRequests ?? [];
+    final requests = rawRequests
+        .map((r) => r is WarehouseRequest
+            ? r
+            : WarehouseRequest.fromJson(r as Map<String, dynamic>))
+        .cast<WarehouseRequest>()
+        .toList();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppTheme.space16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppTheme.space16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'warehouse_dashboard.recent_requests'.tr(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColor.textPrimary,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const WhRequestsPage(),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'warehouse_dashboard.view_all_requests'.tr(),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppColor.primary,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppTheme.space12),
+          if (requests.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppTheme.space32),
+              child: EmptyStateWidget(
+                icon: FontAwesomeIcons.inbox,
+                title: 'warehouse_dashboard.no_requests'.tr(),
+                subtitle: 'warehouse_dashboard.no_requests_subtitle'.tr(),
+              ),
+            )
+          else
+            Column(
+              children: requests.take(5).map((req) {
+                return _buildPickupRequestTile(req);
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Individual pickup request tile
+  Widget _buildPickupRequestTile(WarehouseRequest req) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => WhRequestDetailPage(request: req),
+          ),
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(
+          horizontal: AppTheme.space16,
+          vertical: AppTheme.space8,
+        ),
+        padding: const EdgeInsets.all(AppTheme.space12),
+        decoration: BoxDecoration(
+          color: AppColor.surface,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: AppColor.cardBorder, width: 0.5),
+          boxShadow: AppTheme.e1,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        req.orderCode,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColor.textMuted,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        req.customerName,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColor.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                StatusBadge(
+                  status: req.status,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.space10),
+            Row(
+              children: [
+                Icon(
+                  FontAwesomeIcons.mapPin,
+                  color: AppColor.textMuted,
+                  size: 12,
+                ),
+                const SizedBox(width: AppTheme.space8),
+                Expanded(
+                  child: Text(
+                    req.address,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: AppColor.textSecondary,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.space8),
+            Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(
+                        FontAwesomeIcons.box,
+                        color: AppColor.textMuted,
+                        size: 11,
+                      ),
+                      const SizedBox(width: AppTheme.space6),
+                      Expanded(
+                        child: Text(
+                          req.itemSummary ?? 'Items',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: AppColor.textMuted,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: AppTheme.space8),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(
+                        FontAwesomeIcons.weight,
+                        color: AppColor.textMuted,
+                        size: 11,
+                      ),
+                      const SizedBox(width: AppTheme.space6),
+                      Text(
+                        '${req.estimatedWeight ?? 0}kg',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: AppColor.textMuted,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Pickup boys status section
+  Widget _buildPickupBoysSection(WarehouseDashboard d) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.space16,
+        vertical: AppTheme.space16,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'warehouse_dashboard.pickup_boys'.tr(),
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColor.textPrimary,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: AppTheme.space12),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(AppTheme.space12),
+                  decoration: BoxDecoration(
+                    color: AppColor.surface,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    border: Border.all(color: AppColor.cardBorder),
+                    boxShadow: AppTheme.e1,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppColor.textMuted,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${d.totalPickupBoys}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppColor.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppTheme.space12),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(AppTheme.space12),
+                  decoration: BoxDecoration(
+                    color: AppColor.surface,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                    border: Border.all(color: AppColor.cardBorder),
+                    boxShadow: AppTheme.e1,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Active',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: AppColor.success,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${d.activePickupBoys}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppColor.success,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -704,130 +647,6 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
           ),
         ],
       ),
-      ),
     );
   }
-
-  Widget _buildWarehouseVisual() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Container(
-        height: 180,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppTheme.radiusXl),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [AppColor.deepNavy, AppColor.brandNavy],
-          ),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.10),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColor.deepNavy.withValues(alpha: 0.25),
-              blurRadius: 24,
-              offset: const Offset(0, 12),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Decorative circles
-            Positioned(
-              right: -30,
-              top: -30,
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.05),
-                ),
-              ),
-            ),
-            Positioned(
-              left: -20,
-              bottom: -20,
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.03),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.local_shipping_rounded,
-                        color: Colors.white.withValues(alpha: 0.7),
-                        size: 18,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'PICKUP OPERATIONS',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white.withValues(alpha: 0.7),
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Pickup Operations',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Manage and track all pickups from one place.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.white.withValues(alpha: 0.78),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _RequestItem {
-  final String orderId;
-  final String customer;
-  final String area;
-  final String status;
-  final Color statusColor;
-  final Color statusTextColor;
-  final String statusHindi;
-
-  const _RequestItem({
-    required this.orderId,
-    required this.customer,
-    required this.area,
-    required this.status,
-    required this.statusColor,
-    required this.statusTextColor,
-    required this.statusHindi,
-  });
 }

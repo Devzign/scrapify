@@ -5,11 +5,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../core/utils/app_routes.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_scaffold.dart';
+import '../../../core/widgets/dashboard_stat_card.dart';
+import '../../../core/widgets/empty_state_widget.dart';
+import '../../../core/widgets/status_badge.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../domain/models/pickup_assignment.dart';
 import '../providers/pickup_boy_provider.dart';
@@ -48,51 +51,7 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
 
     return AppScaffold(
       backgroundColor: AppColor.backgroundLight,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFF1A5C35),
-        elevation: 0,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF1A5C35), AppColor.primary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        title: Text(
-          'pickup_dashboard.title'.tr(),
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 18,
-            letterSpacing: -0.3,
-          ),
-        ),
-        actions: [
-          GestureDetector(
-            onTap: _logout,
-            child: Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.16),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.30),
-                ),
-              ),
-              child: const Icon(
-                Icons.logout_rounded,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: _buildModernAppBar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: _OnlineToggle(
         isOnline: isOnline,
@@ -101,15 +60,17 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
       ),
       body: Column(
         children: [
-          if (state.dashboard != null) _buildSummaryStrip(state.dashboard!),
+          if (state.dashboard != null) _buildModernSummaryCards(state.dashboard!),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: AppCard(
               padding: const EdgeInsets.all(6),
               child: TabBar(
                 controller: _tabController,
-                onTap: (_) =>
-                    ref.read(pickupBoyProvider.notifier).loadAssignments(),
+                onTap: (index) {
+                  final status = index == 0 ? 'active' : 'completed';
+                  ref.read(pickupBoyProvider.notifier).loadAssignments(status: status);
+                },
                 indicator: BoxDecoration(
                   color: AppTheme.primaryColor,
                   borderRadius: BorderRadius.circular(AppTheme.radiusMd),
@@ -121,10 +82,11 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
                 labelStyle: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
+                  letterSpacing: -0.2,
                 ),
                 tabs: [
-                  Tab(text: 'pickup_dashboard.pending'.tr()),
-                  Tab(text: 'pickup_dashboard.completed'.tr()),
+                  Tab(text: 'pickup_partner_dashboard.pending'.tr()),
+                  Tab(text: 'pickup_partner_dashboard.completed_today'.tr()),
                 ],
               ),
             ),
@@ -155,29 +117,115 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
                       context,
                       pending,
                       isLoading: state.isLoading,
-                      emptyTitle: context.locale.languageCode == 'hi'
-                          ? 'अभी कोई पेंडिंग पिकअप नहीं है'
-                          : 'No pending pickups yet',
-                      emptySubtitle: context.locale.languageCode == 'hi'
-                          ? 'नई पिकअप असाइन होते ही यहां दिखाई देगी।'
-                          : 'New pickups will appear here as they are assigned.',
+                      emptyTitle:
+                          'pickup_partner_dashboard.no_pickups'.tr(),
+                      emptySubtitle:
+                          'pickup_partner_dashboard.no_pickups_subtitle'.tr(),
                       emptyIcon: FontAwesomeIcons.clipboardList,
                     ),
                     _buildAssignmentList(
                       context,
                       completed,
                       isLoading: state.isLoading,
-                      emptyTitle: context.locale.languageCode == 'hi'
-                          ? 'अभी कोई पूर्ण पिकअप नहीं है'
-                          : 'No completed pickups yet',
-                      emptySubtitle: context.locale.languageCode == 'hi'
-                          ? 'पिकअप पूरा होते ही यहां दिखाई देगा।'
-                          : 'Completed pickups will be listed here.',
+                      emptyTitle:
+                          'pickup_partner_dashboard.no_completed_pickups'.tr(),
+                      emptySubtitle:
+                          'pickup_partner_dashboard.no_completed_pickups_subtitle'.tr(),
                       emptyIcon: FontAwesomeIcons.boxArchive,
                     ),
                   ],
                 );
               },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Modern app bar with gradient
+  AppBar _buildModernAppBar() {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: AppColor.primary,
+      elevation: 0,
+      systemOverlayStyle: SystemUiOverlayStyle.light,
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColor.primary,
+              AppColor.primaryDark,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+      ),
+      title: Text(
+        'pickup_partner_dashboard.title'.tr(),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+          fontSize: 18,
+          letterSpacing: -0.3,
+        ),
+      ),
+      actions: [
+        GestureDetector(
+          onTap: _logout,
+          child: Container(
+            margin: const EdgeInsets.only(right: AppTheme.space16),
+            padding: const EdgeInsets.all(AppTheme.space8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.16),
+              borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.3),
+              ),
+            ),
+            child: const Icon(
+              Icons.logout_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Modern summary cards
+  Widget _buildModernSummaryCards(dynamic dashboard) {
+    final pending = dashboard.pendingCount ?? 0;
+    final completed = dashboard.completedCount ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppTheme.space12,
+        vertical: AppTheme.space12,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: DashboardStatCard(
+              label: 'pickup_partner_dashboard.pending'.tr(),
+              value: '$pending',
+              icon: Icons.schedule_rounded,
+              iconColor: AppColor.warning,
+              valueColor: AppColor.warning,
+              backgroundColor: AppColor.surface,
+            ),
+          ),
+          const SizedBox(width: AppTheme.space12),
+          Expanded(
+            child: DashboardStatCard(
+              label: 'pickup_partner_dashboard.completed_today'.tr(),
+              value: '$completed',
+              icon: Icons.check_circle_rounded,
+              iconColor: AppColor.success,
+              valueColor: AppColor.success,
+              backgroundColor: AppColor.surface,
             ),
           ),
         ],
@@ -208,51 +256,6 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
     }
   }
 
-  Widget _buildSummaryStrip(dynamic dashboard) {
-    final pending = (dashboard.pendingCount ?? 0).toString();
-    final completed = (dashboard.completedCount ?? 0).toString();
-    final greeting = dashboard.pickupBoy?.name ?? '';
-    final isHindi = context.locale.languageCode == 'hi';
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: _StatTile(
-              icon: FontAwesomeIcons.truckFast,
-              label: isHindi ? 'पेंडिंग' : 'Pending',
-              value: pending,
-              color: AppColor.primary,
-            ),
-          ),
-          const SizedBox(width: AppTheme.space12),
-          Expanded(
-            child: _StatTile(
-              icon: FontAwesomeIcons.circleCheck,
-              label: isHindi ? 'पूर्ण' : 'Completed',
-              value: completed,
-              color: AppColor.brandNavy,
-            ),
-          ),
-          const SizedBox(width: AppTheme.space12),
-          Expanded(
-            child: _StatTile(
-              icon: FontAwesomeIcons.userTie,
-              label: isHindi ? 'पार्टनर' : 'Partner',
-              value: greeting.isEmpty
-                  ? '—'
-                  : (greeting.split(' ').first.length > 8
-                      ? '${greeting.split(' ').first.substring(0, 8)}…'
-                      : greeting.split(' ').first),
-              color: AppColor.warning,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAssignmentList(
     BuildContext context,
     List<PickupAssignment> assignments, {
@@ -269,444 +272,301 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
       return ListView(
         padding: const EdgeInsets.fromLTRB(20, 24, 20, 140),
         children: [
-          AppCard(
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: AppColor.primarySurface,
-                    shape: BoxShape.circle,
-                  ),
-                  child: FaIcon(
-                    emptyIcon,
-                    size: 26,
-                    color: AppColor.primary,
-                  ),
-                ),
-                const SizedBox(height: AppTheme.space16),
-                Text(
-                  emptyTitle,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: AppColor.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: AppTheme.space8),
-                Text(
-                  emptySubtitle,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColor.textSecondary,
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
+          EmptyStateWidget(
+            icon: emptyIcon,
+            title: emptyTitle,
+            subtitle: emptySubtitle,
           ),
         ],
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: () async {
-        await ref.read(pickupBoyProvider.notifier).loadAssignments();
-        await ref.read(pickupBoyProvider.notifier).loadDashboard();
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 140),
+      itemCount: assignments.length,
+      itemBuilder: (context, index) {
+        final assignment = assignments[index];
+        return _buildModernAssignmentCard(context, assignment, ref);
       },
-      child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 140),
-        itemCount: assignments.length,
-        separatorBuilder: (_, __) => const SizedBox(height: AppTheme.space12),
-        itemBuilder: (context, index) =>
-            _buildPickupCard(context, assignments[index]),
-      ),
     );
   }
 
-  Widget _buildPickupCard(BuildContext context, PickupAssignment assignment) {
-    return AppCard(
-      onTap: () =>
-          context.push('${AppRoutes.pickupBoyDetail}/${assignment.id}'),
-      padding: const EdgeInsets.all(AppTheme.space16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColor.primarySurface,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-                  border: Border.all(color: AppColor.primaryLight),
-                ),
-                child: Text(
-                  assignment.orderCode,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: AppColor.primaryDark,
-                    fontSize: 12,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.schedule_rounded,
-                    size: 14,
-                    color: AppColor.textMuted,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _formatDate(assignment.scheduledAt),
-                    style: const TextStyle(
-                      color: AppColor.textSecondary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: AppTheme.space16),
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColor.primaryLight,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.person_rounded,
-                  size: 22,
-                  color: AppColor.primaryDark,
-                ),
-              ),
-              const SizedBox(width: AppTheme.space12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      assignment.customerName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                        color: AppColor.textPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const FaIcon(
-                          FontAwesomeIcons.locationDot,
-                          size: 11,
-                          color: AppColor.textMuted,
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            assignment.address,
-                            style: const TextStyle(
-                              color: AppColor.textSecondary,
-                              fontSize: 12,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              _QuickIconAction(
-                icon: FontAwesomeIcons.phone,
-                color: AppColor.info,
-                onPressed: () async {
-                  final phone = assignment.customerPhone;
-                  if (phone.isNotEmpty) {
-                    final uri = Uri.parse('tel:$phone');
-                    if (await canLaunchUrl(uri)) launchUrl(uri);
-                  }
-                },
-              ),
-              const SizedBox(width: AppTheme.space8),
-              _QuickIconAction(
-                icon: FontAwesomeIcons.mapLocationDot,
-                color: AppColor.error,
-                onPressed: () async {
-                  final lat = assignment.latitude;
-                  final lng = assignment.longitude;
-                  final addr = assignment.address;
-                  Uri uri;
-                  if (lat != null && lng != null) {
-                    uri = Uri.parse(
-                      'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng',
-                    );
-                  } else if (addr.isNotEmpty) {
-                    uri = Uri.parse(
-                      'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(addr)}',
-                    );
-                  } else {
-                    return;
-                  }
-                  if (await canLaunchUrl(uri)) {
-                    launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
-              ),
-            ],
-          ),
-          if (assignment.expectedItems.isNotEmpty) ...[
-            const SizedBox(height: AppTheme.space12),
-            Container(
-              padding: const EdgeInsets.all(AppTheme.space12),
-              decoration: BoxDecoration(
-                color: AppColor.backgroundCream,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppColor.hairline),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.locale.languageCode == 'hi'
-                        ? 'अपेक्षित आइटम'
-                        : 'EXPECTED ITEMS',
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      color: AppColor.primary,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  const SizedBox(height: AppTheme.space8),
-                  ...assignment.expectedItems.map((item) {
-                    final langCode = context.locale.languageCode;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              color: AppColor.primary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              item.localizedName(langCode),
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColor.textPrimary,
-                              ),
-                            ),
-                          ),
-                          if (item.quantity > 1)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: Text(
-                                'x${item.quantity}',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColor.textSecondary,
-                                ),
-                              ),
-                            ),
-                          if (item.weightKg != null)
-                            Text(
-                              '${item.weightKg!.toStringAsFixed(1)} kg',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColor.textMuted,
-                              ),
-                            ),
-                        ],
-                      ),
-                    );
-                  }),
-                  if (assignment.estimatedWeightKg != null) ...[
-                    const Divider(height: 16, color: AppColor.hairline),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          context.locale.languageCode == 'hi'
-                              ? 'अनुमानित वज़न'
-                              : 'Total Est. Weight',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColor.textSecondary,
-                          ),
-                        ),
-                        Text(
-                          '~ ${assignment.estimatedWeightKg!.toStringAsFixed(1)} kg',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: AppColor.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ] else if (assignment.itemsSummary != null &&
-              assignment.itemsSummary!.isNotEmpty) ...[
-            const SizedBox(height: AppTheme.space12),
-            Container(
-              padding: const EdgeInsets.all(AppTheme.space12),
-              decoration: BoxDecoration(
-                color: AppColor.backgroundCream,
-                borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppColor.hairline),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
+  /// Modern pickup card with CTAs
+  Widget _buildModernAssignmentCard(
+    BuildContext context,
+    PickupAssignment assignment,
+    WidgetRef ref,
+  ) {
+    final isPending = assignment.status != 'completed';
+
+    return GestureDetector(
+      onTap: () => context.go('${AppRoutes.pickupBoyDetail}/${assignment.id}'),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: AppTheme.space12),
+        decoration: BoxDecoration(
+          color: AppColor.surface,
+          borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+          border: Border.all(color: AppColor.cardBorder, width: 0.5),
+          boxShadow: AppTheme.e1,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppTheme.space16),
+          child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header: Customer name + Status
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Items',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColor.textMuted,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
                       Text(
-                        assignment.itemsSummary!,
+                        assignment.customerName,
                         style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
                           color: AppColor.textPrimary,
+                          letterSpacing: -0.3,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'ID: ${assignment.id}"}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: AppColor.textMuted,
                         ),
                       ),
                     ],
                   ),
-                  if (assignment.estimatedWeightKg != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        const Text(
-                          'Est. Weight',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColor.textMuted,
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '~ ${assignment.estimatedWeightKg!.toStringAsFixed(1)} kg',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: AppColor.textPrimary,
-                          ),
-                        ),
-                      ],
+                ),
+                StatusBadge(status: assignment.status),
+              ],
+            ),
+            const SizedBox(height: AppTheme.space12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  FontAwesomeIcons.mapPin,
+                  color: AppColor.textSecondary,
+                  size: 13,
+                ),
+                const SizedBox(width: AppTheme.space8),
+                Expanded(
+                  child: Text(
+                    assignment.address,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: AppColor.textSecondary,
+                      height: 1.4,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppTheme.space12),
+
+            if (assignment.itemsSummary != null && assignment.itemsSummary!.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'pickup_partner_dashboard.items_to_pickup'.tr(),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColor.textPrimary,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    assignment.itemsSummary!,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: AppColor.textSecondary,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: AppTheme.space12),
                 ],
               ),
-            ),
+
+            if (assignment.scheduledAt.isNotEmpty)
+              Row(
+                children: [
+                  Icon(
+                    FontAwesomeIcons.clock,
+                    color: AppColor.textMuted,
+                    size: 12,
+                  ),
+                  const SizedBox(width: AppTheme.space8),
+                  Text(
+                    assignment.scheduledAt,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: AppColor.textMuted,
+                    ),
+                  ),
+                ],
+              ),
+
+            if (isPending)
+              Padding(
+                padding: const EdgeInsets.only(top: AppTheme.space16),
+                child: Wrap(
+                  spacing: AppTheme.space8,
+                  runSpacing: AppTheme.space8,
+                  children: [
+                    _buildCTAButton(
+                      label: 'Start Pickup',
+                      icon: Icons.play_arrow_rounded,
+                      isPrimary: true,
+                      onTap: () {
+                        // Navigate to detail page
+                        context.go('${AppRoutes.pickupBoyDetail}/${assignment.id}');
+                      },
+                    ),
+                    _buildCTAButton(
+                      label: 'Call',
+                      icon: Icons.phone_rounded,
+                      isPrimary: false,
+                      onTap: () async {
+                        try {
+                          final phone = assignment.customerPhone;
+                          if (phone.isNotEmpty) {
+                            final uri = Uri(scheme: 'tel', path: phone);
+                            if (await canLaunchUrl(uri)) {
+                              await launchUrl(uri);
+                            } else if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Cannot open phone dialer')),
+                              );
+                            }
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                    _buildCTAButton(
+                      label: 'Navigate',
+                      icon: Icons.location_on_rounded,
+                      isPrimary: false,
+                      onTap: () async {
+                        try {
+                          final lat = assignment.latitude;
+                          final lng = assignment.longitude;
+                          if (lat != null && lng != null && lat != 0.0 && lng != 0.0) {
+                            final mapsUrl = Uri.parse('https://maps.google.com/?q=$lat,$lng');
+                            if (await canLaunchUrl(mapsUrl)) {
+                              await launchUrl(mapsUrl, mode: LaunchMode.externalApplication);
+                            } else if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Cannot open maps')),
+                              );
+                            }
+                          } else if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Location not available')),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: $e')),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
           ],
-          const SizedBox(height: AppTheme.space16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () => context
-                      .push('${AppRoutes.pickupBoyDetail}/${assignment.id}'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColor.textSecondary,
-                    side: const BorderSide(color: AppColor.outline),
-                    minimumSize: const Size(double.infinity, 46),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    ),
-                  ),
-                  child: Text(
-                    'pickup_dashboard.reschedule'.tr(),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppTheme.space12),
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => context
-                      .push('${AppRoutes.pickupBoyDetail}/${assignment.id}'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.primary,
-                    foregroundColor: Colors.white,
-                    minimumSize: const Size(double.infinity, 46),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                    ),
-                  ),
-                  icon: const FaIcon(FontAwesomeIcons.play, size: 12),
-                  label: Text(
-                    'pickup_dashboard.start_pickup'.tr(),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
+        ),
       ),
     );
   }
 
-  String _formatDate(String scheduledAt) {
-    try {
-      final dt = DateTime.parse(scheduledAt);
-      return '${dt.day}/${dt.month} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-    } catch (_) {
-      return scheduledAt;
-    }
+  Widget _buildCTAButton({
+    required String label,
+    required IconData icon,
+    required bool isPrimary,
+    required VoidCallback onTap,
+    bool isLoading = false,
+  }) {
+    return GestureDetector(
+      onTap: isLoading ? null : onTap,
+      child: Opacity(
+        opacity: isLoading ? 0.7 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppTheme.space10,
+            vertical: AppTheme.space6,
+          ),
+          decoration: BoxDecoration(
+            color: isPrimary ? AppColor.primary : AppColor.primaryLight,
+            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isLoading)
+                SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation(
+                      isPrimary ? AppColor.textOnPrimary : AppColor.primary,
+                    ),
+                  ),
+                )
+              else
+                Icon(
+                  icon,
+                  color: isPrimary ? AppColor.textOnPrimary : AppColor.primary,
+                  size: 13,
+                ),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: isPrimary ? AppColor.textOnPrimary : AppColor.primary,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
 class _OnlineToggle extends StatelessWidget {
   final bool isOnline;
   final bool isLoading;
-  final ValueChanged<bool> onChanged;
+  final Function(bool) onChanged;
 
   const _OnlineToggle({
     required this.isOnline,
@@ -717,130 +577,79 @@ class _OnlineToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(AppTheme.radiusPill),
-        border: Border.all(
-          color: isOnline ? AppColor.primaryLight : AppColor.outline,
-        ),
-        boxShadow: AppTheme.e2,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 8,
-            height: 8,
+            width: 12,
+            height: 12,
             decoration: BoxDecoration(
-              color: isOnline ? AppColor.primary : AppColor.textMuted,
+              color: isOnline ? AppColor.success : AppColor.error,
               shape: BoxShape.circle,
             ),
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Text(
-            isOnline
-                ? (context.locale.languageCode == 'hi' ? 'सक्रिय' : 'Active')
-                : (context.locale.languageCode == 'hi' ? 'निष्क्रिय' : 'Inactive'),
+            isOnline ? 'Online' : 'Offline',
             style: TextStyle(
-              color: isOnline ? AppColor.primaryDark : AppColor.textSecondary,
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-            ),
-          ),
-          Switch(
-            value: isOnline,
-            onChanged: isLoading ? null : onChanged,
-            activeTrackColor: AppColor.primary.withValues(alpha: 0.5),
-            activeThumbColor: AppColor.primary,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  const _StatTile({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-            ),
-            child: FaIcon(icon, size: 14, color: color),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w800,
-              color: AppColor.textPrimary,
-              height: 1.1,
-            ),
-          ),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColor.textSecondary,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
-              letterSpacing: 0.3,
+              color: AppColor.textPrimary,
             ),
           ),
+          const SizedBox(width: 16),
+          isLoading
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor:
+                        AlwaysStoppedAnimation(AppColor.primary),
+                  ),
+                )
+              : GestureDetector(
+                  onTap: () => onChanged(!isOnline),
+                  child: Container(
+                    width: 44,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: isOnline
+                          ? AppColor.success.withValues(alpha: 0.2)
+                          : AppColor.error.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Align(
+                      alignment: isOnline
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        width: 20,
+                        height: 20,
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        decoration: BoxDecoration(
+                          color: isOnline ? AppColor.success : AppColor.error,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
         ],
-      ),
-    );
-  }
-}
-
-class _QuickIconAction extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final VoidCallback onPressed;
-
-  const _QuickIconAction({
-    required this.icon,
-    required this.color,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-      child: Container(
-        width: 38,
-        height: 38,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-          border: Border.all(color: color.withValues(alpha: 0.20)),
-        ),
-        child: FaIcon(icon, size: 14, color: color),
       ),
     );
   }

@@ -20,6 +20,13 @@ class WhRequestDetailPage extends ConsumerStatefulWidget {
 
 class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
   int? _selectedBoyId;
+  late WarehouseRequest _request;
+
+  @override
+  void initState() {
+    super.initState();
+    _request = widget.request;
+  }
 
   String _formatScheduledAt(String raw) {
     try {
@@ -32,7 +39,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final r = widget.request;
+    final r = _request;
     final state = ref.watch(warehouseProvider);
 
     return Scaffold(
@@ -116,7 +123,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
     );
   }
 
-(Color, Color, String) _statusStyle(String status) {
+  (Color, Color, String) _statusStyle(String status) {
     switch (status.toLowerCase()) {
       case 'completed':
         return (const Color(0xFFEDE9FE), const Color(0xFF7C3AED), 'Completed');
@@ -140,6 +147,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
 
   Widget _buildBentoContent(WarehouseRequest r) {
     final (statusBg, statusText, statusLabel) = _statusStyle(r.status);
+    final isAssignmentBlocked = r.requiresCorporateQuote;
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -180,6 +188,46 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
             ),
           ),
           const SizedBox(height: 16),
+          if (isAssignmentBlocked)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColor.hintPeach,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppColor.warning.withValues(alpha: 0.25),
+                ),
+              ),
+              child: Text(
+                'Corporate quote required before pickup assignment. Submit the estimate from admin first.',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColor.warning,
+                  height: 1.4,
+                ),
+              ),
+            )
+          else if (r.isCorporate && r.estimatedAmount != null)
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.primarySurface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                'Corporate quote: Rs ${r.estimatedAmount!.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.primaryDark,
+                ),
+              ),
+            ),
           // CUSTOMER DETAILS (left) + STATUS & ITEM SUMMARY (right stacked)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -412,7 +460,8 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                             ),
                           ),
                           const SizedBox(height: 18),
-                          if (r.itemSummary != null && r.itemSummary!.isNotEmpty)
+                          if (r.itemSummary != null &&
+                              r.itemSummary!.isNotEmpty)
                             Text(
                               r.itemSummary!,
                               style: const TextStyle(
@@ -447,7 +496,9 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                                     'EST. WEIGHT',
                                     style: TextStyle(
                                       fontSize: 9,
-                                      color: Colors.white.withValues(alpha: 0.7),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.7,
+                                      ),
                                       letterSpacing: 0.5,
                                     ),
                                   ),
@@ -538,7 +589,10 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
                 else
                   Text(
                     'No pickup boy assigned yet.',
-                    style: TextStyle(fontSize: 13, color: AppColor.textSecondary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: AppColor.textSecondary,
+                    ),
                   ),
               ],
             ),
@@ -595,6 +649,7 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
   Widget _buildAgentAssignment(WarehouseRequest r, WarehouseState state) {
     final alreadyAssigned = r.assignedPickupBoyId != null;
     final boys = state.assignablePickupBoys;
+    final isAssignmentBlocked = r.requiresCorporateQuote;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -612,34 +667,43 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        alreadyAssigned
-                            ? 'Reassign Pickup Boy'
-                            : 'Assign Pickup Boy',
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w900,
-                          color: AppTheme.textPrimary,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          alreadyAssigned
+                              ? 'Reassign Pickup Boy'
+                              : 'Assign Pickup Boy',
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w900,
+                            color: AppTheme.textPrimary,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Select an available agent near the area',
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppColor.textSecondary,
+                        Text(
+                          isAssignmentBlocked
+                              ? 'Quote must be submitted before assignment'
+                              : 'Select an available agent near the area',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColor.textSecondary,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 12),
                   GestureDetector(
-                    onTap: () {
-                      ref
-                          .read(warehouseProvider.notifier)
-                          .loadAssignablePickupBoys(r.id);
-                    },
+                    onTap: isAssignmentBlocked
+                        ? null
+                        : () {
+                            ref
+                                .read(warehouseProvider.notifier)
+                                .loadAssignablePickupBoys(r.id);
+                          },
                     child: Text(
                       'REFRESH',
                       style: TextStyle(
@@ -657,6 +721,14 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
               const Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(child: CircularProgressIndicator()),
+              )
+            else if (isAssignmentBlocked)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  'This corporate booking cannot be assigned until the estimate amount is submitted from admin.',
+                  style: TextStyle(fontSize: 13, color: AppColor.textMuted),
+                ),
               )
             else if (boys.isEmpty)
               Padding(
@@ -841,6 +913,14 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
 
   Future<void> _doAssign(WarehouseRequest r) async {
     if (_selectedBoyId == null) return;
+    if (r.requiresCorporateQuote) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Corporate quote required before pickup assignment.'),
+        ),
+      );
+      return;
+    }
     final notifier = ref.read(warehouseProvider.notifier);
     final alreadyAssigned = r.assignedPickupBoyId != null;
 
@@ -856,6 +936,25 @@ class _WhRequestDetailPageState extends ConsumerState<WhRequestDetailPage> {
     }
 
     if (success && mounted) {
+      final selectedBoy = ref
+          .read(warehouseProvider)
+          .assignablePickupBoys
+          .where((boy) => boy.id == _selectedBoyId)
+          .cast<WarehousePickupBoy?>()
+          .firstWhere((boy) => boy != null, orElse: () => null);
+
+      setState(() {
+        _request = _request.copyWith(
+          status: 'assigned',
+          assignedPickupBoyId: _selectedBoyId,
+          assignedPickupBoyName:
+              selectedBoy?.name ?? _request.assignedPickupBoyName,
+        );
+        _selectedBoyId = null;
+      });
+
+      ref.read(warehouseProvider.notifier).loadRequests();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

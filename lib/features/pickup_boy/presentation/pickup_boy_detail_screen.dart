@@ -77,7 +77,13 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
             ),
             child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
           ),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(AppRoutes.pickupDashboard);
+            }
+          },
         ),
       ),
       body: _loading
@@ -263,19 +269,20 @@ class _PickupBoyDetailScreenState extends ConsumerState<PickupBoyDetailScreen> {
             ),
           ),
         ),
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-          decoration: const BoxDecoration(
-            color: AppColor.surface,
-            border: Border(top: BorderSide(color: AppColor.hairline)),
+        if (status != 'completed')
+          Container(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+            decoration: const BoxDecoration(
+              color: AppColor.surface,
+              border: Border(top: BorderSide(color: AppColor.hairline)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: state.isActionLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _buildActionButtons(context, status),
+            ),
           ),
-          child: SafeArea(
-            top: false,
-            child: state.isActionLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _buildActionButtons(context, status),
-          ),
-        ),
       ],
     );
   }

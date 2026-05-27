@@ -61,6 +61,7 @@ class _CorporateCategoryScreenState
           ),
           Expanded(
             child: categoryOptionsAsync.when(
+              skipError: true,
               data: (options) {
                 final categoryTypes = options.groups;
                 if (_selectedCategoryTypeId == null &&
@@ -226,27 +227,17 @@ class _CorporateCategoryScreenState
                   ),
                 ),
                 const SizedBox(height: 8),
-                DropdownButtonFormField<int>(
-                  key: ValueKey('corp_type_$selectedTypeId'),
-                  initialValue: selectedTypeId,
-                  decoration: _inputDecoration(''),
-                  items: categoryTypes
-                      .map(
-                        (cat) => DropdownMenuItem<int>(
-                          value: cat.id,
-                          child: Text(cat.name),
-                        ),
+                _buildSearchableSelector(
+                  label: categoryTypes
+                      .firstWhere(
+                        (cat) => cat.id == selectedTypeId,
+                        orElse: () => categoryTypes.first,
                       )
-                      .toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedCategoryTypeId = value;
-                        _selectedSubcategory = null;
-                      });
-                    }
-                  },
-                  icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                      .name,
+                  hint: isHindi
+                      ? 'कॉर्पोरेट श्रेणी चुनें'
+                      : 'Select corporate category',
+                  onTap: () => _showCategoryTypeSheet(categoryTypes),
                 ),
                 const SizedBox(height: 12),
                 const Text(
@@ -258,40 +249,18 @@ class _CorporateCategoryScreenState
                   ),
                 ),
                 const SizedBox(height: 8),
-                DropdownButtonFormField<int>(
-                  key: ValueKey('corp_sub_${_selectedSubcategory?.id ?? 0}'),
-                  initialValue:
-                      _selectedSubcategory != null &&
-                          subcategories.any(
-                            (cat) => cat.id == _selectedSubcategory!.id,
-                          )
-                      ? _selectedSubcategory!.id
-                      : null,
-                  decoration: _inputDecoration(
-                    subcategories.isEmpty
-                        ? (isHindi
-                              ? 'कोई उप-श्रेणी उपलब्ध नहीं है'
-                              : 'No sub-category available')
-                        : '',
-                  ),
-                  items: subcategories
-                      .map(
-                        (cat) => DropdownMenuItem<int>(
-                          value: cat.id,
-                          child: Text(cat.getName(context)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: subcategories.isEmpty
+                _buildSearchableSelector(
+                  label: _selectedSubcategory?.getName(context),
+                  hint: subcategories.isEmpty
+                      ? (isHindi
+                            ? 'कोई उप-श्रेणी उपलब्ध नहीं है'
+                            : 'No sub-category available')
+                      : (isHindi
+                            ? 'कॉर्पोरेट आइटम चुनें'
+                            : 'Select corporate item'),
+                  onTap: subcategories.isEmpty
                       ? null
-                      : (value) {
-                          if (value == null) return;
-                          setState(
-                            () => _selectedSubcategory = subcategories
-                                .firstWhere((cat) => cat.id == value),
-                          );
-                        },
-                  icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                      : () => _showSubcategorySheet(subcategories),
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -420,6 +389,48 @@ class _CorporateCategoryScreenState
     );
   }
 
+  Widget _buildSearchableSelector({
+    required String? label,
+    required String hint,
+    required VoidCallback? onTap,
+  }) {
+    final hasValue = label != null && label.trim().isNotEmpty;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppTheme.outline),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                hasValue ? label : hint,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: hasValue ? FontWeight.w700 : FontWeight.w500,
+                  color: hasValue
+                      ? AppTheme.textPrimary
+                      : AppTheme.textSecondary,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: onTap == null
+                  ? AppTheme.textMuted
+                  : AppTheme.textSecondary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _unitButton(String unit) {
     final selected = _selectedUnit == unit;
     return InkWell(
@@ -449,13 +460,23 @@ class _CorporateCategoryScreenState
 
   void _addCorporateCategoryEntry() {
     final category = _selectedSubcategory;
+    final selectedTypeId = _selectedCategoryTypeId;
     final quantity = double.tryParse(_qtyController.text.trim()) ?? 0;
-    if (category == null || quantity <= 0) return;
+    if (category == null || selectedTypeId == null || quantity <= 0) return;
+
+    final options = ref.read(corporateBookingOptionsProvider).asData?.value;
+    final parentGroup = options?.groups.firstWhere(
+      (group) => group.id == selectedTypeId,
+      orElse: () => const CorporateCategoryGroup(id: 0, name: '', imageUrl: ''),
+    );
+    final parentCategory = parentGroup?.name.trim() ?? '';
+    if (parentCategory.isEmpty) return;
 
     ref
         .read(corporateBookingProvider.notifier)
         .addCorporateEntry(
           category.getName(context),
+          parentCategory,
           quantity,
           _selectedUnit,
           categoryId: category.id,
@@ -465,6 +486,231 @@ class _CorporateCategoryScreenState
       _qtyController.clear();
       _selectedUnit = 'kg';
     });
+  }
+
+  Future<void> _showCategoryTypeSheet(
+    List<CorporateCategoryGroup> categoryTypes,
+  ) async {
+    final selected = await _showSearchSheet<CorporateCategoryGroup>(
+      title: 'Select Corporate Category',
+      items: categoryTypes,
+      itemLabel: (item) => item.name,
+      isSelected: (item) => item.id == _selectedCategoryTypeId,
+    );
+
+    if (selected == null || !mounted) return;
+    setState(() {
+      _selectedCategoryTypeId = selected.id;
+      _selectedSubcategory = null;
+    });
+  }
+
+  Future<void> _showSubcategorySheet(List<Category> subcategories) async {
+    final selected = await _showSearchSheet<Category>(
+      title: 'Select Corporate Item',
+      items: subcategories,
+      itemLabel: (item) => item.getName(context),
+      isSelected: (item) => item.id == _selectedSubcategory?.id,
+    );
+
+    if (selected == null || !mounted) return;
+    setState(() => _selectedSubcategory = selected);
+  }
+
+  Future<T?> _showSearchSheet<T>({
+    required String title,
+    required List<T> items,
+    required String Function(T item) itemLabel,
+    required bool Function(T item) isSelected,
+  }) {
+    return showModalBottomSheet<T>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) {
+        final searchController = TextEditingController();
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final query = searchController.text.trim().toLowerCase();
+            final filteredItems = items.where((item) {
+              return itemLabel(item).toLowerCase().contains(query);
+            }).toList();
+
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(ctx).size.height * 0.78,
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 5,
+                    margin: const EdgeInsets.only(top: 12, bottom: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 12, 8),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primarySurface,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Icon(
+                            Icons.tune_rounded,
+                            color: AppTheme.primaryDark,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w900,
+                              color: AppTheme.primaryDark,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          icon: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppTheme.backgroundCream,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close_rounded,
+                              color: AppTheme.textSecondary,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: (_) => setSheetState(() {}),
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        filled: true,
+                        fillColor: AppTheme.backgroundCream,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(
+                            color: AppTheme.primaryColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  Expanded(
+                    child: filteredItems.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No results found',
+                              style: const TextStyle(
+                                color: AppTheme.textSecondary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          )
+                        : ListView.separated(
+                            itemCount: filteredItems.length,
+                            separatorBuilder: (_, __) =>
+                                Divider(color: Colors.grey.shade100, height: 1),
+                            itemBuilder: (context, index) {
+                              final item = filteredItems[index];
+                              final selected = isSelected(item);
+                              return InkWell(
+                                onTap: () => Navigator.pop(ctx, item),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 150),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 18,
+                                  ),
+                                  color: selected
+                                      ? AppTheme.primarySurface
+                                      : Colors.transparent,
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 22,
+                                        height: 22,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: selected
+                                              ? AppTheme.primaryDark
+                                              : Colors.transparent,
+                                          border: Border.all(
+                                            color: selected
+                                                ? AppTheme.primaryDark
+                                                : AppTheme.cardBorderColor,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: selected
+                                            ? const Icon(
+                                                Icons.check,
+                                                color: Colors.white,
+                                                size: 13,
+                                              )
+                                            : null,
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Text(
+                                          itemLabel(item),
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: selected
+                                                ? FontWeight.w800
+                                                : FontWeight.w600,
+                                            color: selected
+                                                ? AppTheme.primaryDark
+                                                : AppTheme.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _emptyState(String message) {

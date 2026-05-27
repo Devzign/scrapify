@@ -400,6 +400,7 @@ class _PickupBoyVerificationScreenState
                             Container(
                               width: 40,
                               height: 40,
+                              alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: AppColor.primarySurface,
                                 shape: BoxShape.circle,

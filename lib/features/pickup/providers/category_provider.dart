@@ -67,20 +67,21 @@ final homeApplianceDetailsProvider =
       }
     });
 
-final corporateBookingOptionsProvider = FutureProvider<CorporateBookingOption>((
-  ref,
-) async {
-  final repository = ref.watch(categoryRepositoryProvider);
-  final response = await repository.fetchCorporateBookingOptions();
+final corporateBookingOptionsProvider =
+    FutureProvider.autoDispose<CorporateBookingOption>(retry: (_, _) => null, (
+      ref,
+    ) async {
+      final repository = ref.watch(categoryRepositoryProvider);
+      final response = await repository.fetchCorporateBookingOptions();
 
-  if (response.isSuccess && response.data != null) {
-    return response.data!;
-  } else {
-    throw Exception(
-      response.errorMessage ?? 'Failed to fetch corporate booking options',
-    );
-  }
-});
+      if (response.isSuccess && response.data != null) {
+        return response.data!;
+      } else {
+        throw Exception(
+          response.errorMessage ?? 'Failed to fetch corporate booking options',
+        );
+      }
+    });
 
 Category? _findCategoryRecursive(List<Category> categories, int id) {
   for (var cat in categories) {

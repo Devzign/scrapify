@@ -83,7 +83,9 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                                   color: AppColor.hintPeach,
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: AppColor.warning.withValues(alpha: 0.30),
+                                    color: AppColor.warning.withValues(
+                                      alpha: 0.30,
+                                    ),
                                   ),
                                 ),
                                 child: Text(
@@ -303,6 +305,7 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
     final isUnassigned =
         r.status.toLowerCase() == 'unassigned' ||
         (r.status.toLowerCase() == 'pending' && r.assignedPickupBoyId == null);
+    final isAssignmentBlocked = r.requiresCorporateQuote;
 
     return GestureDetector(
       onTap: () => Navigator.push(
@@ -396,16 +399,60 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
               value: r.assignedPickupBoyName ?? r.address,
               labelColor: AppTheme.primaryColor,
             ),
+            if (isAssignmentBlocked) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColor.hintPeach,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColor.warning.withValues(alpha: 0.25),
+                  ),
+                ),
+                child: Text(
+                  'Corporate quote required before assignment.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppColor.warning,
+                  ),
+                ),
+              ),
+            ] else if (r.isCorporate && r.estimatedAmount != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.primarySurface,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Corporate quote: Rs ${r.estimatedAmount!.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.primaryDark,
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
                   child: isUnassigned
                       ? ElevatedButton.icon(
-                          onPressed: () => _showAssignSheet(r),
+                          onPressed: isAssignmentBlocked
+                              ? null
+                              : () => _showAssignSheet(r),
                           icon: const Icon(Icons.person_add_rounded, size: 18),
-                          label: const Text(
-                            'Assign Driver',
+                          label: Text(
+                            isAssignmentBlocked
+                                ? 'Quote Required'
+                                : 'Assign Driver',
                             style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
@@ -422,7 +469,9 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                           ),
                         )
                       : OutlinedButton(
-                          onPressed: r.assignedPickupBoyId != null
+                          onPressed:
+                              r.assignedPickupBoyId != null &&
+                                  !isAssignmentBlocked
                               ? () => _showReassignSheet(r)
                               : null,
                           style: OutlinedButton.styleFrom(
@@ -433,7 +482,9 @@ class _WhRequestsPageState extends ConsumerState<WhRequestsPage> {
                             ),
                           ),
                           child: Text(
-                            r.assignedPickupBoyId != null
+                            isAssignmentBlocked
+                                ? 'Quote Required'
+                                : r.assignedPickupBoyId != null
                                 ? 'Reassign'
                                 : 'View Details',
                             style: TextStyle(

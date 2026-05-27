@@ -193,11 +193,16 @@ class CorporateReviewScreen extends ConsumerWidget {
     final corporateCategoryItems = booking.corporateEntries
         .map(
           (item) => {
-            'corporate_category': item.category,
+            'corporate_category': item.parentCategory,
             'unit': item.unit,
             'quantity': item.quantity,
           },
         )
+        .toList();
+    final corporateCategories = booking.corporateEntries
+        .map((item) => item.parentCategory.trim())
+        .where((item) => item.isNotEmpty)
+        .toSet()
         .toList();
     final items = booking.corporateEntries
         .where((entry) => entry.categoryId != null)
@@ -227,6 +232,7 @@ class CorporateReviewScreen extends ConsumerWidget {
       'contact_name': booking.contactName.trim(),
       'contact_mobile': booking.contactMobile.trim(),
       'contact_email': booking.contactEmail.trim(),
+      'corporate_categories': corporateCategories,
       'corporate_category_items': corporateCategoryItems,
       'meeting_type': booking.meetingType.trim(),
       if ((booking.gstNumber ?? '').trim().isNotEmpty)

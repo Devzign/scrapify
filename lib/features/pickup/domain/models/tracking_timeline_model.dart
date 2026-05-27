@@ -28,8 +28,8 @@ class TrackingTimelineModel {
       pickupCode: data['pickup_code']?.toString() ?? '',
       status: data['status']?.toString() ?? '',
       scheduledAt: _parseDateTime(data['scheduled_at']?.toString()),
-      latitude: (data['latitude'] as num?)?.toDouble(),
-      longitude: (data['longitude'] as num?)?.toDouble(),
+      latitude: _parseDouble(data['latitude']),
+      longitude: _parseDouble(data['longitude']),
       agent: data['agent'] is Map<String, dynamic>
           ? TrackingAgent.fromJson(data['agent'] as Map<String, dynamic>)
           : null,
@@ -103,4 +103,15 @@ DateTime? _parseDateTime(String? value) {
   }
 
   return DateTime.tryParse(value);
+}
+
+double? _parseDouble(dynamic value) {
+  if (value is num) {
+    return value.toDouble();
+  }
+  if (value == null) {
+    return null;
+  }
+
+  return double.tryParse(value.toString());
 }

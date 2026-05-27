@@ -7,6 +7,7 @@ import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/custom_button.dart';
+import '../../auth/domain/models/user.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../providers/corporate_provider.dart';
@@ -38,41 +39,11 @@ class _CorporateDetailsScreenState
     _gstController = TextEditingController();
     _notesController = TextEditingController();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final booking = ref.read(corporateBookingProvider);
-      final user = ref.read(authProvider);
-      final notifier = ref.read(corporateBookingProvider.notifier);
-      final settings = ref.read(settingsProvider).settings;
-      final meetingTypes =
-          (settings['corporate_meeting_types'] as List<dynamic>?)
-              ?.map((e) => e.toString().trim().toLowerCase())
-              .where((e) => e.isNotEmpty)
-              .toList() ??
-          const ['in_person', 'google_meet', 'skype'];
-
-      if (booking.companyName.trim().isEmpty && user?.name != null) {
-        notifier.setCompanyName(user!.name);
-      }
-      if (booking.contactName.trim().isEmpty && user?.name != null) {
-        notifier.setContactName(user!.name);
-      }
-      if (booking.contactMobile.trim().isEmpty && user?.phone != null) {
-        notifier.setContactMobile(user!.phone);
-      }
-      if (booking.contactEmail.trim().isEmpty && user?.email != null) {
-        notifier.setContactEmail(user!.email!);
-      }
-      if (booking.meetingType.trim().isEmpty && meetingTypes.isNotEmpty) {
-        notifier.setMeetingType(meetingTypes.first);
-      }
-
-      final fresh = ref.read(corporateBookingProvider);
-      _companyNameController.text = fresh.companyName;
-      _contactNameController.text = fresh.contactName;
-      _contactMobileController.text = fresh.contactMobile;
-      _contactEmailController.text = fresh.contactEmail;
-      _gstController.text = fresh.gstNumber ?? '';
-      _notesController.text = fresh.notes ?? '';
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _syncControllersFromBooking(ref.read(corporateBookingProvider));
+      await ref.read(authProvider.notifier).fetchProfile();
+      if (!mounted) return;
+      _prefillFromUser(ref.read(authProvider));
     });
   }
 
@@ -91,6 +62,7 @@ class _CorporateDetailsScreenState
   Widget build(BuildContext context) {
     final isHindi = context.locale.languageCode == 'hi';
     final booking = ref.watch(corporateBookingProvider);
+    final user = ref.watch(authProvider);
     final settings = ref.watch(settingsProvider).settings;
     final meetingTypes =
         (settings['corporate_meeting_types'] as List<dynamic>?)
@@ -98,6 +70,11 @@ class _CorporateDetailsScreenState
             .where((e) => e.isNotEmpty)
             .toList() ??
         const ['in_person', 'google_meet', 'skype'];
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _prefillFromUser(user, meetingTypes: meetingTypes);
+    });
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -350,6 +327,64 @@ class _CorporateDetailsScreenState
           ),
         ),
       ],
+    );
+  }
+
+  void _prefillFromUser(User? user, {List<String>? meetingTypes}) {
+    final booking = ref.read(corporateBookingProvider);
+    final notifier = ref.read(corporateBookingProvider.notifier);
+    final resolvedMeetingTypes = meetingTypes ?? _meetingTypesFromSettings();
+
+    if (booking.companyName.trim().isEmpty &&
+        (user?.name.trim().isNotEmpty ?? false)) {
+      notifier.setCompanyName(user!.name);
+    }
+    if (booking.contactName.trim().isEmpty &&
+        (user?.name.trim().isNotEmpty ?? false)) {
+      notifier.setContactName(user!.name);
+    }
+    if (booking.contactMobile.trim().isEmpty &&
+        (user?.phone.trim().isNotEmpty ?? false)) {
+      notifier.setContactMobile(user!.phone);
+    }
+    if (booking.contactEmail.trim().isEmpty &&
+        (user?.email?.trim().isNotEmpty ?? false)) {
+      notifier.setContactEmail(user!.email!);
+    }
+    if (booking.meetingType.trim().isEmpty && resolvedMeetingTypes.isNotEmpty) {
+      notifier.setMeetingType(resolvedMeetingTypes.first);
+    }
+
+    _syncControllersFromBooking(ref.read(corporateBookingProvider));
+  }
+
+  List<String> _meetingTypesFromSettings() {
+    final settings = ref.read(settingsProvider).settings;
+    return (settings['corporate_meeting_types'] as List<dynamic>?)
+            ?.map((e) => e.toString().trim().toLowerCase())
+            .where((e) => e.isNotEmpty)
+            .toList() ??
+        const ['in_person', 'google_meet', 'skype'];
+  }
+
+  void _syncControllersFromBooking(CorporateBookingState booking) {
+    _setControllerValue(_companyNameController, booking.companyName);
+    _setControllerValue(_contactNameController, booking.contactName);
+    _setControllerValue(_contactMobileController, booking.contactMobile);
+    _setControllerValue(_contactEmailController, booking.contactEmail);
+    _setControllerValue(_gstController, booking.gstNumber ?? '');
+    _setControllerValue(_notesController, booking.notes ?? '');
+  }
+
+  void _setControllerValue(TextEditingController controller, String value) {
+    if (controller.text == value) {
+      return;
+    }
+
+    controller.value = controller.value.copyWith(
+      text: value,
+      selection: TextSelection.collapsed(offset: value.length),
+      composing: TextRange.empty,
     );
   }
 }
