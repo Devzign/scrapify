@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_color.dart';
 
-/// Modern dashboard stat card with icon, label, and value.
-/// Used for displaying key metrics in dashboards.
 class DashboardStatCard extends StatelessWidget {
   final String label;
   final String value;
@@ -17,7 +15,7 @@ class DashboardStatCard extends StatelessWidget {
   final Widget? trailing;
 
   const DashboardStatCard({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     required this.icon,
@@ -28,7 +26,7 @@ class DashboardStatCard extends StatelessWidget {
     this.trend,
     this.trendColor,
     this.trailing,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

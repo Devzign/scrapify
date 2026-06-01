@@ -48,7 +48,6 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initAppSettings();
-      _reloadHomeData();
     });
   }
 
@@ -251,7 +250,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
               },
               onOrdersTap: () {
                 setState(() => _currentIndex = 1);
-                ref.invalidate(pickupsProvider);
+                ref.invalidate(pickupsByTypeProvider(_selectedOrdersRequestType));
               },
               onMoneyTap: _handleMoneyTap,
             )
@@ -908,7 +907,9 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
   }
 
   Widget _buildOrdersTab() {
-    final pickupsAsync = ref.watch(pickupsProvider);
+    final pickupsAsync = ref.watch(
+      pickupsByTypeProvider(_selectedOrdersRequestType),
+    );
 
     return Column(
       children: [
@@ -918,10 +919,13 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
         ),
         Expanded(
           child: RefreshIndicator(
-            onRefresh: () => ref.refresh(pickupsProvider.future),
+            onRefresh: () =>
+                ref.refresh(
+                  pickupsByTypeProvider(_selectedOrdersRequestType).future,
+                ),
             child: pickupsAsync.when(
               data: (pickups) {
-                final filtered = pickups.where(_matchesOrdersTypeTab).toList();
+                final filtered = pickups;
                 if (filtered.isEmpty) {
                   return ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -965,16 +969,16 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
     );
   }
 
-  bool _matchesOrdersTypeTab(PickupRequestModel pickup) {
+  OrdersRequestType get _selectedOrdersRequestType {
     switch (_ordersTypeTab) {
       case 0:
-        return pickup.requestType == 'scrap';
+        return OrdersRequestType.scrap;
       case 1:
-        return pickup.requestType == 'donation';
+        return OrdersRequestType.donation;
       case 2:
-        return pickup.requestType == 'corporate';
+        return OrdersRequestType.corporate;
       default:
-        return true;
+        return OrdersRequestType.scrap;
     }
   }
 
@@ -999,7 +1003,12 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
           final selected = _ordersTypeTab == index;
           return Expanded(
             child: GestureDetector(
-              onTap: () => setState(() => _ordersTypeTab = index),
+              onTap: () {
+                setState(() => _ordersTypeTab = index);
+                ref.invalidate(
+                  pickupsByTypeProvider(_selectedOrdersRequestType),
+                );
+              },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -1030,7 +1039,10 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
   ) {
     return InkWell(
       onTap: () => _guardedTap(
-        () => context.push('${AppRoutes.pickupTracking}/${pickup.id}'),
+        () => context.push(
+          '${AppRoutes.pickupTracking}/${pickup.id}',
+          extra: pickup,
+        ),
       ),
       borderRadius: BorderRadius.circular(24),
       child: Container(
@@ -1137,6 +1149,7 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
                   onTap: () => _guardedTap(
                     () => context.push(
                       '${AppRoutes.pickupTracking}/${pickup.id}',
+                      extra: pickup,
                     ),
                   ),
                   child: Text(
@@ -1412,7 +1425,10 @@ class _CustomerDashboardState extends ConsumerState<CustomerDashboard> {
 
     return InkWell(
       onTap: () => _guardedTap(
-        () => context.push('${AppRoutes.pickupTracking}/${pickup.id}'),
+        () => context.push(
+          '${AppRoutes.pickupTracking}/${pickup.id}',
+          extra: pickup,
+        ),
       ),
       borderRadius: BorderRadius.circular(24),
       child: Container(

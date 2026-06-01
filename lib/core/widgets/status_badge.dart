@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// Status badge component for displaying pickup/request status.
-/// Supports multiple status types with semantic colors.
 class StatusBadge extends StatelessWidget {
   final String status;
   final Color? backgroundColor;
@@ -11,7 +9,6 @@ class StatusBadge extends StatelessWidget {
   final bool outlined;
   final double? padding;
 
-  /// Predefined status types and their colors
   static const Map<String, Map<String, Color>> statusColors = {
     'assigned': {
       'bg': Color(0xFFE6EEF7),
@@ -36,14 +33,14 @@ class StatusBadge extends StatelessWidget {
   };
 
   const StatusBadge({
-    Key? key,
+    super.key,
     required this.status,
     this.backgroundColor,
     this.textColor,
     this.icon,
     this.outlined = false,
     this.padding,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

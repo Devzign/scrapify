@@ -5,6 +5,19 @@ import '../domain/models/pickup_request_model.dart';
 import '../domain/models/tracking_timeline_model.dart';
 import '../domain/repositories/pickup_repository.dart';
 
+enum OrdersRequestType { scrap, donation, corporate }
+
+String _requestTypeValue(OrdersRequestType type) {
+  switch (type) {
+    case OrdersRequestType.scrap:
+      return 'scrap';
+    case OrdersRequestType.donation:
+      return 'donation';
+    case OrdersRequestType.corporate:
+      return 'corporate';
+  }
+}
+
 // ── Legacy FutureProviders (used by tracking / detail screens) ──────────────
 
 final pickupsProvider = FutureProvider<List<PickupRequestModel>>((ref) async {
@@ -13,6 +26,18 @@ final pickupsProvider = FutureProvider<List<PickupRequestModel>>((ref) async {
   if (response.isSuccess) return response.data!;
   throw Exception(response.errorMessage ?? 'Failed to fetch pickups');
 });
+
+final pickupsByTypeProvider =
+    FutureProvider.family<List<PickupRequestModel>, OrdersRequestType>(
+      (ref, type) async {
+        final repository = ref.watch(pickupRepositoryProvider);
+        final response = await repository.fetchPickupsByType(
+          _requestTypeValue(type),
+        );
+        if (response.isSuccess) return response.data!;
+        throw Exception(response.errorMessage ?? 'Failed to fetch pickups');
+      },
+    );
 
 final pickupDetailProvider =
     FutureProvider.family<PickupRequestModel, int>((ref, id) async {

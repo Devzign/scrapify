@@ -18,6 +18,8 @@ class ChannelPartnerState {
   final ChannelPartnerDashboard? dashboard;
   final List<dynamic> orders;
   final List<dynamic> customers;
+  final List<dynamic> requestCategories;
+  final Map<int, List<dynamic>> subcategoriesByCategory;
   final List<dynamic> pickups;
   final List<dynamic> settlements;
   final List<dynamic> pickupBoys;
@@ -31,6 +33,8 @@ class ChannelPartnerState {
     this.dashboard,
     this.orders = const [],
     this.customers = const [],
+    this.requestCategories = const [],
+    this.subcategoriesByCategory = const {},
     this.pickups = const [],
     this.settlements = const [],
     this.pickupBoys = const [],
@@ -45,6 +49,8 @@ class ChannelPartnerState {
     ChannelPartnerDashboard? dashboard,
     List<dynamic>? orders,
     List<dynamic>? customers,
+    List<dynamic>? requestCategories,
+    Map<int, List<dynamic>>? subcategoriesByCategory,
     List<dynamic>? pickups,
     List<dynamic>? settlements,
     List<dynamic>? pickupBoys,
@@ -59,6 +65,9 @@ class ChannelPartnerState {
       dashboard: dashboard ?? this.dashboard,
       orders: orders ?? this.orders,
       customers: customers ?? this.customers,
+      requestCategories: requestCategories ?? this.requestCategories,
+      subcategoriesByCategory:
+          subcategoriesByCategory ?? this.subcategoriesByCategory,
       pickups: pickups ?? this.pickups,
       settlements: settlements ?? this.settlements,
       pickupBoys: pickupBoys ?? this.pickupBoys,
@@ -105,6 +114,33 @@ class ChannelPartnerNotifier extends StateNotifier<ChannelPartnerState> {
     } else {
       state = state.copyWith(isLoading: false, error: result.errorMessage);
     }
+  }
+
+  Future<void> loadRequestCategories() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    final result = await _repository.getCategories();
+    if (result.isSuccess) {
+      state = state.copyWith(
+        requestCategories: result.data ?? const [],
+        isLoading: false,
+      );
+    } else {
+      state = state.copyWith(isLoading: false, error: result.errorMessage);
+    }
+  }
+
+  Future<List<dynamic>> loadSubcategories(int categoryId) async {
+    final cached = state.subcategoriesByCategory[categoryId];
+    if (cached != null) return cached;
+    final result = await _repository.getSubcategories(categoryId);
+    if (result.isSuccess) {
+      final nextMap = Map<int, List<dynamic>>.from(state.subcategoriesByCategory);
+      nextMap[categoryId] = result.data ?? const [];
+      state = state.copyWith(subcategoriesByCategory: nextMap);
+      return nextMap[categoryId] ?? const [];
+    }
+    state = state.copyWith(error: result.errorMessage);
+    return const [];
   }
 
   Future<Map<String, dynamic>?> createCustomer(Map<String, dynamic> payload) async {

@@ -10,7 +10,6 @@ import '../../../core/utils/app_routes.dart';
 import '../../../core/widgets/loading_skeletons.dart';
 import '../../settings/providers/settings_provider.dart';
 import '../domain/models/category.dart';
-import '../providers/booking_provider.dart';
 import '../providers/category_provider.dart';
 import 'widgets/category_list_tile.dart';
 import 'widgets/category_support_banner.dart';
@@ -29,14 +28,6 @@ class _CategorySelectionScreenState
   String _searchQuery = '';
 
   @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref.read(bookingProvider.notifier).startScrapFlow();
-    });
-  }
-
-  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -48,12 +39,14 @@ class _CategorySelectionScreenState
 
     return Scaffold(
       backgroundColor: AppColor.backgroundLight,
-      body: ref.watch(categoriesProvider).when(
+      body: ref
+          .watch(categoriesProvider)
+          .when(
             data: (categories) {
               final filtered = _filterCategories(categories, _searchQuery);
               final showDonationTile =
                   appSettings.features.donationEnabled &&
-                      _matchesDonationQuery(_searchQuery);
+                  _matchesDonationQuery(_searchQuery);
 
               return CustomScrollView(
                 slivers: [
@@ -105,8 +98,7 @@ class _CategorySelectionScreenState
                         ),
                         child: SafeArea(
                           child: Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(64, 0, 20, 16),
+                            padding: const EdgeInsets.fromLTRB(64, 0, 20, 16),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,8 +120,7 @@ class _CategorySelectionScreenState
                                       : 'Choose a category to continue with pickup',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color:
-                                        Colors.white.withValues(alpha: 0.82),
+                                    color: Colors.white.withValues(alpha: 0.82),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -149,8 +140,7 @@ class _CategorySelectionScreenState
                       hint: context.locale.languageCode == 'hi'
                           ? 'धातु, कागज, ई-वेस्ट खोजें...'
                           : 'Search metal, paper, e-waste...',
-                      onChanged: (v) =>
-                          setState(() => _searchQuery = v.trim()),
+                      onChanged: (v) => setState(() => _searchQuery = v.trim()),
                     ),
                   ),
 
@@ -232,8 +222,11 @@ class _CategorySelectionScreenState
       ),
       child: Column(
         children: [
-          const Icon(Icons.search_off_rounded,
-              size: 40, color: AppColor.textMuted),
+          const Icon(
+            Icons.search_off_rounded,
+            size: 40,
+            color: AppColor.textMuted,
+          ),
           const SizedBox(height: 12),
           Text(
             context.locale.languageCode == 'hi'
@@ -327,7 +320,10 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox(
       height: maxExtent,
       child: Container(
@@ -351,8 +347,10 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
             ),
             filled: true,
             fillColor: AppColor.surface,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: const BorderSide(color: AppColor.outline),
@@ -363,8 +361,7 @@ class _SearchBarDelegate extends SliverPersistentHeaderDelegate {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide:
-                  const BorderSide(color: AppColor.primary, width: 1.5),
+              borderSide: const BorderSide(color: AppColor.primary, width: 1.5),
             ),
           ),
         ),
@@ -384,9 +381,7 @@ class _LoadingBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const CustomScrollView(
-      slivers: [
-        SliverFillRemaining(child: CategoryListLoadingSkeleton()),
-      ],
+      slivers: [SliverFillRemaining(child: CategoryListLoadingSkeleton())],
     );
   }
 }
@@ -403,8 +398,11 @@ class _ErrorBody extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.error_outline_rounded,
-                color: AppColor.error, size: 40),
+            const Icon(
+              Icons.error_outline_rounded,
+              color: AppColor.error,
+              size: 40,
+            ),
             const SizedBox(height: 12),
             Text(
               'Error loading categories',

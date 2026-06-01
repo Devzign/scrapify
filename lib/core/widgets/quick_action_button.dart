@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 
-/// Quick action button for dashboard CTAs.
-/// Supports primary, secondary, and outline variants.
 enum QuickActionVariant { primary, secondary, outline }
 
 class QuickActionButton extends StatelessWidget {
@@ -16,7 +14,7 @@ class QuickActionButton extends StatelessWidget {
   final double? height;
 
   const QuickActionButton({
-    Key? key,
+    super.key,
     required this.label,
     this.icon,
     required this.onPressed,
@@ -24,7 +22,7 @@ class QuickActionButton extends StatelessWidget {
     this.isLoading = false,
     this.width,
     this.height,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

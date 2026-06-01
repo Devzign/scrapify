@@ -4,9 +4,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import '../../../core/network/api_endpoints.dart';
 import '../../../core/theme/app_color.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/app_routes.dart';
@@ -32,6 +33,9 @@ class ReviewBookingScreen extends ConsumerStatefulWidget {
 class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
   late final TextEditingController _couponController;
   String? _couponError;
+  LatLng? _resolvedPreviewLatLng;
+  String? _lastPreviewAddressKey;
+  bool _isResolvingPreviewLocation = false;
 
   @override
   void initState() {
@@ -75,7 +79,8 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
     final isCouponValidating = ref.watch(referralProvider).isCouponValidating;
     final appliedCoupon = booking.appliedCoupon;
 
-    final mapUrl = _buildStaticMapUrl(booking);
+    _ensurePreviewLocation(booking);
+    final previewLatLng = _getPreviewLatLng(booking);
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundLight,
@@ -119,7 +124,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                     height: 180,
                     width: double.infinity,
                     color: AppTheme.outline,
-                    child: _buildMapPreview(mapUrl),
+                    child: _buildMapPreview(previewLatLng),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
@@ -231,6 +236,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
                                 isDonationFlow
                                     ? AppRoutes.donationCategorySelection
                                     : AppRoutes.categorySelection,
+                                extra: isDonationFlow ? null : true,
                               );
                             },
                             icon: const Icon(Icons.add, size: 18),
@@ -548,7 +554,7 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.of(dialogContext).pop();
-                context.push(AppRoutes.categorySelection);
+                context.push(AppRoutes.categorySelection, extra: true);
               },
               icon: const Icon(Icons.add),
               label: const Text('Add More Product'),
@@ -1055,13 +1061,16 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
     );
   }
 
-  String? _buildStaticMapUrl(BookingState booking) {
+  LatLng? _getPreviewLatLng(BookingState booking) {
     final lat = booking.selectedAddress?.latitude;
     final lng = booking.selectedAddress?.longitude;
     if (lat != null && lng != null) {
-      return 'https://maps.googleapis.com/maps/api/staticmap?center=$lat,$lng&zoom=15&size=600x300&markers=color:red%7C$lat,$lng&key=${ApiEndpoints.googleMapsApiKey}';
+      return LatLng(lat, lng);
     }
+    return _resolvedPreviewLatLng;
+  }
 
+  void _ensurePreviewLocation(BookingState booking) {
     final addrParts = <String>[
       if (booking.selectedAddress?.addressLine1.trim().isNotEmpty == true)
         booking.selectedAddress!.addressLine1.trim(),
@@ -1070,25 +1079,71 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
       if (booking.selectedAddress?.pincode.trim().isNotEmpty == true)
         booking.selectedAddress!.pincode.trim(),
     ];
-    if (addrParts.isEmpty || ApiEndpoints.googleMapsApiKey.trim().isEmpty) {
-      return null;
+    final addressKey = addrParts.join(', ');
+    if (addressKey.isEmpty) {
+      return;
     }
 
-    final encoded = Uri.encodeComponent(addrParts.join(', '));
-    return 'https://maps.googleapis.com/maps/api/staticmap?center=$encoded&zoom=15&size=600x300&markers=color:red%7C$encoded&key=${ApiEndpoints.googleMapsApiKey}';
+    final hasSavedCoords =
+        booking.selectedAddress?.latitude != null &&
+        booking.selectedAddress?.longitude != null;
+    if (hasSavedCoords ||
+        _isResolvingPreviewLocation ||
+        _lastPreviewAddressKey == addressKey) {
+      return;
+    }
+
+    _lastPreviewAddressKey = addressKey;
+    _isResolvingPreviewLocation = true;
+    Future.microtask(() async {
+      try {
+        final locations = await locationFromAddress(addressKey);
+        if (!mounted) {
+          return;
+        }
+        if (locations.isNotEmpty) {
+          setState(() {
+            _resolvedPreviewLatLng = LatLng(
+              locations.first.latitude,
+              locations.first.longitude,
+            );
+          });
+        }
+      } catch (_) {
+        // Keep the local fallback state when geocoding is unavailable.
+      } finally {
+        _isResolvingPreviewLocation = false;
+      }
+    });
   }
 
-  Widget _buildMapPreview(String? mapUrl) {
+  Widget _buildMapPreview(LatLng? previewLatLng) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        if (mapUrl != null)
-          Image.network(
-            mapUrl,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return _buildMapFallback();
-            },
+        if (previewLatLng != null)
+          IgnorePointer(
+            child: GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: previewLatLng,
+                zoom: 15,
+              ),
+              markers: {
+                Marker(
+                  markerId: const MarkerId('booking_preview'),
+                  position: previewLatLng,
+                ),
+              },
+              myLocationEnabled: false,
+              myLocationButtonEnabled: false,
+              zoomControlsEnabled: false,
+              scrollGesturesEnabled: false,
+              zoomGesturesEnabled: false,
+              tiltGesturesEnabled: false,
+              rotateGesturesEnabled: false,
+              mapToolbarEnabled: false,
+              compassEnabled: false,
+            ),
           )
         else
           _buildMapFallback(),
@@ -1112,9 +1167,11 @@ class _ReviewBookingScreenState extends ConsumerState<ReviewBookingScreen> {
     return Container(
       color: AppTheme.outline,
       alignment: Alignment.center,
-      child: const Text(
-        'Map preview unavailable',
-        style: TextStyle(
+      child: Text(
+        _isResolvingPreviewLocation
+            ? 'Loading map preview...'
+            : 'Map preview unavailable',
+        style: const TextStyle(
           color: AppTheme.textSecondary,
           fontWeight: FontWeight.w600,
         ),

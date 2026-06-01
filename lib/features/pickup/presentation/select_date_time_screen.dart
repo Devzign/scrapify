@@ -31,6 +31,7 @@ class _SelectAddressTimeScreenState
   String? _lastSlotsKey;
   bool _isSlotsLoading = false;
   bool _hasSlotApiError = false;
+  bool _isDeletingAddress = false;
 
   @override
   void initState() {
@@ -75,9 +76,15 @@ class _SelectAddressTimeScreenState
             decoration: BoxDecoration(
               color: AppColor.primarySurface,
               shape: BoxShape.circle,
-              border: Border.all(color: AppColor.primary.withValues(alpha: 0.20)),
+              border: Border.all(
+                color: AppColor.primary.withValues(alpha: 0.20),
+              ),
             ),
-            child: const Icon(Icons.arrow_back_rounded, color: AppColor.primary, size: 18),
+            child: const Icon(
+              Icons.arrow_back_rounded,
+              color: AppColor.primary,
+              size: 18,
+            ),
           ),
           onPressed: () => context.pop(),
         ),
@@ -202,11 +209,21 @@ class _SelectAddressTimeScreenState
                                       color: AppTheme.textMuted,
                                       size: 14,
                                     ),
-                                    const SizedBox(width: 16),
-                                    const FaIcon(
-                                      FontAwesomeIcons.trashCan,
-                                      color: AppTheme.errorColor,
-                                      size: 14,
+                                    const SizedBox(width: 4),
+                                    IconButton(
+                                      onPressed: _isDeletingAddress
+                                          ? null
+                                          : () => _confirmDeleteAddress(
+                                              addr.id,
+                                              isSelected,
+                                            ),
+                                      splashRadius: 18,
+                                      tooltip: 'Delete address',
+                                      icon: const FaIcon(
+                                        FontAwesomeIcons.trashCan,
+                                        color: AppTheme.errorColor,
+                                        size: 14,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -642,5 +659,60 @@ class _SelectAddressTimeScreenState
     }
 
     return DateTime(date.year, date.month, date.day, hour, minute);
+  }
+
+  Future<void> _confirmDeleteAddress(int addressId, bool wasSelected) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Delete address?'),
+          content: const Text(
+            'This address will be removed from your saved addresses.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: AppTheme.errorColor),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true || !mounted) {
+      return;
+    }
+
+    setState(() => _isDeletingAddress = true);
+    final success = await ref
+        .read(addressProvider.notifier)
+        .deleteAddress(addressId);
+    if (!mounted) {
+      return;
+    }
+
+    setState(() => _isDeletingAddress = false);
+
+    if (success) {
+      if (wasSelected) {
+        ref.read(bookingProvider.notifier).clearSelectedAddress();
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Address deleted')));
+      return;
+    }
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Failed to delete address')));
   }
 }

@@ -17,6 +17,7 @@ final pickupBoyRepositoryProvider = Provider<PickupBoyRepository>((ref) {
 class PickupBoyState {
   final PickupBoyDashboard? dashboard;
   final List<PickupAssignment> assignments;
+  final String period;
   final bool isLoading;
   final bool isActionLoading;
   final String? error;
@@ -24,6 +25,7 @@ class PickupBoyState {
   const PickupBoyState({
     this.dashboard,
     this.assignments = const [],
+    this.period = 'overall',
     this.isLoading = false,
     this.isActionLoading = false,
     this.error,
@@ -32,6 +34,7 @@ class PickupBoyState {
   PickupBoyState copyWith({
     PickupBoyDashboard? dashboard,
     List<PickupAssignment>? assignments,
+    String? period,
     bool? isLoading,
     bool? isActionLoading,
     String? error,
@@ -40,6 +43,7 @@ class PickupBoyState {
     return PickupBoyState(
       dashboard: dashboard ?? this.dashboard,
       assignments: assignments ?? this.assignments,
+      period: period ?? this.period,
       isLoading: isLoading ?? this.isLoading,
       isActionLoading: isActionLoading ?? this.isActionLoading,
       error: clearError ? null : (error ?? this.error),
@@ -53,21 +57,34 @@ class PickupBoyNotifier extends StateNotifier<PickupBoyState> {
 
   PickupBoyNotifier(this._repository) : super(const PickupBoyState());
 
-  Future<void> loadDashboard() async {
+  Future<void> loadDashboard({String? period}) async {
+    final selectedPeriod = period ?? state.period;
     state = state.copyWith(isLoading: true, clearError: true);
-    final result = await _repository.getDashboard();
+    final result = await _repository.getDashboard(period: selectedPeriod);
     if (result.isSuccess) {
-      state = state.copyWith(dashboard: result.data, isLoading: false);
+      state = state.copyWith(
+        dashboard: result.data,
+        period: selectedPeriod,
+        isLoading: false,
+      );
     } else {
       state = state.copyWith(isLoading: false, error: result.errorMessage);
     }
   }
 
-  Future<void> loadAssignments({String? status}) async {
+  Future<void> loadAssignments({String? status, String? period}) async {
+    final selectedPeriod = period ?? state.period;
     state = state.copyWith(isLoading: true, clearError: true);
-    final result = await _repository.getAssignments(status: status);
+    final result = await _repository.getAssignments(
+      status: status,
+      period: selectedPeriod,
+    );
     if (result.isSuccess) {
-      state = state.copyWith(assignments: result.data ?? [], isLoading: false);
+      state = state.copyWith(
+        assignments: result.data ?? [],
+        period: selectedPeriod,
+        isLoading: false,
+      );
     } else {
       state = state.copyWith(isLoading: false, error: result.errorMessage);
     }
@@ -155,6 +172,7 @@ class PickupBoyNotifier extends StateNotifier<PickupBoyState> {
                 isOnline: isOnline,
                 isAvailable: state.dashboard!.pickupBoy!.isAvailable,
               ),
+        summary: state.dashboard!.summary,
         pendingCount: state.dashboard!.pendingCount,
         completedCount: state.dashboard!.completedCount,
         isOnline: isOnline,
@@ -169,6 +187,14 @@ class PickupBoyNotifier extends StateNotifier<PickupBoyState> {
   }
 
   void clearError() => state = state.copyWith(clearError: true);
+
+  Future<void> setPeriod({
+    required String period,
+    required String assignmentStatus,
+  }) async {
+    await loadDashboard(period: period);
+    await loadAssignments(status: assignmentStatus, period: period);
+  }
 }
 
 // Provider

@@ -30,24 +30,37 @@ class PickupBoyInfo {
 }
 
 class PickupBoySummary {
+  final String period;
+  final int totalPickups;
+  final int assignedCount;
   final int pendingCount;
   final int completedCount;
+  final int rejectedCount;
 
   const PickupBoySummary({
+    required this.period,
+    required this.totalPickups,
+    required this.assignedCount,
     required this.pendingCount,
     required this.completedCount,
+    required this.rejectedCount,
   });
 
   factory PickupBoySummary.fromJson(Map<String, dynamic> json) {
     return PickupBoySummary(
+      period: json['period']?.toString() ?? 'today',
+      totalPickups: _asInt(json['total_pickups']),
+      assignedCount: _asInt(json['assigned_count']),
       pendingCount: json['pending_count'] ?? 0,
       completedCount: json['completed_count'] ?? 0,
+      rejectedCount: _asInt(json['rejected_count']),
     );
   }
 }
 
 class PickupBoyDashboard {
   final PickupBoyInfo? pickupBoy;
+  final PickupBoySummary summary;
   final int pendingCount;
   final int completedCount;
   final bool isOnline;
@@ -56,6 +69,7 @@ class PickupBoyDashboard {
 
   const PickupBoyDashboard({
     this.pickupBoy,
+    required this.summary,
     required this.pendingCount,
     required this.completedCount,
     required this.isOnline,
@@ -65,7 +79,7 @@ class PickupBoyDashboard {
 
   factory PickupBoyDashboard.fromJson(Map<String, dynamic> json) {
     final data = json['data'] ?? json;
-    final summary = data['summary'] as Map<String, dynamic>?;
+    final summaryJson = data['summary'] as Map<String, dynamic>? ?? const {};
     final pickupBoyJson = data['pickup_boy'] as Map<String, dynamic>?;
     final currentTaskJson = data['current_task'] as Map<String, dynamic>?;
     final upcomingRouteJson = data['upcoming_route'] as List<dynamic>? ?? [];
@@ -74,9 +88,11 @@ class PickupBoyDashboard {
       pickupBoy: pickupBoyJson != null
           ? PickupBoyInfo.fromJson(pickupBoyJson)
           : null,
-      pendingCount: summary?['pending_count'] ?? data['pending_count'] ?? 0,
+      summary: PickupBoySummary.fromJson(summaryJson),
+      pendingCount:
+          summaryJson['pending_count'] ?? data['pending_count'] ?? 0,
       completedCount:
-          summary?['completed_count'] ?? data['completed_count'] ?? 0,
+          summaryJson['completed_count'] ?? data['completed_count'] ?? 0,
       isOnline:
           _asBool(pickupBoyJson?['is_online']) ||
           _asBool(data['is_online']) ||
@@ -101,4 +117,10 @@ bool _asBool(dynamic value) {
       normalized == 'online' ||
       normalized == 'available' ||
       normalized == 'yes';
+}
+
+int _asInt(dynamic value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '') ?? 0;
 }

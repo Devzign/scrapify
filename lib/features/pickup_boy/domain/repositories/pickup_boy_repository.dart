@@ -11,8 +11,13 @@ class PickupBoyRepository {
 
   PickupBoyRepository(this._apiClient);
 
-  Future<ApiResponse<PickupBoyDashboard>> getDashboard() async {
-    final response = await _apiClient.get('/pickup-boy/dashboard');
+  Future<ApiResponse<PickupBoyDashboard>> getDashboard({String? period}) async {
+    final response = await _apiClient.get(
+      '/pickup-boy/dashboard',
+      queryParameters: {
+        if (period != null && period.trim().isNotEmpty) 'period': period,
+      },
+    );
     if (response.isSuccess) {
       try {
         return ApiResponse.success(PickupBoyDashboard.fromJson(response.data));
@@ -23,9 +28,15 @@ class PickupBoyRepository {
     return ApiResponse.error(response.errorMessage ?? 'Failed to load dashboard');
   }
 
-  Future<ApiResponse<List<PickupAssignment>>> getAssignments({String? status}) async {
+  Future<ApiResponse<List<PickupAssignment>>> getAssignments({
+    String? status,
+    String? period,
+  }) async {
     final queryParams = <String, dynamic>{};
     if (status != null) queryParams['status'] = status;
+    if (period != null && period.trim().isNotEmpty) {
+      queryParams['period'] = period;
+    }
 
     final response = await _apiClient.get(
       '/pickup-boy/assignments',

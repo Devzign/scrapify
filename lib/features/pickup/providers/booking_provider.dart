@@ -94,6 +94,23 @@ class BookingNotifier extends Notifier<BookingState> {
     state = state.copyWith(selectedAddress: address);
   }
 
+  void clearSelectedAddress() {
+    state = BookingState(
+      requestType: state.requestType,
+      donationCategory: state.donationCategory,
+      selectedDate: state.selectedDate,
+      selectedTimeSlot: state.selectedTimeSlot,
+      payoutMethod: state.payoutMethod,
+      selectedPaymentDetail: state.selectedPaymentDetail,
+      appliedCouponCode: state.appliedCouponCode,
+      appliedCoupon: state.appliedCoupon,
+      categoryImages: state.categoryImages,
+      imageGeoByPath: state.imageGeoByPath,
+      isSubmitting: state.isSubmitting,
+      error: state.error,
+    );
+  }
+
   void startScrapFlow() {
     state = BookingState(
       requestType: 'scrap',

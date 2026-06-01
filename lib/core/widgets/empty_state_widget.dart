@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 
-/// Empty state widget for when no data is available.
-/// Shows icon, title, subtitle, and optional action button.
 class EmptyStateWidget extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -14,14 +11,14 @@ class EmptyStateWidget extends StatelessWidget {
   final Color? iconColor;
 
   const EmptyStateWidget({
-    Key? key,
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,
     this.actionLabel,
     this.onAction,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

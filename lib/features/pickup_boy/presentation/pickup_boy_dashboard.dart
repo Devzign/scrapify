@@ -24,17 +24,23 @@ class PickupBoyDashboard extends ConsumerStatefulWidget {
   ConsumerState<PickupBoyDashboard> createState() => _PickupBoyDashboardState();
 }
 
-class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
-    with SingleTickerProviderStateMixin {
+class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  int _periodIndex = 2;
+  bool _summaryExpanded = true;
+
+  static const List<String> _periodValues = ['today', 'month', 'overall'];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     Future.microtask(() {
-      ref.read(pickupBoyProvider.notifier).loadDashboard();
-      ref.read(pickupBoyProvider.notifier).loadAssignments();
+      final defaultPeriod = _periodValues[_periodIndex];
+      ref.read(pickupBoyProvider.notifier).loadDashboard(period: defaultPeriod);
+      ref
+          .read(pickupBoyProvider.notifier)
+          .loadAssignments(period: defaultPeriod);
     });
   }
 
@@ -60,34 +66,39 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
       ),
       body: Column(
         children: [
-          if (state.dashboard != null) _buildModernSummaryCards(state.dashboard!),
+          _buildSummarySection(state),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
             child: AppCard(
-              padding: const EdgeInsets.all(6),
-              child: TabBar(
-                controller: _tabController,
-                onTap: (index) {
-                  final status = index == 0 ? 'active' : 'completed';
-                  ref.read(pickupBoyProvider.notifier).loadAssignments(status: status);
-                },
-                indicator: BoxDecoration(
-                  color: AppTheme.primaryColor,
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+              padding: const EdgeInsets.all(4),
+              child: SizedBox(
+                height: 48,
+                child: TabBar(
+                  controller: _tabController,
+                  onTap: (index) {
+                    final status = index == 0 ? 'active' : 'completed';
+                    ref
+                        .read(pickupBoyProvider.notifier)
+                        .loadAssignments(status: status, period: state.period);
+                  },
+                  indicator: BoxDecoration(
+                    color: AppTheme.primaryColor,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  dividerColor: Colors.transparent,
+                  labelColor: Colors.white,
+                  unselectedLabelColor: AppTheme.textSecondary,
+                  labelStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
+                  tabs: [
+                    Tab(text: 'pickup_partner_dashboard.pending'.tr()),
+                    const Tab(text: 'Completed'),
+                  ],
                 ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                labelColor: Colors.white,
-                unselectedLabelColor: AppTheme.textSecondary,
-                labelStyle: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.2,
-                ),
-                tabs: [
-                  Tab(text: 'pickup_partner_dashboard.pending'.tr()),
-                  Tab(text: 'pickup_partner_dashboard.completed_today'.tr()),
-                ],
               ),
             ),
           ),
@@ -143,7 +154,55 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
     );
   }
 
-  /// Modern app bar with gradient
+  Widget _buildSummarySection(PickupBoyState state) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () => setState(() => _summaryExpanded = !_summaryExpanded),
+            borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+            child: AppCard(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.analytics_rounded,
+                    color: AppColor.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      'Dashboard Summary',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: AppColor.textPrimary,
+                      ),
+                    ),
+                  ),
+                  Icon(
+                    _summaryExpanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: AppColor.textSecondary,
+                    size: 22,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_summaryExpanded) ...[
+            if (state.dashboard != null)
+              _buildModernSummaryCards(state.dashboard!),
+            _buildPeriodSelector(state),
+          ],
+        ],
+      ),
+    );
+  }
+
   AppBar _buildModernAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
@@ -195,40 +254,124 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
     );
   }
 
-  /// Modern summary cards
   Widget _buildModernSummaryCards(dynamic dashboard) {
-    final pending = dashboard.pendingCount ?? 0;
-    final completed = dashboard.completedCount ?? 0;
+    final summary = dashboard.summary;
+    final pending = summary.pendingCount;
+    final completed = summary.completedCount;
+    final total = summary.totalPickups;
+    final assigned = summary.assignedCount;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppTheme.space12,
-        vertical: AppTheme.space12,
-      ),
-      child: Row(
+      padding: const EdgeInsets.symmetric(vertical: AppTheme.space12),
+      child: Column(
         children: [
-          Expanded(
-            child: DashboardStatCard(
-              label: 'pickup_partner_dashboard.pending'.tr(),
-              value: '$pending',
-              icon: Icons.schedule_rounded,
-              iconColor: AppColor.warning,
-              valueColor: AppColor.warning,
-              backgroundColor: AppColor.surface,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: DashboardStatCard(
+                  label: 'Total Pickups',
+                  value: '$total',
+                  icon: Icons.inventory_2_rounded,
+                  iconColor: AppColor.info,
+                  valueColor: AppColor.info,
+                  backgroundColor: AppColor.surface,
+                ),
+              ),
+              const SizedBox(width: AppTheme.space12),
+              Expanded(
+                child: DashboardStatCard(
+                  label: 'Assigned',
+                  value: '$assigned',
+                  icon: Icons.assignment_turned_in_rounded,
+                  iconColor: AppColor.primary,
+                  valueColor: AppColor.primary,
+                  backgroundColor: AppColor.surface,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: AppTheme.space12),
-          Expanded(
-            child: DashboardStatCard(
-              label: 'pickup_partner_dashboard.completed_today'.tr(),
-              value: '$completed',
-              icon: Icons.check_circle_rounded,
-              iconColor: AppColor.success,
-              valueColor: AppColor.success,
-              backgroundColor: AppColor.surface,
-            ),
+          const SizedBox(height: AppTheme.space12),
+          Row(
+            children: [
+              Expanded(
+                child: DashboardStatCard(
+                  label: 'pickup_partner_dashboard.pending'.tr(),
+                  value: '$pending',
+                  icon: Icons.schedule_rounded,
+                  iconColor: AppColor.warning,
+                  valueColor: AppColor.warning,
+                  backgroundColor: AppColor.surface,
+                ),
+              ),
+              const SizedBox(width: AppTheme.space12),
+              Expanded(
+                child: DashboardStatCard(
+                  label: 'Completed',
+                  value: '$completed',
+                  icon: Icons.check_circle_rounded,
+                  iconColor: AppColor.success,
+                  valueColor: AppColor.success,
+                  backgroundColor: AppColor.surface,
+                ),
+              ),
+            ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPeriodSelector(PickupBoyState state) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+      child: AppCard(
+        padding: const EdgeInsets.all(6),
+        child: Row(
+          children: List.generate(3, (index) {
+            final selected = _periodIndex == index;
+            String label;
+            if (index == 0) {
+              label = 'Today';
+            } else if (index == 1) {
+              label = 'This Month';
+            } else {
+              label = 'Overall';
+            }
+            return Expanded(
+              child: GestureDetector(
+                onTap: () async {
+                  if (_periodIndex == index) return;
+                  setState(() => _periodIndex = index);
+                  final assignmentStatus =
+                      _tabController.index == 0 ? 'active' : 'completed';
+                  await ref.read(pickupBoyProvider.notifier).setPeriod(
+                    period: _periodValues[index],
+                    assignmentStatus: assignmentStatus,
+                  );
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? AppTheme.primaryColor
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                  ),
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: selected ? Colors.white : AppTheme.textSecondary,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }
@@ -282,7 +425,7 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 140),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       itemCount: assignments.length,
       itemBuilder: (context, index) {
         final assignment = assignments[index];
@@ -291,7 +434,6 @@ class _PickupBoyDashboardState extends ConsumerState<PickupBoyDashboard>
     );
   }
 
-  /// Modern pickup card with CTAs
   Widget _buildModernAssignmentCard(
     BuildContext context,
     PickupAssignment assignment,

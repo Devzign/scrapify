@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import 'dashboard_stat_card.dart';
 
-/// Responsive metric grid for displaying dashboard statistics.
-/// Automatically adjusts columns based on screen width.
 class MetricGrid extends StatelessWidget {
   final List<DashboardStatCard> metrics;
   final int? columns;
@@ -11,12 +9,12 @@ class MetricGrid extends StatelessWidget {
   final EdgeInsets? padding;
 
   const MetricGrid({
-    Key? key,
+    super.key,
     required this.metrics,
     this.columns,
     this.spacing,
     this.padding,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,18 +41,17 @@ class MetricGrid extends StatelessWidget {
   }
 }
 
-/// Single-row metric group for displaying 2-4 metrics.
 class MetricRow extends StatelessWidget {
   final List<DashboardStatCard> metrics;
   final EdgeInsets? padding;
   final double? spacing;
 
   const MetricRow({
-    Key? key,
+    super.key,
     required this.metrics,
     this.padding,
     this.spacing,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

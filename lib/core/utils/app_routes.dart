@@ -283,7 +283,19 @@ class AppRoutes {
           path: '$pickupTracking/:pickupId',
           builder: (context, state) {
             final pickupId = int.parse(state.pathParameters['pickupId']!);
-            return PickupTrackingScreen(pickupId: pickupId);
+            PickupRequestModel? initialPickup;
+            if (state.extra is PickupRequestModel) {
+              initialPickup = state.extra as PickupRequestModel;
+            } else if (state.extra is Map<String, dynamic>) {
+              final extra = state.extra as Map<String, dynamic>;
+              if (extra['pickup'] is PickupRequestModel) {
+                initialPickup = extra['pickup'] as PickupRequestModel;
+              }
+            }
+            return PickupTrackingScreen(
+              pickupId: pickupId,
+              initialPickup: initialPickup,
+            );
           },
         ),
         GoRoute(

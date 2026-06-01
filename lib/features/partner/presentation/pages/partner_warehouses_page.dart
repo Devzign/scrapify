@@ -430,37 +430,6 @@ class _PartnerWarehousesPageState extends ConsumerState<PartnerWarehousesPage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColor.primary,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    context.partnerText('Manage Hub', 'हब प्रबंधित करें'),
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(Icons.chevron_right, size: 16, color: Colors.white),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );

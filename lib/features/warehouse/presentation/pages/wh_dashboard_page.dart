@@ -554,7 +554,6 @@ class _WhDashboardPageState extends ConsumerState<WhDashboardPage> {
     );
   }
 
-  /// Pickup boys status section
   Widget _buildPickupBoysSection(WarehouseDashboard d) {
     return Padding(
       padding: const EdgeInsets.symmetric(

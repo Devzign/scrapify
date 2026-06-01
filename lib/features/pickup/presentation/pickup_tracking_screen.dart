@@ -14,8 +14,13 @@ import 'widgets/pickup_price_summary.dart';
 
 class PickupTrackingScreen extends ConsumerStatefulWidget {
   final int pickupId;
+  final PickupRequestModel? initialPickup;
 
-  const PickupTrackingScreen({super.key, required this.pickupId});
+  const PickupTrackingScreen({
+    super.key,
+    required this.pickupId,
+    this.initialPickup,
+  });
 
   @override
   ConsumerState<PickupTrackingScreen> createState() =>
@@ -29,6 +34,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
   Widget build(BuildContext context) {
     final trackingAsync = ref.watch(trackingProvider(widget.pickupId));
     final detailAsync = ref.watch(pickupDetailProvider(widget.pickupId));
+    final preferredDetail = widget.initialPickup ?? detailAsync.asData?.value;
 
     return Scaffold(
       backgroundColor: AppColor.backgroundLight,
@@ -67,7 +73,7 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
           },
         ),
         title: Text(
-          'Track Pickup #OD-${widget.pickupId}',
+          'Track Pickup ${preferredDetail?.pickupCode.isNotEmpty == true ? preferredDetail!.pickupCode : '#OD-${widget.pickupId}'}',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
@@ -79,17 +85,16 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
       ),
       body: trackingAsync.when(
         data: (tracking) {
-          final pickupDetail = detailAsync.asData?.value;
           final mapLocation = _resolveMapLocation(
-            detail: pickupDetail,
+            detail: preferredDetail,
             tracking: tracking,
           );
           _updateMarkers(
             latitude: mapLocation?.latitude,
             longitude: mapLocation?.longitude,
-            pickupCode: pickupDetail?.pickupCode ?? tracking.pickupCode,
+            pickupCode: preferredDetail?.pickupCode ?? tracking.pickupCode,
           );
-          return _buildBody(context, tracking, pickupDetail, mapLocation);
+          return _buildBody(context, tracking, preferredDetail, mapLocation);
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(
@@ -130,6 +135,12 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
     _MapLocation? mapLocation,
   ) {
     final statusLabel = _formatStatusLabel(tracking.status);
+    final statusConfig = _buildStatusConfig(
+      tracking.status,
+      tracking.scheduledAt,
+      pickupDetail,
+    );
+    final timelineSteps = _buildTimelineSteps(tracking, pickupDetail);
 
     return Column(
       children: [
@@ -223,62 +234,35 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: Column(
                 children: [
-                  const Text(
-                    'Collection in Progress',
-                    style: TextStyle(
+                  Text(
+                    statusConfig.title,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
                       color: AppTheme.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Estimated arrival: 15-20 mins',
-                    style: TextStyle(
+                  Text(
+                    statusConfig.subtitle,
+                    style: const TextStyle(
                       fontSize: 16,
                       color: AppTheme.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 32),
-
-                  // Dynamic Timeline
-                  ...List.generate(3, (index) {
-                    // Mapping statuses to timeline steps for visualization
-                    // Step 0: Request Sent (Completed)
-                    // Step 1: Agent Assigned (Active/Assigned)
-                    // Step 2: Pickup in Progress (Next)
-
-                    if (index == 0) {
-                      return _buildTimelineStep(
-                        title: 'Request Sent',
-                        subtitle: 'Today, 10:00 AM',
-                        isCompleted: true,
-                        isActive: false,
-                        isLast: false,
-                      );
-                    } else if (index == 1) {
-                      return _buildTimelineStep(
-                        title: 'Agent Assigned',
-                        subtitle: tracking.agent != null
-                            ? '${tracking.agent!.name} is on the way'
-                            : 'Assigning pickup agent...',
-                        isCompleted: false,
-                        isActive: true,
-                        isLast: false,
-                        child: tracking.agent != null
-                            ? _buildAgentCard(tracking.agent!)
-                            : null,
-                      );
-                    } else {
-                      return _buildTimelineStep(
-                        title: 'Pickup in Progress',
-                        subtitle: 'Pending arrival',
-                        isCompleted: false,
-                        isActive: false,
-                        isLast: true,
-                      );
-                    }
+                  ...timelineSteps.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final step = entry.value;
+                    return _buildTimelineStep(
+                      title: step.title,
+                      subtitle: step.subtitle,
+                      isCompleted: step.isCompleted,
+                      isActive: step.isActive,
+                      isLast: index == timelineSteps.length - 1,
+                      child: step.child,
+                    );
                   }),
 
                   const SizedBox(height: 24),
@@ -288,6 +272,13 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
                       padding: const EdgeInsets.only(bottom: 16),
                       child: PickupPriceSummary(pickup: pickupDetail),
                     ),
+
+                  if (pickupDetail != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: _buildPaymentStatusCard(pickupDetail),
+                    ),
+                  ],
 
                   if (pickupDetail != null) ...[
                     const SizedBox(height: 8),
@@ -639,6 +630,103 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
     );
   }
 
+  Widget _buildPaymentStatusCard(PickupRequestModel pickup) {
+    final isPaid = pickup.paymentCompleted;
+    final statusLabel = isPaid ? 'Payment Completed' : 'Payment Pending';
+    final subtitle = isPaid
+        ? (pickup.paidAt != null
+              ? 'Paid on ${_formatDateTime(pickup.paidAt!)}'
+              : 'Payout has been marked as paid.')
+        : (pickup.status.toLowerCase() == 'completed'
+              ? 'Pickup is completed, but payment is not marked as paid yet.'
+              : 'Payment will be updated after pickup completion.');
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.hairline),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: isPaid
+                  ? AppTheme.primarySurface
+                  : AppTheme.backgroundCream,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isPaid ? Icons.check_circle : Icons.schedule_rounded,
+              color: isPaid ? AppTheme.primaryColor : AppTheme.warningColor,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Payment Status',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppTheme.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  statusLabel,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: isPaid
+                        ? AppTheme.primaryColor
+                        : AppTheme.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (pickup.payoutStatus != null && pickup.payoutStatus!.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: isPaid
+                    ? AppTheme.primarySurface
+                    : AppTheme.backgroundCream,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                _formatStatusLabel(pickup.payoutStatus!),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w800,
+                  color: isPaid
+                      ? AppTheme.primaryColor
+                      : AppTheme.textSecondary,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildImagesSection(List<PickupImageModel> images) {
     return Container(
       width: double.infinity,
@@ -738,6 +826,203 @@ class _PickupTrackingScreenState extends ConsumerState<PickupTrackingScreen> {
     return status[0].toUpperCase() + status.substring(1).toLowerCase();
   }
 
+  _TrackingStatusConfig _buildStatusConfig(
+    String status,
+    DateTime? scheduledAt,
+    PickupRequestModel? pickupDetail,
+  ) {
+    final normalized = status.toLowerCase();
+    switch (normalized) {
+      case 'completed':
+        return _TrackingStatusConfig(
+          title: 'Pickup Completed',
+          subtitle: pickupDetail?.finalAmount != null
+              ? 'Final payout has been confirmed.'
+              : 'This pickup has been completed successfully.',
+        );
+      case 'cancelled':
+      case 'cancelled_by_user':
+      case 'failed':
+        return const _TrackingStatusConfig(
+          title: 'Pickup Closed',
+          subtitle: 'This pickup is no longer active.',
+        );
+      case 'assigned':
+      case 'accepted':
+        return const _TrackingStatusConfig(
+          title: 'Agent Assigned',
+          subtitle: 'Your pickup partner is preparing to arrive.',
+        );
+      case 'in_progress':
+      case 'pickup_in_progress':
+      case 'arrived':
+        return const _TrackingStatusConfig(
+          title: 'Pickup in Progress',
+          subtitle: 'Collection is currently underway.',
+        );
+      default:
+        return _TrackingStatusConfig(
+          title: 'Collection in Progress',
+          subtitle: scheduledAt != null
+              ? 'Scheduled for ${_formatDateTime(scheduledAt)}'
+              : 'Estimated arrival: 15-20 mins',
+        );
+    }
+  }
+
+  List<_TrackingStepViewModel> _buildTimelineSteps(
+    TrackingTimelineModel tracking,
+    PickupRequestModel? pickupDetail,
+  ) {
+    final normalized = tracking.status.toLowerCase();
+    final createdAt = pickupDetail?.createdAt;
+    final completionTime = pickupDetail?.priceLockedAt ?? tracking.scheduledAt;
+    final requestSubtitle = createdAt != null
+        ? _formatDateTime(createdAt)
+        : 'Pickup request created';
+
+    final agentSubtitle = tracking.agent != null
+        ? '${tracking.agent!.name} is on the way'
+        : 'Assigning pickup agent...';
+
+    if (normalized == 'completed') {
+      return [
+        _TrackingStepViewModel(
+          title: 'Request Sent',
+          subtitle: requestSubtitle,
+          isCompleted: true,
+        ),
+        _TrackingStepViewModel(
+          title: 'Agent Assigned',
+          subtitle: tracking.agent != null
+              ? '${tracking.agent!.name} handled this pickup'
+              : 'Pickup agent assigned',
+          isCompleted: true,
+          child: tracking.agent != null
+              ? _buildAgentCard(tracking.agent!)
+              : null,
+        ),
+        _TrackingStepViewModel(
+          title: 'Pickup Completed',
+          subtitle: completionTime != null
+              ? _formatDateTime(completionTime)
+              : 'Completed successfully',
+          isCompleted: true,
+        ),
+        _TrackingStepViewModel(
+          title: pickupDetail?.paymentCompleted == true
+              ? 'Payment Completed'
+              : 'Payment Pending',
+          subtitle: pickupDetail?.paymentCompleted == true
+              ? (pickupDetail?.paidAt != null
+                    ? _formatDateTime(pickupDetail!.paidAt!)
+                    : 'Payout marked as paid')
+              : 'Pickup is completed, but payment is not marked as paid yet.',
+          isCompleted: pickupDetail?.paymentCompleted == true,
+          isActive: pickupDetail?.paymentCompleted != true,
+        ),
+      ];
+    }
+
+    if (normalized == 'assigned' || normalized == 'accepted') {
+      return [
+        _TrackingStepViewModel(
+          title: 'Request Sent',
+          subtitle: requestSubtitle,
+          isCompleted: true,
+        ),
+        _TrackingStepViewModel(
+          title: 'Agent Assigned',
+          subtitle: agentSubtitle,
+          isActive: true,
+          child: tracking.agent != null
+              ? _buildAgentCard(tracking.agent!)
+              : null,
+        ),
+        const _TrackingStepViewModel(
+          title: 'Pickup in Progress',
+          subtitle: 'Pending arrival',
+        ),
+      ];
+    }
+
+    if (normalized == 'in_progress' ||
+        normalized == 'pickup_in_progress' ||
+        normalized == 'arrived') {
+      return [
+        _TrackingStepViewModel(
+          title: 'Request Sent',
+          subtitle: requestSubtitle,
+          isCompleted: true,
+        ),
+        _TrackingStepViewModel(
+          title: 'Agent Assigned',
+          subtitle: agentSubtitle,
+          isCompleted: true,
+          child: tracking.agent != null
+              ? _buildAgentCard(tracking.agent!)
+              : null,
+        ),
+        const _TrackingStepViewModel(
+          title: 'Pickup in Progress',
+          subtitle: 'Collection is underway',
+          isActive: true,
+        ),
+      ];
+    }
+
+    return [
+      _TrackingStepViewModel(
+        title: 'Request Sent',
+        subtitle: requestSubtitle,
+        isActive: normalized == 'pending' || normalized.isEmpty,
+        isCompleted: normalized != 'pending' && normalized.isNotEmpty,
+      ),
+      _TrackingStepViewModel(
+        title: 'Agent Assigned',
+        subtitle: agentSubtitle,
+        child: tracking.agent != null ? _buildAgentCard(tracking.agent!) : null,
+      ),
+      const _TrackingStepViewModel(
+        title: 'Pickup in Progress',
+        subtitle: 'Pending arrival',
+      ),
+    ];
+  }
+
+  String _formatDateTime(DateTime value) {
+    final local = value.toLocal();
+    final hour = local.hour % 12 == 0 ? 12 : local.hour % 12;
+    final minute = local.minute.toString().padLeft(2, '0');
+    final meridian = local.hour >= 12 ? 'PM' : 'AM';
+    final weekday = _weekdayName(local.weekday);
+    final month = _monthName(local.month);
+    return '$weekday, $month ${local.day}, $hour:$minute $meridian';
+  }
+
+  String _weekdayName(int weekday) {
+    const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return names[(weekday - 1).clamp(0, 6)];
+  }
+
+  String _monthName(int month) {
+    const names = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return names[(month - 1).clamp(0, 11)];
+  }
+
   bool _canReschedule(String status) {
     switch (status.toLowerCase()) {
       case 'completed':
@@ -769,4 +1054,27 @@ class _MapLocation {
   final double longitude;
 
   const _MapLocation(this.latitude, this.longitude);
+}
+
+class _TrackingStatusConfig {
+  final String title;
+  final String subtitle;
+
+  const _TrackingStatusConfig({required this.title, required this.subtitle});
+}
+
+class _TrackingStepViewModel {
+  final String title;
+  final String subtitle;
+  final bool isCompleted;
+  final bool isActive;
+  final Widget? child;
+
+  const _TrackingStepViewModel({
+    required this.title,
+    required this.subtitle,
+    this.isCompleted = false,
+    this.isActive = false,
+    this.child,
+  });
 }

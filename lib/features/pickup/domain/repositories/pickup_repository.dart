@@ -299,17 +299,100 @@ class PickupRepository {
       },
     );
 
-    final merged =
-        <PickupRequestModel>[
-          ...?pickupsResponse.data,
-          ...?corporateResponse.data,
-        ]..sort((a, b) {
-          final aDate = a.createdAt ?? a.scheduledAt;
-          final bDate = b.createdAt ?? b.scheduledAt;
-          return bDate.compareTo(aDate);
-        });
+    final merged = _mergeAndSortUniqueById(
+      <PickupRequestModel>[
+        ...?pickupsResponse.data,
+        ...?corporateResponse.data,
+      ],
+    );
 
     return ApiResponse.success(merged, statusCode: pickupsResponse.statusCode);
+  }
+
+  Future<ApiResponse<List<PickupRequestModel>>> fetchPickupsByType(
+    String requestType,
+  ) async {
+    final normalizedType = requestType.trim().toLowerCase();
+
+    if (normalizedType == 'corporate') {
+      final corporateResponse = await _dioClient.get<List<PickupRequestModel>>(
+        ApiEndpoints.corporateBookings,
+        parser: (json) {
+          final data = json['data'];
+          final List<dynamic> list;
+
+          if (data is List<dynamic>) {
+            list = data;
+          } else if (data is Map<String, dynamic>) {
+            list = data['items'] as List<dynamic>? ?? const [];
+          } else {
+            list = const [];
+          }
+
+          return list.map((e) {
+            final record = Map<String, dynamic>.from(e as Map);
+            record['request_type'] = 'corporate';
+            return PickupRequestModel.fromJson(record);
+          }).toList();
+        },
+      );
+
+      if (!corporateResponse.isSuccess) return corporateResponse;
+      final uniqueSorted = _mergeAndSortUniqueById(corporateResponse.data ?? []);
+      return ApiResponse.success(
+        uniqueSorted,
+        statusCode: corporateResponse.statusCode,
+      );
+    }
+
+    final pickupsResponse = await _dioClient.get<List<PickupRequestModel>>(
+      ApiEndpoints.pickupRequests,
+      parser: (json) {
+        final data = json['data'];
+        final List<dynamic> list;
+
+        if (data is List<dynamic>) {
+          list = data;
+        } else if (data is Map<String, dynamic>) {
+          list = data['items'] as List<dynamic>? ?? const [];
+        } else {
+          throw const FormatException('Unexpected pickup list response shape');
+        }
+
+        return list
+            .map((e) => PickupRequestModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      },
+    );
+
+    if (!pickupsResponse.isSuccess) return pickupsResponse;
+
+    final filtered = (pickupsResponse.data ?? [])
+        .where((pickup) => pickup.requestType == normalizedType)
+        .toList();
+
+    final uniqueSorted = _mergeAndSortUniqueById(filtered);
+    return ApiResponse.success(
+      uniqueSorted,
+      statusCode: pickupsResponse.statusCode,
+    );
+  }
+
+  List<PickupRequestModel> _mergeAndSortUniqueById(
+    List<PickupRequestModel> records,
+  ) {
+    final byId = <int, PickupRequestModel>{};
+    for (final record in records) {
+      byId[record.id] = record;
+    }
+
+    final unique = byId.values.toList()
+      ..sort((a, b) {
+        final aDate = a.createdAt ?? a.scheduledAt;
+        final bDate = b.createdAt ?? b.scheduledAt;
+        return bDate.compareTo(aDate);
+      });
+    return unique;
   }
 
   Future<ApiResponse<PickupRequestModel>> fetchPickupById(int id) async {

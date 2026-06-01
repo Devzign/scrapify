@@ -12,6 +12,9 @@ class PickupRequestModel {
   final double? estimatedAmount;
   final double? finalAmount;
   final DateTime? priceLockedAt;
+  final String? payoutStatus;
+  final DateTime? paidAt;
+  final bool? isPaid;
   final String? couponCode;
   final double? couponDiscountValue;
   final String? customerName;
@@ -34,6 +37,9 @@ class PickupRequestModel {
     this.estimatedAmount,
     this.finalAmount,
     this.priceLockedAt,
+    this.payoutStatus,
+    this.paidAt,
+    this.isPaid,
     this.couponCode,
     this.couponDiscountValue,
     this.customerName,
@@ -47,6 +53,10 @@ class PickupRequestModel {
   bool get hasCoupon => couponCode != null && couponCode!.isNotEmpty;
   bool get isDonation => requestType == 'donation';
   bool get isCorporate => requestType == 'corporate';
+  bool get paymentCompleted =>
+      isPaid == true ||
+      (payoutStatus?.toLowerCase() == 'paid') ||
+      paidAt != null;
 
   factory PickupRequestModel.fromJson(Map<String, dynamic> json) {
     final inferredRequestType = _resolveRequestType(
@@ -87,6 +97,11 @@ class PickupRequestModel {
           _parseDouble(json['amount']),
       finalAmount: _parseDouble(json['final_amount']),
       priceLockedAt: _parseDateTime(json['price_locked_at']),
+      payoutStatus:
+          json['payout_status']?.toString() ??
+          json['payment_status']?.toString(),
+      paidAt: _parseDateTime(json['paid_at'] ?? json['payment_completed_at']),
+      isPaid: _parseBool(json['is_paid'] ?? json['payment_completed']),
       couponCode: json['coupon_code']?.toString(),
       couponDiscountValue: _parseDouble(json['coupon_discount_value']),
       customerName: json['customer_name']?.toString(),
@@ -130,6 +145,19 @@ class PickupRequestModel {
     } catch (_) {
       return null;
     }
+  }
+
+  static bool? _parseBool(dynamic value) {
+    if (value is bool) return value;
+    if (value == null) return null;
+    final normalized = value.toString().trim().toLowerCase();
+    if (normalized == '1' || normalized == 'true' || normalized == 'yes') {
+      return true;
+    }
+    if (normalized == '0' || normalized == 'false' || normalized == 'no') {
+      return false;
+    }
+    return null;
   }
 
   static String _resolveRequestType({String? explicit, String? pickupCode}) {

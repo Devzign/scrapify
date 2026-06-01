@@ -4,8 +4,6 @@ import '../theme/app_color.dart';
 import '../theme/app_theme.dart';
 import 'status_badge.dart';
 
-/// Modern pickup request card component.
-/// Displays customer info, address, items, time, status, and action buttons.
 class PickupCard extends StatelessWidget {
   final String? id;
   final String customerName;
@@ -19,7 +17,7 @@ class PickupCard extends StatelessWidget {
   final bool isCompact;
 
   const PickupCard({
-    Key? key,
+    super.key,
     this.id,
     required this.customerName,
     required this.address,
@@ -30,7 +28,7 @@ class PickupCard extends StatelessWidget {
     this.onTap,
     this.actions,
     this.isCompact = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

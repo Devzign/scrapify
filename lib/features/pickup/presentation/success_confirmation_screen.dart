@@ -446,7 +446,10 @@ class SuccessConfirmationScreen extends ConsumerWidget {
           ElevatedButton(
             onPressed: pickup == null
                 ? null
-                : () => context.go('${AppRoutes.pickupTracking}/${pickup!.id}'),
+                : () => context.go(
+                    '${AppRoutes.pickupTracking}/${pickup!.id}',
+                    extra: pickup,
+                  ),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.primaryColor,
               foregroundColor: Colors.white,

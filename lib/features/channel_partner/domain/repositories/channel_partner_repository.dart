@@ -139,6 +139,37 @@ class ChannelPartnerRepository {
     return ApiResponse.error(response.errorMessage ?? 'Failed to load customers');
   }
 
+  Future<ApiResponse<List<dynamic>>> getCategories() async {
+    final response = await _apiClient.get('/categories');
+    if (response.isSuccess) {
+      try {
+        final raw = response.data['data'];
+        final data = (raw is Map) ? (raw['items'] ?? []) : (raw ?? []);
+        return ApiResponse.success(data as List<dynamic>);
+      } catch (_) {
+        return ApiResponse.error('Failed to parse categories');
+      }
+    }
+    return ApiResponse.error(response.errorMessage ?? 'Failed to load categories');
+  }
+
+  Future<ApiResponse<List<dynamic>>> getSubcategories(int categoryId) async {
+    final response = await _apiClient.get(
+      '/subcategories',
+      queryParameters: {'category_id': categoryId},
+    );
+    if (response.isSuccess) {
+      try {
+        final raw = response.data['data'];
+        final data = (raw is Map) ? (raw['items'] ?? []) : (raw ?? []);
+        return ApiResponse.success(data as List<dynamic>);
+      } catch (_) {
+        return ApiResponse.error('Failed to parse subcategories');
+      }
+    }
+    return ApiResponse.error(response.errorMessage ?? 'Failed to load subcategories');
+  }
+
   Future<ApiResponse<Map<String, dynamic>>> createCustomer(
     Map<String, dynamic> payload,
   ) async {
